@@ -139,7 +139,7 @@ public class Controller extends Config {
 		return true;
 	}
 
-	public OssResponse checkPassword(String password) {
+	public CrxResponse checkPassword(String password) {
 		String[] program    = new String[1];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -150,9 +150,9 @@ public class Controller extends Config {
 			String[] error = reply.toString().split("##");
 			if( error.length > 1 ) {
 				parameters.add(error[1]);
-				return new OssResponse(this.getSession(),"ERROR", error[0], null, parameters );
+				return new CrxResponse(this.getSession(),"ERROR", error[0], null, parameters );
 			} else {
-				return new OssResponse(this.getSession(),"ERROR",reply.toString());
+				return new CrxResponse(this.getSession(),"ERROR",reply.toString());
 			}
 		}
 		return null;
@@ -272,10 +272,10 @@ public class Controller extends Config {
 		case "de.cranix.dao.HWConf":
 			neededRights.add("hwconf.add");
 			break;
-		case "de.cranix.dao.OSSConfig":
+		case "de.cranix.dao.CrxConfig":
 			neededRights.add("ossconfig.add");
 			break;
-		case "de.cranix.dao.OSSMConfig":
+		case "de.cranix.dao.CrxMConfig":
 			neededRights.add("ossmconfig.add");
 			break;
 		case "de.cranix.dao.Room":
@@ -370,13 +370,13 @@ public class Controller extends Config {
 			owner = HWConf.getCreator();
 			neededRights.add("hwconf.modify");
 			break;
-		case "de.cranix.dao.OSSConfig":
-			OSSConfig ossConfig = (OSSConfig)object;
+		case "de.cranix.dao.CrxConfig":
+			CrxConfig ossConfig = (CrxConfig)object;
 			owner = ossConfig.getCreator();
 			neededRights.add("ossconfig.modify");
 			break;
-		case "de.cranix.dao.OSSMConfig":
-			OSSMConfig ossMConfig = (OSSMConfig)object;
+		case "de.cranix.dao.CrxMConfig":
+			CrxMConfig ossMConfig = (CrxMConfig)object;
 			owner = ossMConfig.getCreator();
 			neededRights.add("ossmconfig.modify");
 			break;
@@ -495,13 +495,13 @@ public class Controller extends Config {
 			owner = HWConf.getCreator();
 			neededRights.add("hwconf.delete");
 			break;
-		case "de.cranix.dao.OSSConfig":
-			OSSConfig ossConfig = (OSSConfig)object;
+		case "de.cranix.dao.CrxConfig":
+			CrxConfig ossConfig = (CrxConfig)object;
 			owner = ossConfig.getCreator();
 			neededRights.add("ossconfig.delete");
 			break;
-		case "de.cranix.dao.OSSMConfig":
-			OSSMConfig ossMConfig = (OSSMConfig)object;
+		case "de.cranix.dao.CrxMConfig":
+			CrxMConfig ossMConfig = (CrxMConfig)object;
 			owner = ossMConfig.getCreator();
 			neededRights.add("ossmconfig.delete");
 			break;
@@ -657,9 +657,9 @@ public class Controller extends Config {
 		return  error.length() == 0;
 	}
 
-	public OSSMConfig getMConfigObject(Object object, String key, String value) {
+	public CrxMConfig getMConfigObject(Object object, String key, String value) {
 		Long id = null;
-		Query query = this.em.createNamedQuery("OSSMConfig.check");
+		Query query = this.em.createNamedQuery("CrxMConfig.check");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		query.setParameter("type","Group");
@@ -682,7 +682,7 @@ public class Controller extends Config {
 		if( query.getResultList().isEmpty() ) {
 			return null;
 		}
-		return (OSSMConfig) query.getResultList().get(0);
+		return (CrxMConfig) query.getResultList().get(0);
 	}
 
 	public boolean checkMConfig(Object object, String key, String value) {
@@ -692,9 +692,9 @@ public class Controller extends Config {
 		return true;
 	}
 
-	public OSSConfig getConfigObject(Object object, String key) {
+	public CrxConfig getConfigObject(Object object, String key) {
 		Long id = null;
-		Query query = this.em.createNamedQuery("OSSConfig.get");
+		Query query = this.em.createNamedQuery("CrxConfig.get");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		query.setParameter("type","Group");
@@ -717,7 +717,7 @@ public class Controller extends Config {
 		if( query.getResultList().isEmpty() ) {
 			return null;
 		}
-		return (OSSConfig) query.getResultList().get(0);
+		return (CrxConfig) query.getResultList().get(0);
 	}
 
 	/**
@@ -768,33 +768,33 @@ public class Controller extends Config {
 		return true;
 	}
 
-	public OSSConfig getConfig(String type, String key) {
-		OSSConfig     ossConfig = null;
-		Query query      = this.em.createNamedQuery("OSSConfig.getAllByKey");
+	public CrxConfig getConfig(String type, String key) {
+		CrxConfig     ossConfig = null;
+		Query query      = this.em.createNamedQuery("CrxConfig.getAllByKey");
 		query.setParameter("type",type).setParameter("keyword",key);
 		if( ! query.getResultList().isEmpty() ) {
-			ossConfig = (OSSConfig)  query.getResultList().get(0);
+			ossConfig = (CrxConfig)  query.getResultList().get(0);
 		}
 		return ossConfig;
 	}
 
-	public List<OSSMConfig> getMConfigs(String key) {
-		Query query = this.em.createNamedQuery("OSSMConfig.getAllForKey");
+	public List<CrxMConfig> getMConfigs(String key) {
+		Query query = this.em.createNamedQuery("CrxMConfig.getAllForKey");
 		query.setParameter("keyword",key);
-		List<OSSMConfig> ossMConfigs = (List<OSSMConfig>) query.getResultList();
+		List<CrxMConfig> ossMConfigs = (List<CrxMConfig>) query.getResultList();
 		return ossMConfigs;
 	}
 
-	public List<OSSMConfig> getMConfigs(String type, String key) {
-		Query query = this.em.createNamedQuery("OSSMConfig.getAllByKey");
+	public List<CrxMConfig> getMConfigs(String type, String key) {
+		Query query = this.em.createNamedQuery("CrxMConfig.getAllByKey");
 		query.setParameter("type",type).setParameter("keyword",key);
-		List<OSSMConfig> ossMConfigs = (List<OSSMConfig>) query.getResultList();
+		List<CrxMConfig> ossMConfigs = (List<CrxMConfig>) query.getResultList();
 		return ossMConfigs;
 	}
 
 	public List<String> getMConfigs(Object object, String key) {
 		Long id = null;
-		Query query = this.em.createNamedQuery("OSSMConfig.get");
+		Query query = this.em.createNamedQuery("CrxMConfig.get");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		query.setParameter("type","Group");
@@ -815,15 +815,15 @@ public class Controller extends Config {
 		}
 		query.setParameter("id", id).setParameter("keyword", key);
 		ArrayList<String> values = new ArrayList<String>();
-		for(OSSMConfig config : (List<OSSMConfig>) query.getResultList() ) {
+		for(CrxMConfig config : (List<CrxMConfig>) query.getResultList() ) {
 			values.add(config.getValue());
 		}
 		return values;
 	}
 
-	public List<OSSMConfig> getAllMConfig(Object object) {
+	public List<CrxMConfig> getAllMConfig(Object object) {
 		Long id = null;
-		Query query = this.em.createNamedQuery("OSSMConfig.getAllById");
+		Query query = this.em.createNamedQuery("CrxMConfig.getAllById");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		query.setParameter("type","Group");
@@ -843,12 +843,12 @@ public class Controller extends Config {
 			break;
 		}
 		query.setParameter("id", id);
-		return (List<OSSMConfig>) query.getResultList();
+		return (List<CrxMConfig>) query.getResultList();
 	}
 
-	public List<OSSMConfig> getMConfigObjects(Object object, String key) {
+	public List<CrxMConfig> getMConfigObjects(Object object, String key) {
 		Long id = null;
-		Query query = this.em.createNamedQuery("OSSMConfig.get");
+		Query query = this.em.createNamedQuery("CrxMConfig.get");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		query.setParameter("type","Group");
@@ -868,8 +868,8 @@ public class Controller extends Config {
 			break;
 		}
 		query.setParameter("id", id).setParameter("keyword", key);
-		ArrayList<OSSMConfig> values = new ArrayList<OSSMConfig>();
-		for(OSSMConfig config : (List<OSSMConfig>) query.getResultList() ) {
+		ArrayList<CrxMConfig> values = new ArrayList<CrxMConfig>();
+		for(CrxMConfig config : (List<CrxMConfig>) query.getResultList() ) {
 			values.add(config);
 		}
 		return values;
@@ -883,7 +883,7 @@ public class Controller extends Config {
 
 	public String getConfig(Object object, String key) {
 		Long id = null;
-		Query query = this.em.createNamedQuery("OSSConfig.get");
+		Query query = this.em.createNamedQuery("CrxConfig.get");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		query.setParameter("type","Group");
@@ -906,13 +906,13 @@ public class Controller extends Config {
 		if( query.getResultList().isEmpty() ) {
 			return null;
 		}
-		OSSConfig config = (OSSConfig) query.getResultList().get(0);
+		CrxConfig config = (CrxConfig) query.getResultList().get(0);
 		return config.getValue();
 	}
 
-	public List<OSSConfig> getAllConfig(Object object) {
+	public List<CrxConfig> getAllConfig(Object object) {
 		Long id = null;
-		Query query = this.em.createNamedQuery("OSSConfig.getAllById");
+		Query query = this.em.createNamedQuery("CrxConfig.getAllById");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		query.setParameter("type","Group");
@@ -932,14 +932,14 @@ public class Controller extends Config {
 			break;
 		}
 		query.setParameter("id", id);
-		return (List<OSSConfig>) query.getResultList();
+		return (List<CrxConfig>) query.getResultList();
 	}
 
-	public OssResponse addMConfig(Object object, String key, String value) {
+	public CrxResponse addMConfig(Object object, String key, String value) {
 		if( this.checkMConfig(object, key, value) ){
-			return new OssResponse(this.getSession(),"ERROR","This mconfig value already exists.");
+			return new CrxResponse(this.getSession(),"ERROR","This mconfig value already exists.");
 		}
-		OSSMConfig mconfig = new OSSMConfig();
+		CrxMConfig mconfig = new CrxMConfig();
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		mconfig.setObjectType("Group");
@@ -967,17 +967,17 @@ public class Controller extends Config {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("addMConfig: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Mconfig was created",mconfig.getId());
+		return new CrxResponse(this.getSession(),"OK","Mconfig was created",mconfig.getId());
 	}
 
-	public OssResponse addConfig(Object object, String key, String value) {
+	public CrxResponse addConfig(Object object, String key, String value) {
 		if( this.checkConfig(object, key) ){
-			return new OssResponse(this.getSession(),"ERROR","This config already exists.");
+			return new CrxResponse(this.getSession(),"ERROR","This config already exists.");
 		}
-		OSSConfig config = new OSSConfig();
+		CrxConfig config = new CrxConfig();
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
 		config.setObjectType("Group");
@@ -1005,106 +1005,106 @@ public class Controller extends Config {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("addConfig: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Config was created");
+		return new CrxResponse(this.getSession(),"OK","Config was created");
 	}
 
-	public OssResponse setConfig(Object object, String key, String value) {
+	public CrxResponse setConfig(Object object, String key, String value) {
 		if( ! this.checkConfig(object, key) ){
 			return this.addConfig(object, key, value);
 		}
-		OSSConfig config = this.getConfigObject(object, key);
+		CrxConfig config = this.getConfigObject(object, key);
 		try {
-			config = this.em.find(OSSConfig.class, config.getId());
+			config = this.em.find(CrxConfig.class, config.getId());
 			config.setValue(value);
 			this.em.getTransaction().begin();
 			this.em.merge(config);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("setConfig: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Config was updated");
+		return new CrxResponse(this.getSession(),"OK","Config was updated");
 	}
 
-	public OssResponse deleteConfig(Object object, Long configId) {
+	public CrxResponse deleteConfig(Object object, Long configId) {
 		try {
-			OSSConfig config = this.em.find(OSSConfig.class, configId);
+			CrxConfig config = this.em.find(CrxConfig.class, configId);
 			this.em.getTransaction().begin();
 			this.em.merge(config);
 			this.em.remove(config);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteConfig: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Config was deleted");
+		return new CrxResponse(this.getSession(),"OK","Config was deleted");
 	}
 
-	public OssResponse deleteMConfig(Object object, Long configId) {
+	public CrxResponse deleteMConfig(Object object, Long configId) {
 		try {
-			OSSMConfig config = this.em.find(OSSMConfig.class, configId);
+			CrxMConfig config = this.em.find(CrxMConfig.class, configId);
 			this.em.getTransaction().begin();
 			this.em.merge(config);
 			this.em.remove(config);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteConfig: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Config was deleted");
+		return new CrxResponse(this.getSession(),"OK","Config was deleted");
 	}
 
-	public OssResponse deleteConfig(Object object, String key) {
-		OSSConfig config = this.getConfigObject(object, key);
+	public CrxResponse deleteConfig(Object object, String key) {
+		CrxConfig config = this.getConfigObject(object, key);
 		if( config == null ) {
-			return new OssResponse(this.getSession(),"ERROR","Config does not exists.");
+			return new CrxResponse(this.getSession(),"ERROR","Config does not exists.");
 		}
 		try {
 			this.em.getTransaction().begin();
-			config = this.em.find(OSSConfig.class, config.getId());
+			config = this.em.find(CrxConfig.class, config.getId());
 			this.em.merge(config);
 			this.em.remove(config);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteConfig: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Config was deleted");
+		return new CrxResponse(this.getSession(),"OK","Config was deleted");
 	}
 
-	public OssResponse deleteMConfig(Object object, String key, String value) {
-		OSSMConfig config = this.getMConfigObject(object, key, value);
+	public CrxResponse deleteMConfig(Object object, String key, String value) {
+		CrxMConfig config = this.getMConfigObject(object, key, value);
 		if( config == null ) {
-			return new OssResponse(this.getSession(),"ERROR","MConfig does not exists.");
+			return new CrxResponse(this.getSession(),"ERROR","MConfig does not exists.");
 		}
 		try {
 			this.em.getTransaction().begin();
-			config = this.em.find(OSSMConfig.class, config.getId());
+			config = this.em.find(CrxMConfig.class, config.getId());
 			this.em.merge(config);
 			this.em.remove(config);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteMConfig: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Config was deleted");
+		return new CrxResponse(this.getSession(),"OK","Config was deleted");
 	}
 
 	public void deletAllConfigs(Object object) {
-		//Remove corresponding OSSConfig
-		for( OSSConfig o : this.getAllConfig(object)) {
+		//Remove corresponding CrxConfig
+		for( CrxConfig o : this.getAllConfig(object)) {
 			this.em.remove(o);
 		}
-		//Remove corresponding OSSMConfig
-		for( OSSMConfig o : this.getAllMConfig(object)) {
+		//Remove corresponding CrxMConfig
+		for( CrxMConfig o : this.getAllMConfig(object)) {
 			this.em.remove(o);
 		}
 	}

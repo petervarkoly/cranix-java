@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.cranix.api.resources.SupportResource;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.SupportRequest;
 import de.cranix.dao.controller.SystemController;
@@ -65,7 +65,7 @@ public class SupportResourceImpl implements SupportResource {
 	}
 
 	@Override
-	public OssResponse create(Session session, SupportRequest supportRequest) {
+	public CrxResponse create(Session session, SupportRequest supportRequest) {
 		loadConf(session);
 		List<String> parameters  = new ArrayList<String>();
 		logger.debug("URL: " + supportUrl);
@@ -78,7 +78,7 @@ public class SupportResourceImpl implements SupportResource {
 			writer.close();
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
-			return new OssResponse(session,"ERROR", e.getMessage());
+			return new CrxResponse(session,"ERROR", e.getMessage());
 		}
 		if (supportUrl != null && supportUrl.length() > 0) {
 			String[] program    = new String[12];
@@ -107,10 +107,10 @@ public class SupportResourceImpl implements SupportResource {
 				parameters.add(supportRequest.getEmail());
 				parameters.add(suppres.getTicketResponseInfo());
 				logger.debug("Support Respons :" + suppres);
-				return new OssResponse(session,"OK","Support request '%s' was created with ticket number '%s'. Answer will be sent to '%s'.",null,parameters);
+				return new CrxResponse(session,"OK","Support request '%s' was created with ticket number '%s'. Answer will be sent to '%s'.",null,parameters);
 			} catch (Exception e) {
 				logger.error("GETObject :" + e.getMessage());
-				return new OssResponse(session,"ERROR","Can not sent supprt request");
+				return new CrxResponse(session,"ERROR","Can not sent supprt request");
 			}
 		} else {
 			// use classic email
@@ -148,12 +148,12 @@ public class SupportResourceImpl implements SupportResource {
 			if (result == 0) {
 				parameters.add(supportRequest.getSubject());
 				parameters.add(supportRequest.getEmail());
-					return new OssResponse(session,"OK","Support request '%s' was sent.  Answer will be sent to '%s'.",null,parameters);
+					return new CrxResponse(session,"OK","Support request '%s' was sent.  Answer will be sent to '%s'.",null,parameters);
 			} else {
 				logger.error("Error sending support mail: " + error.toString());
 				parameters.add(supportRequest.getSubject());
 				parameters.add(error.toString());
-				return new OssResponse(session,"ERROR","Sopport request '%s' could not be sent. Reason '%s'",null, parameters);
+				return new CrxResponse(session,"ERROR","Sopport request '%s' could not be sent. Reason '%s'",null, parameters);
 			}
 		}
 	}

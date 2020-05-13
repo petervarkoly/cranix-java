@@ -28,7 +28,7 @@ import javax.validation.ValidatorFactory;
 import de.cranix.dao.Category;
 import de.cranix.dao.Device;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
@@ -95,7 +95,7 @@ public List<Long> getAllId() {
 /*
  * Deletes a list of device given by the device Ids.
  */
-public OssResponse delete(List<Long> deviceIds) {
+public CrxResponse delete(List<Long> deviceIds) {
 	boolean needReloadSalt = false;
 	try {
 		for( Long deviceId : deviceIds) {
@@ -110,10 +110,10 @@ public OssResponse delete(List<Long> deviceIds) {
 		if( needReloadSalt ) {
 			new SoftwareController(this.session,this.em).applySoftwareStateToHosts();
 		}
-		return new OssResponse(this.getSession(),"OK", "Devices were deleted succesfully.");
+		return new CrxResponse(this.getSession(),"OK", "Devices were deleted succesfully.");
 	} catch (Exception e) {
 		logger.error("delete: " + e.getMessage(),e);
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
 }
@@ -124,23 +124,23 @@ public OssResponse delete(List<Long> deviceIds) {
  * @param atomic If it is true means no other devices will be deleted. DHCP and salt should be reloaded.
  * @return
  */
-public OssResponse delete(Device device, boolean atomic) {
+public CrxResponse delete(Device device, boolean atomic) {
 	boolean needReloadSalt = false;
 	if( device == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "Can not delete null device.");
+		return new CrxResponse(this.getSession(),"ERROR", "Can not delete null device.");
 	}
 	User user = null;
 	try {
 		HWConf hwconf = device.getHwconf();
 		Room   room   = device.getRoom();
 		if( this.isProtected(device) ) {
-			return new OssResponse(this.getSession(),"ERROR","This device must not be deleted.");
+			return new CrxResponse(this.getSession(),"ERROR","This device must not be deleted.");
 		}
 		if( !this.mayModify(device) ) {
-			return new OssResponse(this.getSession(),"ERROR","You must not delete this device.");
+			return new CrxResponse(this.getSession(),"ERROR","You must not delete this device.");
 		}
 		if(device.getPrinterQueue() != null && !device.getPrinterQueue().isEmpty()) {
-			return new OssResponse(this.getSession(),"ERROR",
+			return new CrxResponse(this.getSession(),"ERROR",
 					"This is a printer device with defined printer queues. "
 					+ "You have to delete this devices via printer management.");
 		}
@@ -230,10 +230,10 @@ public OssResponse delete(Device device, boolean atomic) {
 		if( user != null ) {
 			userController.delete(user);
 		}
-		return new OssResponse(this.getSession(),"OK", "Device was deleted succesfully.");
+		return new CrxResponse(this.getSession(),"OK", "Device was deleted succesfully.");
 	} catch (Exception e) {
 		logger.error("device: " + device.getName() + " " + e.getMessage(),e);
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
 }
@@ -244,16 +244,16 @@ public OssResponse delete(Device device, boolean atomic) {
  * @param atomic If it is true means no other devices will be deleted. DHCP and salt should be reloaded.
  * @return
  */
-public OssResponse delete(Long deviceId, boolean atomic) {
+public CrxResponse delete(Long deviceId, boolean atomic) {
 
 	Device device = this.em.find(Device.class, deviceId);
 	if( device == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "Can not find device with id %s.",null,String.valueOf(deviceId));
+		return new CrxResponse(this.getSession(),"ERROR", "Can not find device with id %s.",null,String.valueOf(deviceId));
 	}
 	return this.delete(device, atomic);
 }
 
-protected OssResponse check(Device device,Room room) {
+protected CrxResponse check(Device device,Room room) {
 	List<String> error = new ArrayList<String>();
 	List<String> parameters  = new ArrayList<String>();
 	IPv4Net net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
@@ -264,31 +264,31 @@ protected OssResponse check(Device device,Room room) {
 	if( name != "" ){
 		parameters.add(device.getMac());
 		parameters.add(name);
-		return new OssResponse(this.session,"ERROR","The MAC address '%s' will be used allready by '%s'.",null,parameters);
+		return new CrxResponse(this.session,"ERROR","The MAC address '%s' will be used allready by '%s'.",null,parameters);
 	}
 	if( ! IPv4.validateMACAddress(device.getMac())) {
 		parameters.add(device.getMac());
-		return new OssResponse(this.session,"ERROR","The MAC address '%s' is not valid.",null,parameters);
+		return new CrxResponse(this.session,"ERROR","The MAC address '%s' is not valid.",null,parameters);
 	}
 	//Check the name
 	if( ! this.isNameUnique(device.getName())){
-		return new OssResponse(this.session,"ERROR","Devices name is not unique." );
+		return new CrxResponse(this.session,"ERROR","Devices name is not unique." );
 	}
 	if( this.checkBadHostName(device.getName())){
-		return new OssResponse(this.session,"ERROR","Devices name contains not allowed characters. " );
+		return new CrxResponse(this.session,"ERROR","Devices name contains not allowed characters. " );
 	}
 	//Check the IP address
 	name =  this.isIPUnique(device.getIp());
 	if( name != "" ){
 		parameters.add(name);
-		return new OssResponse(this.session,"ERROR","The IP address will be used allready by '%s'",null,parameters );
+		return new CrxResponse(this.session,"ERROR","The IP address will be used allready by '%s'",null,parameters );
 	}
 	if( ! IPv4.validateIPAddress(device.getIp())) {
 		parameters.add(device.getIp());
-		return new OssResponse(this.session,"ERROR","The IP address '%s' is not valid.", null, parameters );
+		return new CrxResponse(this.session,"ERROR","The IP address '%s' is not valid.", null, parameters );
 	}
 	if( !net.contains(device.getIp())) {
-		return new OssResponse(this.session,"ERROR","The IP address is not in the room ip address range.");
+		return new CrxResponse(this.session,"ERROR","The IP address is not in the room ip address range.");
 	}
 
 	if( device.getWlanMac().isEmpty() ) {
@@ -299,24 +299,24 @@ protected OssResponse check(Device device,Room room) {
 		name =  this.isMacUnique(device.getWlanMac());
 		if( name != "" ){
 			parameters.add(name);
-			return new OssResponse(this.session,"ERROR","The WLAN MAC address will be used allready '%s'.",null,parameters);
+			return new CrxResponse(this.session,"ERROR","The WLAN MAC address will be used allready '%s'.",null,parameters);
 		}
 		if( ! IPv4.validateMACAddress(device.getWlanMac())) {
 			parameters.add(device.getMac());
-			return new OssResponse(this.session,"ERROR","The WLAN-MAC address '%s' is not valid.",null,parameters);
+			return new CrxResponse(this.session,"ERROR","The WLAN-MAC address '%s' is not valid.",null,parameters);
 		}
 		//Check the IP address
 		name =  this.isIPUnique(device.getWlanIp());
 		if( name != "" ){
 			parameters.add(name);
-			return new OssResponse(this.session,"ERROR","The WLAN-IP address will be used allready by '%s'",null,parameters );
+			return new CrxResponse(this.session,"ERROR","The WLAN-IP address will be used allready by '%s'",null,parameters );
 		}
 		if( ! IPv4.validateIPAddress(device.getWlanIp())) {
 			parameters.add(device.getWlanIp());
-			return new OssResponse(this.session,"ERROR","The WLAN-IP address '%s' is not valid.", null, parameters );
+			return new CrxResponse(this.session,"ERROR","The WLAN-IP address '%s' is not valid.", null, parameters );
 		}
 		if( !net.contains(device.getWlanIp())) {
-			return new OssResponse(this.session,"ERROR","The WLAN-IP address is not in the room ip address range.");
+			return new CrxResponse(this.session,"ERROR","The WLAN-IP address is not in the room ip address range.");
 		}
 	}
 	//Check if the name is DNS and if necessary NETBIOS conform.
@@ -331,15 +331,15 @@ protected OssResponse check(Device device,Room room) {
 	}
 	logger.debug("After check name lenght.");
 	if( error.isEmpty() ) {
-		return new OssResponse(this.session,"OK","");
+		return new CrxResponse(this.session,"OK","");
 	}
-	return new OssResponse(this.session,"ERROR",String.join(System.lineSeparator(),error));
+	return new CrxResponse(this.session,"ERROR",String.join(System.lineSeparator(),error));
 }
 
 /*
  * Creates devices
  */
-public OssResponse add(List<Device> devices) {
+public CrxResponse add(List<Device> devices) {
 	try {
 		for(Device dev: devices){
 			dev.setOwner(session.getUser());
@@ -347,10 +347,10 @@ public OssResponse add(List<Device> devices) {
 			this.em.persist(dev);
 			this.em.getTransaction().commit();
 		}
-		return new OssResponse(this.getSession(),"OK", "Devices were created succesfully.");
+		return new CrxResponse(this.getSession(),"OK", "Devices were created succesfully.");
 	} catch (Exception e) {
 		logger.error("add " + e.getMessage(),e);
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
 }
@@ -506,7 +506,7 @@ public List<String> getLoggedInUsers(Long deviceId) {
  * @param contentDispositionHeader
  * @return
  */
-public OssResponse importDevices(InputStream fileInputStream,
+public CrxResponse importDevices(InputStream fileInputStream,
 		FormDataContentDisposition contentDispositionHeader) {
 	File file = null;
 	List<String> importFile;
@@ -516,7 +516,7 @@ public OssResponse importDevices(InputStream fileInputStream,
 		importFile = Files.readAllLines(file.toPath());
 	} catch (IOException e) {
 		logger.error("File error:" + e.getMessage(), e);
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	}
 	RoomController        roomController      = new RoomController(this.session,this.em);
 	CloneToolController   cloneToolController = new CloneToolController(this.session,this.em);
@@ -539,7 +539,7 @@ public OssResponse importDevices(InputStream fileInputStream,
 
 	logger.debug("header" + header);
 	if( !header.containsValue("mac") || !header.containsValue("room")) {
-		return new OssResponse(this.getSession(),"ERROR", "MAC and Room are mandatory fields.");
+		return new CrxResponse(this.getSession(),"ERROR", "MAC and Room are mandatory fields.");
 	}
 	for(String line : importFile.subList(1, importFile.size()) ) {
 		Map<String,String> values = new HashMap<>();
@@ -609,7 +609,7 @@ public OssResponse importDevices(InputStream fileInputStream,
 
 	for( Room r : roomController.getAllToUse() ) {
 		if( !devicesToImport.get(r.getId()).isEmpty() ) {
-			OssResponse ossResponse = roomController.addDevices(r.getId(), devicesToImport.get(r.getId()));
+			CrxResponse ossResponse = roomController.addDevices(r.getId(), devicesToImport.get(r.getId()));
 			if( ossResponse.getCode().equals("ERROR")) {
 				error.append(ossResponse.getValue()).append("<br>");
 				if( !ossResponse.getParameters().isEmpty() ) {
@@ -619,22 +619,22 @@ public OssResponse importDevices(InputStream fileInputStream,
 		}
 	}
 	if( error.length() == 0 ) {
-		return new OssResponse(this.getSession(),"OK", "Devices were imported succesfully.");
+		return new CrxResponse(this.getSession(),"OK", "Devices were imported succesfully.");
 	}
 	logger.error("ImportDevices:" + error.toString() + " Parameters: " + String.join(";",parameters));
-	return new OssResponse(this.getSession(),"ERROR","End error:" + error.toString());
+	return new CrxResponse(this.getSession(),"ERROR","End error:" + error.toString());
 }
 
-public OssResponse setDefaultPrinter(long deviceId, long printerId) {
+public CrxResponse setDefaultPrinter(long deviceId, long printerId) {
 	try {
 		logger.debug("deviceId:" +deviceId + " printerId:" +  printerId);
 		Printer printer = this.em.find(Printer.class, printerId);
 		Device device   = this.em.find(Device.class, deviceId);
 		if( device == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "Device cannot be found.");
+			return new CrxResponse(this.getSession(),"ERROR", "Device cannot be found.");
 		}
 		if( printer == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "Printer cannot be found.");
+			return new CrxResponse(this.getSession(),"ERROR", "Printer cannot be found.");
 		}
 		this.em.getTransaction().begin();
 		device.setDefaultPrinter(printer);
@@ -643,17 +643,17 @@ public OssResponse setDefaultPrinter(long deviceId, long printerId) {
 		this.em.merge(printer);
 		this.em.getTransaction().commit();
 	} catch (Exception e) {
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
-	return new OssResponse(this.getSession(),"OK", "Default printer was set succesfully.");
+	return new CrxResponse(this.getSession(),"OK", "Default printer was set succesfully.");
 }
 
 
-public OssResponse deleteDefaultPrinter(long deviceId) {
+public CrxResponse deleteDefaultPrinter(long deviceId) {
 	Device  device  = this.em.find(Device.class, deviceId);
 	if( device == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "Device cannot be found.");
+		return new CrxResponse(this.getSession(),"ERROR", "Device cannot be found.");
 	}
 	Printer printer = device.getDefaultPrinter();
 	if( printer != null  ) {
@@ -665,22 +665,22 @@ public OssResponse deleteDefaultPrinter(long deviceId) {
 			this.em.merge(printer);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
-	return new OssResponse(this.getSession(),"OK","The default printer of the device was deleted succesfully.");
+	return new CrxResponse(this.getSession(),"OK","The default printer of the device was deleted succesfully.");
 }
 
-public OssResponse addAvailablePrinter(long deviceId, long printerId) {
+public CrxResponse addAvailablePrinter(long deviceId, long printerId) {
 	try {
 		Printer printer = this.em.find(Printer.class, printerId);
 		Device device   = this.em.find(Device.class, deviceId);
 		if( device == null || printer == null) {
-			return new OssResponse(this.getSession(),"ERROR", "Device or printer cannot be found.");
+			return new CrxResponse(this.getSession(),"ERROR", "Device or printer cannot be found.");
 		}
 		if( device.getAvailablePrinters().contains(printer) ) {
-			return new OssResponse(this.getSession(),"OK","The printer is already assigned to device.");
+			return new CrxResponse(this.getSession(),"OK","The printer is already assigned to device.");
 		}
 		this.em.getTransaction().begin();
 		device.getAvailablePrinters().add(printer);
@@ -689,18 +689,18 @@ public OssResponse addAvailablePrinter(long deviceId, long printerId) {
 		this.em.merge(printer);
 		this.em.getTransaction().commit();
 	} catch (Exception e) {
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
-	return new OssResponse(this.getSession(),"OK","The selected printer was added to the device.");
+	return new CrxResponse(this.getSession(),"OK","The selected printer was added to the device.");
 }
 
-public OssResponse deleteAvailablePrinter(long deviceId, long printerId) {
+public CrxResponse deleteAvailablePrinter(long deviceId, long printerId) {
 	try {
 		Printer printer = this.em.find(Printer.class, printerId);
 		Device device   = this.em.find(Device.class, deviceId);
 		if( device == null || printer == null) {
-			return new OssResponse(this.getSession(),"ERROR", "Device or printer cannot be found.");
+			return new CrxResponse(this.getSession(),"ERROR", "Device or printer cannot be found.");
 		}
 		this.em.getTransaction().begin();
 		device.getAvailablePrinters().remove(printer);
@@ -709,54 +709,54 @@ public OssResponse deleteAvailablePrinter(long deviceId, long printerId) {
 		this.em.merge(printer);
 		this.em.getTransaction().commit();
 	} catch (Exception e) {
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
-	return new OssResponse(this.getSession(),"OK","The selected printer was removed from device.");
+	return new CrxResponse(this.getSession(),"OK","The selected printer was removed from device.");
 }
 
-public OssResponse addLoggedInUserByMac(String MAC, String userName) {
+public CrxResponse addLoggedInUserByMac(String MAC, String userName) {
 	Device device = this.getByMAC(MAC);
 	if( device == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "There is no registered device with MAC: %s",null,MAC);
+		return new CrxResponse(this.getSession(),"ERROR", "There is no registered device with MAC: %s",null,MAC);
 	}
 	User user = new UserController(this.session,this.em).getByUid(userName);
 	if( user == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,userName);
+		return new CrxResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,userName);
 	}
 	return this.addLoggedInUser(device, user);
 }
 
-public OssResponse addLoggedInUser(String IP, String userName) {
+public CrxResponse addLoggedInUser(String IP, String userName) {
 	Device device = this.getByIP(IP);
 	if( device == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "There is no registered device with IP: %s",null,IP);
+		return new CrxResponse(this.getSession(),"ERROR", "There is no registered device with IP: %s",null,IP);
 	}
 	User user = new UserController(this.session,this.em).getByUid(userName);
 	if( user == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,userName);
+		return new CrxResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,userName);
 	}
 	return this.addLoggedInUser(device, user);
 }
-public OssResponse addLoggedInUser(Long deviceId, Long userId) {
+public CrxResponse addLoggedInUser(Long deviceId, Long userId) {
 	Device device = this.getById(deviceId);
 	if( device == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "There is no registered device with ID: %s",null,String.valueOf(deviceId));
+		return new CrxResponse(this.getSession(),"ERROR", "There is no registered device with ID: %s",null,String.valueOf(deviceId));
 	}
 	User user = new UserController(this.session,this.em).getById(userId);
 	if( user == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,String.valueOf(userId));
+		return new CrxResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,String.valueOf(userId));
 	}
 	return this.addLoggedInUser(device, user);
 }
-public OssResponse addLoggedInUser(Device device, User user) {
+public CrxResponse addLoggedInUser(Device device, User user) {
 
 	parameters = new ArrayList<String>();
 	parameters.add(device.getName());
 	parameters.add(device.getIp());
 	parameters.add(user.getUid());
 	if( user.getLoggedOn().contains(device)) {
-		return new OssResponse(this.getSession(),"OK", "Logged in user was already added on this device for you:%s;%s;%s",null,parameters);
+		return new CrxResponse(this.getSession(),"OK", "Logged in user was already added on this device for you:%s;%s;%s",null,parameters);
 	}
 	device.getLoggedIn().add(user);
 	user.getLoggedOn().add(device);
@@ -768,45 +768,45 @@ public OssResponse addLoggedInUser(Device device, User user) {
 		this.em.merge(user);
 		this.em.getTransaction().commit();
 	} catch (Exception e) {
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
-	return new OssResponse(this.getSession(),"OK", "Logged in user was added succesfully:%s;%s;%s",null,parameters);
+	return new CrxResponse(this.getSession(),"OK", "Logged in user was added succesfully:%s;%s;%s",null,parameters);
 }
 
-public OssResponse removeLoggedInUserByMac(String MAC, String userName) {
+public CrxResponse removeLoggedInUserByMac(String MAC, String userName) {
 	Device device = this.getByMAC(MAC);
 	User user = new UserController(this.session,this.em).getByUid(userName);
 	if( device == null  || user == null ) {
-		return new OssResponse(this.getSession(),"ERROR","Can not find user or device");
+		return new CrxResponse(this.getSession(),"ERROR","Can not find user or device");
 	}
 	return this.removeLoggedInUser(device, user);
 }
 
-public OssResponse removeLoggedInUser(String IP, String userName) {
+public CrxResponse removeLoggedInUser(String IP, String userName) {
 	Device device = this.getByIP(IP);
 	User user = new UserController(this.session,this.em).getByUid(userName);
 	if( device == null  || user == null ) {
-		return new OssResponse(this.getSession(),"ERROR","Can not find user or device");
+		return new CrxResponse(this.getSession(),"ERROR","Can not find user or device");
 	}
 	return this.removeLoggedInUser(device, user);
 }
 
-public OssResponse removeLoggedInUser(Long deviceId, Long userId) {
+public CrxResponse removeLoggedInUser(Long deviceId, Long userId) {
 	Device device = this.getById(deviceId);
 	User   user   = new UserController(this.session,this.em).getById(userId);
 	if( device == null  || user == null ) {
-		return new OssResponse(this.getSession(),"ERROR","Can not find user or device");
+		return new CrxResponse(this.getSession(),"ERROR","Can not find user or device");
 	}
 	return this.removeLoggedInUser(device, user);
 }
 
-public OssResponse removeLoggedInUser(Device device, User user) {
+public CrxResponse removeLoggedInUser(Device device, User user) {
 	parameters = new ArrayList<String>();
 	if( !user.getLoggedOn().contains(device)) {
 		parameters.add(device.getName());
 		parameters.add(user.getUid());
-		return new OssResponse(this.getSession(),"OK", "Logged in user was already removed from this device for you:%s;%s;%s",null,parameters);
+		return new CrxResponse(this.getSession(),"OK", "Logged in user was already removed from this device for you:%s;%s;%s",null,parameters);
 	}
 	device.getLoggedIn().remove(user);
 	user.getLoggedOn().remove(device);
@@ -816,15 +816,15 @@ public OssResponse removeLoggedInUser(Device device, User user) {
 		this.em.merge(user);
 		this.em.getTransaction().commit();
 	} catch (Exception e) {
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
 	parameters.add(device.getName());
 	parameters.add(user.getUid());
-	return new OssResponse(this.getSession(),"OK", "Logged in user was removed succesfully:%s;%s",null,parameters);
+	return new CrxResponse(this.getSession(),"OK", "Logged in user was removed succesfully:%s;%s",null,parameters);
 }
 
-public OssResponse forceModify(Device device) {
+public CrxResponse forceModify(Device device) {
 	logger.debug("force modify device: " + device);
 	try {
 		device.setRoom(this.em.find(Room.class, device.getRoomId()));
@@ -834,13 +834,13 @@ public OssResponse forceModify(Device device) {
 		this.em.merge(device);
 		this.em.getTransaction().commit();
 	} catch (Exception e) {
-		return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 	} finally {
 	}
-	return new OssResponse(this.getSession(),"OK","Device was modified succesfully");
+	return new CrxResponse(this.getSession(),"OK","Device was modified succesfully");
 }
 
-public OssResponse modify(Device device) {
+public CrxResponse modify(Device device) {
 	logger.debug("modify device: " + device);
 	Device oldDevice;
 	HWConf hwconf;
@@ -851,7 +851,7 @@ public OssResponse modify(Device device) {
 		room     = this.em.find(Room.class, oldDevice.getRoom().getId());
 	} catch (Exception e) {
 		logger.debug("DeviceId:" + device.getId() + " " + e.getMessage(),e);
-		return new OssResponse(this.getSession(),"ERROR","Device or HWConf can not be found.");
+		return new CrxResponse(this.getSession(),"ERROR","Device or HWConf can not be found.");
 	}
 	HWConf oldHwconf = oldDevice.getHwconf();
 
@@ -865,7 +865,7 @@ public OssResponse modify(Device device) {
 	String   name = "";
 	//Check the MAC address
 	if( !this.mayModify(oldDevice) ) {
-		return new OssResponse(this.getSession(),"ERROR","You must not modify this device: %s",null,oldDevice.getName());
+		return new CrxResponse(this.getSession(),"ERROR","You must not modify this device: %s",null,oldDevice.getName());
 	}
 	device.setMac(device.getMac().toUpperCase().replaceAll("-", ":"));
 	if( ! oldDevice.getMac().equals(device.getMac())) {
@@ -915,7 +915,7 @@ public OssResponse modify(Device device) {
 	}
 	logger.debug("ERROR" + error);
 	if(!error.isEmpty()){
-		return new OssResponse(this.getSession(),"ERROR","ERROR" + String.join(System.lineSeparator(),error),null,parameters);
+		return new CrxResponse(this.getSession(),"ERROR","ERROR" + String.join(System.lineSeparator(),error),null,parameters);
 	}
 	try {
 		oldDevice.setMac(device.getMac());
@@ -949,14 +949,14 @@ public OssResponse modify(Device device) {
 		this.em.merge(room);
 		this.em.getTransaction().commit();
 	} catch (Exception e) {
-		return new OssResponse(this.getSession(),"ERROR", "ERROR-3"+  e.getMessage());
+		return new CrxResponse(this.getSession(),"ERROR", "ERROR-3"+  e.getMessage());
 	} finally {
 	}
 	startPlugin("modify_device", oldDevice);
 	if( macChange ) {
 		new DHCPConfig(session,em).Create();
 	}
-	return new OssResponse(this.getSession(),"OK", "Device was modified succesfully.");
+	return new CrxResponse(this.getSession(),"OK", "Device was modified succesfully.");
 }
 
 public List<Device> getDevices(List<Long> deviceIds) {
@@ -974,25 +974,25 @@ public List<Device> getByHWConf(Long id) {
 	return devices;
 }
 
-public OssResponse manageDevice(long deviceId, String action, Map<String, String> actionContent) {
+public CrxResponse manageDevice(long deviceId, String action, Map<String, String> actionContent) {
 	Device device = this.getById(deviceId);
 	if( device == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "Can not find the client.");
+		return new CrxResponse(this.getSession(),"ERROR", "Can not find the client.");
 	}
 	return this.manageDevice(device, action, actionContent);
 }
 
-public OssResponse manageDevice(String deviceName, String action, Map<String, String> actionContent) {
+public CrxResponse manageDevice(String deviceName, String action, Map<String, String> actionContent) {
 	Device device = this.getByName(deviceName);
 	if( device == null ) {
-		return new OssResponse(this.getSession(),"ERROR", "Can not find the client.");
+		return new CrxResponse(this.getSession(),"ERROR", "Can not find the client.");
 	}
 	return this.manageDevice(device, action, actionContent);
 }
 
-public OssResponse manageDevice(Device device, String action, Map<String, String> actionContent) {
+public CrxResponse manageDevice(Device device, String action, Map<String, String> actionContent) {
 	if( this.session.getDevice() != null  && this.session.getDevice().equals(device)) {
-		return new OssResponse(this.getSession(),"ERROR", "Do not control the own client.");
+		return new CrxResponse(this.getSession(),"ERROR", "Do not control the own client.");
 	}
 	StringBuilder FQHN = new StringBuilder();
 	FQHN.append(device.getName()).append(".").append(this.getConfigValue("DOMAIN"));
@@ -1084,7 +1084,7 @@ public OssResponse manageDevice(Device device, String action, Map<String, String
 				Files.write(file.toPath(), fileContent);
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
-				return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 			}
 			program = new String[4];
 			program[0] = "/usr/bin/salt-cp";
@@ -1132,24 +1132,24 @@ public OssResponse manageDevice(Device device, String action, Map<String, String
 			for( User user : device.getLoggedIn() ) {
 				 uc.collectFileFromUser(user, projectName, cleanUpExport, sortInDirs);
 			}
-			return new OssResponse(this.getSession(),"OK", "Device control was applied on '%s'.",null,FQHN.toString());
+			return new CrxResponse(this.getSession(),"OK", "Device control was applied on '%s'.",null,FQHN.toString());
 		default:
-				return new OssResponse(this.getSession(),"ERROR", "Unknonw action.");
+				return new CrxResponse(this.getSession(),"ERROR", "Unknonw action.");
 		}
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(this.getSession(),"OK", "Device control was applied on '%s'.",null,FQHN.toString());
+		return new CrxResponse(this.getSession(),"OK", "Device control was applied on '%s'.",null,FQHN.toString());
 	}
 
-	public OssResponse cleanUpLoggedIn() {
+	public CrxResponse cleanUpLoggedIn() {
 		for( Device device : this.getAll() ) {
 			cleanUpLoggedIn(device);
 		}
-		return new OssResponse(this.getSession(),"OK", "LoggedIn attributes was cleaned up.");
+		return new CrxResponse(this.getSession(),"OK", "LoggedIn attributes was cleaned up.");
 	}
 
-	public OssResponse cleanUpLoggedIn(Device device) {
+	public CrxResponse cleanUpLoggedIn(Device device) {
 		if( device.getLoggedIn() == null || device.getLoggedIn().isEmpty() ) {
-			return new OssResponse(this.getSession(),"OK", "No logged in user to remove.");
+			return new CrxResponse(this.getSession(),"OK", "No logged in user to remove.");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -1162,10 +1162,10 @@ public OssResponse manageDevice(Device device, String action, Map<String, String
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.debug("cleanUpLoggedIn: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK", "LoggedIn attributes was cleaned up.");
+		return new CrxResponse(this.getSession(),"OK", "LoggedIn attributes was cleaned up.");
 	}
 
 	public List<Device> getDevicesOnMyPlace(Device device) {
@@ -1201,43 +1201,43 @@ public OssResponse manageDevice(Device device, String action, Map<String, String
 		return String.join(",", devices);
 	}
 
-	public OssResponse setLoggedInUserByMac(String MAC, String userName) {
+	public CrxResponse setLoggedInUserByMac(String MAC, String userName) {
 		Device device = this.getByMAC(MAC);
 		if( device == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "There is no registered device with MAC: %s",null,MAC);
+			return new CrxResponse(this.getSession(),"ERROR", "There is no registered device with MAC: %s",null,MAC);
 		}
 		User user = new UserController(this.session,this.em).getByUid(userName);
 		if( user == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,userName);
+			return new CrxResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,userName);
 		}
 		return this.setLoggedInUsers(device, user);
 	}
 
-	public OssResponse setLoggedInUsers(String IP, String userName) {
+	public CrxResponse setLoggedInUsers(String IP, String userName) {
 		Device device = this.getByIP(IP);
 		if( device == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "There is no registered device with IP: %s",null,IP);
+			return new CrxResponse(this.getSession(),"ERROR", "There is no registered device with IP: %s",null,IP);
 		}
 		User user = new UserController(this.session,this.em).getByUid(userName);
 		if( user == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,userName);
+			return new CrxResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,userName);
 		}
 		return this.setLoggedInUsers(device, user);
 	}
 
-	public OssResponse setLoggedInUsers(Long deviceId, Long userId) {
+	public CrxResponse setLoggedInUsers(Long deviceId, Long userId) {
 		Device device = this.getById(deviceId);
 		if( device == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "There is no registered device with ID: %s",null,String.valueOf(deviceId));
+			return new CrxResponse(this.getSession(),"ERROR", "There is no registered device with ID: %s",null,String.valueOf(deviceId));
 		}
 		User user = new UserController(this.session,this.em).getById(userId);
 		if( user == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,String.valueOf(userId));
+			return new CrxResponse(this.getSession(),"ERROR", "There is no registered user with uid: %s",null,String.valueOf(userId));
 		}
 		return this.setLoggedInUsers(device, user);
 	}
 
-	public OssResponse setLoggedInUsers(Device device, User user) {
+	public CrxResponse setLoggedInUsers(Device device, User user) {
 		parameters = new ArrayList<String>();
 		parameters.add(device.getName());
 		parameters.add(device.getIp());
@@ -1254,13 +1254,13 @@ public OssResponse manageDevice(Device device, String action, Map<String, String
 			this.em.merge(user);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK", "Logged in user was added succesfully:%s;%s;%s",null,parameters);
+		return new CrxResponse(this.getSession(),"OK", "Logged in user was added succesfully:%s;%s;%s",null,parameters);
 	}
 
-	public OssResponse setPrinters(Long deviceId, Map<String, List<Long>>  printers) {
+	public CrxResponse setPrinters(Long deviceId, Map<String, List<Long>>  printers) {
 		Device device = this.getById(deviceId);
 		List<Long> toAdd    = new ArrayList<Long>();
 		List<Long> toRemove = new ArrayList<Long>();
@@ -1296,6 +1296,6 @@ public OssResponse manageDevice(Device device, String action, Map<String, String
 		} catch (Exception e) {
 
 		}
-		return new OssResponse(this.session,"OK","Printers of the device was set.");
+		return new CrxResponse(this.session,"OK","Printers of the device was set.");
 	}
 }

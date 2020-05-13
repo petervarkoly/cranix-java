@@ -10,12 +10,12 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import de.cranix.api.resources.GroupResource;
 import de.cranix.dao.Group;
-import de.cranix.dao.OssActionMap;
+import de.cranix.dao.CrxActionMap;
 import de.cranix.dao.User;
 import de.cranix.dao.controller.GroupController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
 import de.cranix.dao.Session;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 
 public class GroupResourceImpl implements GroupResource {
 
@@ -71,58 +71,58 @@ public class GroupResourceImpl implements GroupResource {
 	}
 
 	@Override
-	public OssResponse add(Session session, Group group) {
+	public CrxResponse add(Session session, Group group) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new GroupController(session,em).add(group);
+		CrxResponse resp = new GroupController(session,em).add(group);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modify(Session session, Group group) {
+	public CrxResponse modify(Session session, Group group) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new GroupController(session,em).modify(group);
+		CrxResponse resp = new GroupController(session,em).modify(group);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modify(Session session,Long groupId, Group group) {
+	public CrxResponse modify(Session session,Long groupId, Group group) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		group.setId(groupId);
-		OssResponse resp = new GroupController(session,em).modify(group);
+		CrxResponse resp = new GroupController(session,em).modify(group);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse delete(Session session, Long groupId) {
+	public CrxResponse delete(Session session, Long groupId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new GroupController(session,em).delete(groupId);
+		CrxResponse resp = new GroupController(session,em).delete(groupId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setMembers(Session session, Long groupId, List<Long> users) {
+	public CrxResponse setMembers(Session session, Long groupId, List<Long> users) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new GroupController(session,em).setMembers(groupId,users);
+		CrxResponse resp = new GroupController(session,em).setMembers(groupId,users);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse removeMember(Session session, Long groupId, Long userId) {
+	public CrxResponse removeMember(Session session, Long groupId, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new GroupController(session,em).removeMember(groupId,userId);
+		CrxResponse resp = new GroupController(session,em).removeMember(groupId,userId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addMember(Session session, Long groupId, Long userId) {
+	public CrxResponse addMember(Session session, Long groupId, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new GroupController(session,em).addMember(groupId,userId);
+		CrxResponse resp = new GroupController(session,em).addMember(groupId,userId);
 		em.close();
 		return resp;
 	}
@@ -171,26 +171,26 @@ public class GroupResourceImpl implements GroupResource {
 	}
 
 	@Override
-	public OssResponse cleanUpDirectory(Session session, Long groupId) {
+	public CrxResponse cleanUpDirectory(Session session, Long groupId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		GroupController gc = new GroupController(session,em);
 		Group group = gc.getById(groupId);
-		OssResponse resp = gc.cleanGrupDirectory(group);
+		CrxResponse resp = gc.cleanGrupDirectory(group);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse importGroups(Session session, InputStream fileInputStream,
+	public CrxResponse importGroups(Session session, InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new GroupController(session,em).importGroups(fileInputStream, contentDispositionHeader);
+		CrxResponse resp = new GroupController(session,em).importGroups(fileInputStream, contentDispositionHeader);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse applyAction(Session session, OssActionMap actionMap) {
+	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
 		// TODO Auto-generated method stub
 		return null;
 	}

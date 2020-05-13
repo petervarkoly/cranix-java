@@ -7,14 +7,14 @@
 TOKEN=$( grep de.cranix.api.auth.localhost= /opt/cranix-java/conf/cranix-api.properties | sed 's/de.cranix.api.auth.localhost=//' )
 SQLUSER=$( grep javax.persistence.jdbc.user= /opt/cranix-java/conf/cranix-api.properties | sed 's/javax.persistence.jdbc.user=//' )
 SQLPW=$( grep javax.persistence.jdbc.password= /opt/cranix-java/conf/cranix-api.properties | sed 's/javax.persistence.jdbc.password=//' )
-LOCAL_TOKEN=$( echo "SELECT COUNT(*) FROM Sessions WHERE token='$TOKEN'" | mysql CRANIX -u $SQLUSER -p${SQLPW} | tail -n 1 )
+LOCAL_TOKEN=$( echo "SELECT COUNT(*) FROM Sessions WHERE token='$TOKEN'" | mysql CRX -u $SQLUSER -p${SQLPW} | tail -n 1 )
 if [  "${LOCAL_TOKEN}" = 0 -o "${CRANIX_RESET_REGISTER_PASSWORD}" = "yes" ]; then
 	grep -q de.cranix.api.auth.localhost= /opt/cranix-java/conf/cranix-api.properties || echo de.cranix.api.auth.localhost=TOKEN >> /opt/cranix-java/conf/cranix-api.properties
 	TOKEN="localhost_"$(uuidgen)
 	sed -i s/de.cranix.api.auth.localhost=.*/de.cranix.api.auth.localhost=$TOKEN/ /opt/cranix-java/conf/cranix-api.properties
 	chmod 600            /opt/cranix-java/conf/cranix-api.properties
-	echo "DELETE FROM Sessions WHERE IP='127.0.0.1'" | mysql -u $SQLUSER -p${SQLPW} CRANIX
-	echo "INSERT INTO Sessions VALUES(NULL,1,NULL,NULL,NOW(),'127.0.0.1','$TOKEN')" | mysql -u $SQLUSER -p${SQLPW} CRANIX
+	echo "DELETE FROM Sessions WHERE IP='127.0.0.1'" | mysql -u $SQLUSER -p${SQLPW} CRX
+	echo "INSERT INTO Sessions VALUES(NULL,1,NULL,NULL,NOW(),'127.0.0.1','$TOKEN')" | mysql -u $SQLUSER -p${SQLPW} CRX
 fi
 #Create recreate the printer driver files if neccesarry
 if [ -e /usr/share/cranix/templates/printers.txt -a -e /usr/share/cranix/templates/drivers.txt ]; then

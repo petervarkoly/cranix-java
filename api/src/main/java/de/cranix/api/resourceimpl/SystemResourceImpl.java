@@ -27,7 +27,7 @@ import de.cranix.dao.Acl;
 import de.cranix.dao.DnsRecord;
 import de.cranix.dao.Group;
 import de.cranix.dao.Job;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.ProxyRule;
 import de.cranix.dao.Session;
 import de.cranix.dao.Translation;
@@ -68,16 +68,16 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse customize(Session session, InputStream fileInputStream,
+	public CrxResponse customize(Session session, InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		String fileName = contentDispositionHeader.getFileName();
 		File file = new File("/srv/www/admin/assets/" + fileName );
 		try {
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
-			return new OssResponse(session,"ERROR", e.getMessage());
+			return new CrxResponse(session,"ERROR", e.getMessage());
 		}
-		return new OssResponse(session,"OK", "File was saved succesfully.");
+		return new CrxResponse(session,"OK", "File was saved succesfully.");
 	}
 
 	@Override
@@ -90,19 +90,19 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse addEnumerate(Session session, String type, String value) {
+	public CrxResponse addEnumerate(Session session, String type, String value) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SystemController systemController = new SystemController(session,em);
-		OssResponse resp = systemController.addEnumerate(type, value);
+		CrxResponse resp = systemController.addEnumerate(type, value);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteEnumerate(Session session, String type, String value) {
+	public CrxResponse deleteEnumerate(Session session, String type, String value) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SystemController systemController = new SystemController(session,em);
-		OssResponse resp = systemController.deleteEnumerate(type, value);
+		CrxResponse resp = systemController.deleteEnumerate(type, value);
 		em.close();
 		return resp;
 	}
@@ -126,30 +126,30 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setConfig(Session session, String key, String value) {
+	public CrxResponse setConfig(Session session, String key, String value) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SystemController systemController = new SystemController(session,em);
 		if( systemController.setConfigValue(key, value) ) {
 			em.close();
-			return new OssResponse(session,"OK","Global configuration value was set succesfully.");
+			return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
 		} else {
 			em.close();
-			return new OssResponse(session,"ERROR","Global configuration value could not be set.");
+			return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
 		}
 	}
 
 	@Override
-	public OssResponse setConfig(Session session, Map<String, String> config) {
+	public CrxResponse setConfig(Session session, Map<String, String> config) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SystemController systemController = new SystemController(session,em);
 		try {
 			if( systemController.setConfigValue(config.get("key"), config.get("value")) ) {
-				return new OssResponse(session,"OK","Global configuration value was set succesfully.");
+				return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
 			} else {
-				return new OssResponse(session,"ERROR","Global configuration value could not be set.");
+				return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
 			}
 		} catch(Exception e) {
-			return new OssResponse(session,"ERROR","Global configuration value could not be set.");
+			return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
 		} finally {
 			em.close();
 		}
@@ -165,10 +165,10 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setFirewallIncomingRules(Session session, Map<String, String> incommingRules) {
+	public CrxResponse setFirewallIncomingRules(Session session, Map<String, String> incommingRules) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SystemController systemController = new SystemController(session,em);
-		OssResponse resp = systemController.setFirewallIncomingRules(incommingRules);
+		CrxResponse resp = systemController.setFirewallIncomingRules(incommingRules);
 		em.close();
 		return resp;
 	}
@@ -183,10 +183,10 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setFirewallOutgoingRules(Session session, List<Map<String, String>> outgoingRules) {
+	public CrxResponse setFirewallOutgoingRules(Session session, List<Map<String, String>> outgoingRules) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SystemController systemController = new SystemController(session,em);
-		OssResponse resp = systemController.setFirewallOutgoingRules(outgoingRules);
+		CrxResponse resp = systemController.setFirewallOutgoingRules(outgoingRules);
 		em.close();
 		return resp;
 	}
@@ -201,10 +201,10 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setFirewallRemoteAccessRules(Session session, List<Map<String, String>> remoteAccessRules) {
+	public CrxResponse setFirewallRemoteAccessRules(Session session, List<Map<String, String>> remoteAccessRules) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SystemController systemController = new SystemController(session,em);
-		OssResponse resp = systemController.setFirewallRemoteAccessRules(remoteAccessRules);
+		CrxResponse resp = systemController.setFirewallRemoteAccessRules(remoteAccessRules);
 		em.close();
 		return resp;
 	}
@@ -218,9 +218,9 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse addTranslation(Session session, Translation translation) {
+	public CrxResponse addTranslation(Session session, Translation translation) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).addTranslation(translation);
+		CrxResponse resp = new SystemController(session,em).addTranslation(translation);
 		em.close();
 		return resp;
 	}
@@ -234,9 +234,9 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse register(Session session) {
+	public CrxResponse register(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).registerSystem();
+		CrxResponse resp = new SystemController(session,em).registerSystem();
 		em.close();
 		return resp;
 	}
@@ -250,25 +250,25 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse installPackages(Session session, List<String> packages) {
+	public CrxResponse installPackages(Session session, List<String> packages) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).installPackages(packages);
+		CrxResponse resp = new SystemController(session,em).installPackages(packages);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse updatePackages(Session session, List<String> packages) {
+	public CrxResponse updatePackages(Session session, List<String> packages) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).updatePackages(packages);
+		CrxResponse resp = new SystemController(session,em).updatePackages(packages);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse updateSyste(Session session) {
+	public CrxResponse updateSyste(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).updateSystem();
+		CrxResponse resp = new SystemController(session,em).updateSystem();
 		em.close();
 		return resp;
 	}
@@ -282,9 +282,9 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setProxyDefault(Session session, String role, List<ProxyRule> acl) {
+	public CrxResponse setProxyDefault(Session session, String role, List<ProxyRule> acl) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new ProxyController(session,em).setDefaults(role, acl);
+		CrxResponse resp = new ProxyController(session,em).setDefaults(role, acl);
 		em.close();
 		return resp;
 	}
@@ -298,9 +298,9 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setProxyDefaults(Session session, String role, Map<String, List<ProxyRule>> acls) {
+	public CrxResponse setProxyDefaults(Session session, String role, Map<String, List<ProxyRule>> acls) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new ProxyController(session,em).setDefaults(acls);
+		CrxResponse resp = new ProxyController(session,em).setDefaults(acls);
 		em.close();
 		return resp;
 	}
@@ -317,7 +317,7 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setTheCustomList(Session session, String list, List<String> domains) {
+	public CrxResponse setTheCustomList(Session session, String list, List<String> domains) {
 		try {
 			Files.write(Paths.get("/var/lib/squidGuard/db/custom/" +list + "/domains"),domains);
 			String[] program   = new String[5];
@@ -330,15 +330,15 @@ public class SystemResourceImpl implements SystemResource {
 			program[4] = "custom/" +list + "/domains";
 			OSSShellTools.exec(program, reply, error, null);
 			new Controller(session,null).systemctl("try-restart", "squid");
-			return new OssResponse(session,"OK","Custom list was written successfully");
+			return new CrxResponse(session,"OK","Custom list was written successfully");
 		} catch( IOException e ) {
 			e.printStackTrace();
 		}
-		return new OssResponse(session,"ERROR","Could not write custom list.");
+		return new CrxResponse(session,"ERROR","Could not write custom list.");
 	}
 
 	@Override
-	public OssResponse createJob(Session session, Job job) {
+	public CrxResponse createJob(Session session, Job job) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		return new JobController(session,em).createJob(job);
 	}
@@ -356,17 +356,17 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setJobExitValue(Session session, Long jobId, Integer exitValue) {
+	public CrxResponse setJobExitValue(Session session, Long jobId, Integer exitValue) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new JobController(session,em).setExitCode(jobId, exitValue);
+		CrxResponse resp = new JobController(session,em).setExitCode(jobId, exitValue);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse restartJob(Session session, Long jobId) {
+	public CrxResponse restartJob(Session session, Long jobId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new JobController(session,em).restartJob(jobId);
+		CrxResponse resp = new JobController(session,em).restartJob(jobId);
 		em.close();
 		return resp;
 	}
@@ -392,9 +392,9 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setAclOfGroup(Session session, Long groupId, Acl acl) {
+	public CrxResponse setAclOfGroup(Session session, Long groupId, Acl acl) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).setAclToGroup(groupId,acl);
+		CrxResponse resp = new SystemController(session,em).setAclToGroup(groupId,acl);
 		em.close();
 		return resp;
 	}
@@ -408,10 +408,10 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse deleteAclsOfGroup(Session session, Long groupId) {
+	public CrxResponse deleteAclsOfGroup(Session session, Long groupId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Group group = em.find(Group.class, groupId);
-		OssResponse resp = new OssResponse(session,"OK","Acls was deleted succesfully.");
+		CrxResponse resp = new CrxResponse(session,"OK","Acls was deleted succesfully.");
 		if( group != null ) {
 			em.getTransaction().begin();
 			for(Acl acl : group.getAcls() ) {
@@ -421,7 +421,7 @@ public class SystemResourceImpl implements SystemResource {
 			em.merge(group);
 			em.getTransaction().commit();
 		} else {
-			resp = new OssResponse(session,"ERROR","Group can not be find.");
+			resp = new CrxResponse(session,"ERROR","Group can not be find.");
 		}
 		return resp;
 	}
@@ -435,9 +435,9 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setAclOfUser(Session session, Long userId, Acl acl) {
+	public CrxResponse setAclOfUser(Session session, Long userId, Acl acl) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).setAclToUser(userId,acl);
+		CrxResponse resp = new SystemController(session,em).setAclToUser(userId,acl);
 		em.close();
 		return resp;
 	}
@@ -451,10 +451,10 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse deleteAclsOfUser(Session session, Long userId) {
+	public CrxResponse deleteAclsOfUser(Session session, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		User user = em.find(User.class, userId);
-		OssResponse resp = new OssResponse(session,"OK","Acls was deleted succesfully.");
+		CrxResponse resp = new CrxResponse(session,"OK","Acls was deleted succesfully.");
 		if( user != null ) {
 			em.getTransaction().begin();
 			for(Acl acl : user.getAcls() ) {
@@ -464,7 +464,7 @@ public class SystemResourceImpl implements SystemResource {
 			em.merge(user);
 			em.getTransaction().commit();
 		} else {
-			resp = new OssResponse(session,"ERROR","Group can not be find.");
+			resp = new CrxResponse(session,"ERROR","Group can not be find.");
 		}
 		return resp;
 	}
@@ -520,17 +520,17 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse addDnsDomain(Session session, String domainName) {
+	public CrxResponse addDnsDomain(Session session, String domainName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).addDnsDomain(domainName);
+		CrxResponse resp = new SystemController(session,em).addDnsDomain(domainName);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteDnsDomain(Session session, String domainName) {
+	public CrxResponse deleteDnsDomain(Session session, String domainName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).deleteDnsDomain(domainName);
+		CrxResponse resp = new SystemController(session,em).deleteDnsDomain(domainName);
 		em.close();
 		return resp;
 	}
@@ -543,25 +543,25 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse addDnsRecord(Session session, DnsRecord dnsRecord) {
+	public CrxResponse addDnsRecord(Session session, DnsRecord dnsRecord) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).addDnsRecord(dnsRecord);
+		CrxResponse resp = new SystemController(session,em).addDnsRecord(dnsRecord);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteDnsRecord(Session session, DnsRecord dnsRecord) {
+	public CrxResponse deleteDnsRecord(Session session, DnsRecord dnsRecord) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).deleteDnsRecord(dnsRecord);
+		CrxResponse resp = new SystemController(session,em).deleteDnsRecord(dnsRecord);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse findObject(Session session, String objectType, LinkedHashMap<String,Object> object) {
+	public CrxResponse findObject(Session session, String objectType, LinkedHashMap<String,Object> object) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SystemController(session,em).findObject(objectType, object);
+		CrxResponse resp = new SystemController(session,em).findObject(objectType, object);
 		em.close();
 		return resp;
 	}
@@ -586,7 +586,7 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
-	public OssResponse setServicesStatus(Session session, String name, String what, String value) {
+	public CrxResponse setServicesStatus(Session session, String name, String what, String value) {
 		String[] program    = new String[3];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -609,23 +609,23 @@ public class SystemResourceImpl implements SystemResource {
 		}
 		logger.debug(program[0] + " " + program[1] + " " + program[2]);
 		if( OSSShellTools.exec(program, reply, stderr, null) == 0 ) {
-			return new OssResponse(session,"OK","Service state was set successfully.");
+			return new CrxResponse(session,"OK","Service state was set successfully.");
 		} else {
-			return new OssResponse(session,"ERROR",stderr.toString());
+			return new CrxResponse(session,"ERROR",stderr.toString());
 		}
 	}
 
 	@Override
-	public OssResponse applyActionForAddon(Session session, String name, String action) {
+	public CrxResponse applyActionForAddon(Session session, String name, String action) {
 		String[] program    = new String[2];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		program[0] = cranixBaseDir + "addons/" + name + "/action.sh";
 		program[1] =  action;
 		if( OSSShellTools.exec(program, reply, stderr, null) == 0 ) {
-			return new OssResponse(session,"OK","Service state was set successfully.");
+			return new CrxResponse(session,"OK","Service state was set successfully.");
 		} else {
-			return new OssResponse(session,"ERROR",stderr.toString());
+			return new CrxResponse(session,"ERROR",stderr.toString());
 		}
 	}
 

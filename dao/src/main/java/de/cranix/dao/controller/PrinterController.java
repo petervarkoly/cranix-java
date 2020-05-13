@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.cranix.dao.Device;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 import de.cranix.dao.Session;
 import de.cranix.dao.tools.OSSShellTools;
@@ -148,18 +148,18 @@ public class PrinterController extends Controller {
 	 * @param printerId
 	 * @return
 	 */
-	public OssResponse deletePrinter(Long printerId) {
+	public CrxResponse deletePrinter(Long printerId) {
 		/*if( session.getPassword().equals("dummy") ) {
 			logger.error("deletePrinter: The session password of the administrator is expiered.");
-			return new OssResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
+			return new CrxResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
 		}*/
 
-		OssResponse ossResponse = new OssResponse(session,"OK","Printer was deleted succesfully.");
+		CrxResponse ossResponse = new CrxResponse(session,"OK","Printer was deleted succesfully.");
 		try {
 			Printer printer = this.em.find(Printer.class, printerId);
 			if( printer == null ) {
 				logger.error("deletePrinter: Can not find printer.");
-				return new OssResponse(this.getSession(),"ERROR", "Can not find printer with id %s.",null,String.valueOf(printerId));
+				return new CrxResponse(this.getSession(),"ERROR", "Can not find printer with id %s.",null,String.valueOf(printerId));
 			}
 			Device  printerDevice = printer.getDevice();
 			String[] program    = new String[3];
@@ -190,10 +190,10 @@ public class PrinterController extends Controller {
 		return ossResponse;
 	}
 
-	public OssResponse activateWindowsDriver(String printerName) {
+	public CrxResponse activateWindowsDriver(String printerName) {
 		logger.debug("Activating windows driver for: " + printerName);
 		if( session.getPassword().equals("dummy") ) {
-			return new OssResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
+			return new CrxResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
 		}
 		String printserver   = this.getConfigValue("PRINTSERVER");
 		String[] program     = new String[7];
@@ -214,7 +214,7 @@ public class PrinterController extends Controller {
 		}
 		logger.debug("activateWindowsDriver cupsaddsmb stderr: " + stderr.toString());
 		if( success != 0 ) {
-			return new OssResponse(session,"ERROR", stderr.toString());
+			return new CrxResponse(session,"ERROR", stderr.toString());
 		}
 		program     = new String[6];
 		program[0] = "/usr/bin/rpcclient";
@@ -227,15 +227,15 @@ public class PrinterController extends Controller {
 		OSSShellTools.exec(program, reply, stderr, null);
 		logger.debug("activateWindowsDriver error" + stderr.toString());
 		logger.debug("activateWindowsDriver reply" + reply.toString());
-		return new OssResponse(session,"OK","Windows driver was activated.");
+		return new CrxResponse(session,"OK","Windows driver was activated.");
 	}
 
-	public OssResponse addPrinter(String name, String mac, Long roomId, String model, boolean windowsDriver,
+	public CrxResponse addPrinter(String name, String mac, Long roomId, String model, boolean windowsDriver,
 			InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
 		logger.debug("addPrinter: " + name + "#" + mac + "#" + roomId + "#" + model +"#" + ( windowsDriver ? "yes" : "no" ) + "#" + session.getPassword() );
 
 		if( session.getPassword().equals("dummy") ) {
-			return new OssResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
+			return new CrxResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
 		}
 		//First we create a device object
 		RoomController roomController = new RoomController(this.session,this.em);;
@@ -248,18 +248,18 @@ public class PrinterController extends Controller {
 		List<Device> devices = new ArrayList<Device>();
 		devices.add(device);
 		//Persist the device object
-		OssResponse ossResponse = roomController.addDevices(roomId, devices);
+		CrxResponse ossResponse = roomController.addDevices(roomId, devices);
 		if( ossResponse.getCode().equals("ERROR")) {
 			return ossResponse;
 		}
 		return addPrinterQueue(session,name,device.getId(),model,windowsDriver,fileInputStream,contentDispositionHeader);
 	}
 
-	public OssResponse addPrinterQueue(Session session, String name, Long deviceId, String model, boolean windowsDriver,
+	public CrxResponse addPrinterQueue(Session session, String name, Long deviceId, String model, boolean windowsDriver,
 				InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
 
 		if( session.getPassword().equals("dummy") ) {
-			return new OssResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
+			return new CrxResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
 		}
 		String deviceHostName;
 		Printer printer = new Printer();
@@ -278,7 +278,7 @@ public class PrinterController extends Controller {
 			deviceHostName = device.getName();
 		} catch (Exception e){
 			logger.debug("addPrinterQueue :" + e.getMessage());
-			return new OssResponse(session,"ERROR",e.getMessage());
+			return new CrxResponse(session,"ERROR",e.getMessage());
 		} finally {
 		}
 		//Create the printer in CUPS
@@ -290,7 +290,7 @@ public class PrinterController extends Controller {
 				Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
-				return new OssResponse(session,"ERROR", e.getMessage());
+				return new CrxResponse(session,"ERROR", e.getMessage());
 			}
 			driverFile = file.toPath().toString();
 		} else {
@@ -304,7 +304,7 @@ public class PrinterController extends Controller {
 				}
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
-				return new OssResponse(session,"ERROR", e.getMessage());
+				return new CrxResponse(session,"ERROR", e.getMessage());
 			}
 		}
 		logger.debug("Add printer/usr/sbin/lpadmin -p " + name + " -P " + driverFile + " -o printer-error-policy=abort-job -o PageSize=A4 -v socket://" + name   );
@@ -349,21 +349,21 @@ public class PrinterController extends Controller {
 		} while( !stderr.toString().isEmpty() && tries > -1  );
 		
 		if(windowsDriver) {
-			OssResponse ossResponse = activateWindowsDriver(name);
+			CrxResponse ossResponse = activateWindowsDriver(name);
 			if( ossResponse.getCode().equals("ERROR")) { 
 				return ossResponse;
 			}
 		}
 		enablePrinter(name);
 
-		return new OssResponse(
+		return new CrxResponse(
 				session,"OK",
 				"Printer was created succesfully.",
 				printer.getId()
 				);
 	}
 
-	public OssResponse enablePrinter(String printerName) {
+	public CrxResponse enablePrinter(String printerName) {
 		String[] program = new String[2];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -373,10 +373,10 @@ public class PrinterController extends Controller {
 		program[0] = "/usr/sbin/cupsaccept";
 		program[1] = printerName;
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(session,"OK","Printer was enabled succesfully.");
+		return new CrxResponse(session,"OK","Printer was enabled succesfully.");
 	}
 
-	public OssResponse disablePrinter(String printerName) {
+	public CrxResponse disablePrinter(String printerName) {
 		String[] program = new String[2];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -386,7 +386,7 @@ public class PrinterController extends Controller {
 		program[0] = "/usr/sbin/cupsreject";
 		program[1] = printerName;
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(session,"OK","Printer was disabled succesfully.");
+		return new CrxResponse(session,"OK","Printer was disabled succesfully.");
 	}
 
 }

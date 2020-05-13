@@ -16,9 +16,9 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import de.cranix.api.resources.DeviceResource;
 import de.cranix.dao.Device;
-import de.cranix.dao.OSSMConfig;
-import de.cranix.dao.OssActionMap;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxMConfig;
+import de.cranix.dao.CrxActionMap;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 import de.cranix.dao.Session;
 import de.cranix.dao.controller.DHCPConfig;
@@ -156,42 +156,42 @@ public class DeviceResourceImpl implements DeviceResource {
 	}
 
 	@Override
-	public OssResponse setDefaultPrinter(Session session, Long deviceId, Long defaultPrinterId) {
+	public CrxResponse setDefaultPrinter(Session session, Long deviceId, Long defaultPrinterId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final DeviceController deviceController = new DeviceController(session,em);
-		OssResponse resp = deviceController.setDefaultPrinter(deviceId,defaultPrinterId);
+		CrxResponse resp = deviceController.setDefaultPrinter(deviceId,defaultPrinterId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteDefaultPrinter(Session session, Long deviceId) {
+	public CrxResponse deleteDefaultPrinter(Session session, Long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new DeviceController(session,em).deleteDefaultPrinter(deviceId);
+		CrxResponse resp = new DeviceController(session,em).deleteDefaultPrinter(deviceId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addAvailablePrinters(Session session, Long deviceId, Long printerId) {
+	public CrxResponse addAvailablePrinters(Session session, Long deviceId, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new DeviceController(session,em).addAvailablePrinter(deviceId, printerId);
+		CrxResponse resp = new DeviceController(session,em).addAvailablePrinter(deviceId, printerId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteAvailablePrinters(Session session, Long deviceId, Long printerId) {
+	public CrxResponse deleteAvailablePrinters(Session session, Long deviceId, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new DeviceController(session,em).deleteAvailablePrinter(deviceId, printerId);
+		CrxResponse resp = new DeviceController(session,em).deleteAvailablePrinter(deviceId, printerId);
 		em.close();
 		return resp;
 	}
 	@Override
-	public OssResponse setLoggedInUsers(Session session, String IP, String userName) {
+	public CrxResponse setLoggedInUsers(Session session, String IP, String userName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final DeviceController deviceController = new DeviceController(session,em);
-		OssResponse resp = deviceController.setLoggedInUsers(IP, userName);
+		CrxResponse resp = deviceController.setLoggedInUsers(IP, userName);
 		em.close();
 		return resp;
 	}
@@ -208,16 +208,16 @@ public class DeviceResourceImpl implements DeviceResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Session session  = new SessionController(em).getLocalhostSession();
 		final DeviceController deviceController = new DeviceController(session,em);
-		OssResponse resp = deviceController.setLoggedInUserByMac(MAC, userName);
+		CrxResponse resp = deviceController.setLoggedInUserByMac(MAC, userName);
 		em.close();
 		return resp.getCode() + " " + resp.getValue();
 	}
 
 	@Override
-	public OssResponse deleteLoggedInUser(Session session, String IP, String userName) {
+	public CrxResponse deleteLoggedInUser(Session session, String IP, String userName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final DeviceController deviceController = new DeviceController(session,em);
-		OssResponse resp =  deviceController.removeLoggedInUser(IP, userName);
+		CrxResponse resp =  deviceController.removeLoggedInUser(IP, userName);
 		em.close();
 		return resp;
 	}
@@ -234,7 +234,7 @@ public class DeviceResourceImpl implements DeviceResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Session session  = new SessionController(em).getLocalhostSession();
 		final DeviceController deviceController = new DeviceController(session,em);
-		OssResponse resp =  deviceController.removeLoggedInUserByMac(MAC, userName);
+		CrxResponse resp =  deviceController.removeLoggedInUserByMac(MAC, userName);
 		em.close();
 		return resp.getCode() + " " + resp.getValue();
 	}
@@ -256,35 +256,35 @@ public class DeviceResourceImpl implements DeviceResource {
 	}
 
 	@Override
-	public OssResponse modify(Session session, Device device) {
+	public CrxResponse modify(Session session, Device device) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp =  new DeviceController(session,em).modify(device);
+		CrxResponse resp =  new DeviceController(session,em).modify(device);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modify(Session session, Long deviceId, Device device) {
+	public CrxResponse modify(Session session, Long deviceId, Device device) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		device.setId(deviceId);
-		OssResponse resp =  new DeviceController(session,em).modify(device);
+		CrxResponse resp =  new DeviceController(session,em).modify(device);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse forceModify(Session session, Device device) {
+	public CrxResponse forceModify(Session session, Device device) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp =  new DeviceController(session,em).forceModify(device);
+		CrxResponse resp =  new DeviceController(session,em).forceModify(device);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse delete(Session session, Long deviceId) {
+	public CrxResponse delete(Session session, Long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final DeviceController deviceController = new DeviceController(session,em);
-		OssResponse resp = deviceController.delete(deviceId,true);
+		CrxResponse resp = deviceController.delete(deviceId,true);
 		em.close();
 		return resp;
 	}
@@ -307,10 +307,10 @@ public class DeviceResourceImpl implements DeviceResource {
 	}
 
 	@Override
-	public OssResponse importDevices(Session session, InputStream fileInputStream,
+	public CrxResponse importDevices(Session session, InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new DeviceController(session,em).importDevices(fileInputStream, contentDispositionHeader);
+		CrxResponse resp = new DeviceController(session,em).importDevices(fileInputStream, contentDispositionHeader);
 		em.close();
 		return resp;
 	}
@@ -354,33 +354,33 @@ public class DeviceResourceImpl implements DeviceResource {
 	}
 
 	@Override
-	public OssResponse manageDevice(Session session, Long deviceId, String action) {
+	public CrxResponse manageDevice(Session session, Long deviceId, String action) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,null);
+		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,null);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse manageDevice(Session session, String deviceName, String action) {
+	public CrxResponse manageDevice(Session session, String deviceName, String action) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new DeviceController(session,em).manageDevice(deviceName,action,null);
+		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceName,action,null);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse manageDevice(Session session, Long deviceId, String action, Map<String, String> actionContent) {
+	public CrxResponse manageDevice(Session session, Long deviceId, String action, Map<String, String> actionContent) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,actionContent);
+		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,actionContent);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse cleanUpLoggedIn(Session session) {
+	public CrxResponse cleanUpLoggedIn(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new DeviceController(session,em).cleanUpLoggedIn();
+		CrxResponse resp = new DeviceController(session,em).cleanUpLoggedIn();
 		em.close();
 		return resp;
 	}
@@ -428,15 +428,15 @@ public class DeviceResourceImpl implements DeviceResource {
 	}
 
 	@Override
-	public List<OSSMConfig> getDHCP(Session session, Long deviceId) {
+	public List<CrxMConfig> getDHCP(Session session, Long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<OSSMConfig> dhcpParameters = new ArrayList<OSSMConfig>();
+		List<CrxMConfig> dhcpParameters = new ArrayList<CrxMConfig>();
 		DeviceController deviceController = new DeviceController(session,em);
 		Device device = deviceController.getById(deviceId);
-		for(OSSMConfig config : deviceController.getMConfigObjects(device, "dhcpStatements") ) {
+		for(CrxMConfig config : deviceController.getMConfigObjects(device, "dhcpStatements") ) {
 			dhcpParameters.add(config);
 		}
-		for(OSSMConfig config : deviceController.getMConfigObjects(device, "dhcpOptions") ) {
+		for(CrxMConfig config : deviceController.getMConfigObjects(device, "dhcpOptions") ) {
 			dhcpParameters.add(config);
 		}
 		em.close();
@@ -444,14 +444,14 @@ public class DeviceResourceImpl implements DeviceResource {
 	}
 
 	@Override
-	public OssResponse addDHCP(Session session, Long deviceId, OSSMConfig dhcpParameter) {
+	public CrxResponse addDHCP(Session session, Long deviceId, CrxMConfig dhcpParameter) {
 		if( !dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions") ) {
-			return new OssResponse(session,"ERROR","Bad DHCP parameter.");
+			return new CrxResponse(session,"ERROR","Bad DHCP parameter.");
 		}
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		DeviceController deviceController = new DeviceController(session,em);
 		Device device = deviceController.getById(deviceId);
-		OssResponse ossResponse = deviceController.addMConfig(device, dhcpParameter.getKeyword(), dhcpParameter.getValue());
+		CrxResponse ossResponse = deviceController.addMConfig(device, dhcpParameter.getKeyword(), dhcpParameter.getValue());
 		if( ossResponse.getCode().equals("ERROR") ) {
 			em.close();
 			return ossResponse;
@@ -465,30 +465,30 @@ public class DeviceResourceImpl implements DeviceResource {
 		}
 		new DHCPConfig(session,em).Create();
 		em.close();
-		return new OssResponse(session,"OK","DHCP Parameter was added succesfully");
+		return new CrxResponse(session,"OK","DHCP Parameter was added succesfully");
 	}
 
 	@Override
-	public OssResponse deleteDHCP(Session session, Long deviceId, Long parameterId) {
+	public CrxResponse deleteDHCP(Session session, Long deviceId, Long parameterId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		DeviceController deviceController = new DeviceController(session,em);
 		Device device = deviceController.getById(deviceId);
-		OssResponse resp = deviceController.deleteMConfig(device,parameterId);
+		CrxResponse resp = deviceController.deleteMConfig(device,parameterId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setPrinters(Session session, Long deviceId, Map<String, List<Long>> printers) {
+	public CrxResponse setPrinters(Session session, Long deviceId, Map<String, List<Long>> printers) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		DeviceController deviceController = new DeviceController(session,em);
-		OssResponse resp = deviceController.setPrinters(deviceId,printers);
+		CrxResponse resp = deviceController.setPrinters(deviceId,printers);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse applyAction(Session session, OssActionMap actionMap) {
+	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
 		// TODO Auto-generated method stub
 		return null;
 	}

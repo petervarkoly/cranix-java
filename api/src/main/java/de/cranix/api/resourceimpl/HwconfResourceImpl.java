@@ -10,8 +10,8 @@ import de.cranix.api.resources.HwconfResource;
 import de.cranix.dao.Clone;
 import de.cranix.dao.Device;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OssActionMap;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxActionMap;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Partition;
 import de.cranix.dao.Session;
 import de.cranix.dao.controller.CloneToolController;
@@ -41,17 +41,17 @@ public class HwconfResourceImpl implements HwconfResource {
 	}
 
 	@Override
-	public OssResponse add(Session session, HWConf hwconf) {
+	public CrxResponse add(Session session, HWConf hwconf) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).addHWConf(hwconf);
+		CrxResponse resp = new CloneToolController(session,em).addHWConf(hwconf);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modifyHWConf(Session session, Long hwconfId, HWConf hwconf) {
+	public CrxResponse modifyHWConf(Session session, Long hwconfId, HWConf hwconf) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).modifyHWConf(hwconfId, hwconf);
+		CrxResponse resp = new CloneToolController(session,em).modifyHWConf(hwconfId, hwconf);
 		em.close();
 		return resp;
 	}
@@ -68,25 +68,25 @@ public class HwconfResourceImpl implements HwconfResource {
 	}
 
 	@Override
-	public OssResponse addPartition(Session session, Long hwconfId, Partition partition) {
+	public CrxResponse addPartition(Session session, Long hwconfId, Partition partition) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).addPartitionToHWConf(hwconfId, partition);
+		CrxResponse resp = new CloneToolController(session,em).addPartitionToHWConf(hwconfId, partition);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse delete(Session session, Long hwconfId) {
+	public CrxResponse delete(Session session, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).delete(hwconfId);
+		CrxResponse resp = new CloneToolController(session,em).delete(hwconfId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deletePartition(Session session, Long hwconfId, String partitionName) {
+	public CrxResponse deletePartition(Session session, Long hwconfId, String partitionName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).deletePartition(hwconfId,partitionName);
+		CrxResponse resp = new CloneToolController(session,em).deletePartition(hwconfId,partitionName);
 		em.close();
 		return resp;
 	}
@@ -100,48 +100,48 @@ public class HwconfResourceImpl implements HwconfResource {
 	}
 
 	@Override
-	public OssResponse startRecover(Session session, Long hwconfId, Clone parameters) {
+	public CrxResponse startRecover(Session session, Long hwconfId, Clone parameters) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).startCloning(hwconfId,parameters);
+		CrxResponse resp = new CloneToolController(session,em).startCloning(hwconfId,parameters);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse startRecover(Session session, Long hwconfId, int multiCast) {
+	public CrxResponse startRecover(Session session, Long hwconfId, int multiCast) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		return new CloneToolController(session,em).startCloning("hwconf", hwconfId, multiCast);
 	}
 
 	@Override
-	public OssResponse stopRecover(Session session, Long hwconfId) {
+	public CrxResponse stopRecover(Session session, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).stopCloning("hwconf",hwconfId);
+		CrxResponse resp = new CloneToolController(session,em).stopCloning("hwconf",hwconfId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse startMulticast(Session session, Long partitionId, String networkDevice) {
+	public CrxResponse startMulticast(Session session, Long partitionId, String networkDevice) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).startMulticast(partitionId,networkDevice);
+		CrxResponse resp = new CloneToolController(session,em).startMulticast(partitionId,networkDevice);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modifyPartition(Session session, Long partitionId, Partition partition) {
+	public CrxResponse modifyPartition(Session session, Long partitionId, Partition partition) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).modifyPartition(partitionId, partition);
+		CrxResponse resp = new CloneToolController(session,em).modifyPartition(partitionId, partition);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse importHWConfs(Session session, List<HWConf> hwconfs) {
+	public CrxResponse importHWConfs(Session session, List<HWConf> hwconfs) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CloneToolController  cloneToolController = new CloneToolController(session,em);
-		OssResponse ossResponse = null;
+		CrxResponse ossResponse = null;
 		for( HWConf hwconf : hwconfs ) {
 			ossResponse = cloneToolController.addHWConf(hwconf);
 			if( ossResponse.getCode().equals("ERROR")) {
@@ -153,7 +153,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	}
 
 	@Override
-	public OssResponse applyAction(Session session, OssActionMap actionMap) {
+	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
 		// TODO Auto-generated method stub
 		return null;
 	}

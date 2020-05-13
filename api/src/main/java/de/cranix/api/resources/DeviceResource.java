@@ -21,10 +21,10 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import de.cranix.dao.Device;
-import de.cranix.dao.OSSMConfig;
-import de.cranix.dao.OssActionMap;
+import de.cranix.dao.CrxMConfig;
+import de.cranix.dao.CrxActionMap;
 import de.cranix.dao.Session;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 
 import java.io.InputStream;
@@ -286,7 +286,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
-	OssResponse setPrinters(
+	CrxResponse setPrinters(
 	@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("deviceId") Long deviceId,
 			Map<String, List<Long>> printers
@@ -303,7 +303,7 @@ public interface DeviceResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse setDefaultPrinter(
+	CrxResponse setDefaultPrinter(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @PathParam("printerId") Long printerId
@@ -320,7 +320,7 @@ public interface DeviceResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse deleteDefaultPrinter(
+	CrxResponse deleteDefaultPrinter(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId
 	);
@@ -368,7 +368,7 @@ public interface DeviceResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse addAvailablePrinters(
+	CrxResponse addAvailablePrinters(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @PathParam("printerId") Long printerId
@@ -385,7 +385,7 @@ public interface DeviceResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse deleteAvailablePrinters(
+	CrxResponse deleteAvailablePrinters(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @PathParam("printerId") Long printerId
@@ -431,7 +431,7 @@ public interface DeviceResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse setLoggedInUsers(
+	CrxResponse setLoggedInUsers(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("IP") String IP,
 	        @PathParam("userName") String userName
@@ -462,7 +462,7 @@ public interface DeviceResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse deleteLoggedInUser(
+	CrxResponse deleteLoggedInUser(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("IP") String IP,
 	        @PathParam("userName") String userName
@@ -521,7 +521,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
-	OssResponse modify(
+	CrxResponse modify(
 	@ApiParam(hidden = true) @Auth Session session,
 	        Device device
 	);
@@ -534,7 +534,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
-	OssResponse forceModify(
+	CrxResponse forceModify(
 	@ApiParam(hidden = true) @Auth Session session,
 	        Device device
 	);
@@ -547,7 +547,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
-	OssResponse modify(
+	CrxResponse modify(
 	@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("deviceId") Long deviceId,
 	        Device device
@@ -564,7 +564,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.delete")
-	OssResponse delete(
+	CrxResponse delete(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	);
@@ -583,7 +583,7 @@ public interface DeviceResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse importDevices(
+	CrxResponse importDevices(
 	@ApiParam(hidden = true) @Auth Session session,
 	        @FormDataParam("file") final InputStream fileInputStream,
 	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
@@ -618,7 +618,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse manageDevice(
+	CrxResponse manageDevice(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @PathParam("action") String action
@@ -636,7 +636,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse manageDevice(
+	CrxResponse manageDevice(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceName") String deviceName,
 	        @PathParam("action") String action
@@ -657,7 +657,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse manageDevice(
+	CrxResponse manageDevice(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @PathParam("action") String action,
@@ -673,7 +673,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
-	OssResponse cleanUpLoggedIn(
+	CrxResponse cleanUpLoggedIn(
 	        @ApiParam(hidden = true) @Auth Session session
 	);
 
@@ -684,13 +684,13 @@ public interface DeviceResource {
 	 * Gets the active dhcp parameter of a device
 	 * @param session
 	 * @param deviceId
-	 * @return a list of OSSMConfig objects representing the DHCP parameters
+	 * @return a list of CrxMConfig objects representing the DHCP parameters
 	 */
 	@GET
 	@Path("{deviceId}/dhcp")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the active dhcp parameter of a device:",
-			notes =  "How to evaluate the OSSMConfig object:<br>"
+			notes =  "How to evaluate the CrxMConfig object:<br>"
 			+ "id: ID of the dhcp parameter object<br>"
 			+ "objectType: Device, but in this case it can be ignored.<br>"
 			+ "objectId: the device id<br>"
@@ -702,7 +702,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	List<OSSMConfig> getDHCP(
+	List<CrxMConfig> getDHCP(
 			@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId
 	        );
@@ -711,7 +711,7 @@ public interface DeviceResource {
 	@Path("{deviceId}/dhcp")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Adds a new dhcp parameter to a device",
-			notes = "How to setup the OSSMConfig object:<br>"
+			notes = "How to setup the CrxMConfig object:<br>"
 					+ "keyword: this can be dhcpOptions or dhcpStatements<br>"
 					+ "value: the value of the dhcpOption or dhcpStatement.<br>"
 					+ "Other parameter can be ignored.")
@@ -720,10 +720,10 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	OssResponse addDHCP(
+	CrxResponse addDHCP(
 			@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
-	        OSSMConfig dhcpParameter
+	        CrxMConfig dhcpParameter
 	        );
 
 	@DELETE
@@ -735,7 +735,7 @@ public interface DeviceResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	OssResponse deleteDHCP(
+	CrxResponse deleteDHCP(
 			@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @PathParam("parameterId") Long parameterId
@@ -744,8 +744,8 @@ public interface DeviceResource {
 	/**
 	 * Apply actions on a list of devices.
 	 * @param session
-	 * @return The result in an OssResponse object
-	 * @see OssResponse
+	 * @return The result in an CrxResponse object
+	 * @see CrxResponse
 	 */
 	@POST
 	@Path("applyAction")
@@ -754,8 +754,8 @@ public interface DeviceResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("device.manage")
-	OssResponse applyAction(
+	CrxResponse applyAction(
 			@ApiParam(hidden = true) @Auth Session session,
-			OssActionMap actionMap
+			CrxActionMap actionMap
 			);
 }

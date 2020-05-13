@@ -6,30 +6,28 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 /**
- * The persistent class for the OSSMConfir database table.
+ * The persistent class for the CrxConfig database table.
  *
  */
 @Entity
-@Table(name="OSSMConfig")
+@Table(name="CrxConfig")
 @NamedQueries({
-		@NamedQuery(name="OSSMConfig.getAllForKey",query="SELECT c FROM OSSMConfig c WHERE c.keyword = :keyword"),
-        @NamedQuery(name="OSSMConfig.getAllById",  query="SELECT c FROM OSSMConfig c WHERE c.objectType = :type AND c.objectId = :id"),
-        @NamedQuery(name="OSSMConfig.getAllByKey", query="SELECT c FROM OSSMConfig c WHERE c.objectType = :type AND c.keyword  = :keyword"),
-        @NamedQuery(name="OSSMConfig.get",         query="SELECT c FROM OSSMConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword"),
-        @NamedQuery(name="OSSMConfig.getAllObject",query="SELECT c FROM OSSMConfig c WHERE c.objectType = :type AND c.keyword = :keyword AND c.value = :value"),
-        @NamedQuery(name="OSSMConfig.check",       query="SELECT c FROM OSSMConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword AND c.value = :value")
+	    @NamedQuery(name="CrxConfig.getAllById",    query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id"),
+        @NamedQuery(name="CrxConfig.getAllByKey",   query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.keyword  = :keyword"),
+        @NamedQuery(name="CrxConfig.get",           query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword"),
+        @NamedQuery(name="CrxConfig.check",         query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword AND c.value = :value")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class OSSMConfig implements Serializable {
+public class CrxConfig implements Serializable {
         private static final long serialVersionUID = 1L;
 
         @Id
-        @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
         private Long id;
 
         private String objectType;
 
-        private Long   objectId;
+        private Long  objectId;
 
         private String keyword;
 
@@ -48,6 +46,7 @@ public class OSSMConfig implements Serializable {
 			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
 		}
 	}
+	
 
         @Override
 		public int hashCode() {
@@ -65,7 +64,7 @@ public class OSSMConfig implements Serializable {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			OSSMConfig other = (OSSMConfig) obj;
+			CrxConfig other = (CrxConfig) obj;
 			if (id == null) {
 				if (other.id != null)
 					return false;
@@ -74,8 +73,8 @@ public class OSSMConfig implements Serializable {
 			return true;
 		}
 
-        public OSSMConfig() {
-        }
+        public CrxConfig() {
+	}
 
         public Long getId() {
                 return this.id;
@@ -124,4 +123,5 @@ public class OSSMConfig implements Serializable {
 		public void setCreator(User creator) {
 			this.creator = creator;
 		}
+
 }

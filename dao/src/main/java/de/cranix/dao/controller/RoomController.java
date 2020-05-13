@@ -30,7 +30,7 @@ import de.cranix.dao.Category;
 import de.cranix.dao.Device;
 import de.cranix.dao.Group;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
@@ -336,9 +336,9 @@ public class RoomController extends Controller {
 		}
 	}
 
-	public OssResponse add(Room room){
+	public CrxResponse add(Room room){
 		if( room.getRoomType().equals("smartRoom") ) {
-			return new OssResponse(this.getSession(),"ERROR", "Smart Rooms can only be created by Education Controller.");
+			return new CrxResponse(this.getSession(),"ERROR", "Smart Rooms can only be created by Education Controller.");
 		}
         HWConf hwconf = new HWConf();
         CloneToolController cloneToolController = new CloneToolController(this.session,this.em);
@@ -352,15 +352,15 @@ public class RoomController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 
 		// First we check if the parameter are unique.
 		if( !this.isNameUnique(room.getName())){
-			return new OssResponse(this.getSession(),"ERROR", "Room name is not unique.");
+			return new CrxResponse(this.getSession(),"ERROR", "Room name is not unique.");
 		}
 		if( room.getDescription() != null && !room.getDescription().isEmpty() && !this.isDescriptionUnique(room.getDescription())){
-			return new OssResponse(this.getSession(),"ERROR", "Room description is not unique.");
+			return new CrxResponse(this.getSession(),"ERROR", "Room description is not unique.");
 		}
 
 		//If no devCount was set we calculate the net mask
@@ -376,7 +376,7 @@ public class RoomController extends Controller {
 		if( room.getStartIP() == null || room.getStartIP().isEmpty() ) {
 			String nextRoomIP = getNextRoomIP(room.getNetwork(),room.getNetMask());
 			if( nextRoomIP.isEmpty() ) {
-				return new OssResponse(this.getSession(),"ERROR","The room can not be created. There is not enough IP-Adresses for its size.");
+				return new CrxResponse(this.getSession(),"ERROR","The room can not be created. There is not enough IP-Adresses for its size.");
 			}
 			room.setStartIP( nextRoomIP );
 		}
@@ -409,24 +409,24 @@ public class RoomController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("Error by creating Room:" + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 		startPlugin("add_room", room);
-		return new OssResponse(this.getSession(),"OK", "Room was created succesfully.",room.getId());
+		return new CrxResponse(this.getSession(),"OK", "Room was created succesfully.",room.getId());
 	}
 
-	public OssResponse delete(long roomId){
+	public CrxResponse delete(long roomId){
 		Room room = this.getById(roomId);
 		if( room == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "Can not find room with id %s.",null,String.valueOf(roomId));
+			return new CrxResponse(this.getSession(),"ERROR", "Can not find room with id %s.",null,String.valueOf(roomId));
 		}
 		if( !this.mayModify(room) ) {
-			return new OssResponse(this.getSession(),"ERROR","You must not delete this room.");
+			return new CrxResponse(this.getSession(),"ERROR","You must not delete this room.");
 		}
 		DeviceController devController = new DeviceController(this.session,this.em);
 		if( this.isProtected(room) ) {
-			return new OssResponse(this.getSession(),"ERROR","This room must not be deleted.");
+			return new CrxResponse(this.getSession(),"ERROR","This room must not be deleted.");
 		}
 		List<Device> toDelete = new ArrayList<Device>();
 		for( Device device : room.getDevices() ) {
@@ -470,14 +470,14 @@ public class RoomController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 		DHCPConfig dhcpconfig = new DHCPConfig(session,em);
 		dhcpconfig.Create();
 		new SoftwareController(this.session,this.em).applySoftwareStateToHosts();
 		startPlugin("delete_room", room);
-		return new OssResponse(this.getSession(),"OK", "Room was removed successfully.");
+		return new CrxResponse(this.getSession(),"OK", "Room was removed successfully.");
 	}
 
 
@@ -717,14 +717,14 @@ public class RoomController extends Controller {
 	/*
 	 * Sets the actual access status in a room
 	 */
-	public OssResponse setAccessStatus(long roomId, AccessInRoom access) {
+	public CrxResponse setAccessStatus(long roomId, AccessInRoom access) {
 		Room room = this.getById(roomId);
 		this.setAccessStatus(room, access);
-		return new OssResponse(this.getSession(),"OK", "Access state in %s was set succesfully.",null,room.getName() );
+		return new CrxResponse(this.getSession(),"OK", "Access state in %s was set succesfully.",null,room.getName() );
 	}
 
 
-	public OssResponse setDefaultAccess() {
+	public CrxResponse setDefaultAccess() {
 		Query query = this.em.createNamedQuery("AccessInRoom.findByType");
 		query.setParameter("accessType", "DEF");
 		for( AccessInRoom access : (List<AccessInRoom>) query.getResultList() ){
@@ -735,7 +735,7 @@ public class RoomController extends Controller {
 	/*
 	 * Sets the scheduled access status in all rooms
 	 */
-	public OssResponse setScheduledAccess(){
+	public CrxResponse setScheduledAccess(){
 		Calendar rightNow = Calendar.getInstance();
 		String   actTime  = String.format("%02d:%02d", rightNow.get(Calendar.HOUR_OF_DAY),rightNow.get(Calendar.MINUTE));
 		int day = rightNow.get(Calendar.DAY_OF_WEEK);
@@ -783,7 +783,7 @@ public class RoomController extends Controller {
 			Room room = access.getRoom();
 			this.setAccessStatus(room, access);
 		}
-		return new OssResponse(this.getSession(),"OK", "Scheduled access states where set succesfully." );
+		return new CrxResponse(this.getSession(),"OK", "Scheduled access states where set succesfully." );
 	}
 
 	/*
@@ -877,7 +877,7 @@ public class RoomController extends Controller {
 	/*
 	 * Creates new devices in the room
 	 */
-	public OssResponse addDevices(long roomId,List<Device> devices){
+	public CrxResponse addDevices(long roomId,List<Device> devices){
 		Room room = this.getById(roomId);
 		HWConf hwconf = new HWConf();
 		DeviceController deviceController = new DeviceController(this.session,this.em);
@@ -899,7 +899,7 @@ public class RoomController extends Controller {
 					if( ipAddress.isEmpty() ) {
 						this.em.getTransaction().rollback();
 						parameters.add(device.getMac());
-						return new OssResponse(this.getSession(),"ERROR",
+						return new CrxResponse(this.getSession(),"ERROR",
 								"There are no more free ip addresses in this room for the MAC: %s.",room.getId(),parameters);
 					}
 					if( device.getName().isEmpty() ) {
@@ -911,7 +911,7 @@ public class RoomController extends Controller {
 					if( ipAddress.size() < 2 ) {
 						this.em.getTransaction().rollback();
 						parameters.add(device.getWlanMac());
-						return new OssResponse(this.getSession(),"ERROR",
+						return new CrxResponse(this.getSession(),"ERROR",
 								"There are no more free ip addresses in this room for the MAC: %s.",room.getId(),parameters);
 					}
 					device.setWlanIp(ipAddress.get(1).split(" ")[0]);
@@ -925,7 +925,7 @@ public class RoomController extends Controller {
 					}
 				}
 				device.setHwconf(hwconf);
-				OssResponse ossResponse = deviceController.check(device, room);
+				CrxResponse ossResponse = deviceController.check(device, room);
 				if( ossResponse.getCode().equals("ERROR") ) {
 					logger.error("addDevices addDevice:" +ossResponse);
 					return ossResponse;
@@ -950,7 +950,7 @@ public class RoomController extends Controller {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", "Error by creating the device: " + e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", "Error by creating the device: " + e.getMessage());
 		} finally {
 			if( this.em.getTransaction().isActive() ) {
 				this.em.getTransaction().rollback();
@@ -973,7 +973,7 @@ public class RoomController extends Controller {
 				user.setSurName("Workstation-User");
 				user.setRole("workstations");
 				//TODO do not ignore response.
-				OssResponse answer = userController.add(user);
+				CrxResponse answer = userController.add(user);
 				logger.debug(answer.getValue());
 				needWriteSalt = true;
 			}
@@ -982,13 +982,13 @@ public class RoomController extends Controller {
 		if( needWriteSalt ) {
 			new SoftwareController(this.session,this.em).applySoftwareStateToHosts();
 		}
-		return new OssResponse(this.getSession(),"OK", "Devices were created succesfully." );
+		return new CrxResponse(this.getSession(),"OK", "Devices were created succesfully." );
 	}
 
 	/*
 	 * Deletes devices in the room
 	 */
-	public OssResponse deleteDevices(long roomId,List<Long> deviceIDs){
+	public CrxResponse deleteDevices(long roomId,List<Long> deviceIDs){
 		Room room = this.em.find(Room.class, roomId);
 		DeviceController deviceController = new DeviceController(this.session,this.em);
 		boolean needWriteSalt = false;
@@ -1005,25 +1005,25 @@ public class RoomController extends Controller {
 			this.em.getEntityManagerFactory().getCache().evictAll();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 		new DHCPConfig(session,em).Create();
 		if( needWriteSalt ) {
 			new SoftwareController(this.session,this.em).applySoftwareStateToHosts();
 		}
-		return new OssResponse(this.getSession(),"OK ", "Devices were deleted succesfully.");
+		return new CrxResponse(this.getSession(),"OK ", "Devices were deleted succesfully.");
 	}
 
 	public List<Device> getDevices(long roomId) {
 		return this.getById(roomId).getDevices();
 	}
 
-	public OssResponse addDevice(long roomId, String macAddress, String name) {
+	public CrxResponse addDevice(long roomId, String macAddress, String name) {
 		// First we check if there is enough IP-Addresses in this room
 		List<String> ipAddress = this.getAvailableIPAddresses(roomId, 1);
 		if( ipAddress.isEmpty() ){
-			return new OssResponse(this.getSession(),"ERROR","There are no more free ip addresses in this room.");
+			return new CrxResponse(this.getSession(),"ERROR","There are no more free ip addresses in this room.");
 		}
 		logger.debug("IPAddr" + ipAddress);
 		Device device = new Device();
@@ -1034,12 +1034,12 @@ public class RoomController extends Controller {
 		if( ! owner.getRole().contains("sysadmins") ) {
 			//non sysadmin user want to register his workstation
 			if( ! this.getAllToRegister().contains(room) ) {
-				return new OssResponse(this.getSession(),"ERROR","You have no rights to register devices in this room.");
+				return new CrxResponse(this.getSession(),"ERROR","You have no rights to register devices in this room.");
 			}
 			//Check if the count of the registered devices is lower then the allowed mount
 			//TODO do. Check it realy
 			if( owner.getOwnedDevices().size() >= room.getPlaces() ) {
-				return new OssResponse(this.getSession(),"ERROR","You must not register more devices in this room.");
+				return new CrxResponse(this.getSession(),"ERROR","You must not register more devices in this room.");
 			}
 			if( hwconf == null ) {
 					Query query = this.em.createNamedQuery("HWConf.getByName");
@@ -1065,7 +1065,7 @@ public class RoomController extends Controller {
 		//Check if the Device settings are OK
 		DeviceController deviceController = new DeviceController(this.session,this.em);
 		logger.debug("DEVICE " + device);
-		OssResponse ossResponse = deviceController.check(device, room);
+		CrxResponse ossResponse = deviceController.check(device, room);
 		if( ossResponse.getCode().equals("ERROR") ) {
 			return ossResponse;
 		}
@@ -1093,13 +1093,13 @@ public class RoomController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR","Error by registering: " +  e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR","Error by registering: " +  e.getMessage());
 		} finally {
 		}
 		//Start plugin and create DHCP and salt configuration
 		startPlugin("add_device", device);
 		new DHCPConfig(session,em).Create();
-		return new OssResponse(this.getSession(),"OK","Device was created succesfully.",device.getId());
+		return new CrxResponse(this.getSession(),"OK","Device was created succesfully.",device.getId());
 	}
 
 	public HWConf getHWConf(long roomId) {
@@ -1112,7 +1112,7 @@ public class RoomController extends Controller {
 		}
 	}
 
-	public OssResponse setHWConf(long roomId, long hwConfId) {
+	public CrxResponse setHWConf(long roomId, long hwConfId) {
 		try {
 			this.em.getTransaction().begin();
 			Room room = this.em.find(Room.class, roomId);
@@ -1121,13 +1121,13 @@ public class RoomController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","The hardware configuration of the room was set succesfully.");
+		return new CrxResponse(this.getSession(),"OK","The hardware configuration of the room was set succesfully.");
 	}
 
-	public OssResponse modify(Room room){
+	public CrxResponse modify(Room room){
 		Room oldRoom = this.getById(room.getId());
 		HWConf hwconf = new CloneToolController(this.session,this.em).getById(room.getHwconfId());
 		oldRoom.setDescription(room.getDescription());
@@ -1148,12 +1148,12 @@ public class RoomController extends Controller {
 			this.em.merge(oldRoom);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 		startPlugin("modify_room", oldRoom);
 
-		return new OssResponse(this.getSession(),"OK","The room was modified succesfully.");
+		return new CrxResponse(this.getSession(),"OK","The room was modified succesfully.");
 	}
 
 	public List<Room> getRooms(List<Long> roomIds) {
@@ -1168,9 +1168,9 @@ public class RoomController extends Controller {
 	/*
 	 * Control of printer in this room
 	 */
-	public OssResponse setDefaultPrinter(Room room, Printer printer) {
+	public CrxResponse setDefaultPrinter(Room room, Printer printer) {
 		if( room.getDefaultPrinter() != null && room.getDefaultPrinter().equals(printer) ) {
-			return new OssResponse(this.getSession(),"OK","The printer is already assigned to room.");
+			return new CrxResponse(this.getSession(),"OK","The printer is already assigned to room.");
 		}
 		room.setDefaultPrinter(printer);
 		printer.getDefaultInRooms().add(room);
@@ -1180,25 +1180,25 @@ public class RoomController extends Controller {
 			this.em.merge(printer);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","The default printer of the room was set succesfully.");
+		return new CrxResponse(this.getSession(),"OK","The default printer of the room was set succesfully.");
 	}
 
-	public OssResponse setDefaultPrinter(Long roomId, Long deviceId) {
+	public CrxResponse setDefaultPrinter(Long roomId, Long deviceId) {
 		Room room = this.getById(roomId);
 		Printer printer = new PrinterController(this.session,this.em).getById(deviceId);
 		return this.setDefaultPrinter(room, printer);
 	}
 
-	public OssResponse setDefaultPrinter(String roomName, String printerName) {
+	public CrxResponse setDefaultPrinter(String roomName, String printerName) {
 		Room room = this.getByName(roomName);
 		Printer printer = new PrinterController(this.session,this.em).getByName(printerName);
 		return this.setDefaultPrinter(room, printer);
 	}
 
-	public OssResponse deleteDefaultPrinter(long roomId) {
+	public CrxResponse deleteDefaultPrinter(long roomId) {
 		Room room = this.getById(roomId);
 		Printer printer = room.getDefaultPrinter();
 		if( printer != null  ) {
@@ -1210,14 +1210,14 @@ public class RoomController extends Controller {
 				this.em.merge(printer);
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
-				return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 			} finally {
 			}
 		}
-		return new OssResponse(this.getSession(),"OK","The default printer of the room was deleted succesfully.");
+		return new CrxResponse(this.getSession(),"OK","The default printer of the room was deleted succesfully.");
 	}
 
-	public OssResponse setAvailablePrinters(long roomId, List<Long> printerIds) {
+	public CrxResponse setAvailablePrinters(long roomId, List<Long> printerIds) {
 		Room room = this.getById(roomId);
 		PrinterController printerController = new PrinterController(this.session,this.em);;
 		room.setAvailablePrinters(new ArrayList<Printer>());
@@ -1235,18 +1235,18 @@ public class RoomController extends Controller {
 			this.em.getTransaction().commit();
 
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","The available printers of the room was set succesfully.");
+		return new CrxResponse(this.getSession(),"OK","The available printers of the room was set succesfully.");
 	}
 
-	public OssResponse addAvailablePrinter(long roomId, long printerId) {
+	public CrxResponse addAvailablePrinter(long roomId, long printerId) {
 		try {
 			Printer printer = this.em.find(Printer.class, printerId);
 			Room room = this.em.find(Room.class, roomId);
 			if( room.getAvailablePrinters().contains(printer) ) {
-				return new OssResponse(this.getSession(),"OK","The printer is already assigned to room.");
+				return new CrxResponse(this.getSession(),"OK","The printer is already assigned to room.");
 			}
 			room.getAvailablePrinters().add(printer);
 			printer.getAvailableInRooms().add(room);
@@ -1255,18 +1255,18 @@ public class RoomController extends Controller {
 			this.em.merge(printer);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","The selected printer was added to the room.");
+		return new CrxResponse(this.getSession(),"OK","The selected printer was added to the room.");
 	}
 
-	public OssResponse deleteAvailablePrinter(long roomId, long printerId) {
+	public CrxResponse deleteAvailablePrinter(long roomId, long printerId) {
 		try {
 			Printer printer = this.em.find(Printer.class, printerId);
 			Room room = this.em.find(Room.class, roomId);
 			if( room == null || printer == null) {
-				return new OssResponse(this.getSession(),"ERROR", "Room or printer cannot be found.");
+				return new CrxResponse(this.getSession(),"ERROR", "Room or printer cannot be found.");
 			}
 			this.em.getTransaction().begin();
 			room.getAvailablePrinters().remove(printer);
@@ -1275,13 +1275,13 @@ public class RoomController extends Controller {
 			this.em.merge(printer);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","The selected printer was removed from room.");
+		return new CrxResponse(this.getSession(),"OK","The selected printer was removed from room.");
 	}
 
-	public OssResponse setPrinters(Long roomId, Map<String, List<Long>>  printers) {
+	public CrxResponse setPrinters(Long roomId, Map<String, List<Long>>  printers) {
 		Room room = this.getById(roomId);
 		List<Long> toAdd    = new ArrayList<Long>();
 		List<Long> toRemove = new ArrayList<Long>();
@@ -1316,10 +1316,10 @@ public class RoomController extends Controller {
 		} catch (Exception e) {
 
 		}
-		return new OssResponse(this.session,"OK","Printers of the room was set.");
+		return new CrxResponse(this.session,"OK","Printers of the room was set.");
 	}
-	public OssResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
-		OssResponse ossResponse = null;
+	public CrxResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
+		CrxResponse ossResponse = null;
 		List<String> errors = new ArrayList<String>();
 		DeviceController dc = new DeviceController(this.session,this.em);
 		for( Device device : this.getById(roomId).getDevices() ) {
@@ -1333,17 +1333,17 @@ public class RoomController extends Controller {
 			}
 		}
 		if( errors.isEmpty() ) {
-			new OssResponse(this.getSession(),"OK", "Device control was applied.");
+			new CrxResponse(this.getSession(),"OK", "Device control was applied.");
 		} else {
-			return new OssResponse(this.getSession(),"ERROR",String.join("<br>", errors));
+			return new CrxResponse(this.getSession(),"ERROR",String.join("<br>", errors));
 		}
 		return null;
 	}
 
-	public OssResponse organizeRoom(long roomId) {
+	public CrxResponse organizeRoom(long roomId) {
 		Room room = this.getById(roomId);
 		if( room.getRoomType().equals("smartRoom")) {
-			return new OssResponse(this.getSession(),"OK", "RSmart room can not get reorganized");
+			return new CrxResponse(this.getSession(),"OK", "RSmart room can not get reorganized");
 		}
 		boolean changed  = false;
 		List<Integer> coordinates;
@@ -1361,7 +1361,7 @@ public class RoomController extends Controller {
 				this.em.merge(room);
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
-				return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 			}
 		}
 		for( Device device : room.getDevices() ) {
@@ -1383,11 +1383,11 @@ public class RoomController extends Controller {
 					this.em.merge(device);
 					this.em.getTransaction().commit();
 				} catch (Exception e) {
-					return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+					return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 				}
 			}
 		}
-		return new OssResponse(this.getSession(),"OK", "Room was reorganized");
+		return new CrxResponse(this.getSession(),"OK", "Room was reorganized");
 	}
 
 	public List<Device> getDevicesOnMyPlace(Room room, Device device) {
@@ -1422,7 +1422,7 @@ public class RoomController extends Controller {
 	/*
 	 * Sets the list of accesses in a room
 	 */
-	public OssResponse setAccessList(long roomId,List<AccessInRoom> AccessList){
+	public CrxResponse setAccessList(long roomId,List<AccessInRoom> AccessList){
 		Room room = this.getById(roomId);
 		try {
 			this.em.getTransaction().begin();
@@ -1438,17 +1438,17 @@ public class RoomController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Acces was created succesfully");
+		return new CrxResponse(this.getSession(),"OK","Acces was created succesfully");
 	}
 
-	public OssResponse addAccessList(long roomId, AccessInRoom accessList) {
+	public CrxResponse addAccessList(long roomId, AccessInRoom accessList) {
 		try {
 			Room room = this.em.find(Room.class, roomId);
 			if( room.getRoomControl() != null && room.getRoomControl().equals("no") ) {
-				return new OssResponse(this.getSession(),"ERROR", "You must not set access control in a room with no room control.");
+				return new CrxResponse(this.getSession(),"ERROR", "You must not set access control in a room with no room control.");
 			}
 			this.em.getTransaction().begin();
 			accessList.correctTime();
@@ -1461,17 +1461,17 @@ public class RoomController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Acces was created succesfully");
+		return new CrxResponse(this.getSession(),"OK","Acces was created succesfully");
 	}
 
-	public OssResponse deleteAccessList(long accessInRoomId) {
+	public CrxResponse deleteAccessList(long accessInRoomId) {
 		try {
 			AccessInRoom accessList = this.em.find(AccessInRoom.class, accessInRoomId);
 			if( !this.mayModify(accessList) ) {
-				return new OssResponse(this.getSession(),"ERROR","You must not delete this accessList.");
+				return new CrxResponse(this.getSession(),"ERROR","You must not delete this accessList.");
 			}
 			Room room = accessList.getRoom();
 			this.em.getTransaction().begin();
@@ -1481,13 +1481,13 @@ public class RoomController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Acces was deleted succesfully");
+		return new CrxResponse(this.getSession(),"OK","Acces was deleted succesfully");
 	}
 
-	public OssResponse importRooms(InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
+	public CrxResponse importRooms(InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
 		File file = null;
 		List<String> importFile;
 		try {
@@ -1496,11 +1496,11 @@ public class RoomController extends Controller {
 			importFile = Files.readAllLines(file.toPath());
 		} catch (IOException e) {
 			logger.error("File error:" + e.getMessage(), e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
 		CloneToolController   cloneToolController = new CloneToolController(this.session,this.em);
 		Map<String,Integer> header                = new HashMap<>();
-		OssResponse ossResponse;
+		CrxResponse ossResponse;
 		String headerLine = importFile.get(0);
 		Integer i = 0;
 		for(String field : headerLine.split(";")) {
@@ -1508,7 +1508,7 @@ public class RoomController extends Controller {
 			i++;
 		}
 		if( !header.containsKey("name") || !header.containsKey("hwconf")) {
-			return new OssResponse(this.getSession(),"ERROR", "Fields name and hwconf are mandatory.");
+			return new CrxResponse(this.getSession(),"ERROR", "Fields name and hwconf are mandatory.");
 		}
 		i = 1;
 		for(String line : importFile.subList(1, importFile.size()) ) {
@@ -1530,7 +1530,7 @@ public class RoomController extends Controller {
 			if(header.containsKey("count") && !values[header.get("count")].isEmpty()) {
 				int count = Integer.valueOf(values[header.get("count")]);
 				if( ! Room.countToNm.containsKey(count) ) {
-					return new OssResponse(this.getSession(),"ERROR", "Bad computer count. Allowed values are 4,8,16,32,64,128.256,512,1024,2048,4096");
+					return new CrxResponse(this.getSession(),"ERROR", "Bad computer count. Allowed values are 4,8,16,32,64,128.256,512,1024,2048,4096");
 				}
 				room.setNetMask(Room.countToNm.get(count));
 			}
@@ -1573,6 +1573,6 @@ public class RoomController extends Controller {
 				return ossResponse;
 			}
 		}
-		return new OssResponse(this.getSession(),"OK","Rooms was imported succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Rooms was imported succesfully.");
 	}
 }

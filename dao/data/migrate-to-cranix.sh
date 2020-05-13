@@ -110,6 +110,7 @@ echo "RENAME TABLE OssResponses TO CrxResponse" | mysql OSS
 mysqldump --databases OSS > CRX.sql
 sed -i '1,26s/OSS/CRX/' CRX.sql
 mysql < CRX.sql
-password=$( grep javax.persistence.jdbc.password= /opt/cranix-java/conf/cranix-api.properties | sed 's/javax.persistence.jdbc.password=//' )
+password=$( mktemp cranixXXXXXXXXXXXX )
+sed -i s/javax.persistence.jdbc.password=.*$/javax.persistence.jdbc.password=${password}/ /opt/cranix-java/conf/cranix-api.properties
 sed -i 's/=claxss/=cranix/' /opt/cranix-java/conf/cranix-api.properties
 echo "grant all on CRX.* to 'cranix'@'localhost'  identified by '$password'" | mysql

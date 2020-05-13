@@ -6,7 +6,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
@@ -30,7 +30,7 @@ public interface SchedulerResource {
 			@ApiResponse(code = 404, message = "No category was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("scheduler.manage")
-	OssResponse deleteExpieredGuestUser(
+	CrxResponse deleteExpieredGuestUser(
 			@ApiParam(hidden = true) @Auth Session session
 	);
 

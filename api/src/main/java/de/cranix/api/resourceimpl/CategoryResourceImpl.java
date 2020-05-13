@@ -7,7 +7,7 @@ import javax.persistence.EntityManager;
 
 import de.cranix.api.resources.CategoryResource;
 import de.cranix.dao.Category;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.controller.CategoryController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
@@ -63,46 +63,46 @@ public class CategoryResourceImpl implements CategoryResource {
 	}
 
 	@Override
-	public OssResponse add(Session session, Category category) {
+	public CrxResponse add(Session session, Category category) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.add(category);
+		CrxResponse resp = categoryController.add(category);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addMember(Session session, long categoryId, String memberType, long memberId) {
+	public CrxResponse addMember(Session session, long categoryId, String memberType, long memberId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.addMember(categoryId, memberType, memberId);
+		CrxResponse resp = categoryController.addMember(categoryId, memberType, memberId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse removeMember(Session session, long categoryId, String memberType, long memberId) {
+	public CrxResponse removeMember(Session session, long categoryId, String memberType, long memberId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.deleteMember(categoryId, memberType, memberId);
+		CrxResponse resp = categoryController.deleteMember(categoryId, memberType, memberId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modify(Session session, Category category) {
+	public CrxResponse modify(Session session, Category category) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.modify(category);
+		CrxResponse resp = categoryController.modify(category);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse delete(Session session, long categoryId) {
+	public CrxResponse delete(Session session, long categoryId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.delete(categoryId);
+		CrxResponse resp = categoryController.delete(categoryId);
 		em.close();
 		return resp;
 	}

@@ -23,8 +23,8 @@ import de.cranix.dao.User;
 import de.cranix.dao.UserImport;
 import de.cranix.dao.Category;
 import de.cranix.dao.Group;
-import de.cranix.dao.OssActionMap;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxActionMap;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 
 @Path("users")
@@ -157,7 +157,7 @@ public interface UserResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("user.add")
-	OssResponse add(
+	CrxResponse add(
 			@ApiParam(hidden = true) @Auth Session session,
 			User user
 			);
@@ -174,7 +174,7 @@ public interface UserResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("user.add")
-	OssResponse insert(
+	CrxResponse insert(
 			@ApiParam(hidden = true) @Auth Session session,
 			User user
 			);
@@ -192,7 +192,7 @@ public interface UserResource {
 	})
 	//@PermitAll
 	@RolesAllowed("user.add")
-	List<OssResponse> add(
+	List<CrxResponse> add(
 			@ApiParam(hidden = true) @Auth Session session,
 			List<User> users
 			);
@@ -210,7 +210,7 @@ public interface UserResource {
 	})
 	//@PermitAll
 	@RolesAllowed("user.modify")
-	OssResponse modify(
+	CrxResponse modify(
 			@ApiParam(hidden = true) @Auth Session session,
 			User user
 			);
@@ -225,7 +225,7 @@ public interface UserResource {
 	})
 	//@PermitAll
 	@RolesAllowed("user.modify")
-	OssResponse modify(
+	CrxResponse modify(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("userId") Long userId,
 			User user
@@ -241,7 +241,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.delete")
-	OssResponse delete(
+	CrxResponse delete(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("userId") Long userId
 			);
@@ -258,7 +258,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "Group not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse addToGroups(
+	CrxResponse addToGroups(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("userId") Long userId,
 			List<Long> groups
@@ -272,7 +272,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "Group not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse setMembers(
+	CrxResponse setMembers(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("userId") Long userId,
 			List<Long> groups
@@ -290,7 +290,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse removeMember(
+	CrxResponse removeMember(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("groupId") Long groupId,
 			@PathParam("userId") Long userId
@@ -307,7 +307,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse addMember(
+	CrxResponse addMember(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("groupId") Long groupId,
 			@PathParam("userId") Long userId
@@ -324,7 +324,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse allClasses(
+	CrxResponse allClasses(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("userId") Long userId
 			);
@@ -339,7 +339,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse addUsersToGroups(
+	CrxResponse addUsersToGroups(
 			@ApiParam(hidden = true) @Auth Session session,
 			List<List<Long>> ids
 			);
@@ -355,7 +355,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse syncFsQuotas(
+	CrxResponse syncFsQuotas(
 			@ApiParam(hidden = true) @Auth Session session,
 			List<List<String>> Quotas
 			);
@@ -371,7 +371,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse syncMsQuotas(
+	CrxResponse syncMsQuotas(
 			@ApiParam(hidden = true) @Auth Session session,
 			List<List<String>> Quotas
 			);
@@ -392,7 +392,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse sync(
+	CrxResponse sync(
 			@ApiParam(hidden = true) @Auth Session session
 			);
 
@@ -467,7 +467,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.guestusers")
-	OssResponse  deleteGuestUsers(
+	CrxResponse  deleteGuestUsers(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("guestUsersId")     Long    guestUsersId
 			);
@@ -480,7 +480,7 @@ public interface UserResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.guestusers")
-	OssResponse addGuestUsers(
+	CrxResponse addGuestUsers(
 			@ApiParam(hidden = true) @Auth Session session,
 			@FormDataParam("name")          String  name,
 			@FormDataParam("description")   String  description,
@@ -647,7 +647,7 @@ public interface UserResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.add")
-	OssResponse importUser(
+	CrxResponse importUser(
 			@ApiParam(hidden = true) @Auth   Session session,
 			@FormDataParam("role")           String  role,
 			@FormDataParam("lang")      String  lang,
@@ -697,7 +697,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse restartImport(
+	CrxResponse restartImport(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("startTime")  String    startTime
 			);
@@ -710,7 +710,7 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse deleteImport(
+	CrxResponse deleteImport(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("startTime")  String    startTime
 			);
@@ -764,14 +764,14 @@ public interface UserResource {
 			@ApiResponse(code = 404, message = "User not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.search")
-	OssResponse allTeachersInAllClasses(
+	CrxResponse allTeachersInAllClasses(
 			@ApiParam(hidden = true) @Auth Session session
 			);
 	/**
 	 * Apply actions on a list of users.
 	 * @param session
-	 * @return The result in an OssResponse object
-	 * @see OssResponse
+	 * @return The result in an CrxResponse object
+	 * @see CrxResponse
 	 */
 	@POST
 	@Path("applyAction")
@@ -780,9 +780,9 @@ public interface UserResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	OssResponse applyAction(
+	CrxResponse applyAction(
 			@ApiParam(hidden = true) @Auth Session session,
-			OssActionMap actionMap
+			CrxActionMap actionMap
 			);
 
 }

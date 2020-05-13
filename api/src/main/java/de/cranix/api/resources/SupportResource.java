@@ -8,7 +8,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.SupportRequest;
 import io.dropwizard.auth.Auth;
@@ -28,6 +28,6 @@ public interface SupportResource {
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
 	@RolesAllowed("device.manage")
-	OssResponse create(@ApiParam(hidden = true) @Auth Session session, SupportRequest supportRequest);
+	CrxResponse create(@ApiParam(hidden = true) @Auth Session session, SupportRequest supportRequest);
 
 }

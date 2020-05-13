@@ -11,7 +11,7 @@ import de.cranix.dao.Announcement;
 import de.cranix.dao.Category;
 import de.cranix.dao.Contact;
 import de.cranix.dao.FAQ;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.controller.InformationController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
@@ -22,28 +22,28 @@ public class InformationResourceImpl implements InformationResource {
 	}
 
 	@Override
-	public OssResponse addAnnouncement(Session session, Announcement announcement) {
+	public CrxResponse addAnnouncement(Session session, Announcement announcement) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
-		OssResponse resp = infoController.addAnnouncement(announcement);
+		CrxResponse resp = infoController.addAnnouncement(announcement);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addContact(Session session, Contact contact) {
+	public CrxResponse addContact(Session session, Contact contact) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
-		OssResponse resp = infoController.addContact(contact);
+		CrxResponse resp = infoController.addContact(contact);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addFAQ(Session session, FAQ faq) {
+	public CrxResponse addFAQ(Session session, FAQ faq) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
-		OssResponse resp = infoController.addFAQ(faq);
+		CrxResponse resp = infoController.addFAQ(faq);
 		em.close();
 		return resp;
 	}
@@ -66,9 +66,9 @@ public class InformationResourceImpl implements InformationResource {
 	}
 
 	@Override
-	public OssResponse setAnnouncementHaveSeen(Session session, Long announcementId) {
+	public CrxResponse setAnnouncementHaveSeen(Session session, Long announcementId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new InformationController(session,em).setAnnouncementHaveSeen(announcementId);
+		CrxResponse resp = new InformationController(session,em).setAnnouncementHaveSeen(announcementId);
 		em.close();
 		return resp;
 	}
@@ -92,58 +92,58 @@ public class InformationResourceImpl implements InformationResource {
 	}
 
 	@Override
-	public OssResponse deleteAnnouncement(Session session, Long announcementId) {
+	public CrxResponse deleteAnnouncement(Session session, Long announcementId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
-		OssResponse resp = infoController.deleteAnnouncement(announcementId);
+		CrxResponse resp = infoController.deleteAnnouncement(announcementId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteContact(Session session, Long contactId) {
+	public CrxResponse deleteContact(Session session, Long contactId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
-		OssResponse resp = infoController.deleteContact(contactId);
+		CrxResponse resp = infoController.deleteContact(contactId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteFAQ(Session session, Long faqId) {
+	public CrxResponse deleteFAQ(Session session, Long faqId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
-		OssResponse resp = infoController.deleteFAQ(faqId);
+		CrxResponse resp = infoController.deleteFAQ(faqId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modifyAnnouncement(Session session, Long announcementId, Announcement announcement) {
+	public CrxResponse modifyAnnouncement(Session session, Long announcementId, Announcement announcement) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
 		announcement.setId(announcementId);
-		OssResponse resp = infoController.modifyAnnouncement(announcement);
+		CrxResponse resp = infoController.modifyAnnouncement(announcement);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modifyContact(Session session, Long contactId, Contact contact) {
+	public CrxResponse modifyContact(Session session, Long contactId, Contact contact) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
 		contact.setId(contactId);
-		OssResponse resp = infoController.modifyContact(contact);
+		CrxResponse resp = infoController.modifyContact(contact);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modifyFAQ(Session session, Long faqId, FAQ faq) {
+	public CrxResponse modifyFAQ(Session session, Long faqId, FAQ faq) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		InformationController infoController = new InformationController(session,em);
 		faq.setId(faqId);
-		OssResponse resp = infoController.modifyFAQ(faq);
+		CrxResponse resp = infoController.modifyFAQ(faq);
 		em.close();
 		return resp;
 	}

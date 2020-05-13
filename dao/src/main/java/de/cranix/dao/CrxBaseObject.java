@@ -1,15 +1,15 @@
 package de.cranix.dao;
 
-public class OssBaseObject {
+public class CrxBaseObject {
 
 	Long id;
 	String name;
 	
-	public OssBaseObject() {
+	public CrxBaseObject() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public OssBaseObject(Long id, String name) {
+	public CrxBaseObject(Long id, String name) {
 		this.id = id;
 		this.name = name;
 	}

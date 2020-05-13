@@ -1,10 +1,10 @@
 #!/bin/bash
 HERE=$( pwd )
-sudo /usr/sbin/update-alternatives --set java /usr/lib64/jvm/jre-11-openjdk/bin/java
+REPO="/home/groups/OSC/home:varkoly:CRANIX-4-2/cranix-java/"
+#sudo /usr/sbin/update-alternatives --set java /usr/lib64/jvm/jre-11-openjdk/bin/java
 gradle --offline build
 #gradle clean build
 tar xf build/distributions/de.cranix.api-4.2.tar
-REPO="/data1/OSC/home:varkoly:CRANIX-4-2/cranix-java/"
 
 if [ "$1" ]; then
         PORT=22

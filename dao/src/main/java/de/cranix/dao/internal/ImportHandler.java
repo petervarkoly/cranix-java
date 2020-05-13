@@ -29,7 +29,7 @@ import de.claxss.importlib.Person;
 import de.claxss.importlib.SchoolClass;
 import de.claxss.importlib.common.ImporterUtil;
 import de.cranix.dao.Group;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
 import de.cranix.dao.controller.GroupController;
@@ -374,7 +374,7 @@ public class ImportHandler extends Thread {
 		return "";
 	}
 
-	private String extractPW(OssResponse res) {
+	private String extractPW(CrxResponse res) {
 		if (res.getParameters() != null && res.getParameters().size() >= 4) {
 			return res.getParameters().get(3);
 		}
@@ -435,7 +435,7 @@ public class ImportHandler extends Thread {
 		writeLog(importer, order, txt);
 	}
 
-	private void appendUserAddLog(Importer i, ImportOrder o, OssResponse res, User newUser, boolean create) {
+	private void appendUserAddLog(Importer i, ImportOrder o, CrxResponse res, User newUser, boolean create) {
 		if (!o.isTestOnly()) {
 			createLogfiles(i, o);
 			try {
@@ -535,7 +535,7 @@ public class ImportHandler extends Thread {
 				change = true;
 			}
 			if (change && !o.isTestOnly()) {
-				OssResponse res = userController.modify(ossUser);
+				CrxResponse res = userController.modify(ossUser);
 				appendUserAddLog(importer, o, res, ossUser, false);
 			} else if (!o.isTestOnly()) {
 				appendUserAddLog(importer, o, null, ossUser, false);
@@ -625,7 +625,7 @@ public class ImportHandler extends Thread {
 				}
 			}
 
-			OssResponse useraddRes = null;
+			CrxResponse useraddRes = null;
 			if (!o.isTestOnly()) {
 				useraddRes = userController.add(newUser);
 				if (useraddRes != null && useraddRes.getObjectId() != null) {

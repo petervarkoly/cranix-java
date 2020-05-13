@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import de.cranix.api.resources.SelfManagementResource;
 import de.cranix.dao.Group;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
@@ -43,11 +43,11 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 	}
 
 	@Override
-	public OssResponse modifyMySelf(Session session, User user) {
+	public CrxResponse modifyMySelf(Session session, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		UserController userController = new UserController(session,em);
 		User oldUser = session.getUser();
-		OssResponse  ossResponse = null;
+		CrxResponse  ossResponse = null;
 		logger.debug("modifyMySelf" + user);
 		if( userController.isAllowed("myself.manage") ) {
 			if( user.getPassword() != null && !user.getPassword().isEmpty() ) {
@@ -73,7 +73,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 			} finally {
 				em.close();
 			}
-			ossResponse = new OssResponse(session,"OK","User parameters were set successfully.");
+			ossResponse = new CrxResponse(session,"OK","User parameters were set successfully.");
 		} else {
 			if( user.getPassword() != null && !user.getPassword().isEmpty() ) {
 				ossResponse = userController.checkPassword(user.getPassword());
@@ -92,7 +92,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 				program[4] = "--newpassword=" + user.getPassword();
 				OSSShellTools.exec(program, reply, error, null);
 				logger.debug("sambatool:" + reply.toString() + " Error" + error.toString() );
-				ossResponse = new OssResponse(session,"OK","User parameters were set successfully.");
+				ossResponse = new CrxResponse(session,"OK","User parameters were set successfully.");
 			}
 		}
 		return ossResponse;
@@ -201,7 +201,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 				List<Room> rooms = roomController.getRoomToRegisterForUser(session.getUser());
 				if( rooms != null && rooms.size() > 0 ) {
 					Integer count = session.getUser().getOwnedDevices().size();
-					OssResponse ossResponse = roomController.addDevice(rooms.get(0).getId(), MAC, count.toString());
+					CrxResponse ossResponse = roomController.addDevice(rooms.get(0).getId(), MAC, count.toString());
 					resp =  ossResponse.getCode() + " " + ossResponse.getValue() + " " + ossResponse.getParameters();
 				} else  {
 					resp = "You can not register devices.";

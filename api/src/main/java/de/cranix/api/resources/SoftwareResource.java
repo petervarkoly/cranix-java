@@ -27,11 +27,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import de.cranix.dao.Category;
-import de.cranix.dao.OssBaseObject;
+import de.cranix.dao.CrxBaseObject;
 import de.cranix.dao.Software;
 import de.cranix.dao.SoftwareLicense;
 import de.cranix.dao.SoftwareStatus;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 
 @Path("softwares")
@@ -133,7 +133,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.add")
-    OssResponse add(
+    CrxResponse add(
             @ApiParam(hidden = true) @Auth Session session,
             Software Software
             );
@@ -150,7 +150,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
-    OssResponse modify(
+    CrxResponse modify(
             @ApiParam(hidden = true) @Auth Session session,
             Software software
             );
@@ -167,7 +167,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
-    OssResponse addRequirements(
+    CrxResponse addRequirements(
             @ApiParam(hidden = true) @Auth Session session,
             List<String> requirement
             );
@@ -181,7 +181,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
-    OssResponse addRequirements(
+    CrxResponse addRequirements(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareId")    long softwareId,
             @PathParam("requirementId") long requirementId
@@ -196,7 +196,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
-    OssResponse deleteRequirements(
+    CrxResponse deleteRequirements(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareId")    long softwareId,
             @PathParam("requirementId") long requirementId
@@ -213,7 +213,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.delete")
-    OssResponse delete(
+    CrxResponse delete(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareId") long softwareId
             );
@@ -234,7 +234,7 @@ public interface SoftwareResource {
                 @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
-    OssResponse addLicenseToSoftware(
+    CrxResponse addLicenseToSoftware(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareId") long softwareId,
             @FormDataParam("licenseType") Character licenseType,
@@ -268,7 +268,7 @@ public interface SoftwareResource {
                 @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
-    OssResponse modifyLicense(
+    CrxResponse modifyLicense(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("licenseId") long licenseId,
             @FormDataParam("licenseType") Character licenseType,
@@ -289,7 +289,7 @@ public interface SoftwareResource {
                 @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
-    OssResponse deleteLicense(
+    CrxResponse deleteLicense(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("licenseId") long licenseId
             );
@@ -329,7 +329,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator"),
             @ApiResponse(code = 600, message = "Connection to CEPHALIX software repository server is broken.")})
     @RolesAllowed("software.download")
-    OssResponse download(
+    CrxResponse download(
             @ApiParam(hidden = true) @Auth Session session,
             List<String> softwares
             );
@@ -346,7 +346,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator"),
             @ApiResponse(code = 600, message = "Connection to CEPHALIX software repository server is broken.")})
     @RolesAllowed("software.download")
-    OssResponse downloadOne(
+    CrxResponse downloadOne(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareName") String softwareName
             );
@@ -363,7 +363,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator"),
             @ApiResponse(code = 600, message = "Connection to CEPHALIX software repository server is broken.")})
     @RolesAllowed("software.download")
-    OssResponse deleteDownloadedSoftwares(
+    CrxResponse deleteDownloadedSoftwares(
             @ApiParam(hidden = true) @Auth Session session,
             List<String> softwares
             );
@@ -440,7 +440,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator"),
             @ApiResponse(code = 600, message = "Connection to CEPHALIX software repository server is broken.")})
     @RolesAllowed("software.download")
-    OssResponse updatesSoftwares(
+    CrxResponse updatesSoftwares(
             @ApiParam(hidden = true) @Auth Session session,
             List<String> softwares
             );
@@ -459,7 +459,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.modify")
-    OssResponse apply(
+    CrxResponse apply(
             @ApiParam(hidden = true) @Auth Session session
             );
 
@@ -477,7 +477,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.modify")
-    OssResponse applyState(
+    CrxResponse applyState(
             @ApiParam(hidden = true) @Auth Session session
             );
 
@@ -495,7 +495,7 @@ public interface SoftwareResource {
                 @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.install")
-    OssResponse createInstallation(
+    CrxResponse createInstallation(
             @ApiParam(hidden = true) @Auth Session session,
             Category category
             );
@@ -542,7 +542,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse addSoftwareToInstalation(
+    CrxResponse addSoftwareToInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
             @PathParam("softwareId")     long softwareId
@@ -558,7 +558,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse addDeviceToInstalation(
+    CrxResponse addDeviceToInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
             @PathParam("deviceId")       long deviceId
@@ -575,7 +575,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse addRoomToInstalation(
+    CrxResponse addRoomToInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
             @PathParam("roomId")         long roomId
@@ -592,7 +592,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse addHWConfToInstalation(
+    CrxResponse addHWConfToInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
             @PathParam("hwconfId")       long hwconfId
@@ -609,7 +609,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse deleteInstalation(
+    CrxResponse deleteInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
             );
@@ -625,7 +625,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse deleteSoftwareFromInstalation(
+    CrxResponse deleteSoftwareFromInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
             @PathParam("softwareId")     long softwareId
@@ -643,7 +643,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse deleteDeviceFromInstalation(
+    CrxResponse deleteDeviceFromInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
             @PathParam("deviceId")       long deviceId
@@ -660,7 +660,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse deleteRoomFromInstalation(
+    CrxResponse deleteRoomFromInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
             @PathParam("roomId")         long roomId
@@ -677,7 +677,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse deleteHWConfFromInstalation(
+    CrxResponse deleteHWConfFromInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
             @PathParam("hwconfId")       long hwconfId
@@ -694,7 +694,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<OssBaseObject> getSoftwares(
+    List<CrxBaseObject> getSoftwares(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );
@@ -710,7 +710,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<OssBaseObject> getDevices(
+    List<CrxBaseObject> getDevices(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );
@@ -726,7 +726,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<OssBaseObject> getRooms(
+    List<CrxBaseObject> getRooms(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );
@@ -742,7 +742,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<OssBaseObject> getHWConfs(
+    List<CrxBaseObject> getHWConfs(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );
@@ -758,7 +758,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<OssBaseObject> getAvailableSoftwares(
+    List<CrxBaseObject> getAvailableSoftwares(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );
@@ -774,7 +774,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<OssBaseObject> getAvailableDevices(
+    List<CrxBaseObject> getAvailableDevices(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );
@@ -790,7 +790,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<OssBaseObject> getAvailableRooms(
+    List<CrxBaseObject> getAvailableRooms(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );
@@ -806,7 +806,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<OssBaseObject> getAvailableHWConfs(
+    List<CrxBaseObject> getAvailableHWConfs(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );
@@ -827,7 +827,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "No category was found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse setSoftwareInstalledOnDevice(
+    CrxResponse setSoftwareInstalledOnDevice(
             @ApiParam(hidden = true) @Auth Session session,
             @ApiParam(value = "Name of the device",  required = true) @PathParam("deviceName")   String deviceName,
             @ApiParam(value = "Name of the software",required = true) @PathParam("softwareName") String softwareName,
@@ -843,7 +843,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "No category was found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    OssResponse setSoftwareInstalledOnDevice(
+    CrxResponse setSoftwareInstalledOnDevice(
             @ApiParam(hidden = true) @Auth Session session,
             @ApiParam(value = "Name of the device",  required = true) @PathParam("deviceName")   String deviceName,
             Map<String,String> software

@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import de.cranix.dao.Device;
 import de.cranix.dao.Group;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.AdHocRoom;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
@@ -133,7 +133,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("adhoclan.manage")
-	OssResponse add(
+	CrxResponse add(
 			@ApiParam(hidden = true) @Auth Session session,
 			AdHocRoom room
 	);
@@ -149,7 +149,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 404, message = "No category was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("adhoclan.manage")
-	OssResponse turnOn(
+	CrxResponse turnOn(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId")		Long roomId
 			);
@@ -181,7 +181,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 404, message = "No category was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("adhoclan.manage")
-	OssResponse modify(
+	CrxResponse modify(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId")		Long roomId,
 			AdHocRoom room
@@ -214,7 +214,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 404, message = "No category was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("adhoclan.manage")
-	OssResponse setStudentsOnly(
+	CrxResponse setStudentsOnly(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId")		Long roomId,
 			boolean studentsOnly
@@ -232,7 +232,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 404, message = "No category was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("adhoclan.manage")
-	OssResponse putObjectIntoRoom(
+	CrxResponse putObjectIntoRoom(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId")		Long roomId,
 			@PathParam("objectType")	String onjectType,
@@ -250,7 +250,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 404, message = "No category was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("adhoclan.manage")
-	OssResponse deleteObjectInRoom(
+	CrxResponse deleteObjectInRoom(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId")		Long roomId,
 			@PathParam("objectType")	String onjectType,
@@ -287,7 +287,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 404, message = "No room was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("adhoclan.manage")
-	OssResponse delete(
+	CrxResponse delete(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("adHocRoomId")		Long adHocRoomId
 			);
@@ -358,7 +358,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 404, message = "No category was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
-	OssResponse deleteDevice(
+	CrxResponse deleteDevice(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("deviceId")		 Long	deviceId
 			);
@@ -371,7 +371,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 404, message = "No category was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
-	OssResponse modifyDevice(
+	CrxResponse modifyDevice(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("deviceId")		 Long	deviceId,
 			Device device
@@ -386,7 +386,7 @@ public interface AdHocLanResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	OssResponse addDevice(
+	CrxResponse addDevice(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId")		long roomId,
 			@PathParam("MAC")			String macAddress,

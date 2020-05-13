@@ -20,8 +20,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import de.cranix.dao.Clone;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OssActionMap;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxActionMap;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Partition;
 import de.cranix.dao.Session;
 import java.util.List;
@@ -100,7 +100,7 @@ public interface HwconfResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	OssResponse add(
+	CrxResponse add(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        HWConf hwconf
 	);
@@ -119,7 +119,7 @@ public interface HwconfResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	OssResponse importHWConfs(
+	CrxResponse importHWConfs(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        List<HWConf> hwconfs
 	);
@@ -139,7 +139,7 @@ public interface HwconfResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	OssResponse modifyHWConf(
+	CrxResponse modifyHWConf(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 		    HWConf hwconf
@@ -160,7 +160,7 @@ public interface HwconfResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse addPartition(
+	CrxResponse addPartition(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 	        Partition partition
@@ -180,7 +180,7 @@ public interface HwconfResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse delete(
+	CrxResponse delete(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId
 	);
@@ -196,7 +196,7 @@ public interface HwconfResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	OssResponse deletePartition(
+	CrxResponse deletePartition(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 	        @PathParam("partitionName") String partitionName
@@ -220,7 +220,7 @@ public interface HwconfResource {
 						" multicast  :  true/fals"
 						)
 	@RolesAllowed("hwconf.manage")
-	OssResponse startRecover(
+	CrxResponse startRecover(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("hwconfId") Long hwconfId,
 			Clone parameters
@@ -240,7 +240,7 @@ public interface HwconfResource {
 						  "Multicast can be 0 or 1"
 						)
 	@RolesAllowed("hwconf.manage")
-	OssResponse startRecover(
+	CrxResponse startRecover(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("hwconfId")  Long hwconfId,
 			@PathParam("multiCast") int multiCast
@@ -257,7 +257,7 @@ public interface HwconfResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes the boot configuration for the automatical partitioning.")
 	@RolesAllowed("hwconf.manage")
-	OssResponse stopRecover(
+	CrxResponse stopRecover(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("hwconfId") Long hwconfId
 			);
@@ -274,7 +274,7 @@ public interface HwconfResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Start multicast imaging with a given partition.")
 	@RolesAllowed("hwconf.manage")
-	OssResponse startMulticast(
+	CrxResponse startMulticast(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("partitionId") Long partitionId,
 			@PathParam("networkDevice") String networkDevice
@@ -292,7 +292,7 @@ public interface HwconfResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the parameters of an existing partition.")
 	@RolesAllowed("hwconf.manage")
-	OssResponse modifyPartition(
+	CrxResponse modifyPartition(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("partitionId") Long partitionId,
 			Partition partition
@@ -300,8 +300,8 @@ public interface HwconfResource {
 	/**
 	 * Apply actions on a list of hwconfs.
 	 * @param session
-	 * @return The result in an OssResponse object
-	 * @see OssResponse
+	 * @return The result in an CrxResponse object
+	 * @see CrxResponse
 	 */
 	@POST
 	@Path("applyAction")
@@ -310,9 +310,9 @@ public interface HwconfResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("cephalix.manage")
-	OssResponse applyAction(
+	CrxResponse applyAction(
 			@ApiParam(hidden = true) @Auth Session session,
-			OssActionMap actionMap
+			CrxActionMap actionMap
 			);
 
 }

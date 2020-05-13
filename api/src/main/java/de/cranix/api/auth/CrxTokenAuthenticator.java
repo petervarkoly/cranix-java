@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 /* (c) 2016 EXTIS GmbH - all rights reserved */
 package de.cranix.api.auth;
 
@@ -16,9 +16,9 @@ import de.cranix.dao.Session;
 import de.cranix.dao.controller.SessionController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
 
-public class OSSTokenAuthenticator implements Authenticator<String, Session> {
+public class CrxTokenAuthenticator implements Authenticator<String, Session> {
 
-    Logger logger = LoggerFactory.getLogger(OSSTokenAuthenticator.class);
+    Logger logger = LoggerFactory.getLogger(CrxTokenAuthenticator.class);
 
     @Override
     public Optional<Session> authenticate(String token) throws AuthenticationException {

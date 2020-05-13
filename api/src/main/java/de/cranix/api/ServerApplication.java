@@ -2,9 +2,9 @@
 /* (c) 2016 EXTIS GmbH - all rights reserved */
 package de.cranix.api;
 
-import de.cranix.api.auth.OSSAuthorizer;
+import de.cranix.api.auth.CrxAuthorizer;
 
-import de.cranix.api.auth.OSSTokenAuthenticator;
+import de.cranix.api.auth.CrxTokenAuthenticator;
 import de.cranix.api.health.TemplateHealthCheck;
 import de.cranix.api.resourceimpl.*;
 import de.cranix.api.resources.*;
@@ -39,7 +39,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
 	@Override
 	public String getName() {
-		return "OSS API";
+		return "CRANIX API";
 	}
 
 	@Override
@@ -58,8 +58,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
 		@SuppressWarnings("rawtypes")
 		AuthFilter tokenAuthorizer = new OAuthCredentialAuthFilter.Builder<Session>()
-		.setAuthenticator(new OSSTokenAuthenticator())
-		.setAuthorizer(new OSSAuthorizer())
+		.setAuthenticator(new CrxTokenAuthenticator())
+		.setAuthorizer(new CrxAuthorizer())
 		.setPrefix("Bearer")
 		.buildAuthFilter();
 

@@ -24,7 +24,7 @@ import java.util.Map;
 import de.cranix.dao.Acl;
 import de.cranix.dao.DnsRecord;
 import de.cranix.dao.Job;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.ProxyRule;
 import de.cranix.dao.Session;
 import de.cranix.dao.Translation;
@@ -115,7 +115,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.status")
-	OssResponse setServicesStatus(
+	CrxResponse setServicesStatus(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("name")  String name,
 	    @PathParam("what")  String what,
@@ -132,7 +132,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator") }
 	)
 	@RolesAllowed("system.customize")
-	OssResponse customize(@ApiParam(hidden = true) @Auth Session session,
+	CrxResponse customize(@ApiParam(hidden = true) @Auth Session session,
 	        @FormDataParam("file") final InputStream fileInputStream,
 	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
 	);
@@ -159,7 +159,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.enumerates")
-	OssResponse addEnumerate(
+	CrxResponse addEnumerate(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("type") String type,
 	    @PathParam("value") String value
@@ -173,7 +173,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.enumerates")
-	OssResponse deleteEnumerate(
+	CrxResponse deleteEnumerate(
 	    @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("type") String type,
 	        @PathParam("value") String value
@@ -216,7 +216,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.configuration")
-	OssResponse setConfig(
+	CrxResponse setConfig(
 	    @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("key") String key,
 	        @PathParam("value") String value
@@ -232,7 +232,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.configuration")
-	OssResponse setConfig(
+	CrxResponse setConfig(
 	    @ApiParam(hidden = true) @Auth Session session,
 	   Map<String, String> config
 	);
@@ -258,7 +258,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	OssResponse  setFirewallIncomingRules(
+	CrxResponse  setFirewallIncomingRules(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    Map<String, String> incomingRules
 	    );
@@ -283,7 +283,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	OssResponse  setFirewallOutgoingRules(
+	CrxResponse  setFirewallOutgoingRules(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    List<Map<String, String>> incomingRules
 	    );
@@ -308,7 +308,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	OssResponse  setFirewallRemoteAccessRules(
+	CrxResponse  setFirewallRemoteAccessRules(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    List<Map<String, String>> incomingRules
 	    );
@@ -337,7 +337,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.translation")
-	OssResponse addTranslation(
+	CrxResponse addTranslation(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    Translation    translation
 	);
@@ -366,7 +366,7 @@ public interface SystemResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.register")
-	OssResponse register(
+	CrxResponse register(
 	    @ApiParam(hidden = true) @Auth Session session
 	);
 
@@ -390,7 +390,7 @@ public interface SystemResource {
 	@ApiOperation(value = "Install packages.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.packages")
-	OssResponse installPackages(
+	CrxResponse installPackages(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    List<String> packages
 	    );
@@ -401,7 +401,7 @@ public interface SystemResource {
 	@ApiOperation(value = "Update packages.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.packages")
-	OssResponse updatePackages(
+	CrxResponse updatePackages(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    List<String> packages
 	    );
@@ -413,7 +413,7 @@ public interface SystemResource {
 	@ApiOperation(value = "Install all updates on the system.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.update")
-	OssResponse updateSyste(
+	CrxResponse updateSyste(
 	    @ApiParam(hidden = true) @Auth Session session
 	    );
 
@@ -437,7 +437,7 @@ public interface SystemResource {
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	OssResponse setProxyDefault(
+	CrxResponse setProxyDefault(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("role") String role,
 	    List<ProxyRule> acl
@@ -462,7 +462,7 @@ public interface SystemResource {
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	OssResponse setProxyDefaults(
+	CrxResponse setProxyDefaults(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("role") String role,
 	    Map<String,List<ProxyRule>> acls
@@ -486,7 +486,7 @@ public interface SystemResource {
 	@ApiOperation(value = "Sets the custom lists of the proxy: good or bad.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	OssResponse setTheCustomList(
+	CrxResponse setTheCustomList(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("list")        String list,
 	    List<String> domains
@@ -501,7 +501,7 @@ public interface SystemResource {
 	@ApiOperation(value = "Creates a new job")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
-	OssResponse createJob(
+	CrxResponse createJob(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    Job job
 	);
@@ -566,7 +566,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.jobs")
-	OssResponse setJobExitValue(
+	CrxResponse setJobExitValue(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("jobId") Long jobId,
 	    @PathParam("exitValue") Integer exitValue
@@ -580,7 +580,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.jobs")
-	OssResponse restartJob(
+	CrxResponse restartJob(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("jobId") Long jobId
 	);
@@ -634,7 +634,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	OssResponse setAclOfGroup(
+	CrxResponse setAclOfGroup(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("groupId") Long groupId,
 	    Acl acl
@@ -648,7 +648,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	OssResponse deleteAclsOfGroup(
+	CrxResponse deleteAclsOfGroup(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("groupId") Long groupId
 	);
@@ -687,7 +687,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	OssResponse setAclOfUser(
+	CrxResponse setAclOfUser(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("userId") Long userId,
 	    Acl acl
@@ -701,7 +701,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	OssResponse deleteAclsOfUser(
+	CrxResponse deleteAclsOfUser(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("userId") Long userId
 	);
@@ -738,7 +738,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	OssResponse addDnsDomain(
+	CrxResponse addDnsDomain(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @FormDataParam("domainName")   String  domainName
 	);
@@ -758,7 +758,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	OssResponse deleteDnsDomain(
+	CrxResponse deleteDnsDomain(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @FormDataParam("domainName")   String  domainName
 	);
@@ -800,7 +800,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	OssResponse addDnsRecord(
+	CrxResponse addDnsRecord(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    DnsRecord dnsRecord
 	);
@@ -822,7 +822,7 @@ public interface SystemResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	OssResponse deleteDnsRecord(
+	CrxResponse deleteDnsRecord(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    DnsRecord dnsRecord
 	);
@@ -835,7 +835,7 @@ public interface SystemResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.configuration")
-	OssResponse findObject(
+	CrxResponse findObject(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("objectType") String objectType,
 		LinkedHashMap<String,Object> object
@@ -875,7 +875,7 @@ public interface SystemResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
 	@RolesAllowed("system.addons")
-	OssResponse applyActionForAddon(
+	CrxResponse applyActionForAddon(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("name")	String name,
 			@PathParam("action")	String action

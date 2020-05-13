@@ -157,15 +157,15 @@ public class User implements Serializable {
 	@JsonIgnore
 	private List<AccessInRoom> createdAccessInRoom = new ArrayList<AccessInRoom>();
 
-	//bi-directional many-to-one association to OSSConfig
+	//bi-directional many-to-one association to CrxConfig
 	@OneToMany(mappedBy="creator")
 	@JsonIgnore
-	private List<OSSConfig> createdOSSConfig = new ArrayList<OSSConfig>();
+	private List<CrxConfig> createdCrxConfig = new ArrayList<CrxConfig>();
 
-	//bi-directional many-to-one association to OSSConfig
+	//bi-directional many-to-one association to CrxConfig
 	@OneToMany(mappedBy="creator")
 	@JsonIgnore
-	private List<OSSMConfig> createdOSSMConfig = new ArrayList<OSSMConfig>();
+	private List<CrxMConfig> createdCrxMConfig = new ArrayList<CrxMConfig>();
 
 	//bi-directional many-to-one association to Device
 	@OneToMany(mappedBy="owner")
@@ -703,19 +703,19 @@ public class User implements Serializable {
 		this.mailAliases = mailAliases;
 	}
 
-	public List<OSSConfig> getCreatedOSSConfig() {
-		return createdOSSConfig;
+	public List<CrxConfig> getCreatedCrxConfig() {
+		return createdCrxConfig;
 	}
 
-	public void setCreatedOSSConfig(List<OSSConfig> createdOSSConfig) {
-		this.createdOSSConfig = createdOSSConfig;
+	public void setCreatedCrxConfig(List<CrxConfig> createdCrxConfig) {
+		this.createdCrxConfig = createdCrxConfig;
 	}
 
-	public List<OSSMConfig> getCreatedOSSMConfig() {
-		return createdOSSMConfig;
+	public List<CrxMConfig> getCreatedCrxMConfig() {
+		return createdCrxMConfig;
 	}
 
-	public void setCreatedOSSMConfig(List<OSSMConfig> createdOSSMConfig) {
-		this.createdOSSMConfig = createdOSSMConfig;
+	public void setCreatedCrxMConfig(List<CrxMConfig> createdCrxMConfig) {
+		this.createdCrxMConfig = createdCrxMConfig;
 	}
 }

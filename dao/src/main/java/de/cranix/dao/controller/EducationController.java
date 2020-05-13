@@ -127,7 +127,7 @@ public class EducationController extends UserController {
 	 *     "studentsOnly : true/false
 	 * }
 	 */
-	public OssResponse createSmartRoom(Category smartRoom) {
+	public CrxResponse createSmartRoom(Category smartRoom) {
 		User   owner       = this.session.getUser();
 		/* Define the room */
 		Room     room      = new Room();
@@ -152,7 +152,7 @@ public class EducationController extends UserController {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -194,13 +194,13 @@ public class EducationController extends UserController {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Smart Room was created succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Smart Room was created succesfully.");
 	}
 
-	public OssResponse modifySmartRoom(long roomId, Category smartRoom) {
+	public CrxResponse modifySmartRoom(long roomId, Category smartRoom) {
 		try {
 			this.em.getTransaction().begin();
 			Room room = smartRoom.getRooms().get(0);
@@ -211,13 +211,13 @@ public class EducationController extends UserController {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Smart Room was modified succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Smart Room was modified succesfully.");
 	}
 
-	public OssResponse deleteSmartRoom(Long roomId) {
+	public CrxResponse deleteSmartRoom(Long roomId) {
 		try {
 			this.em.getTransaction().begin();
 			Room room         = this.em.find(Room.class, roomId);
@@ -235,10 +235,10 @@ public class EducationController extends UserController {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Smart Room was deleted succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Smart Room was deleted succesfully.");
 	}
 
 
@@ -340,7 +340,7 @@ public class EducationController extends UserController {
 		return loggedOns;
 	}
 
-	public List<OssResponse> uploadFileTo(String what,
+	public List<CrxResponse> uploadFileTo(String what,
 			Long objectId,
 			List<Long> objectIds,
 			InputStream fileInputStream,
@@ -349,13 +349,13 @@ public class EducationController extends UserController {
 			Boolean cleanUp ) {
 		String fileName = contentDispositionHeader.getFileName();
 		File file = null;
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		try {
 			file = File.createTempFile("oss_uploadFile", ".ossb", new File(cranixTmpDir));
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
-			responses.add(new OssResponse(this.getSession(),"ERROR", e.getMessage()));
+			responses.add(new CrxResponse(this.getSession(),"ERROR", e.getMessage()));
 			return responses;
 		}
 		switch(what) {
@@ -365,7 +365,7 @@ public class EducationController extends UserController {
 				if( user != null ) {
 					responses.add(this.saveFileToUserImport(user, file, fileName, cleanUp));
 				} else {
-					responses.add(new OssResponse(this.getSession(),"ERROR","User with id %s does not exists.",null,id.toString() ));
+					responses.add(new CrxResponse(this.getSession(),"ERROR","User with id %s does not exists.",null,id.toString() ));
 				}
 			}
 			break;
@@ -374,7 +374,7 @@ public class EducationController extends UserController {
 			if( user != null ) {
 				responses.add(this.saveFileToUserImport(user, file, fileName, cleanUp));
 			} else {
-				responses.add(new OssResponse(this.getSession(),"ERROR","User with id %s does not exists.",null,objectId.toString() ));
+				responses.add(new CrxResponse(this.getSession(),"ERROR","User with id %s does not exists.",null,objectId.toString() ));
 			}
 			break;
 		case "group":
@@ -387,7 +387,7 @@ public class EducationController extends UserController {
 					}
 				}
 			} else {
-				responses.add(new OssResponse(this.getSession(),"ERROR","Group with id %s does not exists.",null,objectId.toString() ));
+				responses.add(new CrxResponse(this.getSession(),"ERROR","Group with id %s does not exists.",null,objectId.toString() ));
 			}
 			break;
 		case "device":
@@ -397,7 +397,7 @@ public class EducationController extends UserController {
 					responses.add(this.saveFileToUserImport(myUser, file, fileName, cleanUp));
 				}
 			} else {
-				responses.add(new OssResponse(this.getSession(),"ERROR","Device with id %s does not exists.",null,objectId.toString() ));
+				responses.add(new CrxResponse(this.getSession(),"ERROR","Device with id %s does not exists.",null,objectId.toString() ));
 			}
 			break;
 		case "room":
@@ -420,14 +420,14 @@ public class EducationController extends UserController {
 		return responses;
 	}
 
-	public OssResponse saveFileToUserImport(User user, File file, String fileName, Boolean cleanUp) {
+	public CrxResponse saveFileToUserImport(User user, File file, String fileName, Boolean cleanUp) {
 		if( cleanUp == null ) {
 			cleanUp = true;
 		}
 		UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
 		List<String> parameters = new ArrayList<String>();
 		if( user == null ) {
-			return new OssResponse(this.getSession(),"ERROR","No user defined.");
+			return new CrxResponse(this.getSession(),"ERROR","No user defined.");
 		} else {
 			logger.debug("File " + fileName + " saved to " + user.getUid());
 		}
@@ -480,36 +480,36 @@ public class EducationController extends UserController {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			parameters.add(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR","File %s could not be saved to user: %s: %s",null,parameters);
+			return new CrxResponse(this.getSession(),"ERROR","File %s could not be saved to user: %s: %s",null,parameters);
 		}
-		return new OssResponse(this.getSession(),"OK","File '%s' successfully saved to user '%s'.",null,parameters);
+		return new CrxResponse(this.getSession(),"OK","File '%s' successfully saved to user '%s'.",null,parameters);
 	}
 
 
-	public OssResponse createGroup(Group group) {
+	public CrxResponse createGroup(Group group) {
 		GroupController groupController = new GroupController(this.session,this.em);
 		group.setGroupType("workgroup");
 		group.setOwner(session.getUser());
 		return groupController.add(group);
 	}
 
-	public OssResponse modifyGroup(long groupId, Group group) {
+	public CrxResponse modifyGroup(long groupId, Group group) {
 		GroupController groupController = new GroupController(this.session,this.em);
 		Group emGroup = groupController.getById(groupId);
 		if( this.session.getUser().equals(emGroup.getOwner())) {
 			return groupController.modify(group);
 		} else {
-			return new OssResponse(this.getSession(),"ERROR", "You are not the owner of this group.");
+			return new CrxResponse(this.getSession(),"ERROR", "You are not the owner of this group.");
 		}
 	}
 
-	public OssResponse deleteGroup(long groupId) {
+	public CrxResponse deleteGroup(long groupId) {
 		GroupController groupController = new GroupController(this.session,this.em);
 		Group emGroup = groupController.getById(groupId);
 		if( this.session.getUser().equals(emGroup.getOwner())) {
 			return groupController.delete(groupId);
 		} else {
-			return new OssResponse(this.getSession(),"ERROR", "You are not the owner of this group.");
+			return new CrxResponse(this.getSession(),"ERROR", "You are not the owner of this group.");
 		}
 	}
 
@@ -547,8 +547,8 @@ public class EducationController extends UserController {
 	}
 
 
-	public OssResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
-		OssResponse ossResponse = null;
+	public CrxResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
+		CrxResponse ossResponse = null;
 		List<String> errors = new ArrayList<String>();
 		DeviceController dc = new DeviceController(this.session,this.em);
 
@@ -590,7 +590,7 @@ public class EducationController extends UserController {
 				program[4] = "--complexity=on";
 				OSSShellTools.exec(program, reply, error, null);
 			}
-			return new OssResponse(this.getSession(), "OK", "The password of the selected users was reseted.");
+			return new CrxResponse(this.getSession(), "OK", "The password of the selected users was reseted.");
 		}
 
 		logger.debug("manageRoom called " + roomId + " action:");
@@ -612,9 +612,9 @@ public class EducationController extends UserController {
 			}
 		}
 		if( errors.isEmpty() ) {
-			return new OssResponse(this.getSession(),"OK", "Room control was applied.");
+			return new CrxResponse(this.getSession(),"OK", "Room control was applied.");
 		} else {
-			return new OssResponse(this.getSession(),"ERROR",String.join("<br>", errors));
+			return new CrxResponse(this.getSession(),"ERROR",String.join("<br>", errors));
 		}
 	}
 
@@ -639,9 +639,9 @@ public class EducationController extends UserController {
 	 * getRoomControl
 	 * @param roomId	The roomId which should be controlled
 	 * @param minutes   How long do you want to control the room
-	 * @return          An OssResponse object
+	 * @return          An CrxResponse object
 	 */
-	public OssResponse getRoomControl(long roomId, long minutes) {
+	public CrxResponse getRoomControl(long roomId, long minutes) {
 
 		//Create the list of the controllers
 		StringBuilder controllers = new StringBuilder();
@@ -678,9 +678,9 @@ public class EducationController extends UserController {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK", "Now you have the control for the selected room.");
+		return new CrxResponse(this.getSession(),"OK", "Now you have the control for the selected room.");
 	}
 }

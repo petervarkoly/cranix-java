@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Entity
 @Table(name="Responses")
-@NamedQuery(name="OssResponse.findAll", query="SELECT r FROM OssResponse r")
-public class OssResponse implements Serializable {
+@NamedQuery(name="CrxResponse.findAll", query="SELECT r FROM CrxResponse r")
+public class CrxResponse implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -78,7 +78,7 @@ public class OssResponse implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		OssResponse other = (OssResponse) obj;
+		CrxResponse other = (CrxResponse) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -87,10 +87,10 @@ public class OssResponse implements Serializable {
 		return true;
 	}
 
-	public OssResponse() {
+	public CrxResponse() {
 	}
 
-	public OssResponse(Session session,String code, String value){
+	public CrxResponse(Session session,String code, String value){
 		this.session  = session;
 		this.code     = code;
 		this.value    = value;
@@ -98,7 +98,7 @@ public class OssResponse implements Serializable {
 		this.objectId = null;
 	}
 
-	public OssResponse(Session session,String code, String value, List<String> parameters){
+	public CrxResponse(Session session,String code, String value, List<String> parameters){
 		this.session  = session;
 		this.code     = code;
 		this.value    = value;
@@ -106,7 +106,7 @@ public class OssResponse implements Serializable {
 		this.objectId = null;
 	}
    
-	public OssResponse(Session session,String code, String value, Long objectId){
+	public CrxResponse(Session session,String code, String value, Long objectId){
 	this.session  = session;
 	this.code     = code;
 	this.value    = value;
@@ -114,7 +114,7 @@ public class OssResponse implements Serializable {
 	this.objectId = objectId;
 	}
 
-	public OssResponse(Session session,String code, String value, Long objectId, List<String> parameters){
+	public CrxResponse(Session session,String code, String value, Long objectId, List<String> parameters){
 		this.session  = session;
 		this.code     = code;
 		this.value    = value;
@@ -122,7 +122,7 @@ public class OssResponse implements Serializable {
 		this.objectId = objectId;
 	}
 
-	public OssResponse(Session session,String code, String value, Long objectId, String parameter){
+	public CrxResponse(Session session,String code, String value, Long objectId, String parameter){
 		this.session  = session;
 		this.code     = code;
 		this.value    = value;

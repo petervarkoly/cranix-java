@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import de.cranix.dao.Device;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 import de.cranix.dao.PrintersOfManufacturer;
 import de.cranix.dao.Session;
@@ -45,7 +45,7 @@ public interface PrinterResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
-	OssResponse addPrinter(
+	CrxResponse addPrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@FormDataParam("name")          String  name,
 			@FormDataParam("mac")      		String  mac,
@@ -64,7 +64,7 @@ public interface PrinterResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
-	OssResponse addPrinterQueue(
+	CrxResponse addPrinterQueue(
 			@ApiParam(hidden = true) @Auth Session session,
 			@FormDataParam("name")          String  name,
 			@FormDataParam("deviceId")   	Long    deviceId,
@@ -82,7 +82,7 @@ public interface PrinterResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
-	OssResponse setDriver(
+	CrxResponse setDriver(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerId")	Long printerId,
             @FormDataParam("file") final InputStream fileInputStream,
@@ -135,7 +135,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
-	OssResponse deletePrinter(
+	CrxResponse deletePrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerId")		Long printerId
 			);
@@ -149,7 +149,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.manage")
-	OssResponse resetPrinter(
+	CrxResponse resetPrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerId")		Long printerId
 			);
@@ -163,7 +163,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.manage")
-	OssResponse enablePrinter(
+	CrxResponse enablePrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerId")		Long printerId
 			);
@@ -177,7 +177,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.manage")
-	OssResponse disablePrinter(
+	CrxResponse disablePrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerId")		Long printerId
 			);
@@ -191,7 +191,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
-	OssResponse activateWindowsDriver(
+	CrxResponse activateWindowsDriver(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerId")		Long printerId
 			);
@@ -205,7 +205,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
-	OssResponse deletePrinter(
+	CrxResponse deletePrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerName")		String printerName
 			);
@@ -219,7 +219,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.manage")
-	OssResponse resetPrinter(
+	CrxResponse resetPrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerName")		String printerName
 			);
@@ -233,7 +233,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.manage")
-	OssResponse enablePrinter(
+	CrxResponse enablePrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerName")		String printerName
 			);
@@ -247,7 +247,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.manage")
-	OssResponse disablePrinter(
+	CrxResponse disablePrinter(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerName")		String printerName
 			);
@@ -261,7 +261,7 @@ public interface PrinterResource {
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
-	OssResponse activateWindowsDriver(
+	CrxResponse activateWindowsDriver(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerName")		String printerName
 			);

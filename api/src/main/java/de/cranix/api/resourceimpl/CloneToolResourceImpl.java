@@ -7,7 +7,7 @@ import de.cranix.dao.HWConf;
 import de.cranix.dao.Clone;
 import de.cranix.dao.Device;
 import de.cranix.dao.Partition;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.Room;
 import de.cranix.dao.controller.CloneToolController;
@@ -94,13 +94,13 @@ public class CloneToolResourceImpl implements CloneToolResource {
 	}
 
 	@Override
-	public OssResponse setMaster(Session session, Long deviceId, int isMaster) {
+	public CrxResponse setMaster(Session session, Long deviceId, int isMaster) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final DeviceController deviceController = new DeviceController(session,em);
 		Device device = deviceController.getById(deviceId);
-		OssResponse resp = new OssResponse(session,"OK","Nothing to change.");
+		CrxResponse resp = new CrxResponse(session,"OK","Nothing to change.");
 		if( device == null ) {
-			resp = new OssResponse(session,"ERRO","Device was not found.");
+			resp = new CrxResponse(session,"ERRO","Device was not found.");
 		} else {
 			if( deviceController.checkConfig(device,"isMaster" ) && isMaster == 0) {
 				resp = deviceController.deleteConfig(device, "isMaster");
@@ -120,7 +120,7 @@ public class CloneToolResourceImpl implements CloneToolResource {
 	}
 
 	@Override
-	public OssResponse setMaster(Session session, int isMaster) {
+	public CrxResponse setMaster(Session session, int isMaster) {
 		return this.setMaster(session, session.getDevice().getId(), isMaster);
 	}
 
@@ -175,65 +175,65 @@ public class CloneToolResourceImpl implements CloneToolResource {
 	}
 
 	@Override
-	public OssResponse addHWConf(Session session, HWConf hwconf) {
+	public CrxResponse addHWConf(Session session, HWConf hwconf) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).addHWConf(hwconf);
+		CrxResponse resp = new CloneToolController(session,em).addHWConf(hwconf);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modifyHWConf(Session session, Long hwconfId, HWConf hwconf) {
+	public CrxResponse modifyHWConf(Session session, Long hwconfId, HWConf hwconf) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).modifyHWConf(hwconfId, hwconf);
+		CrxResponse resp = new CloneToolController(session,em).modifyHWConf(hwconfId, hwconf);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addPartition(Session session, Long hwconfId, Partition partition) {
+	public CrxResponse addPartition(Session session, Long hwconfId, Partition partition) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).addPartitionToHWConf(hwconfId, partition);
+		CrxResponse resp = new CloneToolController(session,em).addPartitionToHWConf(hwconfId, partition);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addPartition(Session session, Long hwconfId, String partitionName) {
+	public CrxResponse addPartition(Session session, Long hwconfId, String partitionName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).addPartitionToHWConf(hwconfId, partitionName );
+		CrxResponse resp = new CloneToolController(session,em).addPartitionToHWConf(hwconfId, partitionName );
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setConfigurationValue(Session session, Long hwconfId, String partitionName, String key, String value) {
+	public CrxResponse setConfigurationValue(Session session, Long hwconfId, String partitionName, String key, String value) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).setConfigurationValue(hwconfId,partitionName,key,value);
+		CrxResponse resp = new CloneToolController(session,em).setConfigurationValue(hwconfId,partitionName,key,value);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse delete(Session session, Long hwconfId) {
+	public CrxResponse delete(Session session, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).delete(hwconfId);
+		CrxResponse resp = new CloneToolController(session,em).delete(hwconfId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deletePartition(Session session, Long hwconfId, String partitionName) {
+	public CrxResponse deletePartition(Session session, Long hwconfId, String partitionName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).deletePartition(hwconfId,partitionName);
+		CrxResponse resp = new CloneToolController(session,em).deletePartition(hwconfId,partitionName);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteConfigurationValue(Session session, Long hwconfId, String partitionName, String key) {
+	public CrxResponse deleteConfigurationValue(Session session, Long hwconfId, String partitionName, String key) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).deleteConfigurationValue(hwconfId,partitionName,key);
+		CrxResponse resp = new CloneToolController(session,em).deleteConfigurationValue(hwconfId,partitionName,key);
 		em.close();
 		return resp;
 	}
@@ -269,7 +269,7 @@ public class CloneToolResourceImpl implements CloneToolResource {
 	}
 
 	@Override
-	public OssResponse addDevice(Session session, long roomId, String macAddress, String IP, String name) {
+	public CrxResponse addDevice(Session session, long roomId, String macAddress, String IP, String name) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		RoomController rc = new RoomController(session,em);
 		Room room = rc.getById(roomId);
@@ -282,70 +282,70 @@ public class CloneToolResourceImpl implements CloneToolResource {
 		}
 		ArrayList<Device> devices = new ArrayList<Device>();
 		devices.add(device);
-		OssResponse resp = rc.addDevices(roomId, devices);
+		CrxResponse resp = rc.addDevices(roomId, devices);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse startCloning(Session session, Long hwconfId, Clone parameters) {
+	public CrxResponse startCloning(Session session, Long hwconfId, Clone parameters) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).startCloning(hwconfId,parameters);
+		CrxResponse resp = new CloneToolController(session,em).startCloning(hwconfId,parameters);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse startCloning(Session session, Long hwconfId, int multiCast) {
+	public CrxResponse startCloning(Session session, Long hwconfId, int multiCast) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		return new CloneToolController(session,em).startCloning("hwconf", hwconfId, multiCast);
 	}
 
 	@Override
-	public OssResponse startCloningInRoom(Session session, Long roomId, int multiCast) {
+	public CrxResponse startCloningInRoom(Session session, Long roomId, int multiCast) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).startCloning("room", roomId, multiCast);
+		CrxResponse resp = new CloneToolController(session,em).startCloning("room", roomId, multiCast);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse startCloningOnDevice(Session session, Long deviceId) {
+	public CrxResponse startCloningOnDevice(Session session, Long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).startCloning("device", deviceId, 0);
+		CrxResponse resp = new CloneToolController(session,em).startCloning("device", deviceId, 0);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse stopCloning(Session session, Long hwconfId) {
+	public CrxResponse stopCloning(Session session, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).stopCloning("hwconf",hwconfId);
+		CrxResponse resp = new CloneToolController(session,em).stopCloning("hwconf",hwconfId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse stopCloningInRoom(Session session, Long roomId) {
+	public CrxResponse stopCloningInRoom(Session session, Long roomId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).stopCloning("room",roomId);
+		CrxResponse resp = new CloneToolController(session,em).stopCloning("room",roomId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse stopCloningOnDevice(Session session, Long deviceId) {
+	public CrxResponse stopCloningOnDevice(Session session, Long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).stopCloning("device",deviceId);
+		CrxResponse resp = new CloneToolController(session,em).stopCloning("device",deviceId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse stopCloningOnDevice(Session session, String deviceIP) {
+	public CrxResponse stopCloningOnDevice(Session session, String deviceIP) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Device device = new DeviceController(session,em).getByIP(deviceIP);
-		OssResponse resp = new CloneToolController(session,em).stopCloning("device",device.getId());
+		CrxResponse resp = new CloneToolController(session,em).stopCloning("device",device.getId());
 		em.close();
 		return resp;
 	}
@@ -365,17 +365,17 @@ public class CloneToolResourceImpl implements CloneToolResource {
 	}
 
 	@Override
-	public OssResponse startMulticast(Session session, Long partitionId, String networkDevice) {
+	public CrxResponse startMulticast(Session session, Long partitionId, String networkDevice) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).startMulticast(partitionId,networkDevice);
+		CrxResponse resp = new CloneToolController(session,em).startMulticast(partitionId,networkDevice);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modifyPartition(Session session, Long partitionId, Partition partition) {
+	public CrxResponse modifyPartition(Session session, Long partitionId, Partition partition) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new CloneToolController(session,em).modifyPartition(partitionId, partition);
+		CrxResponse resp = new CloneToolController(session,em).modifyPartition(partitionId, partition);
 		em.close();
 		return resp;
 	}
@@ -427,10 +427,10 @@ public class CloneToolResourceImpl implements CloneToolResource {
 	}
 
 	@Override
-	public OssResponse importHWConfs(Session session, List<HWConf> hwconfs) {
+	public CrxResponse importHWConfs(Session session, List<HWConf> hwconfs) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CloneToolController  cloneToolController = new CloneToolController(session,em);
-		OssResponse ossResponse = null;
+		CrxResponse ossResponse = null;
 		for( HWConf hwconf : hwconfs ) {
 			ossResponse = cloneToolController.addHWConf(hwconf);
 			if( ossResponse.getCode().equals("ERROR")) {

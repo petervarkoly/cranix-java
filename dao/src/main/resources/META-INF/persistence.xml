@@ -14,9 +14,9 @@
     <class>de.cranix.dao.Group</class>
     <class>de.cranix.dao.HWConf</class>
     <class>de.cranix.dao.Job</class>
-    <class>de.cranix.dao.OSSConfig</class>
-    <class>de.cranix.dao.OSSMConfig</class>
-    <class>de.cranix.dao.OssResponse</class>
+    <class>de.cranix.dao.CrxConfig</class>
+    <class>de.cranix.dao.CrxMConfig</class>
+    <class>de.cranix.dao.CrxResponse</class>
     <class>de.cranix.dao.Partition</class>
     <class>de.cranix.dao.PositiveList</class>
     <class>de.cranix.dao.Printer</class>
@@ -34,7 +34,7 @@
     <class>de.cranix.dao.User</class>
     <class>de.cranix.dao.SoftwareFullName</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/OSS"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/CRX"/>
       <property name="javax.persistence.jdbc.user" value="root"/>
       <property name="javax.persistence.jdbc.password" value="Bartok12"/>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>

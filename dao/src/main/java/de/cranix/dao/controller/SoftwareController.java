@@ -118,7 +118,7 @@ public class SoftwareController extends Controller {
 		}
 	}
 
-	public OssResponse add(Software software, Boolean replace) {
+	public CrxResponse add(Software software, Boolean replace) {
 		logger.debug("Add software" + software);
 
 		Software oldSoftware = this.getByName(software.getName());
@@ -174,9 +174,9 @@ public class SoftwareController extends Controller {
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
 				logger.error("Updating the software:" + e.getMessage());
-				return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 			}
-			return new OssResponse(this.getSession(),"OK","New software version was created succesfully",softwareVersion.getId());
+			return new CrxResponse(this.getSession(),"OK","New software version was created succesfully",softwareVersion.getId());
 		}
 		//This is an new software
 		Software newSoftware = new Software();
@@ -206,18 +206,18 @@ public class SoftwareController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Software was created succesfully.",newSoftware.getId());
+		return new CrxResponse(this.getSession(),"OK","Software was created succesfully.",newSoftware.getId());
 	}
 
-	public OssResponse delete(Long softwareId) {
+	public CrxResponse delete(Long softwareId) {
 		try {
 			Software software =  this.em.find(Software.class, softwareId);
 			String softwareName = software.getName();
 			if( !this.mayModify(software) ) {
-				return new OssResponse(this.getSession(),"ERROR","You must not delete this software.");
+				return new CrxResponse(this.getSession(),"ERROR","You must not delete this software.");
 	        }
 			this.em.getTransaction().begin();
 			if( !this.em.contains(software)) {
@@ -268,13 +268,13 @@ public class SoftwareController extends Controller {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Software was deleted succesfully");
+		return new CrxResponse(this.getSession(),"OK","Software was deleted succesfully");
 	}
 
-	public OssResponse modify(Software software) {
+	public CrxResponse modify(Software software) {
 		try {
 			//Modifying only the software entry itself
 			this.em.getTransaction().begin();
@@ -282,10 +282,10 @@ public class SoftwareController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Software was created succesfully");
+		return new CrxResponse(this.getSession(),"OK","Software was created succesfully");
 	}
 
 	public List<Software> getAll() {
@@ -530,13 +530,13 @@ public class SoftwareController extends Controller {
 	 * @param softwares List of softwares to download.
 	 * @return
 	 */
-	public OssResponse downloadSoftwares(List<String> softwares) {
+	public CrxResponse downloadSoftwares(List<String> softwares) {
 		File file = null;
 		try {
 			file = File.createTempFile("oss_download_job", ".ossb", new File(cranixTmpDir));
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
 		StringBuilder command = new StringBuilder();
 		command.append("/usr/sbin/oss_download_packages ");
@@ -557,10 +557,10 @@ public class SoftwareController extends Controller {
 		program[2]   = file.toPath().toString();
 		program[3]   = "now";
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(this.getSession(),"OK","Download of the softwares was started succesfully");
+		return new CrxResponse(this.getSession(),"OK","Download of the softwares was started succesfully");
 	}
 
-	public OssResponse refreshSoftwareRepositories() {
+	public CrxResponse refreshSoftwareRepositories() {
 		String[] program    = new String[6];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -571,7 +571,7 @@ public class SoftwareController extends Controller {
 		program[4] = "-r";
 		program[5] = "salt-packages";
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(this.getSession(),"OK","Software repositories was refreshed succesfully");
+		return new CrxResponse(this.getSession(),"OK","Software repositories was refreshed succesfully");
 	}
 
 	public List<Map<String, String>> listUpdatesForSoftwarePackages() {
@@ -616,13 +616,13 @@ public class SoftwareController extends Controller {
 		return softwares;
 	}
 
-	public OssResponse updateSoftwares(List<String> softwares) {
+	public CrxResponse updateSoftwares(List<String> softwares) {
 		File file = null;
 		try {
 			file = File.createTempFile("oss_update_softwares_job", ".ossb", new File(cranixTmpDir));
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
 		StringBuilder command = new StringBuilder();
 		command.append("/usr/sbin/oss_update_packages ");
@@ -643,10 +643,10 @@ public class SoftwareController extends Controller {
 		program[2]   = file.toPath().toString();
 		program[3]   = "now";
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(this.getSession(),"OK","Update of the softwares was started succesfully");
+		return new CrxResponse(this.getSession(),"OK","Update of the softwares was started succesfully");
 	}
 
-	public OssResponse updateSoftwaresDirectly(List<String> softwares) {
+	public CrxResponse updateSoftwaresDirectly(List<String> softwares) {
 		String[] program    = new String[7+ softwares.size()];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -661,10 +661,10 @@ public class SoftwareController extends Controller {
 			program[7+i] = "oss-pkg-"+softwares.get(i);
 		}
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(this.getSession(),"OK","Softwares were updated succesfully");
+		return new CrxResponse(this.getSession(),"OK","Softwares were updated succesfully");
 	}
 
-	public OssResponse deleteDownloadedSoftwares(List<String> softwares) {
+	public CrxResponse deleteDownloadedSoftwares(List<String> softwares) {
 		String[] program    = new String[5+ softwares.size()];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -677,7 +677,7 @@ public class SoftwareController extends Controller {
 			program[5+i] = softwares.get(i);
 		}
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(this.getSession(),"OK","Softwares were updated succesfully");
+		return new CrxResponse(this.getSession(),"OK","Softwares were updated succesfully");
 	}
 
 	/*
@@ -759,7 +759,7 @@ public class SoftwareController extends Controller {
 	 *  @param		category A category object containing the name and description of the category
 	 *  @return		The result in a OssResult.
 	 */
-	public OssResponse createInstallationCategory(Category category) {
+	public CrxResponse createInstallationCategory(Category category) {
 		CategoryController categoryController = new CategoryController(this.session,this.em);
 		category.setCategoryType("installation");
 		category.setPublicAccess(false);
@@ -772,12 +772,12 @@ public class SoftwareController extends Controller {
 	 * @param categoryId The technical if of the installation set.
 	 * @return The result in a OssResult.
 	 */
-	public OssResponse addSoftwareToCategory(Long softwareId,Long categoryId){
+	public CrxResponse addSoftwareToCategory(Long softwareId,Long categoryId){
 		try {
 			Software s = this.em.find(Software.class, softwareId);
 			Category c = this.em.find(Category.class, categoryId);
 			if(c.getSoftwares().contains(s) ) {
-				return new OssResponse(this.getSession(),"OK","Software was already added to the installation.");
+				return new CrxResponse(this.getSession(),"OK","Software was already added to the installation.");
 			}
 			s.getCategories().add(c);
 			c.getSoftwares().add(s);
@@ -789,10 +789,10 @@ public class SoftwareController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());;
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Software was added to the installation succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Software was added to the installation succesfully.");
 	}
 
 	/**
@@ -801,12 +801,12 @@ public class SoftwareController extends Controller {
 	 * @param categoryId The technical if of the installation set.
 	 * @return The result in a OssResult.
 	 */
-	public OssResponse deleteSoftwareFromCategory(Long softwareId,Long categoryId){
+	public CrxResponse deleteSoftwareFromCategory(Long softwareId,Long categoryId){
 		try {
 			Software s = this.em.find(Software.class, softwareId);
 			Category c = this.em.find(Category.class, categoryId);
 			if(!c.getSoftwares().contains(s) ) {
-				return new OssResponse(this.getSession(),"OK","Software is not member of the installation.");
+				return new CrxResponse(this.getSession(),"OK","Software is not member of the installation.");
 			}
 			s.getCategories().remove(c);
 			c.getSoftwares().remove(s);
@@ -822,10 +822,10 @@ public class SoftwareController extends Controller {
 				}
 			}
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","SoftwareState was added to category succesfully");
+		return new CrxResponse(this.getSession(),"OK","SoftwareState was added to category succesfully");
 	}
 
 	/**
@@ -836,7 +836,7 @@ public class SoftwareController extends Controller {
 	 * @param contentDispositionHeader If licenseType is F this contains the name of the license file.
 	 * @return The result in a OssResult.
 	 */
-	public OssResponse addLicenseToSoftware(SoftwareLicense softwareLicense,
+	public CrxResponse addLicenseToSoftware(SoftwareLicense softwareLicense,
 			Long softwareId,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader
@@ -853,7 +853,7 @@ public class SoftwareController extends Controller {
 				this.em.merge(software);
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
-				return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 			} finally {
 			}
 			return this.uploadLicenseFile(softwareLicense, fileInputStream, contentDispositionHeader);
@@ -867,7 +867,7 @@ public class SoftwareController extends Controller {
 				this.em.merge(software);
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
-				return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 			} finally {
 			}
 		} else {
@@ -895,17 +895,17 @@ public class SoftwareController extends Controller {
 				Files.delete(file.toPath());
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
-				return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 			} finally {
 			}
 		}
-		return new OssResponse(this.getSession(),"OK","License was added to the software succesfully");
+		return new CrxResponse(this.getSession(),"OK","License was added to the software succesfully");
 	}
 
 	/*
 	 * Modify an existing license
 	 */
-	public OssResponse modifySoftwareLIcense(
+	public CrxResponse modifySoftwareLIcense(
 			SoftwareLicense softwareLicense,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader
@@ -921,19 +921,19 @@ public class SoftwareController extends Controller {
 			this.em.merge(oldLicense);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
 		if( softwareLicense.getLicenseType().equals('F') && fileInputStream != null ) {
 			return this.uploadLicenseFile(softwareLicense, fileInputStream, contentDispositionHeader);
 		}
-		return new OssResponse(this.getSession(),"OK","License was modified succesfully");
+		return new CrxResponse(this.getSession(),"OK","License was modified succesfully");
 	}
 
 	/*
 	 * Upload a license file to an existing license.
 	 */
-	public OssResponse uploadLicenseFile(
+	public CrxResponse uploadLicenseFile(
 			SoftwareLicense softwareLicense,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader)
@@ -956,10 +956,10 @@ public class SoftwareController extends Controller {
 			throw new WebApplicationException(500);
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Software License File was uploaded succesfully");
+		return new CrxResponse(this.getSession(),"OK","Software License File was uploaded succesfully");
 	}
 
-	public OssResponse deleteLicence(long licenseId) {
+	public CrxResponse deleteLicence(long licenseId) {
 		try {
 			this.em.getTransaction().begin();
 			SoftwareLicense sl = this.em.find(SoftwareLicense.class, licenseId);
@@ -970,10 +970,10 @@ public class SoftwareController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Software license was deleted successfully");
+		return new CrxResponse(this.getSession(),"OK","Software license was deleted successfully");
 	}
 	/*
 	 * Return the next free license
@@ -990,16 +990,16 @@ public class SoftwareController extends Controller {
 	/*
 	 * Add Licenses to a device
 	 */
-	public OssResponse addSoftwareLicenseToDevices(Software software, Device device ){
+	public CrxResponse addSoftwareLicenseToDevices(Software software, Device device ){
 
 			for( SoftwareLicense myLicense : device.getSoftwareLicenses() ) {
 				if( myLicense.getSoftware().equals(software) ){
-					return new OssResponse(this.getSession(),"OK","License was already added to the device.");
+					return new CrxResponse(this.getSession(),"OK","License was already added to the device.");
 				}
 			}
 			SoftwareLicense softwareLicense = this.getNextFreeLicenseId(software);
 			if( softwareLicense == null) {
-				return new OssResponse(this.getSession(),"ERROR","There is not enough licences.");
+				return new CrxResponse(this.getSession(),"ERROR","There is not enough licences.");
 			} else {
 				try {
 					this.em.getTransaction().begin();
@@ -1008,17 +1008,17 @@ public class SoftwareController extends Controller {
 					this.em.getTransaction().commit();
 				} catch (Exception e) {
 					logger.error(e.getMessage());
-					return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+					return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 				} finally {
 				}
 			}
-			return new OssResponse(this.getSession(),"OK","License was added to the device succesfully.");
+			return new CrxResponse(this.getSession(),"OK","License was added to the device succesfully.");
 	}
 
 	 /*
 	  *  Delete Licenses from a device
 	 */
-	public OssResponse deleteSoftwareLicenseFromDevice(Software software, Device device ){
+	public CrxResponse deleteSoftwareLicenseFromDevice(Software software, Device device ){
 
 			for( SoftwareLicense myLicense : device.getSoftwareLicenses() ) {
 				if( myLicense.getSoftware().equals(software) ){
@@ -1031,13 +1031,13 @@ public class SoftwareController extends Controller {
 						this.em.getTransaction().commit();
 					} catch (Exception e) {
 						logger.error(e.getMessage());
-						return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+						return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 					} finally {
 					}
-					return new OssResponse(this.getSession(),"OK","License was removed from device.");
+					return new CrxResponse(this.getSession(),"OK","License was removed from device.");
 				}
 			}
-			return new OssResponse(this.getSession(),"OK","No license on thise device.");
+			return new CrxResponse(this.getSession(),"OK","No license on thise device.");
 	 }
 	/*
 	 * Sets the software status on a device to a given version and remove the other status.
@@ -1248,7 +1248,7 @@ public class SoftwareController extends Controller {
 	/*
 	 * Save the software status what shall be installed to host sls files.
 	 */
-	public OssResponse applySoftwareStateToHosts(){
+	public CrxResponse applySoftwareStateToHosts(){
 		RoomController   roomController   = new RoomController(this.session,this.em);
 		DeviceController deviceController = new DeviceController(this.session,this.em);
 		Map<String,List<String>>   softwaresToInstall = new HashMap<>();
@@ -1266,7 +1266,7 @@ public class SoftwareController extends Controller {
 			saltPrincipial = lookupService.lookupPrincipalByName("salt");
 		} catch (IOException e) {
 			logger.error(e.getMessage());
-			return new OssResponse(session,"ERROR","Can not get salt's user principal.");
+			return new CrxResponse(session,"ERROR","Can not get salt's user principal.");
 		}
 		if( Files.exists(SALT_TOP_TEMPL) ) {
 			try {
@@ -1529,9 +1529,9 @@ public class SoftwareController extends Controller {
 		}
 		//TO SET THE RIGHTS
 		if( errorMessages.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR",errorMessages.toString());
+			return new CrxResponse(this.getSession(),"ERROR",errorMessages.toString());
 		}
-		return new OssResponse(this.getSession(),"OK","Software State was saved succesfully");
+		return new CrxResponse(this.getSession(),"OK","Software State was saved succesfully");
 	}
 
 	/**
@@ -1542,9 +1542,9 @@ public class SoftwareController extends Controller {
 	 * @param   description     The description (display name) of the software
 	 * @param	version			The version of the corresponding software
 	 * @param	status			The state to be set
-	 * @return					An OssResponse object will be responded
+	 * @return					An CrxResponse object will be responded
 	 */
-	public OssResponse setSoftwareStatusOnDevice(Device device, String softwareName, String description, String version, String status) {
+	public CrxResponse setSoftwareStatusOnDevice(Device device, String softwareName, String description, String version, String status) {
 		SoftwareStatus  softwareStatus  = null;
 		Software        software        = this.getByNameOrDescription(softwareName,description);
 		SoftwareVersion softwareVersion = null;
@@ -1562,7 +1562,7 @@ public class SoftwareController extends Controller {
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
 				logger.error("Can not create software: " + e.getMessage());
-				return new OssResponse(this.getSession(),"ERROR","Can not create software: " +e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR","Can not create software: " +e.getMessage());
 			}
 		}
 		for( SoftwareVersion sv :  software.getSoftwareVersions() ) {
@@ -1584,7 +1584,7 @@ public class SoftwareController extends Controller {
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
 				logger.error("Can not create software version: " + e.getMessage());
-				return new OssResponse(this.getSession(),"ERROR","Can not create software version " + e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR","Can not create software version " + e.getMessage());
 			}
 		}
 
@@ -1627,7 +1627,7 @@ public class SoftwareController extends Controller {
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
 				logger.error("Can not create software status:" + e.getMessage());
-				return new OssResponse(this.getSession(),"ERROR","Can not create software status:" + e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR","Can not create software status:" + e.getMessage());
 			}
 		} else {
 			softwareStatus.setStatus(status);
@@ -1637,7 +1637,7 @@ public class SoftwareController extends Controller {
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
 				logger.error("Can not modify software status:" + e.getMessage());
-				return new OssResponse(this.getSession(),"ERROR","Can not modify software status:" + e.getMessage());
+				return new CrxResponse(this.getSession(),"ERROR","Can not modify software status:" + e.getMessage());
 			}
 		}
 
@@ -1656,22 +1656,22 @@ public class SoftwareController extends Controller {
 			}
 		} catch (Exception e) {
 			logger.error("Can not remove software status:" + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR","Can not remove software status:" + e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR","Can not remove software status:" + e.getMessage());
 		}
-		return new OssResponse(this.getSession(),"OK","Software State was saved succesfully");
+		return new CrxResponse(this.getSession(),"OK","Software State was saved succesfully");
 	}
 
-	public OssResponse setSoftwareStatusOnDeviceById(Long deviceId, String softwareName, String description, String version, String status) {
+	public CrxResponse setSoftwareStatusOnDeviceById(Long deviceId, String softwareName, String description, String version, String status) {
 		Device device = new DeviceController(this.session,this.em).getById(deviceId);
 		return this.setSoftwareStatusOnDevice(device, softwareName, description, version, status);
 	}
 
-	public OssResponse setSoftwareStatusOnDeviceByName(String deviceName, String softwareName, String description, String version, String status) {
+	public CrxResponse setSoftwareStatusOnDeviceByName(String deviceName, String softwareName, String description, String version, String status) {
 		Device device =  new DeviceController(this.session,this.em).getByName(deviceName);
 		return this.setSoftwareStatusOnDevice(device, softwareName, description, version, status);
 	}
 
-	public OssResponse cleunUpSoftwareStatusOnDevice(Device device, Software software) {
+	public CrxResponse cleunUpSoftwareStatusOnDevice(Device device, Software software) {
 		try {
 			this.em.getTransaction().begin();
 			for(SoftwareStatus st : device.getSoftwareStatus() ) {
@@ -1683,10 +1683,10 @@ public class SoftwareController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","All software states was removed from device.");
+		return new CrxResponse(this.getSession(),"OK","All software states was removed from device.");
 	}
 	/**
 	 * Delete Software Status
@@ -1695,9 +1695,9 @@ public class SoftwareController extends Controller {
 	 * @param	softwareName	Name of the corresponding software package
 	 * @param	version			The version of the corresponding software
 	 * @param	status			The state to be set
-	 * @return					An OssResponse object will be returned
+	 * @return					An CrxResponse object will be returned
 	 */
-	public OssResponse deleteSoftwareStatusFromDevice(Device device, String softwareName, String version ) {
+	public CrxResponse deleteSoftwareStatusFromDevice(Device device, String softwareName, String version ) {
 		for(SoftwareStatus st : device.getSoftwareStatus() ) {
 			if( st.getSoftwareVersion().getVersion().equals(version) && st.getSoftwareVersion().getSoftware().getName().equals(softwareName) ) {
 				try {
@@ -1705,23 +1705,23 @@ public class SoftwareController extends Controller {
 					this.em.merge(st);
 					this.em.remove(st);
 					this.em.getTransaction().commit();
-					return new OssResponse(this.getSession(),"OK","Software State was removed succesfully");
+					return new CrxResponse(this.getSession(),"OK","Software State was removed succesfully");
 				} catch (Exception e) {
 					logger.error(e.getMessage());
-					return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+					return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 				} finally {
 				}
 			}
 		}
-		return new OssResponse(this.getSession(),"OK","No Software State exists for this software version on this device.");
+		return new CrxResponse(this.getSession(),"OK","No Software State exists for this software version on this device.");
 	}
 
-	public OssResponse deleteSoftwareStatusFromDeviceByName(String deviceName, String softwareName, String version) {
+	public CrxResponse deleteSoftwareStatusFromDeviceByName(String deviceName, String softwareName, String version) {
 		Device device = new DeviceController(this.session,this.em).getByName(deviceName);
 		return this.deleteSoftwareStatusFromDevice(device, softwareName, version);
 	}
 
-	public OssResponse deleteSoftwareStatusFromDeviceById(Long deviceId, String softwareName, String version) {
+	public CrxResponse deleteSoftwareStatusFromDeviceById(Long deviceId, String softwareName, String version) {
 		Device device = new DeviceController(this.session,this.em).getById(deviceId);
 		return this.deleteSoftwareStatusFromDevice(device, softwareName, version);
 	}
@@ -1804,7 +1804,7 @@ public class SoftwareController extends Controller {
 		return softwares;
 	}
 
-	public OssResponse addRequirements(Software software, Software requirement) {
+	public CrxResponse addRequirements(Software software, Software requirement) {
 		try {
 			this.em.getTransaction().begin();
 			software.getSoftwareRequirements().add(requirement);
@@ -1814,21 +1814,21 @@ public class SoftwareController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Software requirement was added successfully");
+		return new CrxResponse(this.getSession(),"OK","Software requirement was added successfully");
 	}
 
-	public OssResponse addRequirements(List<String> requirement) {
+	public CrxResponse addRequirements(List<String> requirement) {
 		return this.addRequirements(this.getByName(requirement.get(0)), this.getByName(requirement.get(1)));
 	}
 
-	public OssResponse addRequirements(long softwareId, long requirementId) {
+	public CrxResponse addRequirements(long softwareId, long requirementId) {
 		return this.addRequirements(this.getById(softwareId),this.getById(requirementId));
 	}
 
-	public OssResponse deleteRequirements(long softwareId, long requirementId) {
+	public CrxResponse deleteRequirements(long softwareId, long requirementId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

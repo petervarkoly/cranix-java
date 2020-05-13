@@ -28,7 +28,7 @@ import de.cranix.dao.Alias;
 import de.cranix.dao.Category;
 import de.cranix.dao.Group;
 import de.cranix.dao.GuestUsers;
-import de.cranix.dao.OssActionMap;
+import de.cranix.dao.CrxActionMap;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
 import de.cranix.dao.UserImport;
@@ -37,7 +37,7 @@ import de.cranix.dao.controller.GroupController;
 import de.cranix.dao.controller.UserController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
 import de.cranix.dao.tools.OSSShellTools;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import static de.cranix.dao.internal.CranixConstants.*;
 
 public class UserResourceImpl implements UserResource {
@@ -84,17 +84,17 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public OssResponse insert(Session session, User user) {
+	public CrxResponse insert(Session session, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse ossResponse =  new UserController(session,em).add(user);
+		CrxResponse ossResponse =  new UserController(session,em).add(user);
 		em.close();
 		return ossResponse;
 	}
 
 	@Override
-	public OssResponse add(Session session, User user) {
+	public CrxResponse add(Session session, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse ossResponse =  new UserController(session,em).add(user);
+		CrxResponse ossResponse =  new UserController(session,em).add(user);
 		em.close();
 		if( ossResponse.getCode().equals("OK")) {
 			sync(session);
@@ -103,37 +103,37 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public List<OssResponse> add(Session session, List<User> users) {
+	public List<CrxResponse> add(Session session, List<User> users) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<OssResponse> ossResponses =  new UserController(session,em).add(users);
+		List<CrxResponse> ossResponses =  new UserController(session,em).add(users);
 		sync(session);
 		em.close();
 		return ossResponses;
 	}
 
 	@Override
-	public OssResponse delete(Session session, Long userId) {
+	public CrxResponse delete(Session session, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse ossResponse = new UserController(session,em).delete(userId);
+		CrxResponse ossResponse = new UserController(session,em).delete(userId);
 		em.close();
 		return ossResponse;
 	}
 
 	@Override
-	public OssResponse modify(Session session, User user) {
+	public CrxResponse modify(Session session, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final UserController userController = new UserController(session,em);
-		OssResponse ossResponse = userController.modify(user);
+		CrxResponse ossResponse = userController.modify(user);
 		em.close();
 		return ossResponse;
 	}
 
 	@Override
-	public OssResponse modify(Session session, Long userId, User user) {
+	public CrxResponse modify(Session session, Long userId, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		user.setId(userId);
 		final UserController userController = new UserController(session,em);
-		OssResponse ossResponse = userController.modify(user);
+		CrxResponse ossResponse = userController.modify(user);
 		em.close();
 		return ossResponse;
 	}
@@ -175,54 +175,54 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public OssResponse setMembers(Session session, Long userId, List<Long> groupIds) {
+	public CrxResponse setMembers(Session session, Long userId, List<Long> groupIds) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse ossResponse =  new UserController(session,em).setGroups(userId,groupIds);
+		CrxResponse ossResponse =  new UserController(session,em).setGroups(userId,groupIds);
 		em.close();
 		return ossResponse;
 	}
 
 	@Override
-	public OssResponse removeMember(Session session, Long groupId, Long userId) {
+	public CrxResponse removeMember(Session session, Long groupId, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final GroupController groupController = new GroupController(session,em);
-		OssResponse ossResponse = groupController.removeMember(groupId,userId);
+		CrxResponse ossResponse = groupController.removeMember(groupId,userId);
 		em.close();
 		return ossResponse;
 	}
 
 	@Override
-	public OssResponse addToGroups(Session session, Long userId, List<Long> groups) {
+	public CrxResponse addToGroups(Session session, Long userId, List<Long> groups) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		StringBuilder error = new StringBuilder();
 		final GroupController groupController = new GroupController(session,em);
 		for( Long groupId : groups ) {
-			OssResponse ossResponse = groupController.addMember(groupId,userId);
+			CrxResponse ossResponse = groupController.addMember(groupId,userId);
 			if( !ossResponse.getCode().equals("OK")  ) {
 				error.append(ossResponse.getValue()).append("<br>");
 			}
 		}
 		em.close();
 		if( error.length() > 0 ) {
-			return new OssResponse(session,"ERROR",error.toString());
+			return new CrxResponse(session,"ERROR",error.toString());
 		}
-		return new OssResponse(session,"OK","User was added to the additional group.");
+		return new CrxResponse(session,"OK","User was added to the additional group.");
 	}
 
 	@Override
-	public OssResponse addMember(Session session, Long groupId, Long userId) {
+	public CrxResponse addMember(Session session, Long groupId, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final GroupController groupController = new GroupController(session,em);
-		OssResponse ossResponse = groupController.addMember(groupId,userId);
+		CrxResponse ossResponse = groupController.addMember(groupId,userId);
 		em.close();
 		return ossResponse;
 	}
 
 	@Override
-	public OssResponse syncFsQuotas(Session session, List<List<String>> Quotas) {
+	public CrxResponse syncFsQuotas(Session session, List<List<String>> Quotas) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final UserController userController = new UserController(session,em);
-		OssResponse ossResponse = userController.syncFsQuotas(Quotas);
+		CrxResponse ossResponse = userController.syncFsQuotas(Quotas);
 		em.close();
 		return ossResponse;
 	}
@@ -327,19 +327,19 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public OssResponse deleteGuestUsers(Session session, Long guestUsersId) {
+	public CrxResponse deleteGuestUsers(Session session, Long guestUsersId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new UserController(session,em).deleteGuestUsers(guestUsersId);
+		CrxResponse resp = new UserController(session,em).deleteGuestUsers(guestUsersId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addGuestUsers(Session session, String name, String description, Long roomId, Long count,
+	public CrxResponse addGuestUsers(Session session, String name, String description, Long roomId, Long count,
 			Date validUntil) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		GuestUsers guestUsers = new GuestUsers(name,description,count,roomId,validUntil);
-		OssResponse resp = new UserController(session,em).addGuestUsers(guestUsers);
+		CrxResponse resp = new UserController(session,em).addGuestUsers(guestUsers);
 		em.close();
 		return resp;
 	}
@@ -363,7 +363,7 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public String addToGroup(Session session, String userName, String groupName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse ossResponse = new GroupController(session,em).addMember(groupName, userName);
+		CrxResponse ossResponse = new GroupController(session,em).addMember(groupName, userName);
 		String resp = ossResponse.getCode();
 	    if( ossResponse.getCode().equals("ERROR") ) {
 			resp = resp + " " + ossResponse.getValue();
@@ -376,7 +376,7 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public String addGroupToUser(Session session, String userName, String groupName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse ossResponse = new GroupController(session,em).setOwner(groupName, userName);
+		CrxResponse ossResponse = new GroupController(session,em).setOwner(groupName, userName);
 		String resp = ossResponse.getCode();
 	        if( ossResponse.getCode().equals("ERROR") ) {
 			resp = resp + " " + ossResponse.getValue();
@@ -413,7 +413,7 @@ public class UserResourceImpl implements UserResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		UserController uc = new UserController(session,em);
 		User user = uc.getByUid(userName);
-		OssResponse ossResponse = uc.addDefaultAliase(user);
+		CrxResponse ossResponse = uc.addDefaultAliase(user);
 		String resp = ossResponse.getCode();
 	        if( ossResponse.getCode().equals("ERROR") ) {
 			resp = resp + " " + ossResponse.getValue();
@@ -424,7 +424,7 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public String removeFromGroup(Session session, String userName, String groupName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse ossResponse = new GroupController(session,em).removeMember(groupName, userName);
+		CrxResponse ossResponse = new GroupController(session,em).removeMember(groupName, userName);
 		String resp = ossResponse.getCode();
 	        if( ossResponse.getCode().equals("ERROR") ) {
 			resp = resp + " " + ossResponse.getValue();
@@ -436,7 +436,7 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public String delete(Session session, String userName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse ossResponse = new UserController(session,em).delete(userName);
+		CrxResponse ossResponse = new UserController(session,em).delete(userName);
 		String resp = ossResponse.getCode();
 	        if( ossResponse.getCode().equals("ERROR") ) {
 			resp = resp + " " + ossResponse.getValue();
@@ -454,7 +454,7 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public OssResponse importUser(
+	public CrxResponse importUser(
 			Session session,
 			String role,
 			String lang,
@@ -475,19 +475,19 @@ public class UserResourceImpl implements UserResource {
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
-			return new OssResponse(session,"ERROR", "Import file can not be saved" + e.getMessage());
+			return new CrxResponse(session,"ERROR", "Import file can not be saved" + e.getMessage());
 		}
 		try {
 				Files.readAllLines(file.toPath(), Charset.forName("UTF-8"));
 		} catch (IOException ioe) {
 				logger.error(ioe.getMessage(), ioe);
-				return new OssResponse(session,"ERROR", "Import file is not UTF-8 coded.");
+				return new CrxResponse(session,"ERROR", "Import file is not UTF-8 coded.");
 		}
 		if( password != null && !password.isEmpty() ) {
 			UserController uc = new UserController(session,null);
 			boolean checkPassword = uc.getConfigValue("CHECK_PASSWORD_QUALITY").toLowerCase().equals("yes");
 			uc.setConfigValue("CHECK_PASSWORD_QUALITY", "no");
-			OssResponse passwordResponse = uc.checkPassword(password);
+			CrxResponse passwordResponse = uc.checkPassword(password);
 			if( passwordResponse != null ) {
 				if (checkPassword) {
 					uc.setConfigValue("CHECK_PASSWORD_QUALITY", "yes");
@@ -546,7 +546,7 @@ public class UserResourceImpl implements UserResource {
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(session,"OK", "Import was started.");
+		return new CrxResponse(session,"OK", "Import was started.");
 	}
 
 	@Override
@@ -592,7 +592,7 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public OssResponse restartImport(Session session, String startTime) {
+	public CrxResponse restartImport(Session session, String startTime) {
 		UserImport userImport = getImport(session, startTime);
 		if( userImport != null ) {
 			Controller controller    = new Controller(session,null);
@@ -645,17 +645,17 @@ public class UserResourceImpl implements UserResource {
 			OSSShellTools.exec(program, reply, stderr, null);
 			logger.debug("restartImport reply: " + reply.toString());
 			logger.debug("restartImport error: " + reply.toString());
-			return new OssResponse(session,"OK", "Import was started.");
+			return new CrxResponse(session,"OK", "Import was started.");
 		}
-		return new OssResponse(session,"ERROR", "CAn not find the import.");
+		return new CrxResponse(session,"ERROR", "CAn not find the import.");
 	}
 
 	@Override
-	public OssResponse deleteImport(Session session, String startTime) {
+	public CrxResponse deleteImport(Session session, String startTime) {
 		Controller controller    = new Controller(session,null);
 		StringBuilder importDir  = controller.getImportDir(startTime);
 		if( startTime == null || startTime.isEmpty() ) {
-			return new OssResponse(session,"ERROR", "Invalid import name.");
+			return new CrxResponse(session,"ERROR", "Invalid import name.");
 		}
 		String[] program = new String[3];
 		program[0] = "rm";
@@ -664,7 +664,7 @@ public class UserResourceImpl implements UserResource {
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(session,"OK", "Import was deleted.");
+		return new CrxResponse(session,"OK", "Import was deleted.");
 	}
 
 	@Override
@@ -694,9 +694,9 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public OssResponse syncMsQuotas(Session session, List<List<String>> Quotas) {
+	public CrxResponse syncMsQuotas(Session session, List<List<String>> Quotas) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new UserController(session,em).syncMsQuotas(Quotas);
+		CrxResponse resp = new UserController(session,em).syncMsQuotas(Quotas);
 		em.close();
 		return resp;
 	}
@@ -715,7 +715,7 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public OssResponse allTeachersInAllClasses(Session session) {
+	public CrxResponse allTeachersInAllClasses(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final UserController userController = new UserController(session,em);
 		final GroupController groupController = new GroupController(session,em);
@@ -725,11 +725,11 @@ public class UserResourceImpl implements UserResource {
 			}
 		}
 		em.close();
-		return new OssResponse(session,"OK", "All teachers was put into all classes.");
+		return new CrxResponse(session,"OK", "All teachers was put into all classes.");
 	}
 
 	@Override
-	public OssResponse allClasses(Session session, Long userId) {
+	public CrxResponse allClasses(Session session, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		User user = new UserController(session,em).getById(userId);
 		final GroupController groupController = new GroupController(session,em);
@@ -737,7 +737,7 @@ public class UserResourceImpl implements UserResource {
 			groupController.addMember(group, user);
 		}
 		em.close();
-		return new OssResponse(session,"OK", "User was put into all classes.");
+		return new CrxResponse(session,"OK", "User was put into all classes.");
 	}
 
 	@Override
@@ -753,18 +753,18 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public OssResponse sync(Session session) {
+	public CrxResponse sync(Session session) {
 		//TODO make it over plugin
 		String[] program = new String[1];
 		program[0] = "/usr/sbin/oss_refresh_squidGuard_user.sh";
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		OSSShellTools.exec(program, reply, stderr, null);
-		return new OssResponse(session,"OK", "Import was started.");
+		return new CrxResponse(session,"OK", "Import was started.");
 	}
 
 	@Override
-	public OssResponse addUsersToGroups(Session session, List<List<Long>> ids) {
+	public CrxResponse addUsersToGroups(Session session, List<List<Long>> ids) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final GroupController groupController = new GroupController(session,em);
 		List<User> users = new UserController(session,em).getUsers(ids.get(0));
@@ -773,11 +773,11 @@ public class UserResourceImpl implements UserResource {
 			groupController.addMembers(group, users);
 		}
 		em.close();
-		return new OssResponse(session,"OK", "Users was inserted in the required groups.");
+		return new CrxResponse(session,"OK", "Users was inserted in the required groups.");
 	}
 
 	@Override
-	public OssResponse applyAction(Session session, OssActionMap actionMap) {
+	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
 		// TODO Auto-generated method stub
 		return null;
 	}

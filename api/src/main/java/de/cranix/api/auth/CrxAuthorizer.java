@@ -14,9 +14,9 @@ import de.cranix.dao.Session;
 import de.cranix.dao.controller.SessionController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
 
-public class OSSAuthorizer implements Authorizer<Session> {
+public class CrxAuthorizer implements Authorizer<Session> {
 
-	Logger logger = LoggerFactory.getLogger(OSSAuthorizer.class);
+	Logger logger = LoggerFactory.getLogger(CrxAuthorizer.class);
 
 	@Override
 	public boolean authorize(Session session, String requiredRole) {

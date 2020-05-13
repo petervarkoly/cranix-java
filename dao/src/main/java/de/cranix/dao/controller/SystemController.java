@@ -72,7 +72,7 @@ public class SystemController extends Controller {
 	 * @return			The result of the DB operations
 	 * @see				Translate
 	 */
-	public OssResponse addTranslation(Translation translation) {
+	public CrxResponse addTranslation(Translation translation) {
 		translation.setLang(translation.getLang().toUpperCase());
 		Query query = this.em.createNamedQuery("Translation.find")
 				.setParameter("lang", translation.getLang())
@@ -86,7 +86,7 @@ public class SystemController extends Controller {
 				responseText = "Translation was updated";
 			}  catch (Exception b) {
 				logger.error(b.getMessage());
-				return new OssResponse(this.session,"ERROR", b.getMessage());
+				return new CrxResponse(this.session,"ERROR", b.getMessage());
 			}
 		} else {
 			try {
@@ -95,11 +95,11 @@ public class SystemController extends Controller {
 				this.em.getTransaction().commit();
 			}  catch (Exception e) {
 				logger.error(e.getMessage());
-				return new OssResponse(this.session,"ERROR", e.getMessage());
+				return new CrxResponse(this.session,"ERROR", e.getMessage());
 			}
 		}
 
-		return new OssResponse(this.session,"OK",responseText);
+		return new CrxResponse(this.session,"OK",responseText);
 	}
 
 	/**
@@ -225,10 +225,10 @@ public class SystemController extends Controller {
 	 * @see					getEnumerates
 	 * @see					deleteEnumerate
 	 */
-	public OssResponse addEnumerate(String type, String value) {
+	public CrxResponse addEnumerate(String type, String value) {
 		Query	query = this.em.createNamedQuery("Enumerate.get").setParameter("name", value).setParameter("value", value);
 		if( ! query.getResultList().isEmpty() ) {
-				return new OssResponse(this.getSession(),"ERROR","Entry alread does exists");
+				return new CrxResponse(this.getSession(),"ERROR","Entry alread does exists");
 		}
 		Enumerate en = new Enumerate(type,value);
 		try {
@@ -237,10 +237,10 @@ public class SystemController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Enumerate was created succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Enumerate was created succesfully.");
 	}
 
 	/**
@@ -251,7 +251,7 @@ public class SystemController extends Controller {
 	 * @see					getEnumerates
 	 * @see					addEnumerate
 	 */
-	public OssResponse deleteEnumerate(String type, String value) {
+	public CrxResponse deleteEnumerate(String type, String value) {
 		Query query = this.em.createNamedQuery("Enumerate.getByType").setParameter("type", type).setParameter("value", value);
 		try {
 			Enumerate en = (Enumerate) query.getSingleResult();
@@ -260,10 +260,10 @@ public class SystemController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Enumerate was removed succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Enumerate was removed succesfully.");
 	}
 
 	////////////////////////////////////////////////////////
@@ -305,7 +305,7 @@ public class SystemController extends Controller {
 		return statusMap;
 	}
 
-	public OssResponse setFirewallIncomingRules(Map<String, String> firewallExt) {
+	public CrxResponse setFirewallIncomingRules(Map<String, String> firewallExt) {
 		List<String> fwServicesExtTcp = new ArrayList<String>();
 		Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2","FW_");
 		if( firewallExt.get("ssh").equals("true") ) {
@@ -325,7 +325,7 @@ public class SystemController extends Controller {
 		}
 		fwConfig.setConfigValue("SERVICES_EXT_TCP", String.join(" ", fwServicesExtTcp));
 		this.systemctl("try-restart", "SuSEfirewall2");
-		return new OssResponse(this.getSession(),"OK","Firewall incoming access rule  was set succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Firewall incoming access rule  was set succesfully.");
 	}
 
 	public List<Map<String, String>> getFirewallOutgoingRules() {
@@ -375,7 +375,7 @@ public class SystemController extends Controller {
 		return firewallList;
 	}
 
-	public OssResponse setFirewallOutgoingRules(List<Map<String, String>> firewallList) {
+	public CrxResponse setFirewallOutgoingRules(List<Map<String, String>> firewallList) {
 		List<String> fwMasqNets = new ArrayList<String>();
 		try {
 			logger.debug(new ObjectMapper().writeValueAsString(firewallList));
@@ -415,7 +415,7 @@ public class SystemController extends Controller {
 			fwConfig.setConfigValue("MASQ_NETS", String.join(" ", fwMasqNets));
 		}
 		this.systemctl("try-restart", "SuSEfirewall2");
-		return new OssResponse(this.getSession(),"OK","Firewall outgoing access rule  was set succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Firewall outgoing access rule  was set succesfully.");
 	}
 
 	public List<Map<String, String>> getFirewallRemoteAccessRules() {
@@ -447,7 +447,7 @@ public class SystemController extends Controller {
 		return firewallList;
 	}
 
-	public OssResponse setFirewallRemoteAccessRules(List<Map<String, String>> firewallList) {
+	public CrxResponse setFirewallRemoteAccessRules(List<Map<String, String>> firewallList) {
 		List<String> fwForwardMasq = new ArrayList<String>();
 		Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2","FW_");
 		DeviceController deviceController = new DeviceController(this.session,this.em);
@@ -457,7 +457,7 @@ public class SystemController extends Controller {
 		}
 		fwConfig.setConfigValue("FORWARD_MASQ", String.join(" ", fwForwardMasq));
 		this.systemctl("try-restart", "SuSEfirewall2");
-		return new OssResponse(this.getSession(),"OK","Firewall remote access rule  was set succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Firewall remote access rule  was set succesfully.");
 	}
 
 	/*
@@ -485,9 +485,9 @@ public class SystemController extends Controller {
 		return valid.after(this.now());
 	}
 
-	public OssResponse registerSystem() {
+	public CrxResponse registerSystem() {
 		if( ! this.validateRegcode() ) {
-			return new OssResponse(this.getSession(),"ERROR","Registration Code is invalid.");
+			return new CrxResponse(this.getSession(),"ERROR","Registration Code is invalid.");
 		}
 		String[] program   = new String[1];
 		StringBuffer reply = new StringBuffer();
@@ -495,9 +495,9 @@ public class SystemController extends Controller {
 		program[0] = cranixBaseDir +"tools/register.sh";
 		OSSShellTools.exec(program, reply, error, null);
 		if( error.toString().isEmpty() ) {
-			return new OssResponse(this.getSession(),"OK","System was registered succesfully.");
+			return new CrxResponse(this.getSession(),"OK","System was registered succesfully.");
 		} else {
-			return new OssResponse(this.getSession(),"ERROR",error.toString());
+			return new CrxResponse(this.getSession(),"ERROR",error.toString());
 		}
 	}
 
@@ -534,7 +534,7 @@ public class SystemController extends Controller {
 		return packages;
 	}
 
-	public OssResponse installPackages(List<String> packages) {
+	public CrxResponse installPackages(List<String> packages) {
 		String[] program   = new String[3 + packages.size()];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
@@ -547,9 +547,9 @@ public class SystemController extends Controller {
 			i++;
 		}
 		if( OSSShellTools.exec(program, reply, error, null) == 0 ) {
-			return new OssResponse(this.getSession(),"OK","Packages were installed succesfully.");
+			return new CrxResponse(this.getSession(),"OK","Packages were installed succesfully.");
 		} else {
-			return new OssResponse(this.getSession(),"ERROR",error.toString());
+			return new CrxResponse(this.getSession(),"ERROR",error.toString());
 		}
 	}
 
@@ -604,9 +604,9 @@ public class SystemController extends Controller {
 	/**
 	 * Update selected packages
 	 * @param packages The list of packages to update
-	 * @return The result of Update as OssResponse object
+	 * @return The result of Update as CrxResponse object
 	 */
-	public OssResponse updatePackages(List<String> packages) {
+	public CrxResponse updatePackages(List<String> packages) {
 		String[] program   = new String[1 + packages.size()];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
@@ -617,25 +617,25 @@ public class SystemController extends Controller {
 			i++;
 		}
 		if( OSSShellTools.exec(program, reply, error, null) == 0 ) {
-			return new OssResponse(this.getSession(),"OK","Packages were updated succesfully.");
+			return new CrxResponse(this.getSession(),"OK","Packages were updated succesfully.");
 		} else {
-			return new OssResponse(this.getSession(),"ERROR",error.toString());
+			return new CrxResponse(this.getSession(),"ERROR",error.toString());
 		}
 	}
 
 	/**
 	 * Update all packages
-	 * @return The result of Update as OssResponse object
+	 * @return The result of Update as CrxResponse object
 	 */
-	public OssResponse updateSystem() {
+	public CrxResponse updateSystem() {
 		String[] program   = new String[1];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		program[0] = "/usr/sbin/oss_update.sh";
 		if( OSSShellTools.exec(program, reply, error, null) == 0 ) {
-			return new OssResponse(this.getSession(),"OK","System was updated succesfully.");
+			return new CrxResponse(this.getSession(),"OK","System was updated succesfully.");
 		} else {
-			return new OssResponse(this.getSession(),"ERROR",error.toString());
+			return new CrxResponse(this.getSession(),"ERROR",error.toString());
 		}
 	}
 
@@ -684,7 +684,7 @@ public class SystemController extends Controller {
 	}
 
 
-	public OssResponse setAclToGroup(Long groupId, Acl acl) {
+	public CrxResponse setAclToGroup(Long groupId, Acl acl) {
 		Group group = new GroupController(this.session,this.em).getById(groupId);
 		Acl oldAcl;
 		logger.debug("Group acl to set: " + acl);
@@ -714,10 +714,10 @@ public class SystemController extends Controller {
 			this.em.getTransaction().commit();
 		} catch(Exception e) {
 			logger.debug("ERROR in setAclToGroup:" + e.getMessage());
-			return new OssResponse(session,"ERROR",e.getMessage());
+			return new CrxResponse(session,"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(session,"OK","ACL was set succesfully.");
+		return new CrxResponse(session,"OK","ACL was set succesfully.");
 	}
 
 	public List<Acl> getAclsOfUser(Long userId) {
@@ -769,7 +769,7 @@ public class SystemController extends Controller {
 		return acls;
 	}
 
-	public OssResponse setAclToUser(Long userId, Acl acl) {
+	public CrxResponse setAclToUser(Long userId, Acl acl) {
 		User user   = new UserController(this.session,this.em).getById(userId);
 		Acl oldAcl  = null;
 		logger.debug("User acl to set: " + acl);
@@ -802,10 +802,10 @@ public class SystemController extends Controller {
 			this.em.getTransaction().commit();
 		} catch(Exception e) {
 			logger.debug("ERROR in setAclToUser:" + e.getMessage());
-			return new OssResponse(session,"ERROR",e.getMessage());
+			return new CrxResponse(session,"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(session,"OK","ACL was set succesfully.");
+		return new CrxResponse(session,"OK","ACL was set succesfully.");
 	}
 
 	public String[] getDnsDomains() {
@@ -817,7 +817,7 @@ public class SystemController extends Controller {
 		return reply.toString().split("\\n");
 	}
 
-	public OssResponse addDnsDomain(String domainName) {
+	public CrxResponse addDnsDomain(String domainName) {
 		String[] program   = new String[7];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
@@ -830,7 +830,7 @@ public class SystemController extends Controller {
 		program[6] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
 		OSSShellTools.exec(program, reply, error, null);
 		//TODO evaluate error
-		return new OssResponse(session,"OK","DNS Zone was created succesfully.");
+		return new CrxResponse(session,"OK","DNS Zone was created succesfully.");
 	}
 
 	public List<DnsRecord> getRecords(String domainName) {
@@ -874,7 +874,7 @@ public class SystemController extends Controller {
 		return dnsRecords;
 	}
 
-	public OssResponse addDnsRecord(DnsRecord dnsRecord) {
+	public CrxResponse addDnsRecord(DnsRecord dnsRecord) {
 		String[] program   = new String[10];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
@@ -893,13 +893,13 @@ public class SystemController extends Controller {
 		logger.debug("addDnsRecord reply" + reply.toString());
 		logger.debug("addDnsRecord error" + error.toString());
 		if( error.toString().isEmpty() ) {
-			return new OssResponse(session,"OK","DNS record was created succesfully.");
+			return new CrxResponse(session,"OK","DNS record was created succesfully.");
 		} else {
-			return new OssResponse(session,"ERROR",error.toString());
+			return new CrxResponse(session,"ERROR",error.toString());
 		}
 	}
 
-	public OssResponse deleteDnsRecord(DnsRecord dnsRecord) {
+	public CrxResponse deleteDnsRecord(DnsRecord dnsRecord) {
 		String[] program   = new String[10];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
@@ -917,18 +917,18 @@ public class SystemController extends Controller {
 		logger.debug("deleteDnsRecord reply" + reply.toString());
 		logger.debug("deleteDnsRecord error" + error.toString());
 		if( error.toString().isEmpty() ) {
-			return new OssResponse(session,"OK","DNS record was created succesfully.");
+			return new CrxResponse(session,"OK","DNS record was created succesfully.");
 		} else {
 			logger.error(
 					dnsRecord.getDomainName() + "#" +
 					dnsRecord.getRecordName() + "#" +
 					dnsRecord.getRecordType() + "#" +
 					dnsRecord.getRecordData() + "# " + error.toString());
-			return new OssResponse(session,"ERROR",error.toString());
+			return new CrxResponse(session,"ERROR",error.toString());
 		}
 	}
 
-	public OssResponse deleteDnsDomain(String domainName) {
+	public CrxResponse deleteDnsDomain(String domainName) {
 		String[] program   = new String[7];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
@@ -941,9 +941,9 @@ public class SystemController extends Controller {
 		program[6] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
 		OSSShellTools.exec(program, reply, error, null);
 		//TODO evaluate error
-		return new OssResponse(session,"OK","DNS Zone was created succesfully.");	}
+		return new CrxResponse(session,"OK","DNS Zone was created succesfully.");	}
 
-	public OssResponse findObject(String objectType, LinkedHashMap<String,Object> object) {
+	public CrxResponse findObject(String objectType, LinkedHashMap<String,Object> object) {
 		Long objectId = null;
 		String name = null;
 		//TODO Implement all searches
@@ -991,9 +991,9 @@ public class SystemController extends Controller {
 			break;
 		}
 		if( objectId == null ) {
-			return new OssResponse(session,"ERROR","Object was not found.");
+			return new CrxResponse(session,"ERROR","Object was not found.");
 		} else {
-			return new OssResponse(session,"OK","Object was found.",objectId);
+			return new CrxResponse(session,"OK","Object was found.",objectId);
 		}
 	}
 

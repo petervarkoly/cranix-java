@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.Device;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.PositiveList;
 import de.cranix.dao.ProxyRule;
 import de.cranix.dao.Room;
@@ -149,7 +149,7 @@ public class ProxyController extends Controller {
 		return acls;
 	}
 
-	public OssResponse setDefaults(Map<String, List<ProxyRule>> acls) {
+	public CrxResponse setDefaults(Map<String, List<ProxyRule>> acls) {
 		List<String> roles = new SystemController(this.session,this.em).getEnumerates("role");
 		roles.add("default");
 		StringBuilder output = new StringBuilder();
@@ -176,14 +176,14 @@ public class ProxyController extends Controller {
 		StringBuffer error = new StringBuffer();
 		logger.debug(output.toString());
 		OSSShellTools.exec(program, reply, error, output.toString());
-		return new OssResponse(this.session,"OK","Proxy Setting was saved succesfully.");
+		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully.");
 	}
 	/*
 	 * Writes the default proxy setting
 	 * @param acls The list of the default acl setting
-	 * @return An OssResponse object with the result
+	 * @return An CrxResponse object with the result
 	 */
-	public OssResponse setDefaults(String role, List<ProxyRule> acl) {
+	public CrxResponse setDefaults(String role, List<ProxyRule> acl) {
 		StringBuilder output = new StringBuilder();
 		output.append(role).append(":").append("cephalix:true").append(this.getNl());
 		output.append(role).append(":").append("good:true").append(this.getNl());
@@ -204,7 +204,7 @@ public class ProxyController extends Controller {
 		StringBuffer error = new StringBuffer();
 		logger.debug(output.toString());
 		OSSShellTools.exec(program, reply, error, output.toString());
-		return new OssResponse(this.session,"OK","Proxy Setting was saved succesfully.");
+		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully.");
 	}
 
 	public PositiveList getPositiveListById( Long positiveListId ) {
@@ -230,9 +230,9 @@ public class ProxyController extends Controller {
 	/*
 	 * Creates or modify a positive list
 	 * @param positiveList The positive list to be saved
-	 * @return An OssResponse object with the result
+	 * @return An CrxResponse object with the result
 	 */
-	public OssResponse editPositiveList(PositiveList positiveList) {
+	public CrxResponse editPositiveList(PositiveList positiveList) {
 		logger.debug(positiveList.toString());
 		PositiveList oldPositiveList = this.getPositiveListById(positiveList.getId());
 		try {
@@ -259,15 +259,15 @@ public class ProxyController extends Controller {
 			StringBuffer reply = new StringBuffer();
 			StringBuffer error = new StringBuffer();
 			OSSShellTools.exec(program, reply, error, positiveList.getDomains());
-			return new OssResponse(this.getSession(),"OK", "Postive list was created/modified succesfully.",positiveList.getId());
+			return new CrxResponse(this.getSession(),"OK", "Postive list was created/modified succesfully.",positiveList.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
 
-	public OssResponse deletePositiveList(Long positiveListId) {
+	public CrxResponse deletePositiveList(Long positiveListId) {
 		PositiveList positiveList = this.getPositiveListById(positiveListId);
 		try {
 			Files.deleteIfExists(Paths.get("/var/lib/squidGuard/db/PL/" + positiveList.getName() + "/domains"));
@@ -283,10 +283,10 @@ public class ProxyController extends Controller {
 			OSSShellTools.exec(program, reply, error, acls);
 		}  catch (Exception e) {
 			logger.error("delete " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK", "Postive list was deleted succesfully.");
+		return new CrxResponse(this.getSession(),"OK", "Postive list was deleted succesfully.");
 	}
 
 	/*
@@ -357,9 +357,9 @@ public class ProxyController extends Controller {
 	 * Sets positive lists in a room
 	 * @param roomId The room id.
 	 * @param positiveListIds list of positiveList ids which have to be set in this room
-	 * @return An OssResponse object with the result
+	 * @return An CrxResponse object with the result
 	 */
-	public OssResponse setAclsInRoom(Long roomId, List<Long> positiveListIds) {
+	public CrxResponse setAclsInRoom(Long roomId, List<Long> positiveListIds) {
 
 		DeviceController deviceController = new DeviceController(this.session,this.em);;
 		Room room         = new RoomController(this.session,this.em).getById(roomId);
@@ -390,14 +390,14 @@ public class ProxyController extends Controller {
 		program[0] = cranixBaseDir + "tools/squidGuard.pl";
 		program[1] = "write";
 		OSSShellTools.exec(program, reply, error, acls.toString());
-		return new OssResponse(this.session,"OK","Proxy Setting was saved succesfully in your room.");
+		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully in your room.");
 	}
 
 	/**
 	 * Removes all positive list in a room and the default settings occurs
 	 * @param roomId The room id
 	 */
-	public OssResponse deleteAclsInRoom(Long roomId) {
+	public CrxResponse deleteAclsInRoom(Long roomId) {
 		String[] program   = new String[2];
 		program[0] = cranixBaseDir + "tools/squidGuard.pl";
 		program[1] = "write";
@@ -406,6 +406,6 @@ public class ProxyController extends Controller {
 		Room room  = new RoomController(this.session,this.em).getById(roomId);
 		String acls = room.getName() + ":remove-this-list:true\n";
 		OSSShellTools.exec(program, reply, error, acls);
-		return new OssResponse(this.session,"OK","Positive lists was succesfully deactivated in your room.");
+		return new CrxResponse(this.session,"OK","Positive lists was succesfully deactivated in your room.");
 	}
 }

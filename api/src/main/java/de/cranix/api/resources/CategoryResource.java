@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import de.cranix.dao.Category;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 
 import java.util.List;
@@ -144,7 +144,7 @@ public interface CategoryResource {
 	})
 	//@PermitAll
 	@RolesAllowed("category.add")
-	OssResponse add(
+	CrxResponse add(
 			@ApiParam(hidden = true) @Auth Session session,
 			Category category
 			);
@@ -162,7 +162,7 @@ public interface CategoryResource {
 	})
 	//@PermitAll
 	@RolesAllowed("category.modify")
-	OssResponse modify(
+	CrxResponse modify(
 			@ApiParam(hidden = true) @Auth Session session,
 			Category category
 			);
@@ -178,7 +178,7 @@ public interface CategoryResource {
 			@ApiResponse(code = 404, message = "Category not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("category.modify")
-	OssResponse addMember(
+	CrxResponse addMember(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("categoryId") long categoryId,
 			@PathParam("memberType") String memberType,
@@ -196,7 +196,7 @@ public interface CategoryResource {
 			@ApiResponse(code = 404, message = "Category not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("category.delete")
-	OssResponse delete(
+	CrxResponse delete(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("categoryId") long categoryId
 			);
@@ -212,7 +212,7 @@ public interface CategoryResource {
 			@ApiResponse(code = 404, message = "Category not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("category.modify")
-	OssResponse removeMember(
+	CrxResponse removeMember(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("categoryId") long categoryId,
 			@PathParam("memberType") String memberType,

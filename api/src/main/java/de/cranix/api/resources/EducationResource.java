@@ -16,10 +16,10 @@ import javax.ws.rs.core.MediaType;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Group;
 import de.cranix.dao.GuestUsers;
-import de.cranix.dao.OssActionMap;
+import de.cranix.dao.CrxActionMap;
 import de.cranix.dao.AccessInRoom;
 import de.cranix.dao.Category;
 import de.cranix.dao.PositiveList;
@@ -51,7 +51,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse  createSmartRoom(
+	CrxResponse  createSmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        Category smartRoom
 	        );
@@ -67,7 +67,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse  modifySmartRoom(
+	CrxResponse  modifySmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        Category smartRoom
@@ -84,7 +84,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse addUserToSmartRoom(
+	CrxResponse addUserToSmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("userId") Long userId
@@ -101,7 +101,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse addDeviceToSmartRoom(
+	CrxResponse addDeviceToSmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")   Long roomId,
 	        @PathParam("deviceId") Long deviceId
@@ -118,7 +118,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse addGroupToSmartRoom(
+	CrxResponse addGroupToSmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("groupId") Long roupId
@@ -136,7 +136,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse deleteUserFromSmartRoom(
+	CrxResponse deleteUserFromSmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("userId") Long userId
@@ -153,7 +153,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse deleteDeviceFromSmartRoom(
+	CrxResponse deleteDeviceFromSmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")   Long roomId,
 	        @PathParam("deviceId") Long deviceId
@@ -170,7 +170,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse deleteGroupFromSmartRoom(
+	CrxResponse deleteGroupFromSmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")  Long roomId,
 	        @PathParam("groupId") Long groupId
@@ -187,7 +187,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse  deleteSmartRoom(
+	CrxResponse  deleteSmartRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId
 	        );
@@ -368,7 +368,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse  getRoomControl(
+	CrxResponse  getRoomControl(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")  Long roomId,
 	        @PathParam("minutes") Long minutes
@@ -403,7 +403,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse setAccessStatus(
+	CrxResponse setAccessStatus(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") long roomId,
 	        AccessInRoom access
@@ -438,7 +438,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse manageRoom(
+	CrxResponse manageRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("action") String action
@@ -460,7 +460,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse manageRoom(
+	CrxResponse manageRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("action") String action,
@@ -475,7 +475,7 @@ public interface EducationResource {
 	@ApiResponses(value = {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<OssResponse> uploadFileToRoom(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> uploadFileToRoom(@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @FormDataParam("cleanUp") Boolean cleanUp,
 	        @FormDataParam("file")    final InputStream fileInputStream,
@@ -490,7 +490,7 @@ public interface EducationResource {
 	@ApiResponses(value = {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<OssResponse> collectFileFromRoom(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> collectFileFromRoom(@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @FormDataParam("projectName") String projectName,
 	        @FormDataParam("sortInDirs")  boolean sortInDirs,
@@ -513,7 +513,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	OssResponse  addGroup(
+	CrxResponse  addGroup(
 	        @ApiParam(hidden = true) @Auth Session session,
 	           Group group
 	        );
@@ -529,7 +529,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	OssResponse  modifyGroup(
+	CrxResponse  modifyGroup(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long groupId,
 	        Group group
@@ -624,7 +624,7 @@ public interface EducationResource {
 	@ApiResponses(value = {
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.groups")
-	OssResponse deleteMember(
+	CrxResponse deleteMember(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") long groupId,
 	        @PathParam("userId") long userId
@@ -641,7 +641,7 @@ public interface EducationResource {
 	    @ApiResponse(code = 404, message = "Group not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.groups")
-	OssResponse addMember(
+	CrxResponse addMember(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") long groupId,
 	        @PathParam("userId") long userId
@@ -657,7 +657,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	OssResponse  deleteGroup(
+	CrxResponse  deleteGroup(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long groupId
 	       );
@@ -692,7 +692,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	OssResponse manageGroup(
+	CrxResponse manageGroup(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long groupId,
 	        @PathParam("action")  String action
@@ -713,7 +713,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse manageGroup(
+	CrxResponse manageGroup(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long groupId,
 	        @PathParam("action") String action,
@@ -728,7 +728,7 @@ public interface EducationResource {
 	@ApiResponses(value = {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<OssResponse> uploadFileToGroup(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> uploadFileToGroup(@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId")  Long  groupId,
 	        @FormDataParam("cleanUp") Boolean cleanUp,
 	        @FormDataParam("studentsOnly") Boolean studentsOnly,
@@ -744,7 +744,7 @@ public interface EducationResource {
 	@ApiResponses(value = {
 	       @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<OssResponse> uploadFileToGroups(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> uploadFileToGroups(@ApiParam(hidden = true) @Auth Session session,
 	        @FormDataParam("groupIds")     String groupIds,
 	        @FormDataParam("cleanUp") Boolean cleanUp,
 	        @FormDataParam("studentsOnly") Boolean studentsOnly,
@@ -761,7 +761,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	List<OssResponse> collectFileFromGroup(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> collectFileFromGroup(@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long roomId,
 	        @FormDataParam("projectName")  String projectName,
 	        @FormDataParam("sortInDirs")   boolean sortInDirs,
@@ -777,7 +777,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	List<OssResponse> collectFileFromGroups(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> collectFileFromGroups(@ApiParam(hidden = true) @Auth Session session,
 		@FormDataParam("groupIds")     String groupIds,
 		@FormDataParam("projectName")  String projectName,
 		@FormDataParam("sortInDirs")   boolean sortInDirs,
@@ -831,7 +831,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	OssResponse logOut(
+	CrxResponse logOut(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("userId") Long userId,
 	        @PathParam("deviceId") Long deviceId
@@ -849,7 +849,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	OssResponse logIn(
+	CrxResponse logIn(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("userId") Long userId,
 	        @PathParam("deviceId") Long roomId
@@ -881,7 +881,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	OssResponse uploadFileToUser(@ApiParam(hidden = true) @Auth Session session,
+	CrxResponse uploadFileToUser(@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("userId")   Long  userId,
 	        @FormDataParam("cleanUp") Boolean cleanUp,
 	        @FormDataParam("file") final InputStream fileInputStream,
@@ -897,7 +897,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	List<OssResponse> uploadFileToUsers(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> uploadFileToUsers(@ApiParam(hidden = true) @Auth Session session,
 			@FormDataParam("userIds") final String userIds,
 			@FormDataParam("cleanUp") Boolean cleanUp,
 	        @FormDataParam("file") final InputStream fileInputStream,
@@ -912,7 +912,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	List<OssResponse> collectFileFromUsers(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> collectFileFromUsers(@ApiParam(hidden = true) @Auth Session session,
 		@FormDataParam("projectName") String projectName,
 		@FormDataParam("sortInDirs")  boolean sortInDirs,
 		@FormDataParam("cleanUpExport") boolean cleanUpExport,
@@ -936,8 +936,8 @@ public interface EducationResource {
 	                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	List<OssResponse> applyAction(@ApiParam(hidden = true) @Auth Session session,
-	                OssActionMap ossActionMap
+	List<CrxResponse> applyAction(@ApiParam(hidden = true) @Auth Session session,
+	                CrxActionMap ossActionMap
 	                );
 
 
@@ -973,7 +973,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse modifyDevice(
+	CrxResponse modifyDevice(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        Device device
@@ -992,7 +992,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse modifyDeviceOfRoom(
+	CrxResponse modifyDeviceOfRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")   Long roomId,
 	        @PathParam("deviceId") Long deviceId,
@@ -1039,7 +1039,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse manageDevice(
+	CrxResponse manageDevice(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @PathParam("action") String action
@@ -1060,7 +1060,7 @@ public interface EducationResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse manageDevice(
+	CrxResponse manageDevice(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long roomId,
 	        @PathParam("action") String action,
@@ -1077,7 +1077,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse uploadFileToDevice(@ApiParam(hidden = true) @Auth Session session,
+	CrxResponse uploadFileToDevice(@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @FormDataParam("cleanUp") Boolean cleanUp,
 	        @FormDataParam("file") final InputStream fileInputStream,
@@ -1092,7 +1092,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	OssResponse collectFileFromDevice(
+	CrxResponse collectFileFromDevice(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("deviceId") Long deviceId,
 	    @PathParam("projectName") String projectName
@@ -1166,7 +1166,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	OssResponse addPositiveList(
+	CrxResponse addPositiveList(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    PositiveList positiveList
 	);
@@ -1192,7 +1192,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	OssResponse deletePositiveListById(
+	CrxResponse deletePositiveListById(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("positiveListId") Long positiveListId
 	);
@@ -1206,7 +1206,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	OssResponse activatePositiveListsInRoom(
+	CrxResponse activatePositiveListsInRoom(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("roomId") Long roomId,
 	    List<Long> postiveListIds
@@ -1233,7 +1233,7 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	OssResponse deActivatePositiveListsInRoom(
+	CrxResponse deActivatePositiveListsInRoom(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    @PathParam("roomId") Long roomId
 	);
@@ -1274,7 +1274,7 @@ public interface EducationResource {
 	         @ApiResponse(code = 404, message = "User not found"),
 	         @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	 @RolesAllowed("education.guestusers")
-	 OssResponse  deleteGuestUsers(
+	 CrxResponse  deleteGuestUsers(
 	             @ApiParam(hidden = true) @Auth Session session,
 	             @PathParam("guestUsersId")     Long    guestUsersId
 	 );
@@ -1287,7 +1287,7 @@ public interface EducationResource {
 	@ApiResponses(value = {
 	                @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	OssResponse addGuestUsers(
+	CrxResponse addGuestUsers(
 	                @ApiParam(hidden = true) @Auth Session session,
 	                @FormDataParam("name")          String  name,
 	                @FormDataParam("description")   String  description,
@@ -1303,7 +1303,7 @@ public interface EducationResource {
 	@ApiResponses(value = {
 	                @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	OssResponse createGuestUsers(
+	CrxResponse createGuestUsers(
 	                @ApiParam(hidden = true) @Auth Session session,
 	                GuestUsers guestUsers
 	                );

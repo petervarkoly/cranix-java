@@ -15,9 +15,9 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import de.cranix.dao.User;
 import de.cranix.dao.Group;
-import de.cranix.dao.OssActionMap;
+import de.cranix.dao.CrxActionMap;
 import de.cranix.dao.Session;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 
 import java.io.InputStream;
 import java.util.List;
@@ -185,7 +185,7 @@ public interface GroupResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("group.add")
-	OssResponse add(
+	CrxResponse add(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        Group group
 	);
@@ -202,7 +202,7 @@ public interface GroupResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("group.modify")
-	OssResponse modify(
+	CrxResponse modify(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        Group group
 	);
@@ -216,7 +216,7 @@ public interface GroupResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("group.modify")
-	OssResponse modify(
+	CrxResponse modify(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long groupId,
 	        Group group
@@ -237,7 +237,7 @@ public interface GroupResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("group.add")
-	OssResponse importGroups(
+	CrxResponse importGroups(
 	@ApiParam(hidden = true) @Auth Session session,
 	        @FormDataParam("file") final InputStream fileInputStream,
 	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
@@ -270,7 +270,7 @@ public interface GroupResource {
 	    @ApiResponse(code = 404, message = "Group not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("group.delete")
-	OssResponse delete(
+	CrxResponse delete(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long groupId
 	);
@@ -287,7 +287,7 @@ public interface GroupResource {
 	    @ApiResponse(code = 404, message = "Group not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("group.delete")
-	OssResponse cleanUpDirectory(
+	CrxResponse cleanUpDirectory(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long groupId
 	);
@@ -303,7 +303,7 @@ public interface GroupResource {
                @ApiResponse(code = 404, message = "Group not found"),
                @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
        @RolesAllowed("group.manage")
-       OssResponse setMembers(
+       CrxResponse setMembers(
                @ApiParam(hidden = true) @Auth Session session,
                @PathParam("groupId") Long groupId,
                List<Long> users
@@ -319,7 +319,7 @@ public interface GroupResource {
        @ApiResponses(value = {
            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
        @RolesAllowed("group.manage")
-       OssResponse removeMember(
+       CrxResponse removeMember(
                @ApiParam(hidden = true) @Auth Session session,
                @PathParam("groupId") Long groupId,
                @PathParam("userId") Long userId
@@ -336,7 +336,7 @@ public interface GroupResource {
            @ApiResponse(code = 404, message = "Group not found"),
            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
        @RolesAllowed("group.manage")
-       OssResponse addMember(
+       CrxResponse addMember(
                @ApiParam(hidden = true) @Auth Session session,
                @PathParam("groupId") Long groupId,
                @PathParam("userId") Long userId
@@ -345,8 +345,8 @@ public interface GroupResource {
 	/**
 	 * Apply actions on a list of groups.
 	 * @param session
-	 * @return The result in an OssResponse object
-	 * @see OssResponse
+	 * @return The result in an CrxResponse object
+	 * @see CrxResponse
 	 */
 	@POST
 	@Path("applyAction")
@@ -355,8 +355,8 @@ public interface GroupResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("group.manage")
-	OssResponse applyAction(
+	CrxResponse applyAction(
 			@ApiParam(hidden = true) @Auth Session session,
-			OssActionMap actionMap
+			CrxActionMap actionMap
 			);
 }

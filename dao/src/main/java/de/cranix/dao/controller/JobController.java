@@ -60,10 +60,10 @@ public class JobController extends Controller {
 	/**
 	 * Creates a new job
 	 * @param job The job to be created.
-	 * @return The result in an OssResponse object
-	 * @see OssResponse
+	 * @return The result in an CrxResponse object
+	 * @see CrxResponse
 	 */
-	public OssResponse createJob(Job job) {
+	public CrxResponse createJob(Job job) {
 
 		if( job.getDescription().length() > 128 ) {
 			job.setDescription(job.getDescription().substring(0, 127));
@@ -89,7 +89,7 @@ public class JobController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 
@@ -112,7 +112,7 @@ public class JobController extends Controller {
 			Files.write(jobFile, tmp );
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
 
 		/*
@@ -127,10 +127,10 @@ public class JobController extends Controller {
 		program[3] = scheduledTime;
 		OSSShellTools.exec(program, reply, error, null);
 		logger.debug("create job  : " + path.toString() + " : " + job.getCommand());
-		return new OssResponse(this.getSession(),"OK","Job was created successfully",job.getId());
+		return new CrxResponse(this.getSession(),"OK","Job was created successfully",job.getId());
 	}
 
-	public OssResponse setExitCode(Long jobId, Integer exitCode) {
+	public CrxResponse setExitCode(Long jobId, Integer exitCode) {
 		try {
 			Job job = this.em.find(Job.class, jobId);
 			job.setExitCode(exitCode);
@@ -140,13 +140,13 @@ public class JobController extends Controller {
 			this.em.getTransaction().commit();
 		}  catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Jobs exit code was set successfully");
+		return new CrxResponse(this.getSession(),"OK","Jobs exit code was set successfully");
 	}
 
-	public OssResponse restartJob(Long jobId) {
+	public CrxResponse restartJob(Long jobId) {
 		try {
 			Job job = this.em.find(Job.class, jobId);
 			job.setStartTime(new Timestamp(System.currentTimeMillis()));
@@ -155,7 +155,7 @@ public class JobController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 		String[] program   = new String[4];
@@ -166,7 +166,7 @@ public class JobController extends Controller {
 		program[2] = basePath + String.valueOf(jobId);
 		program[3] = "now" ;
 		OSSShellTools.exec(program, reply, error, null);
-		return new OssResponse(this.getSession(),"OK","Job was restarted successfully",jobId);
+		return new CrxResponse(this.getSession(),"OK","Job was restarted successfully",jobId);
 	}
 
 	@SuppressWarnings("unchecked")

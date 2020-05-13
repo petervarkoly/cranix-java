@@ -61,7 +61,7 @@ public class AdHocLanController extends Controller {
 	}
 
 
-	public OssResponse add(AdHocRoom adHocRoom) {
+	public CrxResponse add(AdHocRoom adHocRoom) {
 		Room room = new Room();
 		room.setName(adHocRoom.getName());
 		room.setDescription(adHocRoom.getDescription());
@@ -76,7 +76,7 @@ public class AdHocLanController extends Controller {
 		}
 		logger.debug("Add AdHocLan: " + room);
 		RoomController roomConrtoller = new RoomController(this.session,this.em);;
-		OssResponse ossResponseRoom =  roomConrtoller.add(room);
+		CrxResponse ossResponseRoom =  roomConrtoller.add(room);
 		logger.debug("Add AdHocLan after creating: " + room);
 		if( ossResponseRoom.getCode().equals("ERROR")) {
 			return ossResponseRoom;
@@ -91,7 +91,7 @@ public class AdHocLanController extends Controller {
 		category.setStudentsOnly(adHocRoom.isStudentsOnly());
 		logger.debug("Add AdHocLan category: " + category);
 		CategoryController categoryController = new CategoryController(this.session,this.em);;
-		OssResponse ossResponseCategory = categoryController.add(category);
+		CrxResponse ossResponseCategory = categoryController.add(category);
 		if( ossResponseCategory.getCode().equals("ERROR")) {
 			roomConrtoller.delete(ossResponseRoom.getObjectId());
 			return ossResponseCategory;
@@ -111,25 +111,25 @@ public class AdHocLanController extends Controller {
 		return ossResponseRoom;
 	}
 
-	public OssResponse putObjectIntoRoom(Long roomId, String objectType, Long objectId) {
+	public CrxResponse putObjectIntoRoom(Long roomId, String objectType, Long objectId) {
 		Long categoryId = getAdHocCategoryOfRoom(roomId).getId();
 		if( categoryId == null ) {
-			return new OssResponse(session,"ERROR","AdHocAccess not found");
+			return new CrxResponse(session,"ERROR","AdHocAccess not found");
 		}
 		return new CategoryController(this.session,this.em).addMember(categoryId, objectType, objectId);
 	}
 
 
-	public OssResponse deleteObjectInRoom(Long roomId, String objectType, Long objectId) {
+	public CrxResponse deleteObjectInRoom(Long roomId, String objectType, Long objectId) {
 		Long categoryId = getAdHocCategoryOfRoom(roomId).getId();
 		if( categoryId == null ) {
-			return new OssResponse(session,"ERROR","AdHocAccess not found");
+			return new CrxResponse(session,"ERROR","AdHocAccess not found");
 		}
 		return new CategoryController(this.session,this.em).deleteMember(categoryId, objectType, objectId);
 	}
 
 
-	public OssResponse delete(Long adHocRoomId) {
+	public CrxResponse delete(Long adHocRoomId) {
 		try {
 			Category category = this.getAdHocCategoryOfRoom(adHocRoomId);
 			logger.debug("Delete adHocRoom:" + category);
@@ -152,10 +152,10 @@ public class AdHocLanController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteMember:" +e.getMessage());
-			return new OssResponse(this.getSession(),"erease category ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"erease category ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Category was modified");
+		return new CrxResponse(this.getSession(),"OK","Category was modified");
 	}
 
 	/**
@@ -165,14 +165,14 @@ public class AdHocLanController extends Controller {
 	 *             * The count of the devices an user may register
 	 *             * The control type in a room
 	 *             * If the room is only for students
-	 * @return The result in a OssResponse object.
+	 * @return The result in a CrxResponse object.
 	 */
-	public OssResponse modify(AdHocRoom room) {
+	public CrxResponse modify(AdHocRoom room) {
 		final RoomController rc =  new RoomController(session,em);
 		Room oldRoom = rc.getById(room.getId());
 		if( !oldRoom.getRoomType().equals("AdHocAccess")) {
 			em.close();
-			return new OssResponse(session,"ERROR","This is not an AdHocLan room");
+			return new CrxResponse(session,"ERROR","This is not an AdHocLan room");
 		} else {
 			oldRoom.setDescription(room.getDescription());
 			oldRoom.setPlaces(room.getPlaces());
@@ -186,10 +186,10 @@ public class AdHocLanController extends Controller {
 				em.merge(oldRoom);
 				em.merge(cat);
 				em.getTransaction().commit();
-				return new OssResponse(session,"OK","AdHocLan room was modified successfully");
+				return new CrxResponse(session,"OK","AdHocLan room was modified successfully");
 			} catch (Exception e) {
 				logger.error("modify:" + e.getMessage());
-				return new OssResponse(session,"ERROR","AdHocLan room could not be modified.");
+				return new CrxResponse(session,"ERROR","AdHocLan room could not be modified.");
 			} finally {
 				em.close();
 			}

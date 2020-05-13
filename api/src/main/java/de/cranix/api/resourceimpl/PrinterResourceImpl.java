@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import de.cranix.api.resources.PrinterResource;
 import de.cranix.dao.Device;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 import de.cranix.dao.PrintersOfManufacturer;
 import de.cranix.dao.Session;
@@ -48,15 +48,15 @@ public class PrinterResourceImpl implements PrinterResource {
 	}
 
 	@Override
-	public OssResponse deletePrinter(Session session, Long printerId) {
+	public CrxResponse deletePrinter(Session session, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new PrinterController(session,em).deletePrinter(printerId);
+		CrxResponse resp = new PrinterController(session,em).deletePrinter(printerId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deletePrinter(Session session, String printerName) {
+	public CrxResponse deletePrinter(Session session, String printerName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		PrinterController pc = new PrinterController(session,em);
 		Printer printer = pc.getByName(printerName);
@@ -64,26 +64,26 @@ public class PrinterResourceImpl implements PrinterResource {
 			em.close();
 			throw new WebApplicationException(404);
 		}
-		OssResponse resp = pc.deletePrinter(printer.getId());
+		CrxResponse resp = pc.deletePrinter(printer.getId());
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse resetPrinter(Session session, Long printerId) {
+	public CrxResponse resetPrinter(Session session, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Printer printer = new PrinterController(session,em).getById(printerId);
 		if( printer == null ) {
 			em.close();
 			throw new WebApplicationException(404);
 		}
-		OssResponse resp = resetPrinter(session, printer.getName());
+		CrxResponse resp = resetPrinter(session, printer.getName());
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse resetPrinter(Session session, String printerName) {
+	public CrxResponse resetPrinter(Session session, String printerName) {
 		String[] program = new String[4];
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -93,11 +93,11 @@ public class PrinterResourceImpl implements PrinterResource {
 		program[3] = "-";
 		OSSShellTools.exec(program, reply, stderr, null);
 		this.enablePrinter(session, printerName);
-		return new OssResponse(session,"OK","Printer was reseted succesfully.");
+		return new CrxResponse(session,"OK","Printer was reseted succesfully.");
 	}
 
 	@Override
-	public OssResponse enablePrinter(Session session, Long printerId) {
+	public CrxResponse enablePrinter(Session session, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		PrinterController pc = new PrinterController(session,em);
 		Printer printer = pc.getById(printerId);
@@ -105,37 +105,37 @@ public class PrinterResourceImpl implements PrinterResource {
 			em.close();
 			throw new WebApplicationException(404);
 		}
-		OssResponse resp = pc.enablePrinter(printer.getName());
+		CrxResponse resp = pc.enablePrinter(printer.getName());
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse enablePrinter(Session session, String printerName) {
-		OssResponse resp = new PrinterController(session,null).enablePrinter(printerName);
+	public CrxResponse enablePrinter(Session session, String printerName) {
+		CrxResponse resp = new PrinterController(session,null).enablePrinter(printerName);
 		return resp;
 	}
 
 	@Override
-	public OssResponse disablePrinter(Session session, Long printerId) {
+	public CrxResponse disablePrinter(Session session, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		PrinterController pc = new PrinterController(session,em);
 		Printer printer = pc.getById(printerId);
 		if( printer == null ) {
 			throw new WebApplicationException(404);
 		}
-		OssResponse resp = pc.disablePrinter(printer.getName());
+		CrxResponse resp = pc.disablePrinter(printer.getName());
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse disablePrinter(Session session, String printerName) {
+	public CrxResponse disablePrinter(Session session, String printerName) {
 		return new PrinterController(session,null).disablePrinter(printerName);
 	}
 
 	@Override
-	public OssResponse activateWindowsDriver(Session session, Long printerId) {
+	public CrxResponse activateWindowsDriver(Session session, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Printer printer = new PrinterController(session,em).getById(printerId);
 		em.close();
@@ -146,15 +146,15 @@ public class PrinterResourceImpl implements PrinterResource {
 	}
 
 	@Override
-	public OssResponse activateWindowsDriver(Session session, String printerName) {
+	public CrxResponse activateWindowsDriver(Session session, String printerName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new PrinterController(session,em).activateWindowsDriver(printerName);
+		CrxResponse resp = new PrinterController(session,em).activateWindowsDriver(printerName);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addPrinter(Session session,
+	public CrxResponse addPrinter(Session session,
 			String name,
 			String mac,
 			Long roomId,
@@ -163,7 +163,7 @@ public class PrinterResourceImpl implements PrinterResource {
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new PrinterController(session,em).addPrinter(name.toLowerCase().trim(),mac,roomId,model,windowsDriver,fileInputStream,contentDispositionHeader);
+		CrxResponse resp = new PrinterController(session,em).addPrinter(name.toLowerCase().trim(),mac,roomId,model,windowsDriver,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
 	}
@@ -204,7 +204,7 @@ public class PrinterResourceImpl implements PrinterResource {
 	}
 
 	@Override
-	public OssResponse setDriver(Session session,
+	public CrxResponse setDriver(Session session,
 			Long printerId, InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 
@@ -220,7 +220,7 @@ public class PrinterResourceImpl implements PrinterResource {
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
-			return new OssResponse(session,"ERROR", e.getMessage());
+			return new CrxResponse(session,"ERROR", e.getMessage());
 		}
 		String driverFile = file.toPath().toString();
 		String[] program = new String[11];
@@ -242,14 +242,14 @@ public class PrinterResourceImpl implements PrinterResource {
 		logger.debug("activateWindowsDriver error" + stderr.toString());
 		logger.debug("activateWindowsDriver reply" + reply.toString());
 		//TODO check output
-		return new OssResponse(session,"OK", "Printer driver was set succesfully.");
+		return new CrxResponse(session,"OK", "Printer driver was set succesfully.");
 	}
 
 	@Override
-	public OssResponse addPrinterQueue(Session session, String name, Long deviceId, String model, boolean windowsDriver,
+	public CrxResponse addPrinterQueue(Session session, String name, Long deviceId, String model, boolean windowsDriver,
 			InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new PrinterController(session,em).addPrinterQueue(session,name.toLowerCase().trim(),deviceId,model,windowsDriver,fileInputStream,contentDispositionHeader);
+		CrxResponse resp = new PrinterController(session,em).addPrinterQueue(session,name.toLowerCase().trim(),deviceId,model,windowsDriver,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
 	}

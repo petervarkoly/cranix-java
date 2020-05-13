@@ -14,7 +14,7 @@ import de.cranix.dao.Category;
 import de.cranix.dao.Contact;
 import de.cranix.dao.FAQ;
 import de.cranix.dao.Group;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
 /**
@@ -33,10 +33,10 @@ public class InformationController extends Controller {
 	/**
 	 * Creates a new announcement
 	 * @param announcement
-	 * @return The result in form of OssResponse
+	 * @return The result in form of CrxResponse
 	 * @see Announcement
 	 */
-	public OssResponse addAnnouncement(Announcement announcement) {
+	public CrxResponse addAnnouncement(Announcement announcement) {
 		//Check parameters
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -44,7 +44,7 @@ public class InformationController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
 		announcement.setOwner(user);
@@ -68,10 +68,10 @@ public class InformationController extends Controller {
 			}
 			this.em.getTransaction().commit();
 			logger.debug("Created Announcement:" + announcement);
-			return new OssResponse(this.getSession(),"OK", "Announcement was created succesfully.",announcement.getId());
+			return new CrxResponse(this.getSession(),"OK", "Announcement was created succesfully.",announcement.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -79,10 +79,10 @@ public class InformationController extends Controller {
 	/**
 	 * Creates a new contact
 	 * @param contact 
-	 * @return The result in form of OssResponse
+	 * @return The result in form of CrxResponse
 	 * @see Contact
 	 */
-	public OssResponse addContact(Contact contact) {
+	public CrxResponse addContact(Contact contact) {
 		//Check parameters
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -90,7 +90,7 @@ public class InformationController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
 		contact.setOwner(user);
@@ -113,10 +113,10 @@ public class InformationController extends Controller {
 			}
 			this.em.getTransaction().commit();
 			logger.debug("Created Contact:" + contact);
-			return new OssResponse(this.getSession(),"OK", "Contact was created succesfully.",contact.getId());
+			return new CrxResponse(this.getSession(),"OK", "Contact was created succesfully.",contact.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -124,10 +124,10 @@ public class InformationController extends Controller {
 	/**
 	 * Creates a new FAQ
 	 * @param faq 
-	 * @return The result in form of OssResponse
+	 * @return The result in form of CrxResponse
 	 * @see FAQ
 	 */
-	public OssResponse addFAQ(FAQ faq) {
+	public CrxResponse addFAQ(FAQ faq) {
 		//Check parameters
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -135,7 +135,7 @@ public class InformationController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
 		faq.setOwner(user);
@@ -158,10 +158,10 @@ public class InformationController extends Controller {
 			}
 			this.em.getTransaction().commit();
 			logger.debug("Created FAQ:" + faq);
-			return new OssResponse(this.getSession(),"OK", "FAQ was created succesfully.",faq.getId());
+			return new CrxResponse(this.getSession(),"OK", "FAQ was created succesfully.",faq.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -229,7 +229,7 @@ public class InformationController extends Controller {
 		return announcements;
 	}
 
-	public OssResponse setAnnouncementHaveSeen(Long announcementId) {
+	public CrxResponse setAnnouncementHaveSeen(Long announcementId) {
 		try {
 			Announcement announcement = this.em.find(Announcement.class, announcementId);
 			User user = this.session.getUser();
@@ -241,10 +241,10 @@ public class InformationController extends Controller {
 			this.em.getTransaction().commit();
 		}catch (Exception e) {
 			logger.error("setAnnouncementHaveSeen:" + this.getSession().getUserId() + " " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR","Annoncement could not be set as seen.");
+			return new CrxResponse(this.getSession(),"ERROR","Annoncement could not be set as seen.");
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Annoncement was set as seen.");
+		return new CrxResponse(this.getSession(),"OK","Annoncement was set as seen.");
 	}
 
 	/**
@@ -333,7 +333,7 @@ public class InformationController extends Controller {
 		}
 	}
 
-	public OssResponse modifyAnnouncement(Announcement announcement) {
+	public CrxResponse modifyAnnouncement(Announcement announcement) {
 		//Check parameters
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -341,11 +341,11 @@ public class InformationController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		if( !this.mayModify(announcement) )
 		{
-			return new OssResponse(this.getSession(),"ERROR", "You have no rights to modify this Announcement");
+			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to modify this Announcement");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -363,15 +363,15 @@ public class InformationController extends Controller {
 			oldAnnouncement.setHaveSeenUsers(new ArrayList<User>());
 			this.em.merge(announcement);
 			this.em.getTransaction().commit();
-			return new OssResponse(this.getSession(),"OK", "Announcement was modified succesfully.");
+			return new CrxResponse(this.getSession(),"OK", "Announcement was modified succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
 
-	public OssResponse modifyContact(Contact contact) {
+	public CrxResponse modifyContact(Contact contact) {
 		//Check parameters
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -379,11 +379,11 @@ public class InformationController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		if( !this.mayModify(contact) )
 		{
-			return new OssResponse(this.getSession(),"ERROR", "You have no rights to modify this contact");
+			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to modify this contact");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -395,15 +395,15 @@ public class InformationController extends Controller {
 			oldContact.setIssue(contact.getIssue());
 			this.em.merge(oldContact);
 			this.em.getTransaction().commit();
-			return new OssResponse(this.getSession(),"OK", "Contact was modified succesfully.");
+			return new CrxResponse(this.getSession(),"OK", "Contact was modified succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
 
-	public OssResponse modifyFAQ(FAQ faq) {
+	public CrxResponse modifyFAQ(FAQ faq) {
 		//Check parameters
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -411,11 +411,11 @@ public class InformationController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		if( !this.mayModify(faq) )
 		{
-			return new OssResponse(this.getSession(),"ERROR", "You have no rights to modify this FAQ ");
+			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to modify this FAQ ");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -425,10 +425,10 @@ public class InformationController extends Controller {
 			oldFaq.setText(faq.getText());
 			this.em.merge(oldFaq);
 			this.em.getTransaction().commit();
-			return new OssResponse(this.getSession(),"OK", "FAQ was modified succesfully.");
+			return new CrxResponse(this.getSession(),"OK", "FAQ was modified succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -436,9 +436,9 @@ public class InformationController extends Controller {
 	/**
 	 * Remove a announcement.
 	 * @param faqId The technical id of the announcement.
-	 * @return The result in form of OssResponse
+	 * @return The result in form of CrxResponse
 	 */
-	public OssResponse deleteAnnouncement(Long announcementId) {
+	public CrxResponse deleteAnnouncement(Long announcementId) {
 		Announcement announcement;
 		try {
 			announcement = this.em.find(Announcement.class, announcementId);
@@ -448,7 +448,7 @@ public class InformationController extends Controller {
 		}
 		if( !this.mayModify(announcement) )
 		{
-			return new OssResponse(this.getSession(),"ERROR", "You have no rights to delete this Announcement");
+			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to delete this Announcement");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -459,10 +459,10 @@ public class InformationController extends Controller {
 			}
 			this.em.remove(announcement);
 			this.em.getTransaction().commit();
-			return new OssResponse(this.getSession(),"OK", "Announcement was deleted succesfully.");
+			return new CrxResponse(this.getSession(),"OK", "Announcement was deleted succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -470,9 +470,9 @@ public class InformationController extends Controller {
 	/**
 	 * Remove a contact.
 	 * @param faqId The technical id of the contact.
-	 * @return The result in form of OssResponse
+	 * @return The result in form of CrxResponse
 	 */
-	public OssResponse deleteContact(Long contactId) {
+	public CrxResponse deleteContact(Long contactId) {
 		Contact contact;
 		try {
 			contact = this.em.find(Contact.class, contactId);
@@ -482,7 +482,7 @@ public class InformationController extends Controller {
 		}
 		if( !this.mayModify(contact) )
 		{
-			return new OssResponse(this.getSession(),"ERROR", "You have no rights to delete this contact");
+			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to delete this contact");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -493,10 +493,10 @@ public class InformationController extends Controller {
 			}
 			this.em.remove(contact);
 			this.em.getTransaction().commit();
-			return new OssResponse(this.getSession(),"OK", "Contact was deleted succesfully.");
+			return new CrxResponse(this.getSession(),"OK", "Contact was deleted succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -504,9 +504,9 @@ public class InformationController extends Controller {
 	/**
 	 * Remove a FAQ.
 	 * @param faqId The technical id of the faq.
-	 * @return The result in form of OssResponse
+	 * @return The result in form of CrxResponse
 	 */
-	public OssResponse deleteFAQ(Long faqId) {
+	public CrxResponse deleteFAQ(Long faqId) {
 		FAQ faq;
 		try {
 			faq = this.em.find(FAQ.class, faqId);
@@ -516,7 +516,7 @@ public class InformationController extends Controller {
 		}
 		if( !this.mayModify(faq) )
 		{
-			return new OssResponse(this.getSession(),"ERROR", "You have no rights to delete this FAQ");
+			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to delete this FAQ");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -527,10 +527,10 @@ public class InformationController extends Controller {
 			}
 			this.em.remove(faq);
 			this.em.getTransaction().commit();
-			return new OssResponse(this.getSession(),"OK", "FAQ was deleted succesfully.");
+			return new CrxResponse(this.getSession(),"OK", "FAQ was deleted succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new OssResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
 	}

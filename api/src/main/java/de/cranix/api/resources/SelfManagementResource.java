@@ -16,7 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
 import io.dropwizard.auth.Auth;
@@ -58,7 +58,7 @@ public interface SelfManagementResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @PermitAll
-    OssResponse modifyMySelf(
+    CrxResponse modifyMySelf(
             @ApiParam(hidden = true) @Auth Session session,
             User user
     );

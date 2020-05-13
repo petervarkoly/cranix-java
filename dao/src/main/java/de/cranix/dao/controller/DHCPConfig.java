@@ -17,7 +17,7 @@ import de.cranix.dao.Room;
 import de.cranix.dao.Device;
 import de.cranix.dao.Session;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.tools.*;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -62,7 +62,7 @@ public class DHCPConfig extends Controller {
 		this.systemctl("try-restart", "oss_salt_event_watcher");
 	}
 
-	public OssResponse Test() {
+	public CrxResponse Test() {
 		Write(Paths.get(TMPCONF));
 		String[] program    = new String[4];
 		StringBuffer reply  = new StringBuffer();
@@ -80,9 +80,9 @@ public class DHCPConfig extends Controller {
 		}
 		if( result == 0 ) {
 
-			return new OssResponse(session,"OK","DHCPD configuration is ok");
+			return new CrxResponse(session,"OK","DHCPD configuration is ok");
 		} else {
-			return new OssResponse(session,"ERROR",stderr.toString());
+			return new CrxResponse(session,"ERROR",stderr.toString());
 		}
 	}
 

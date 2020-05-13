@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import de.cranix.dao.Clone;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Partition;
 import de.cranix.dao.Session;
 import java.util.List;
@@ -106,7 +106,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse setMaster(
+	CrxResponse setMaster(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("deviceId") Long deviceId,
 	        @PathParam("isMaster") int isMaster
@@ -123,7 +123,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse setMaster(
+	CrxResponse setMaster(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("isMaster") int isMaster
 	);
@@ -288,7 +288,7 @@ public interface CloneToolResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @PermitAll
-    OssResponse addDevice(
+    CrxResponse addDevice(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("roomId") long roomId,
             @PathParam("macAddress") String macAddress,
@@ -309,7 +309,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	OssResponse addHWConf(
+	CrxResponse addHWConf(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        HWConf hwconf
 	);
@@ -328,7 +328,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	OssResponse importHWConfs(
+	CrxResponse importHWConfs(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        List<HWConf> hwconfs
 	);
@@ -344,7 +344,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	OssResponse modifyHWConf(
+	CrxResponse modifyHWConf(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 		    HWConf hwconf
@@ -362,7 +362,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse addPartition(
+	CrxResponse addPartition(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 	        @PathParam("partitionName") String partitionName
@@ -379,7 +379,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse addPartition(
+	CrxResponse addPartition(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 	        Partition partition
@@ -397,7 +397,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse setConfigurationValue(
+	CrxResponse setConfigurationValue(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 	        @PathParam("partitionName") String partitionName,
@@ -416,7 +416,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse delete(
+	CrxResponse delete(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId
 	);
@@ -432,7 +432,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	OssResponse deletePartition(
+	CrxResponse deletePartition(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 	        @PathParam("partitionName") String partitionName
@@ -450,7 +450,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	OssResponse deleteConfigurationValue(
+	CrxResponse deleteConfigurationValue(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
 	        @PathParam("partitionName") String partitionName,
@@ -470,7 +470,7 @@ public interface CloneToolResource {
 						" multicast  :  true/fals"
 						)
 	@RolesAllowed("hwconf.manage")
-	OssResponse startCloning(
+	CrxResponse startCloning(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("hwconfId") Long hwconfId,
 			Clone parameters
@@ -486,7 +486,7 @@ public interface CloneToolResource {
 						  "Multicast can be 0 or 1"
 						)
 	@RolesAllowed("hwconf.manage")
-	OssResponse startCloning(
+	CrxResponse startCloning(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("hwconfId")  Long hwconfId,
 			@PathParam("multiCast") int multiCast
@@ -502,7 +502,7 @@ public interface CloneToolResource {
 				  "Multicast can be 0 or 1"
 						)
 	@RolesAllowed("hwconf.manage")
-	OssResponse startCloningInRoom(
+	CrxResponse startCloningInRoom(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId") Long roomId,
 			@PathParam("multiCast") int multiCast
@@ -517,7 +517,7 @@ public interface CloneToolResource {
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for a workstations"
 						)
 	@RolesAllowed("hwconf.manage")
-	OssResponse startCloningOnDevice(
+	CrxResponse startCloningOnDevice(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("deviceId") Long deviceId
 			);
@@ -531,7 +531,7 @@ public interface CloneToolResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes the boot configuration for the automatical partitioning.")
 	@RolesAllowed("hwconf.manage")
-	OssResponse stopCloning(
+	CrxResponse stopCloning(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("hwconfId") Long hwconfId
 			);
@@ -544,7 +544,7 @@ public interface CloneToolResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes the boot configuration for the automatical partitioning for all workstations in a room." )
 	@RolesAllowed("hwconf.manage")
-	OssResponse stopCloningInRoom(
+	CrxResponse stopCloningInRoom(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId") Long roomId
 			);
@@ -558,7 +558,7 @@ public interface CloneToolResource {
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for a workstations"
 						)
 	@RolesAllowed("hwconf.manage")
-	OssResponse stopCloningOnDevice(
+	CrxResponse stopCloningOnDevice(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("deviceId") Long deviceId
 			);
@@ -571,7 +571,7 @@ public interface CloneToolResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes the boot configuration for the automatical partitioning for a workstations")
 	@RolesAllowed("hwconf.manage")
-	OssResponse stopCloningOnDevice(
+	CrxResponse stopCloningOnDevice(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("deviceIP") String deviceIP
 			);
@@ -597,7 +597,7 @@ public interface CloneToolResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Start multicast imaging with a given partition.")
 	@RolesAllowed("hwconf.manage")
-	OssResponse startMulticast(
+	CrxResponse startMulticast(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("partitionId") Long partitionId,
 			@PathParam("networkDevice") String networkDevice
@@ -615,7 +615,7 @@ public interface CloneToolResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the parameters of an existing partition.")
 	@RolesAllowed("hwconf.manage")
-	OssResponse modifyPartition(
+	CrxResponse modifyPartition(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("partitionId") Long partitionId,
 			Partition partition

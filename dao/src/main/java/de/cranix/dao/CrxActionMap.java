@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class OssActionMap {
+public class CrxActionMap {
 
 	private List<Long> objectIds;
 	private String     name;
@@ -21,7 +21,7 @@ public class OssActionMap {
 		}
 	}
 
-	public OssActionMap() {
+	public CrxActionMap() {
 		// TODO Auto-generated constructor stub
 	}
 

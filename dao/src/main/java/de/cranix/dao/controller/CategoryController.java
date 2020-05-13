@@ -81,7 +81,7 @@ public class CategoryController extends Controller {
 		}
 	}
 
-	public OssResponse add(Category category){
+	public CrxResponse add(Category category){
 		//Check category parameter
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -89,18 +89,18 @@ public class CategoryController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", "Validation Error" + errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", "Validation Error" + errorMessage.toString());
 		}
 		try {
 			// First we check if the parameter are unique.
 			Query query = this.em.createNamedQuery("Category.getByName").setParameter("name",category.getName());
 			if( !query.getResultList().isEmpty() ){
-				return new OssResponse(this.getSession(),"ERROR","Category name is not unique.");
+				return new CrxResponse(this.getSession(),"ERROR","Category name is not unique.");
 			}
 			if( !category.getDescription().isEmpty() ) {
 				query = this.em.createNamedQuery("Category.getByDescription").setParameter("description",category.getDescription());
 				if( !query.getResultList().isEmpty() ){
-					return new OssResponse(this.getSession(),"ERROR","Category description is not unique.");
+					return new CrxResponse(this.getSession(),"ERROR","Category description is not unique.");
 				}
 			}
 			category.setOwner(this.session.getUser());
@@ -110,13 +110,13 @@ public class CategoryController extends Controller {
 			logger.debug("Created Category:" + category );
 		} catch (Exception e) {
 			logger.error("Exeption: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Category was created",category.getId());
+		return new CrxResponse(this.getSession(),"OK","Category was created",category.getId());
 	}
 
-	public OssResponse modify(Category category){
+	public CrxResponse modify(Category category){
 		//Check category parameter
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -124,7 +124,7 @@ public class CategoryController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new OssResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		Category oldCategory = this.getById(category.getId());
 		oldCategory.setDescription(category.getDescription());
@@ -137,18 +137,18 @@ public class CategoryController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		}
-		return new OssResponse(this.getSession(),"OK","Category was modified");
+		return new CrxResponse(this.getSession(),"OK","Category was modified");
 	}
 
-	public OssResponse delete(Long categoryId){
+	public CrxResponse delete(Long categoryId){
 		return this.delete(this.getById(categoryId));
 	}
 
-	public OssResponse delete(Category category) {
+	public CrxResponse delete(Category category) {
 		if( this.isProtected(category)) {
-			return new OssResponse(this.getSession(),"ERROR","This category must not be deleted.");
+			return new CrxResponse(this.getSession(),"ERROR","This category must not be deleted.");
 		}
 		// Remove group from GroupMember of table
 		try {
@@ -209,11 +209,11 @@ public class CategoryController extends Controller {
 			this.em.getEntityManagerFactory().getCache().evictAll();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 
 		}
-		return new OssResponse(this.getSession(),"OK","Category was deleted");
+		return new CrxResponse(this.getSession(),"OK","Category was deleted");
 	}
 
 	public List<Long> getAvailableMembers(Long categoryId, String objectName ) {
@@ -330,7 +330,7 @@ public class CategoryController extends Controller {
 		return objectIds;
 	}
 
-	public OssResponse addMember(Long categoryId, String objectName,Long objectId ) {
+	public CrxResponse addMember(Long categoryId, String objectName,Long objectId ) {
 		boolean changes = false;
 		try {
 			Category category = this.em.find(Category.class, categoryId);
@@ -437,13 +437,13 @@ public class CategoryController extends Controller {
 			}
 		} catch (Exception e) {
 			logger.error("addMember: " + e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Category was modified");
+		return new CrxResponse(this.getSession(),"OK","Category was modified");
 	}
 
-	public OssResponse deleteMember(Long categoryId, String objectName, Long objectId ) {
+	public CrxResponse deleteMember(Long categoryId, String objectName, Long objectId ) {
 		try {
 			Category category = this.em.find(Category.class, categoryId);
 			logger.debug("CategoryId:" + categoryId + " Category " + category);
@@ -529,10 +529,10 @@ public class CategoryController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteMember:" +e.getMessage());
-			return new OssResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(),"OK","Category was modified");
+		return new CrxResponse(this.getSession(),"OK","Category was modified");
 	}
 
 	public List<Category> getCategories(List<Long> categoryIds) {

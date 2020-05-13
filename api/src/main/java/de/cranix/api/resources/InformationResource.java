@@ -18,7 +18,7 @@ import de.cranix.dao.Announcement;
 import de.cranix.dao.Category;
 import de.cranix.dao.Contact;
 import de.cranix.dao.FAQ;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
@@ -40,7 +40,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.add")
-	OssResponse addAnnouncement(
+	CrxResponse addAnnouncement(
 		@ApiParam(hidden = true) @Auth Session session,
 		Announcement annoncement
 	);
@@ -53,7 +53,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.add")
-	OssResponse addContact(
+	CrxResponse addContact(
 		@ApiParam(hidden = true) @Auth Session session,
 		Contact contact
 	);
@@ -66,7 +66,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.add")
-	OssResponse addFAQ(
+	CrxResponse addFAQ(
 		@ApiParam(hidden = true) @Auth Session session,
 		FAQ faq
 	);
@@ -103,7 +103,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	OssResponse setAnnouncementHaveSeen(
+	CrxResponse setAnnouncementHaveSeen(
 		@ApiParam(hidden = true)      @Auth Session session,
 		@PathParam("announcementId")  Long announcementId
 	);
@@ -176,7 +176,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.delete")
-	OssResponse modifyAnnouncement(
+	CrxResponse modifyAnnouncement(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("announcementId") Long announcementId,
 		Announcement announcement
@@ -190,7 +190,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.delete")
-	OssResponse modifyContact(
+	CrxResponse modifyContact(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("contactId") Long contactId,
 		Contact contact
@@ -204,7 +204,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.delete")
-	OssResponse modifyFAQ(
+	CrxResponse modifyFAQ(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("faqId") Long faqId,
 		FAQ faq
@@ -257,7 +257,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.delete")
-	OssResponse deleteAnnouncement(
+	CrxResponse deleteAnnouncement(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("announcementId") Long announcementId
 	);
@@ -270,7 +270,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.delete")
-	OssResponse deleteContact(
+	CrxResponse deleteContact(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("contactId") Long contactId
 	);
@@ -283,7 +283,7 @@ public interface InformationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("information.delete")
-	OssResponse deleteFAQ(
+	CrxResponse deleteFAQ(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("faqId") Long faqId
 	);

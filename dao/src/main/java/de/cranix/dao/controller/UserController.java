@@ -188,17 +188,17 @@ public class UserController extends Controller {
 		return normalize(newUserId.toLowerCase());
 	}
 
-	public OssResponse add(User user) {
+	public CrxResponse add(User user) {
 		logger.debug("User to create:" + user);
 		// Check role
 		if (user.getRole() == null) {
-			return new OssResponse(
+			return new CrxResponse(
 					this.getSession(),
 					"ERROR",
 					"You have to define the role of the user.");
 		}
 		if( !this.mayAdd(user) ) {
-			return new OssResponse(
+			return new CrxResponse(
 					this.getSession(),
 					"ERROR",
 					"You must not create user whith role %s.",
@@ -210,7 +210,7 @@ public class UserController extends Controller {
 			if (user.getRole().equals("sysadmins") || user.getRole().equals("templates")) {
 				user.setBirthDay(this.now());
 			} else {
-				return new OssResponse(this.getSession(), "ERROR", "You have to define the birthday.");
+				return new CrxResponse(this.getSession(), "ERROR", "You have to define the birthday.");
 			}
 		}
 		// Create uid if not given
@@ -221,11 +221,11 @@ public class UserController extends Controller {
 			// First we check if the parameter are unique.
 			// workstation users have a user called as itself
 			if (!user.getRole().equals("workstations") && !this.isNameUnique(user.getUid())) {
-				return new OssResponse(this.getSession(), "ERROR", "User name is not unique.");
+				return new CrxResponse(this.getSession(), "ERROR", "User name is not unique.");
 			}
 			// Check if uid contains non allowed characters
 			if (this.checkNonASCII(user.getUid())) {
-				return new OssResponse(this.getSession(), "ERROR", "Uid contains not allowed characters.");
+				return new CrxResponse(this.getSession(), "ERROR", "Uid contains not allowed characters.");
 			}
 		}
 		// Check the user password
@@ -234,7 +234,7 @@ public class UserController extends Controller {
 		} else if (user.getPassword() == null || user.getPassword().isEmpty()) {
 			user.setPassword(createRandomPassword());
 		} else {
-			OssResponse ossResponse = this.checkPassword(user.getPassword());
+			CrxResponse ossResponse = this.checkPassword(user.getPassword());
 			if (ossResponse != null) {
 				return ossResponse;
 			}
@@ -255,7 +255,7 @@ public class UserController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if (errorMessage.length() > 0) {
-			return new OssResponse(this.getSession(), "ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(), "ERROR", errorMessage.toString());
 		}
 		if( user.getMailAliases() != null ) {
 			for( String alias : user.getMailAliases() ) {
@@ -275,7 +275,7 @@ public class UserController extends Controller {
 			logger.debug("Created user" + user);
 		} catch (Exception e) {
 			logger.error("add: " + e.getMessage());
-			return new OssResponse(this.getSession(), "ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
 		} finally {
 		}
 		startPlugin("add_user", user);
@@ -289,25 +289,25 @@ public class UserController extends Controller {
 		parameters.add(user.getGivenName());
 		parameters.add(user.getSurName());
 		parameters.add(user.getPassword());
-		return new OssResponse(this.getSession(), "OK", "%s ( %s %s ) was created with password '%s'", user.getId(),
+		return new CrxResponse(this.getSession(), "OK", "%s ( %s %s ) was created with password '%s'", user.getId(),
 				parameters);
 	}
 
-	public List<OssResponse> add(List<User> users) {
-		List<OssResponse> results = new ArrayList<OssResponse>();
+	public List<CrxResponse> add(List<User> users) {
+		List<CrxResponse> results = new ArrayList<CrxResponse>();
 		for (User user : users) {
 			results.add(this.add(user));
 		}
 		return results;
 	}
 
-	public OssResponse modify(User user) {
+	public CrxResponse modify(User user) {
 		User oldUser = this.getById(user.getId());
 		if( !this.mayModify(oldUser) ) {
-			return new OssResponse(this.getSession(), "ERROR", "You must not modify this user.");
+			return new CrxResponse(this.getSession(), "ERROR", "You must not modify this user.");
 		}
 		if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-			OssResponse ossResponse = this.checkPassword(user.getPassword());
+			CrxResponse ossResponse = this.checkPassword(user.getPassword());
 			if (ossResponse != null) {
 				return ossResponse;
 			}
@@ -329,7 +329,7 @@ public class UserController extends Controller {
 				String tmp = alias.trim();
 				if( !tmp.isEmpty() ) {
 					if( !oldAliases.contains(tmp) && !this.isUserAliasUnique(tmp) ) {
-						return new OssResponse(this.getSession(), "ERROR", "Alias '%s' is not unique",null,tmp);
+						return new CrxResponse(this.getSession(), "ERROR", "Alias '%s' is not unique",null,tmp);
 					}
 					newAliases.add(new Alias(oldUser,tmp));
 				}
@@ -343,7 +343,7 @@ public class UserController extends Controller {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if (errorMessage.length() > 0) {
-			return new OssResponse(this.getSession(), "ERROR", errorMessage.toString());
+			return new CrxResponse(this.getSession(), "ERROR", errorMessage.toString());
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -351,15 +351,15 @@ public class UserController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(), "ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
 		} finally {
 		}
 		startPlugin("modify_user", oldUser);
-		return new OssResponse(this.getSession(), "OK", "User was modified succesfully");
+		return new CrxResponse(this.getSession(), "OK", "User was modified succesfully");
 	}
 
-	public List<OssResponse> deleteStudents(List<Long> userIds) {
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+	public List<CrxResponse> deleteStudents(List<Long> userIds) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		for( Long userId : userIds ) {
 			User user = this.getById(userId);
 			if( user != null && user.getRole().equals(roleStudent)) {
@@ -369,23 +369,23 @@ public class UserController extends Controller {
 		return responses;
 	}
 
-	public OssResponse delete(long userId) {
+	public CrxResponse delete(long userId) {
 		return this.delete(this.getById(userId));
 	}
 
-	public OssResponse delete(String uid) {
+	public CrxResponse delete(String uid) {
 		return this.delete(this.getByUid(uid));
 	}
 
-	public OssResponse delete(User user) {
+	public CrxResponse delete(User user) {
 		if( user == null ) {
-			return new OssResponse(this.getSession(),"ERROR", "Can not find the user.");
+			return new CrxResponse(this.getSession(),"ERROR", "Can not find the user.");
 		}
 		if(this.isProtected(user)) {
-			return new OssResponse(this.getSession(), "ERROR", "This user must not be deleted.");
+			return new CrxResponse(this.getSession(), "ERROR", "This user must not be deleted.");
 		}
 		if( !this.mayDelete(user)) {
-			return new OssResponse(this.getSession(),"ERROR", "You must not delete this user.");
+			return new CrxResponse(this.getSession(),"ERROR", "You must not delete this user.");
 		}
 		startPlugin("delete_user", user);
 		//TODO make it configurable
@@ -415,7 +415,7 @@ public class UserController extends Controller {
 		}
 		this.em.remove(user);
 		this.em.getTransaction().commit();
-		return new OssResponse(this.getSession(), "OK", "User was deleted");
+		return new CrxResponse(this.getSession(), "OK", "User was deleted");
 	}
 
 	public List<Group> getAvailableGroups(long userId) {
@@ -432,7 +432,7 @@ public class UserController extends Controller {
 		return user.getGroups();
 	}
 
-	public OssResponse setGroups(long userId, List<Long> groupIds) {
+	public CrxResponse setGroups(long userId, List<Long> groupIds) {
 		List<Group> groupsToRemove = new ArrayList<Group>();
 		List<Group> groupsToAdd = new ArrayList<Group>();
 		List<Group> groups = new ArrayList<Group>();
@@ -442,7 +442,7 @@ public class UserController extends Controller {
 		User user = this.getById(userId);
 		if( !this.mayModify(user)) {
 			logger.error("resetUserPassword: Session user may not modify: %s",null,userId);
-			return new OssResponse(this.getSession(), "ERROR", "You must not modify this user.");
+			return new CrxResponse(this.getSession(), "ERROR", "You must not modify this user.");
 		}
 		for (Group group : groups) {
 			if (!user.getGroups().contains(group)) {
@@ -473,7 +473,7 @@ public class UserController extends Controller {
 			this.em.merge(user);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(), "ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
 		} finally {
 		}
 		for (Group group : groupsToAdd) {
@@ -482,10 +482,10 @@ public class UserController extends Controller {
 		for (Group group : groupsToRemove) {
 			changeMemberPlugin("removemembers", group, user);
 		}
-		return new OssResponse(this.getSession(), "OK", "The groups of the user was set.");
+		return new CrxResponse(this.getSession(), "OK", "The groups of the user was set.");
 	}
 
-	public OssResponse syncFsQuotas(List<List<String>> quotas) {
+	public CrxResponse syncFsQuotas(List<List<String>> quotas) {
 		User user;
 		try {
 			for (List<String> quota : quotas) {
@@ -501,13 +501,13 @@ public class UserController extends Controller {
 				}
 			}
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(), "ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(), "OK", "The filesystem quotas was synced succesfully");
+		return new CrxResponse(this.getSession(), "OK", "The filesystem quotas was synced succesfully");
 	}
 
-	public OssResponse syncMsQuotas(List<List<String>> quotas) {
+	public CrxResponse syncMsQuotas(List<List<String>> quotas) {
 		User user;
 		try {
 			for (List<String> quota : quotas) {
@@ -523,10 +523,10 @@ public class UserController extends Controller {
 				}
 			}
 		} catch (Exception e) {
-			return new OssResponse(this.getSession(), "ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(), "OK", "The mailsystem quotas was synced succesfully");
+		return new CrxResponse(this.getSession(), "OK", "The mailsystem quotas was synced succesfully");
 	}
 
 
@@ -551,12 +551,12 @@ public class UserController extends Controller {
 		return users;
 	}
 
-	public List<OssResponse> resetUserPassword(List<Long> userIds, String password, boolean mustChange) {
+	public List<CrxResponse> resetUserPassword(List<Long> userIds, String password, boolean mustChange) {
 		logger.debug("resetUserPassword: " + password);
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		boolean checkPassword = this.getConfigValue("CHECK_PASSWORD_QUALITY").toLowerCase().equals("yes");
 		this.setConfigValue("CHECK_PASSWORD_QUALITY", "no");
-		OssResponse passwordResponse = this.checkPassword(password);
+		CrxResponse passwordResponse = this.checkPassword(password);
 		if( passwordResponse != null ) {
 			if (checkPassword) {
 				this.setConfigValue("CHECK_PASSWORD_QUALITY", "yes");
@@ -599,7 +599,7 @@ public class UserController extends Controller {
 			OSSShellTools.exec(program, reply, error, null);
 			logger.debug(program[0] + " " + program[1] + " " + program[2] + " " + program[3] + " R:"
 					+ reply.toString() + " E:" + error.toString());
-			responses.add(new OssResponse(this.getSession(), "OK", "The password of '%s' was reseted.",null,user.getUid()));
+			responses.add(new CrxResponse(this.getSession(), "OK", "The password of '%s' was reseted.",null,user.getUid()));
 		}
 		if (checkPassword) {
 			this.setConfigValue("CHECK_PASSWORD_QUALITY", "yes");
@@ -607,8 +607,8 @@ public class UserController extends Controller {
 		return responses;
 	}
 
-	public List<OssResponse> copyTemplate(List<Long> userIds, String stringValue) {
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+	public List<CrxResponse> copyTemplate(List<Long> userIds, String stringValue) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[2];
@@ -626,14 +626,14 @@ public class UserController extends Controller {
 				}
 				program[1] = user.getUid();
 				OSSShellTools.exec(program, reply, error, null);
-				responses.add(new OssResponse(this.getSession(), "OK", "The template for '%s' was copied.",null,user.getUid()));
+				responses.add(new CrxResponse(this.getSession(), "OK", "The template for '%s' was copied.",null,user.getUid()));
 			}
 		}
 		return responses;
 	}
 
-	public List<OssResponse> removeProfile(List<Long> userIds) {
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+	public List<CrxResponse> removeProfile(List<Long> userIds) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[2];
@@ -647,14 +647,14 @@ public class UserController extends Controller {
 				}
 				program[1] = user.getUid();
 				OSSShellTools.exec(program, reply, error, null);
-				responses.add(new OssResponse(this.getSession(), "OK", "The windows profile of '%s' was removed.",null,user.getUid()));
+				responses.add(new CrxResponse(this.getSession(), "OK", "The windows profile of '%s' was removed.",null,user.getUid()));
 			}
 		}
 		return responses;
 	}
 
-	public List<OssResponse> mandatoryProfile(List<Long> userIds, boolean booleanValue) {
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+	public List<CrxResponse> mandatoryProfile(List<Long> userIds, boolean booleanValue) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[2];
@@ -672,14 +672,14 @@ public class UserController extends Controller {
 				}
 				program[1] = user.getUid();
 				OSSShellTools.exec(program, reply, error, null);
-				responses.add(new OssResponse(this.getSession(), "OK", "The windows profile of '%s' was removed.",null,user.getUid()));
+				responses.add(new CrxResponse(this.getSession(), "OK", "The windows profile of '%s' was removed.",null,user.getUid()));
 			}
 		}
 		return responses;
 	}
 
-	public List<OssResponse> disableLogin(List<Long> userIds, boolean disable) {
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+	public List<CrxResponse> disableLogin(List<Long> userIds, boolean disable) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[4];
@@ -700,17 +700,17 @@ public class UserController extends Controller {
 				program[3] = user.getUid();
 				OSSShellTools.exec(program, reply, error, null);
 				if( disable ) {
-					responses.add(new OssResponse(this.getSession(), "OK", "The '%s' was disabled.",null,user.getUid()));
+					responses.add(new CrxResponse(this.getSession(), "OK", "The '%s' was disabled.",null,user.getUid()));
 				} else {
-					responses.add(new OssResponse(this.getSession(), "OK", "The '%s' was enabled.",null,user.getUid()));
+					responses.add(new CrxResponse(this.getSession(), "OK", "The '%s' was enabled.",null,user.getUid()));
 				}
 			}
 		}
 		return responses;
 	}
 
-	public List<OssResponse> setFsQuota(List<Long> userIds, Long fsQuota) {
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+	public List<CrxResponse> setFsQuota(List<Long> userIds, Long fsQuota) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[3];
@@ -730,14 +730,14 @@ public class UserController extends Controller {
 				this.em.merge(user);
 				this.em.getTransaction().commit();
 				OSSShellTools.exec(program, reply, error, null);
-				responses.add(new OssResponse(this.getSession(), "OK", "The file system quota for '%s' was set.",null,user.getUid()));
+				responses.add(new CrxResponse(this.getSession(), "OK", "The file system quota for '%s' was set.",null,user.getUid()));
 			}
 		}
 		return responses;
 	}
 
-	public List<OssResponse> setMsQuota(List<Long> userIds, Long msQuota) {
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+	public List<CrxResponse> setMsQuota(List<Long> userIds, Long msQuota) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[3];
@@ -757,13 +757,13 @@ public class UserController extends Controller {
 				this.em.merge(user);
 				this.em.getTransaction().commit();
 				OSSShellTools.exec(program, reply, error, null);
-				responses.add(new OssResponse(this.getSession(), "OK", "The mail system quota for '%s' was set.",null,user.getUid()));
+				responses.add(new CrxResponse(this.getSession(), "OK", "The mail system quota for '%s' was set.",null,user.getUid()));
 			}
 		}
 		return responses;
 	}
 
-	public OssResponse collectFile(List<User> users, String projectName) {
+	public CrxResponse collectFile(List<User> users, String projectName) {
 		StringBuilder data = new StringBuilder();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
@@ -782,11 +782,11 @@ public class UserController extends Controller {
 			program[4] = user.getUid();
 			OSSShellTools.exec(program, reply, error, data.toString());
 		}
-		return new OssResponse(this.getSession(), "OK",
+		return new CrxResponse(this.getSession(), "OK",
 				"The files from the export directories of selected users were collected.");
 	}
 
-	public OssResponse collectFileByIds(List<Long> userIds, String projectName) {
+	public CrxResponse collectFileByIds(List<Long> userIds, String projectName) {
 		StringBuilder data = new StringBuilder();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
@@ -805,11 +805,11 @@ public class UserController extends Controller {
 			program[4] = this.getById(id).getUid();
 			OSSShellTools.exec(program, reply, error, data.toString());
 		}
-		return new OssResponse(this.getSession(), "OK",
+		return new CrxResponse(this.getSession(), "OK",
 				"The files from the export directories of selected users were collected.");
 	}
 
-	public OssResponse collectFileFromUser(User user, String project, boolean sortInDirs, boolean cleanUpExport) {
+	public CrxResponse collectFileFromUser(User user, String project, boolean sortInDirs, boolean cleanUpExport) {
 		String[] program = new String[11];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
@@ -842,15 +842,15 @@ public class UserController extends Controller {
 				logger.debug("Collect Program:" + st.toString());
 				logger.debug("Collected project " + project + " from " + user.getUid());
 			}
-			return new OssResponse(this.getSession(), "OK", "File was collected from: %s", null, user.getUid());
+			return new CrxResponse(this.getSession(), "OK", "File was collected from: %s", null, user.getUid());
 		}
 		logger.error("Can not collect project " + project + " from " + user.getUid() + stderr.toString());
 
-		return new OssResponse(this.getSession(), "ERROR", stderr.toString());
+		return new CrxResponse(this.getSession(), "ERROR", stderr.toString());
 	}
 
-	public List<OssResponse> disableInternet(List<Long> userIds, boolean disable) {
-		List<OssResponse> responses = new ArrayList<OssResponse>();
+	public List<CrxResponse> disableInternet(List<Long> userIds, boolean disable) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		for (Long userId : userIds) {
 			User user = this.getById(userId);
 			if( user != null ) {
@@ -860,9 +860,9 @@ public class UserController extends Controller {
 				}
 				if (disable) {
 					this.setConfig(this.getById(userId), "internetDisabled", "yes");
-					responses.add(new OssResponse(this.getSession(), "OK", "'%s' was disabled.",null,user.getUid()));
+					responses.add(new CrxResponse(this.getSession(), "OK", "'%s' was disabled.",null,user.getUid()));
 				} else {
-					responses.add(new OssResponse(this.getSession(), "OK", "'%s' was enabled.",null,user.getUid()));
+					responses.add(new CrxResponse(this.getSession(), "OK", "'%s' was enabled.",null,user.getUid()));
 					this.deleteConfig(this.getById(userId), "internetDisabled");
 				}
 			}
@@ -900,9 +900,9 @@ public class UserController extends Controller {
 	/**
 	 * Delete a guest user category. Only the guest members will be deleted.
 	 * @param guestUsersId The technical id of the category.
-	 * @return The result as an OssResponse
+	 * @return The result as an CrxResponse
 	 */
-	public OssResponse deleteGuestUsers(Long guestUsersId) {
+	public CrxResponse deleteGuestUsers(Long guestUsersId) {
 		final CategoryController categoryController = new CategoryController(this.session,this.em);
 		final GroupController groupController = new GroupController(this.session,this.em);
 		Category category = categoryController.getById(guestUsersId);
@@ -921,7 +921,7 @@ public class UserController extends Controller {
 		return categoryController.delete(category);
 	}
 
-	public OssResponse addGuestUsers(GuestUsers guestUsers) {
+	public CrxResponse addGuestUsers(GuestUsers guestUsers) {
 		//String name, String description, Long roomId, Long count, Date validUntil)
 		final CategoryController categoryController = new CategoryController(this.session,this.em);
 		final GroupController groupController       = new GroupController(this.session,this.em);
@@ -929,7 +929,7 @@ public class UserController extends Controller {
 		Room room = null;
 		//TODO make it confiugrable
 		if( guestUsers.getCount() > 255 ) {
-			return new OssResponse(this.getSession(), "ERROR", "A guest group must not conains more the 255 members.");
+			return new CrxResponse(this.getSession(), "ERROR", "A guest group must not conains more the 255 members.");
 		}
 		// Check the password
 		boolean checkPassword = this.getConfigValue("CHECK_PASSWORD_QUALITY").toLowerCase().equals("yes");
@@ -938,7 +938,7 @@ public class UserController extends Controller {
 		if( !guestUsers.getPassword().isEmpty() ) {
 			password = guestUsers.getPassword();
 		}
-		OssResponse ossResponse = this.checkPassword(password);
+		CrxResponse ossResponse = this.checkPassword(password);
 		if( ossResponse != null ) {
 			if (checkPassword) {
 				this.setConfigValue("CHECK_PASSWORD_QUALITY", "yes");
@@ -1113,13 +1113,13 @@ public class UserController extends Controller {
 				this.em.merge(o);
 			}
 			creator.setCreatedUsers(null);
-			//OSSConfig
-			for( OSSConfig o : creator.getCreatedOSSConfig() ) {
+			//CrxConfig
+			for( CrxConfig o : creator.getCreatedCrxConfig() ) {
 				o.setCreator(newCreator);
 				this.em.merge(o);
 			}
-			//OSSMConfig
-			for( OSSMConfig o : creator.getCreatedOSSMConfig() ) {
+			//CrxMConfig
+			for( CrxMConfig o : creator.getCreatedCrxMConfig() ) {
 				o.setCreator(newCreator);
 				this.em.merge(o);
 			}
@@ -1202,12 +1202,12 @@ public class UserController extends Controller {
 	}
 
 	@SuppressWarnings("unlikely-arg-type")
-	public OssResponse addAlias(User user, String alias) {
+	public CrxResponse addAlias(User user, String alias) {
 		if(user.getAliases().contains(alias)) {
-			return new OssResponse(this.getSession(), "OK", "The alias was already add to the user.");
+			return new CrxResponse(this.getSession(), "OK", "The alias was already add to the user.");
 		}
 		if(!this.isUserAliasUnique(alias)) {
-			return new OssResponse(this.getSession(), "ERROR", "The alias was already add to an other user.");
+			return new CrxResponse(this.getSession(), "ERROR", "The alias was already add to an other user.");
 		}
 		try {
 			Alias newAlias = new Alias(user,alias);
@@ -1217,28 +1217,28 @@ public class UserController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new OssResponse(this.getSession(), "ERROR", e.getMessage());
+			return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
 		} finally {
 		}
-		return new OssResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
+		return new CrxResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
 	}
 
-	public OssResponse addDefaultAliase(User user) {
+	public CrxResponse addDefaultAliase(User user) {
 		boolean error = false;
-		OssResponse ossResponse = this.addAlias(user, normalize(user.getGivenName() + "." + user.getSurName()));
+		CrxResponse ossResponse = this.addAlias(user, normalize(user.getGivenName() + "." + user.getSurName()));
 		error = ossResponse.getCode().equals("ERROR");
 		ossResponse = this.addAlias(user,  normalize(user.getSurName() + "." + user.getGivenName()));
 		if( error ) {
 			if( ossResponse.getCode().equals("ERROR") ) {
-				return new OssResponse(this.getSession(), "ERROR", "Can not add default aliases." );
+				return new CrxResponse(this.getSession(), "ERROR", "Can not add default aliases." );
 			} else {
-				return new OssResponse(this.getSession(), "ERROR", "Can not add Givenname.Surname alias.");
+				return new CrxResponse(this.getSession(), "ERROR", "Can not add Givenname.Surname alias.");
 			}
 		} else {
 			if( ossResponse.getCode().equals("ERROR") ) {
-				return new OssResponse(this.getSession(), "ERROR", "Can not ad Surname.Givenname alias" );
+				return new CrxResponse(this.getSession(), "ERROR", "Can not ad Surname.Givenname alias" );
 			} else {
-				return new OssResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
+				return new CrxResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
 			}
 		}
 	}

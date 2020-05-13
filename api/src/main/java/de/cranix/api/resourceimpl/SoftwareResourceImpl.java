@@ -19,8 +19,8 @@ import de.cranix.api.resources.SoftwareResource;
 import de.cranix.dao.Category;
 import de.cranix.dao.Device;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OssBaseObject;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxBaseObject;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.Software;
@@ -73,86 +73,86 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse add(Session session, Software software) {
+	public CrxResponse add(Session session, Software software) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).add(software,true);
+		CrxResponse resp = new SoftwareController(session,em).add(software,true);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modify(Session session, Software software) {
+	public CrxResponse modify(Session session, Software software) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).modify(software);
+		CrxResponse resp = new SoftwareController(session,em).modify(software);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse delete(Session session, long softwareId) {
+	public CrxResponse delete(Session session, long softwareId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).delete(softwareId);
+		CrxResponse resp = new SoftwareController(session,em).delete(softwareId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse apply(Session session) {
+	public CrxResponse apply(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).applySoftwareStateToHosts();
+		CrxResponse resp = new SoftwareController(session,em).applySoftwareStateToHosts();
 		em.close();
 		return resp;
 	}
 
 
 	@Override
-	public OssResponse createInstallation(Session session, Category category) {
+	public CrxResponse createInstallation(Session session, Category category) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).createInstallationCategory(category);
+		CrxResponse resp = new SoftwareController(session,em).createInstallationCategory(category);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addSoftwareToInstalation(Session session, long installationId, long softwareId) {
+	public CrxResponse addSoftwareToInstalation(Session session, long installationId, long softwareId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).addSoftwareToCategory(softwareId,installationId);
+		CrxResponse resp = new SoftwareController(session,em).addSoftwareToCategory(softwareId,installationId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addDeviceToInstalation(Session session, long installationId, long deviceId) {
+	public CrxResponse addDeviceToInstalation(Session session, long installationId, long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.addMember(installationId, "Device", deviceId);
+		CrxResponse resp = categoryController.addMember(installationId, "Device", deviceId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addRoomToInstalation(Session session, long installationId, long roomId) {
+	public CrxResponse addRoomToInstalation(Session session, long installationId, long roomId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.addMember(installationId, "Room", roomId);
+		CrxResponse resp = categoryController.addMember(installationId, "Room", roomId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addHWConfToInstalation(Session session, long installationId, long hwconfId) {
+	public CrxResponse addHWConfToInstalation(Session session, long installationId, long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.addMember(installationId, "HWConf", hwconfId);
+		CrxResponse resp = categoryController.addMember(installationId, "HWConf", hwconfId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteInstalation(Session session, long installationId) {
+	public CrxResponse deleteInstalation(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CategoryController categoryController = new CategoryController(session,em);
-		OssResponse ossResponse = categoryController.delete(installationId);
+		CrxResponse ossResponse = categoryController.delete(installationId);
 		if( ossResponse.getCode().equals("OK") ) {
 			ossResponse = this.apply(session);
 		}
@@ -161,84 +161,84 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse deleteSoftwareFromInstalation(Session session, long installationId, long softwareId) {
+	public CrxResponse deleteSoftwareFromInstalation(Session session, long installationId, long softwareId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SoftwareController softwareController = new SoftwareController(session,em);
-		OssResponse resp = softwareController.deleteSoftwareFromCategory(softwareId,installationId);
+		CrxResponse resp = softwareController.deleteSoftwareFromCategory(softwareId,installationId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteDeviceFromInstalation(Session session, long installationId, long deviceId) {
+	public CrxResponse deleteDeviceFromInstalation(Session session, long installationId, long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.deleteMember(installationId, "Device", deviceId);
+		CrxResponse resp = categoryController.deleteMember(installationId, "Device", deviceId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteRoomFromInstalation(Session session, long installationId, long roomId) {
+	public CrxResponse deleteRoomFromInstalation(Session session, long installationId, long roomId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.deleteMember(installationId, "Room", roomId);
+		CrxResponse resp = categoryController.deleteMember(installationId, "Room", roomId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteHWConfFromInstalation(Session session, long installationId, long hwconfId) {
+	public CrxResponse deleteHWConfFromInstalation(Session session, long installationId, long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CategoryController categoryController = new CategoryController(session,em);
-		OssResponse resp = categoryController.deleteMember(installationId, "HWConf", hwconfId);
+		CrxResponse resp = categoryController.deleteMember(installationId, "HWConf", hwconfId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public List<OssBaseObject> getSoftwares(Session session, long installationId) {
+	public List<CrxBaseObject> getSoftwares(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Category category = new CategoryController(session,em).getById(installationId);
-		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
+		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		for( Software object : category.getSoftwares() ) {
-			objects.add(new OssBaseObject(object.getId(),object.getName()));
+			objects.add(new CrxBaseObject(object.getId(),object.getName()));
 		}
 		em.close();
 		return objects;
 	}
 
 	@Override
-	public List<OssBaseObject> getDevices(Session session, long installationId) {
+	public List<CrxBaseObject> getDevices(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Category category = new CategoryController(session,em).getById(installationId);
-		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
+		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		for( Device object : category.getDevices() ) {
-			objects.add(new OssBaseObject(object.getId(),object.getName()));
+			objects.add(new CrxBaseObject(object.getId(),object.getName()));
 		}
 		em.close();
 		return objects;
 	}
 
 	@Override
-	public List<OssBaseObject> getRooms(Session session, long installationId) {
+	public List<CrxBaseObject> getRooms(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Category category = new CategoryController(session,em).getById(installationId);
-		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
+		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		for( Room object : category.getRooms() ) {
-			objects.add(new OssBaseObject(object.getId(),object.getName()));
+			objects.add(new CrxBaseObject(object.getId(),object.getName()));
 		}
 		em.close();
 		return objects;
 	}
 
 	@Override
-	public List<OssBaseObject> getHWConfs(Session session, long installationId) {
+	public List<CrxBaseObject> getHWConfs(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Category category = new CategoryController(session,em).getById(installationId);
-		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
+		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		for( HWConf object : category.getHWConfs() ) {
-			objects.add(new OssBaseObject(object.getId(),object.getName()));
+			objects.add(new CrxBaseObject(object.getId(),object.getName()));
 		}
 		em.close();
 		return objects;
@@ -254,20 +254,20 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse download(Session session, List<String> softwares) {
+	public CrxResponse download(Session session, List<String> softwares) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SoftwareController softwareController = new SoftwareController(session,em);
-		OssResponse resp = softwareController.downloadSoftwares(softwares);
+		CrxResponse resp = softwareController.downloadSoftwares(softwares);
 		em.close();
 		return resp;
 	}
 	@Override
-	public OssResponse downloadOne(Session session, String softwareName) {
+	public CrxResponse downloadOne(Session session, String softwareName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<String> softwares = new ArrayList<String>();
 		softwares.add(softwareName);
 		SoftwareController softwareController = new SoftwareController(session,em);
-		OssResponse resp = softwareController.downloadSoftwares(softwares);
+		CrxResponse resp = softwareController.downloadSoftwares(softwares);
 		em.close();
 		return resp;
 	}
@@ -281,18 +281,18 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse setSoftwareInstalledOnDevice(Session session, String deviceName, String softwareName,
+	public CrxResponse setSoftwareInstalledOnDevice(Session session, String deviceName, String softwareName,
 			String version) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).setSoftwareStatusOnDeviceByName(deviceName, softwareName, softwareName, version, "I");
+		CrxResponse resp = new SoftwareController(session,em).setSoftwareStatusOnDeviceByName(deviceName, softwareName, softwareName, version, "I");
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setSoftwareInstalledOnDevice(Session session, String deviceName, Map<String, String> software) {
+	public CrxResponse setSoftwareInstalledOnDevice(Session session, String deviceName, Map<String, String> software) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).setSoftwareStatusOnDeviceByName(
+		CrxResponse resp = new SoftwareController(session,em).setSoftwareStatusOnDeviceByName(
 				deviceName,
 				software.get("name"),
 				software.get("description"),
@@ -328,7 +328,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse addLicenseToSoftware(
+	public CrxResponse addLicenseToSoftware(
 			Session     session,
 			long        softwareId,
 			Character   licenseType,
@@ -342,7 +342,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		softwareLicense.setValue(value);
 		softwareLicense.setCount(count);
 		softwareLicense.setLicenseType(licenseType);
-		OssResponse resp = new SoftwareController(session,em).addLicenseToSoftware(
+		CrxResponse resp = new SoftwareController(session,em).addLicenseToSoftware(
 				softwareLicense,
 				softwareId,
 				fileInputStream,
@@ -352,7 +352,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse modifyLicense(
+	public CrxResponse modifyLicense(
 			Session     session,
 			long        licenseId,
 			Character   licenseType,
@@ -367,16 +367,16 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		softwareLicense.setCount(count);
 		softwareLicense.setValue(value);
 		softwareLicense.setLicenseType(licenseType);
-		OssResponse resp = softwareController.modifySoftwareLIcense(
+		CrxResponse resp = softwareController.modifySoftwareLIcense(
 				softwareLicense,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteLicense(Session session, long licenseId) {
+	public CrxResponse deleteLicense(Session session, long licenseId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).deleteLicence(licenseId);
+		CrxResponse resp = new SoftwareController(session,em).deleteLicence(licenseId);
 		em.close();
 		return resp;
 	}
@@ -441,25 +441,25 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse addRequirements(Session session, List<String> requirement) {
+	public CrxResponse addRequirements(Session session, List<String> requirement) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).addRequirements(requirement);
+		CrxResponse resp = new SoftwareController(session,em).addRequirements(requirement);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addRequirements(Session session, long softwareId, long requirementId) {
+	public CrxResponse addRequirements(Session session, long softwareId, long requirementId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).addRequirements(softwareId,requirementId);
+		CrxResponse resp = new SoftwareController(session,em).addRequirements(softwareId,requirementId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteRequirements(Session session, long softwareId, long requirementId) {
+	public CrxResponse deleteRequirements(Session session, long softwareId, long requirementId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).deleteRequirements(softwareId,requirementId);
+		CrxResponse resp = new SoftwareController(session,em).deleteRequirements(softwareId,requirementId);
 		em.close();
 		return resp;
 	}
@@ -500,14 +500,14 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse applyState(Session session) {
+	public CrxResponse applyState(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		DeviceController deviceController = new DeviceController(session,em);
 		for( Device device : deviceController.getAll() ) {
 			deviceController.manageDevice(device, "applyState", null);
 		}
 		em.close();
-		return new OssResponse(session,"OK","Salt High State was applied on all minions.");
+		return new CrxResponse(session,"OK","Salt High State was applied on all minions.");
 	}
 
 	@Override
@@ -527,30 +527,30 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public OssResponse updatesSoftwares(Session session, List<String> softwares) {
+	public CrxResponse updatesSoftwares(Session session, List<String> softwares) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).updateSoftwares(softwares);
+		CrxResponse resp = new SoftwareController(session,em).updateSoftwares(softwares);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteDownloadedSoftwares(Session session, List<String> softwares) {
+	public CrxResponse deleteDownloadedSoftwares(Session session, List<String> softwares) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new SoftwareController(session,em).deleteDownloadedSoftwares(softwares);
+		CrxResponse resp = new SoftwareController(session,em).deleteDownloadedSoftwares(softwares);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public List<OssBaseObject> getAvailableSoftwares(Session session, long installationId) {
+	public List<CrxBaseObject> getAvailableSoftwares(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		SoftwareController sc = new SoftwareController(session,em);
-		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
+		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		Category installationSet = new CategoryController(session,em).getById(installationId);
 		for( Software software : sc.getAllInstallable() ) {
 			if( !installationSet.getSoftwares().contains(software) ) {
-				objects.add(new OssBaseObject(software.getId(),software.getName()));
+				objects.add(new CrxBaseObject(software.getId(),software.getName()));
 			}
 		}
 		em.close();
@@ -558,14 +558,14 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public List<OssBaseObject> getAvailableDevices(Session session, long installationId) {
+	public List<CrxBaseObject> getAvailableDevices(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
+		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		DeviceController dc = new DeviceController(session,em);
 		for( Long deviceId : new CategoryController(session,em).getAvailableMembers(installationId, "Device") ) {
 			Device device = dc.getById(deviceId);
 			if( device != null  &&  device.getHwconf() != null && device.getHwconf().getDeviceType().equals("FatClient") ) {
-				objects.add(new OssBaseObject(device.getId(),device.getName()));
+				objects.add(new CrxBaseObject(device.getId(),device.getName()));
 			}
 		}
 		em.close();
@@ -573,14 +573,14 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public List<OssBaseObject> getAvailableRooms(Session session, long installationId) {
+	public List<CrxBaseObject> getAvailableRooms(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
+		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		RoomController rc = new RoomController(session,em);
 		for( Long roomId : new CategoryController(session,em).getAvailableMembers(installationId, "Room") ) {
 			Room room = rc.getById(roomId);
 			if( room != null  &&  room.getHwconf() != null && room.getHwconf().getDeviceType().equals("FatClient") ) {
-				objects.add(new OssBaseObject(room.getId(),room.getName()));
+				objects.add(new CrxBaseObject(room.getId(),room.getName()));
 			}
 		}
 		em.close();
@@ -588,14 +588,14 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public List<OssBaseObject> getAvailableHWConfs(Session session, long installationId) {
+	public List<CrxBaseObject> getAvailableHWConfs(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
+		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		CloneToolController cc = new CloneToolController(session,em);
 		for( Long hwconfId : new CategoryController(session,em).getAvailableMembers(installationId, "HWConf") ) {
 			HWConf hwconf = cc.getById(hwconfId);
 			if( hwconf != null && hwconf.getDeviceType().equals("FatClient") ) {
-				objects.add(new OssBaseObject(hwconf.getId(),hwconf.getName()));
+				objects.add(new CrxBaseObject(hwconf.getId(),hwconf.getName()));
 			}
 		}
 		em.close();

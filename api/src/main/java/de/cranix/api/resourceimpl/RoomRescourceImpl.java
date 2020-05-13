@@ -4,9 +4,9 @@ package de.cranix.api.resourceimpl;
 import de.cranix.dao.AccessInRoom;
 import de.cranix.dao.Device;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OSSMConfig;
-import de.cranix.dao.OssActionMap;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxMConfig;
+import de.cranix.dao.CrxActionMap;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
@@ -85,19 +85,19 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 	
 	@Override
-	public OssResponse delete(Session session, Long roomId) {
+	public CrxResponse delete(Session session, Long roomId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.delete(roomId);
+		CrxResponse resp = roomController.delete(roomId);
 		em.close();
 		return resp;
 	}
 	
 	@Override
-	public OssResponse add(Session session, Room room) {
+	public CrxResponse add(Session session, Room room) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.add(room);
+		CrxResponse resp = roomController.add(room);
 		em.close();
 		return resp;
 	}
@@ -166,35 +166,35 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public OssResponse addAccessList(Session session, Long roomId, AccessInRoom accessList) {
+	public CrxResponse addAccessList(Session session, Long roomId, AccessInRoom accessList) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).addAccessList(roomId,accessList);
+		CrxResponse resp = new RoomController(session,em).addAccessList(roomId,accessList);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteAccessList(Session session, Long accessInRoomId) {
+	public CrxResponse deleteAccessList(Session session, Long accessInRoomId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).deleteAccessList(accessInRoomId);
+		CrxResponse resp = new RoomController(session,em).deleteAccessList(accessInRoomId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setScheduledAccess(Session session) {
+	public CrxResponse setScheduledAccess(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.setScheduledAccess();
+		CrxResponse resp = roomController.setScheduledAccess();
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setDefaultAccess(Session session) {
+	public CrxResponse setDefaultAccess(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.setDefaultAccess();
+		CrxResponse resp = roomController.setDefaultAccess();
 		em.close();
 		return resp;
 	}
@@ -217,42 +217,42 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public OssResponse setAccessStatus(Session session, Long roomId, AccessInRoom access) {
+	public CrxResponse setAccessStatus(Session session, Long roomId, AccessInRoom access) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).setAccessStatus(roomId, access);
+		CrxResponse resp = new RoomController(session,em).setAccessStatus(roomId, access);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addDevices(Session session, Long roomId, List<Device> devices) {
+	public CrxResponse addDevices(Session session, Long roomId, List<Device> devices) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse ossResponse = roomController.addDevices(roomId,devices);
+		CrxResponse ossResponse = roomController.addDevices(roomId,devices);
 		em.close();
 		return ossResponse;
 	}
 
 	@Override
-	public OssResponse addDevice(Session session, Long roomId, String macAddress, String name) {
+	public CrxResponse addDevice(Session session, Long roomId, String macAddress, String name) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.addDevice(roomId,macAddress,name);
+		CrxResponse resp = roomController.addDevice(roomId,macAddress,name);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteDevices(Session session, Long roomId, List<Long> deviceIds) {
+	public CrxResponse deleteDevices(Session session, Long roomId, List<Long> deviceIds) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.deleteDevices(roomId,deviceIds);
+		CrxResponse resp = roomController.deleteDevices(roomId,deviceIds);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteDevice(Session session, Long roomId, Long deviceId) {
+	public CrxResponse deleteDevice(Session session, Long roomId, Long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
 		List<Long> deviceIds = new ArrayList<Long>();
@@ -279,10 +279,10 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public OssResponse setHwConf(Session session, Long roomId, Long hwConfId) {
+	public CrxResponse setHwConf(Session session, Long roomId, Long hwConfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.setHWConf(roomId,hwConfId);
+		CrxResponse resp = roomController.setHWConf(roomId,hwConfId);
 		em.close();
 		return resp;
 	}
@@ -315,42 +315,42 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public OssResponse modify(Session session, Room room) {
+	public CrxResponse modify(Session session, Room room) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).modify(room);
+		CrxResponse resp = new RoomController(session,em).modify(room);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse modify(Session session, Long roomId, Room room) {
+	public CrxResponse modify(Session session, Long roomId, Room room) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		room.setId(roomId);
-		OssResponse resp = new RoomController(session,em).modify(room);
+		CrxResponse resp = new RoomController(session,em).modify(room);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setDefaultPrinter(Session session, Long roomId, Long printerIds) {
+	public CrxResponse setDefaultPrinter(Session session, Long roomId, Long printerIds) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).setDefaultPrinter(roomId, printerIds);
+		CrxResponse resp = new RoomController(session,em).setDefaultPrinter(roomId, printerIds);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setDefaultPrinter(Session session, String roomName, String printerName) {
+	public CrxResponse setDefaultPrinter(Session session, String roomName, String printerName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).setDefaultPrinter(roomName, printerName);
+		CrxResponse resp = new RoomController(session,em).setDefaultPrinter(roomName, printerName);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteDefaultPrinter(Session session, Long roomId) {
+	public CrxResponse deleteDefaultPrinter(Session session, Long roomId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).deleteDefaultPrinter(roomId);
+		CrxResponse resp = new RoomController(session,em).deleteDefaultPrinter(roomId);
 		em.close();
 		return resp;
 	}
@@ -364,25 +364,25 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public OssResponse setAvailablePrinters(Session session, Long roomId, List<Long> printerIds) {
+	public CrxResponse setAvailablePrinters(Session session, Long roomId, List<Long> printerIds) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).setAvailablePrinters(roomId, printerIds);
+		CrxResponse resp = new RoomController(session,em).setAvailablePrinters(roomId, printerIds);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse addAvailablePrinters(Session session, Long roomId, Long printerId) {
+	public CrxResponse addAvailablePrinters(Session session, Long roomId, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).addAvailablePrinter(roomId, printerId);
+		CrxResponse resp = new RoomController(session,em).addAvailablePrinter(roomId, printerId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse deleteAvailablePrinters(Session session, Long roomId, Long printerId) {
+	public CrxResponse deleteAvailablePrinters(Session session, Long roomId, Long printerId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).deleteAvailablePrinter(roomId, printerId);
+		CrxResponse resp = new RoomController(session,em).deleteAvailablePrinter(roomId, printerId);
 		em.close();
 		return resp;
 	}
@@ -404,40 +404,40 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public OssResponse manageRoom(Session session, Long roomId, String action) {
+	public CrxResponse manageRoom(Session session, Long roomId, String action) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new EducationController(session,em).manageRoom(roomId,action, null);
+		CrxResponse resp = new EducationController(session,em).manageRoom(roomId,action, null);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse manageRoom(Session session, Long roomId, String action, Map<String, String> actionContent) {
+	public CrxResponse manageRoom(Session session, Long roomId, String action, Map<String, String> actionContent) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new EducationController(session,em).manageRoom(roomId,action, actionContent);
+		CrxResponse resp = new EducationController(session,em).manageRoom(roomId,action, actionContent);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse importRooms(Session session, InputStream fileInputStream,
+	public CrxResponse importRooms(Session session, InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		OssResponse resp = new RoomController(session,em).importRooms(fileInputStream, contentDispositionHeader);
+		CrxResponse resp = new RoomController(session,em).importRooms(fileInputStream, contentDispositionHeader);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public List<OSSMConfig> getDHCP(Session session, Long roomId) {
+	public List<CrxMConfig> getDHCP(Session session, Long roomId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<OSSMConfig> dhcpParameters = new ArrayList<OSSMConfig>();
+		List<CrxMConfig> dhcpParameters = new ArrayList<CrxMConfig>();
 		RoomController roomController = new RoomController(session,em);
 		Room room = roomController.getById(roomId);
-		for(OSSMConfig config : roomController.getMConfigObjects(room, "dhcpStatements") ) {
+		for(CrxMConfig config : roomController.getMConfigObjects(room, "dhcpStatements") ) {
 			dhcpParameters.add(config);
 		}
-		for(OSSMConfig config : roomController.getMConfigObjects(room, "dhcpOptions") ) {
+		for(CrxMConfig config : roomController.getMConfigObjects(room, "dhcpOptions") ) {
 			dhcpParameters.add(config);
 		}
 		em.close();
@@ -445,14 +445,14 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public OssResponse addDHCP(Session session, Long roomId, OSSMConfig dhcpParameter) {
+	public CrxResponse addDHCP(Session session, Long roomId, CrxMConfig dhcpParameter) {
 		if( !dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions") ) {
-			return new OssResponse(session,"ERROR","Bad DHCP parameter.");
+			return new CrxResponse(session,"ERROR","Bad DHCP parameter.");
 		}
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		RoomController roomController = new RoomController(session,em);
 		Room room = roomController.getById(roomId);
-		OssResponse ossResponse = roomController.addMConfig(room, dhcpParameter.getKeyword(), dhcpParameter.getValue());
+		CrxResponse ossResponse = roomController.addMConfig(room, dhcpParameter.getKeyword(), dhcpParameter.getValue());
 		if( ossResponse.getCode().equals("ERROR") ) {
 			return ossResponse;
 		}
@@ -464,30 +464,30 @@ public class RoomRescourceImpl implements RoomResource {
 		}
 		new DHCPConfig(session,em).Create();
 		em.close();
-		return new OssResponse(session,"OK","DHCP Parameter was added succesfully");
+		return new CrxResponse(session,"OK","DHCP Parameter was added succesfully");
 	}
 
 	@Override
-	public OssResponse deleteDHCP(Session session, Long roomId, Long parameterId) {
+	public CrxResponse deleteDHCP(Session session, Long roomId, Long parameterId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		RoomController roomController = new RoomController(session,em);
 		Room room = roomController.getById(roomId);
-		OssResponse resp = roomController.deleteMConfig(room,parameterId);
+		CrxResponse resp = roomController.deleteMConfig(room,parameterId);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse setPrinters(Session session, Long roomId, Map<String, List<Long>> printers) {
+	public CrxResponse setPrinters(Session session, Long roomId, Map<String, List<Long>> printers) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.setPrinters(roomId, printers);
+		CrxResponse resp = roomController.setPrinters(roomId, printers);
 		em.close();
 		return resp;
 	}
 
 	@Override
-	public OssResponse applyAction(Session session, OssActionMap actionMap) {
+	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
 		// TODO Auto-generated method stub
 		return null;
 	}

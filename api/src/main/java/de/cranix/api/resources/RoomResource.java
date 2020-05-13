@@ -18,9 +18,9 @@ import de.cranix.dao.Room;
 import de.cranix.dao.AccessInRoom;
 import de.cranix.dao.Device;
 import de.cranix.dao.HWConf;
-import de.cranix.dao.OSSMConfig;
-import de.cranix.dao.OssActionMap;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxMConfig;
+import de.cranix.dao.CrxActionMap;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Printer;
 import de.cranix.dao.Session;
 
@@ -158,7 +158,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	OssResponse add(
+	CrxResponse add(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        Room room
 	);
@@ -177,7 +177,7 @@ public interface RoomResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	OssResponse importRooms(
+	CrxResponse importRooms(
 	@ApiParam(hidden = true) @Auth Session session,
 	        @FormDataParam("file") final InputStream fileInputStream,
 	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
@@ -195,7 +195,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	OssResponse modify(
+	CrxResponse modify(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        Room room
 	);
@@ -216,7 +216,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	OssResponse modify(
+	CrxResponse modify(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        Room room
@@ -237,7 +237,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Room not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.delete")
-	OssResponse delete(
+	CrxResponse delete(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId
 	);
@@ -271,7 +271,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.modify")
-	OssResponse setHwConf(
+	CrxResponse setHwConf(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")   Long roomId,
 	        @PathParam("hwConfId") Long hwConfId
@@ -397,7 +397,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	OssResponse addAccessList(
+	CrxResponse addAccessList(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        AccessInRoom   accessList
@@ -415,7 +415,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	OssResponse deleteAccessList(
+	CrxResponse deleteAccessList(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("accessInRoomId") Long accessInRoomId
 	);
@@ -432,7 +432,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	OssResponse setScheduledAccess(
+	CrxResponse setScheduledAccess(
 	    @ApiParam(hidden = true) @Auth Session session
 	);
 
@@ -448,7 +448,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	OssResponse setDefaultAccess(
+	CrxResponse setDefaultAccess(
 	    @ApiParam(hidden = true) @Auth Session session
 	);
 
@@ -497,7 +497,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	OssResponse setAccessStatus(
+	CrxResponse setAccessStatus(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        AccessInRoom access
@@ -516,7 +516,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.add")
-	OssResponse addDevices(
+	CrxResponse addDevices(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        List<Device> devices
@@ -534,7 +534,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	OssResponse addDevice(
+	CrxResponse addDevice(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("macAddress") String macAddress,
@@ -569,7 +569,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("device.delete")
-	OssResponse deleteDevices(
+	CrxResponse deleteDevices(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        List<Long> deviceId
@@ -586,7 +586,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("device.delete")
-	OssResponse deleteDevice(
+	CrxResponse deleteDevice(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("deviceId") Long deviceId
@@ -608,7 +608,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
-	OssResponse setPrinters(
+	CrxResponse setPrinters(
 	@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("roomId") Long roomId,
 			Map<String, List<Long>> printers
@@ -622,7 +622,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	OssResponse setDefaultPrinter(
+	CrxResponse setDefaultPrinter(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("deviceId") Long deviceId
@@ -636,7 +636,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	OssResponse setDefaultPrinter(
+	CrxResponse setDefaultPrinter(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomName") String roomName,
 	        @PathParam("printerName") String printerName
@@ -650,7 +650,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	OssResponse deleteDefaultPrinter(
+	CrxResponse deleteDefaultPrinter(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId
 	);
@@ -676,7 +676,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	OssResponse setAvailablePrinters(
+	CrxResponse setAvailablePrinters(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        List<Long> printerIds
@@ -690,7 +690,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	OssResponse addAvailablePrinters(
+	CrxResponse addAvailablePrinters(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("prinerId") Long prinerId
@@ -704,7 +704,7 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	OssResponse deleteAvailablePrinters(
+	CrxResponse deleteAvailablePrinters(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")   Long roomId,
 	        @PathParam("prinerId") Long prinerId
@@ -752,7 +752,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	OssResponse manageRoom(
+	CrxResponse manageRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("action") String action
@@ -773,7 +773,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	OssResponse manageRoom(
+	CrxResponse manageRoom(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("action") String action,
@@ -787,13 +787,13 @@ public interface RoomResource {
 	 * Gets the active dhcp parameter of a room
 	 * @param session
 	 * @param roomId
-	 * @return a list of OSSMConfig objects representing the DHCP parameters
+	 * @return a list of CrxMConfig objects representing the DHCP parameters
 	 */
 	@GET
 	@Path("{roomId}/dhcp")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the active dhcp parameter of a room:",
-			notes = "How to evaluate the OSSMConfig object:<br>"
+			notes = "How to evaluate the CrxMConfig object:<br>"
 			+ "id: ID of the dhcp parameter object<br>"
 			+ "objectType: Device, but in this case it can be ignored.<br>"
 			+ "objectId: the room id<br>"
@@ -805,7 +805,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	List<OSSMConfig> getDHCP(
+	List<CrxMConfig> getDHCP(
 			@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId
 	        );
@@ -814,7 +814,7 @@ public interface RoomResource {
 	@Path("{roomId}/dhcp")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Adds a new dhcp parameter to a room:",
-			notes = "How to setup the OSSMConfig object:<br>"
+			notes = "How to setup the CrxMConfig object:<br>"
 					+ "keyword: this can be dhcpOptions or dhcpStatements<br>"
 					+ "value: the value of the dhcpOption or dhcpStatement.<br>"
 					+ "Other parameter can be ignored.")
@@ -823,10 +823,10 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	OssResponse addDHCP(
+	CrxResponse addDHCP(
 			@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
-	        OSSMConfig dhcpParameter
+	        CrxMConfig dhcpParameter
 	        );
 
 	@DELETE
@@ -838,7 +838,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	OssResponse deleteDHCP(
+	CrxResponse deleteDHCP(
 			@ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        @PathParam("parameterId") Long parameterId
@@ -846,8 +846,8 @@ public interface RoomResource {
 	/**
 	 * Apply actions on a list of rooms.
 	 * @param session
-	 * @return The result in an OssResponse object
-	 * @see OssResponse
+	 * @return The result in an CrxResponse object
+	 * @see CrxResponse
 	 */
 	@POST
 	@Path("applyAction")
@@ -856,8 +856,8 @@ public interface RoomResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	OssResponse applyAction(
+	CrxResponse applyAction(
 			@ApiParam(hidden = true) @Auth Session session,
-			OssActionMap actionMap
+			CrxActionMap actionMap
 			);
 }

@@ -3,7 +3,7 @@ package de.cranix.dao.controller;import java.util.ArrayList;
 import javax.persistence.EntityManager;
 
 import de.cranix.dao.Device;
-import de.cranix.dao.OssResponse;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
 
@@ -23,7 +23,7 @@ public class RoomControllerTestCase extends OSSDaoTestCase  {
 		dev1.setWlanMac("");
 		dev1.setWlanIp("");
 		devices.add(dev1);
-		OssResponse res = r.addDevices(1, devices);
+		CrxResponse res = r.addDevices(1, devices);
 		assertEquals("OK",res.getCode());
 		
 		devices.clear();
