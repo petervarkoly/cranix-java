@@ -44,7 +44,7 @@ public class CommonEntityManagerFactory {
 
             properties.put(PersistenceUnitProperties.CLASSLOADER, CommonEntityManagerFactory.class.getClassLoader());
 
-            properties.put("eclipselink.logging.level", "ALL");
+            properties.put("eclipselink.logging.level", "WARNING");
             properties.put("eclipselink.logging.timestamp", "true");
             properties.put("eclipselink.logging.session", "true");
             properties.put("eclipselink.logging.thread", "true");
@@ -84,7 +84,7 @@ public class CommonEntityManagerFactory {
         if (emf == null) {
             Map<String, Object> props = getProperties();
 
-            emf = Persistence.createEntityManagerFactory("OSS", props);
+            emf = Persistence.createEntityManagerFactory("CRX", props);
 
             if (emf == null) {
             	System.err.println("getEntityManagerFactory : EntityManagerFactory still null."); //TODO

@@ -14,7 +14,7 @@ targetCompatibility = 11
 repositories {
 //   mavenLocal()
 //   mavenCentral()
-    maven { url "http://nexus.extis.de:18081/repository/maven-public/" }
+   maven { url "http://nexus.extis.de:18081/repository/maven-public/" }
 }
 
 dependencies {
@@ -22,7 +22,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 
     compile project(':de.cranix.dao')
-    compile fileTree(dir: '../dao/build/libs', include: 'dao-4.2.jar')
+    compile fileTree(dir: '../dao/build/libs', include: 'de.cranix.dao-4.2.jar')
 
 
     ext.dropwizardVersion = '1.0.6'

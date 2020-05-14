@@ -1,12 +1,12 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-group = 'oss.java'
+group = 'cranix.java'
 version = '4.2'
 description = "CRANIX Java Data Access"
 
 repositories {
-//    mavenLocal()
+//   mavenLocal()
 //   mavenCentral()
     maven { url "http://nexus.extis.de:18081/repository/maven-public/" }
 }
