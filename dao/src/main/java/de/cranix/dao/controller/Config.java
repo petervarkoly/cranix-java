@@ -7,16 +7,17 @@ import java.text.SimpleDateFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import static de.cranix.dao.internal.CranixConstants.*;
 
 public class Config {
 
 	Logger logger = LoggerFactory.getLogger(Config.class);
-	private Path OSS_CONFIG = Paths.get("/etc/sysconfig/schoolserver");
-	private String prefix = "SCHOOL_";
+	private Path OSS_CONFIG = Paths.get(cranixSysConfig);
+	private String prefix = cranixSysPrefix;
 	private Map<String,String>   config;
 	private Map<String,String>   configPath;
 	private Map<String,String>   configType;
+	private Map<String,String>   configHelp;
 	private Map<String,Boolean>  readOnly;
 	private List<String>         configFile;
 	
@@ -35,6 +36,7 @@ public class Config {
 		readOnly   = new HashMap<>();
 		configPath = new HashMap<>();
 		configType = new HashMap<>();
+		configHelp = new HashMap<>();
 		try {
 			configFile = Files.readAllLines(this.OSS_CONFIG);
 		}
@@ -44,6 +46,7 @@ public class Config {
 		Boolean ro = false;
 		String  path = "Backup";
 		String  type = "string";
+		StringBuilder help = new StringBuilder();
 		for ( String line : configFile ){
 			if( line.startsWith("#") && line.contains("readonly")) {
 				ro = true;
@@ -59,6 +62,9 @@ public class Config {
 				if( l.length >= 3 ) {
 				  type = l[2];
 				}
+			}
+			if( line.startsWith("# ")) {
+				help.append(line.substring(1));
 			}
 			if( !line.startsWith("#") ) {
 				String[] sline = line.split("=", 2);
@@ -76,8 +82,10 @@ public class Config {
 					config.put(key,    value);
 					configPath.put(key,path);
 					configType.put(key,type);
+					configHelp.put(key,help.toString());
 					ro = false;
 				}
+				help = new StringBuilder();
 			}
 		}
 	}
@@ -166,6 +174,7 @@ public class Config {
 			configMap.put("value",    config.get(key));
 			configMap.put("type",     configType.get(key));
 			configMap.put("readOnly", readOnly.get(key) ? "yes" : "no" );
+			configMap.put("help",     configHelp.get(key));
 			configs.add(configMap);
 		}
 		return configs;

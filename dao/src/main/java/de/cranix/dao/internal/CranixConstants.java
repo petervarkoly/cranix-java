@@ -19,6 +19,8 @@ public interface CranixConstants {
 	static String cranixTmpDir     = "/opt/cranix-java/tmp/";
 	static String cranixBaseDir    = "/usr/share/cranix/";
 	static String cranixPrinters   = cranixBaseDir + "templates/printers.txt";
+	static String cranixSysConfig  = "/etc/sysconfig/cranix";
+	static String cranixSysPrefix  = "CRANIX_";
 
 	static FileAttribute<Set<PosixFilePermission>> privatDirAttribute      = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rwx------"));
 	static FileAttribute<Set<PosixFilePermission>> privatFileAttribute     = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rw-------"));
