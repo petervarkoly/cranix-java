@@ -519,7 +519,7 @@ public class UserResourceImpl implements UserResource {
 			parameters.add(password);
 		}
 		if( mustChange ) {
-			parameters.add("--mustchange");
+			parameters.add("--mustChange");
 		}
 		if( full ) {
 			parameters.add("--full");
@@ -616,7 +616,7 @@ public class UserResourceImpl implements UserResource {
 				parameters.add(userImport.getPassword());
 			}
 			if( userImport.isMustchange()  ) {
-				parameters.add("--mustchange");
+				parameters.add("--mustChange");
 			}
 			if( userImport.isFull() ) {
 				parameters.add("--full");
