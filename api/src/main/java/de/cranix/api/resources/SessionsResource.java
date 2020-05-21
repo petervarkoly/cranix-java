@@ -1,4 +1,4 @@
-/* (c) 2017 Peter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Peter Varkoly <peter@varkoly.de> - all rights reserved */
 /* (c) 2016 EXTIS GmbH - all rights reserved */
 package de.cranix.api.resources;
 

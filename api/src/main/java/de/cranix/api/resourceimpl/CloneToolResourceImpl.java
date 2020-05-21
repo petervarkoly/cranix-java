@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resourceimpl;
 
 import de.cranix.dao.HWConf;
@@ -430,14 +430,14 @@ public class CloneToolResourceImpl implements CloneToolResource {
 	public CrxResponse importHWConfs(Session session, List<HWConf> hwconfs) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CloneToolController  cloneToolController = new CloneToolController(session,em);
-		CrxResponse ossResponse = null;
+		CrxResponse crxResponse = null;
 		for( HWConf hwconf : hwconfs ) {
-			ossResponse = cloneToolController.addHWConf(hwconf);
-			if( ossResponse.getCode().equals("ERROR")) {
+			crxResponse = cloneToolController.addHWConf(hwconf);
+			if( crxResponse.getCode().equals("ERROR")) {
 				break;
 			}
 		}
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 }

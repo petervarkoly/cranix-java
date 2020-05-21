@@ -1,4 +1,4 @@
-/* (c) Péter Varkoly <peter@varkoly.de> - all rights reserved  */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
 package de.cranix.api.resourceimpl;
 
 import java.io.InputStream;
@@ -565,47 +565,47 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<CrxResponse> applyAction(Session session, CrxActionMap ossActionMap) {
+	public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		UserController userController = new UserController(session,em);
-		logger.debug(ossActionMap.toString());
-		switch(ossActionMap.getName()) {
+		logger.debug(crxActionMap.toString());
+		switch(crxActionMap.getName()) {
 		case "setPassword":
 			return  userController.resetUserPassword(
-					ossActionMap.getObjectIds(),
-					ossActionMap.getStringValue(),
-					ossActionMap.isBooleanValue());
+					crxActionMap.getObjectIds(),
+					crxActionMap.getStringValue(),
+					crxActionMap.isBooleanValue());
 		case "setFilesystemQuota":
 			return  userController.setFsQuota(
-					ossActionMap.getObjectIds(),
-					ossActionMap.getLongValue());
+					crxActionMap.getObjectIds(),
+					crxActionMap.getLongValue());
 		case "setMailsystemQuota":
 			return  userController.setMsQuota(
-					ossActionMap.getObjectIds(),
-					ossActionMap.getLongValue());
+					crxActionMap.getObjectIds(),
+					crxActionMap.getLongValue());
 		case "disableLogin":
 			return  userController.disableLogin(
-					ossActionMap.getObjectIds(),
-					ossActionMap.isBooleanValue());
+					crxActionMap.getObjectIds(),
+					crxActionMap.isBooleanValue());
 		case "disableInternet":
 			return  userController.disableInternet(
-					ossActionMap.getObjectIds(),
-					ossActionMap.isBooleanValue());
+					crxActionMap.getObjectIds(),
+					crxActionMap.isBooleanValue());
 		case "mandatoryProfile":
 			return  userController.mandatoryProfile(
-					ossActionMap.getObjectIds(),
-					ossActionMap.isBooleanValue());
+					crxActionMap.getObjectIds(),
+					crxActionMap.isBooleanValue());
 		case "copyTemplate":
 			return  userController.copyTemplate(
-					ossActionMap.getObjectIds(),
-					ossActionMap.getStringValue());
+					crxActionMap.getObjectIds(),
+					crxActionMap.getStringValue());
 		case "removeProfiles":
-			return  userController.removeProfile(ossActionMap.getObjectIds());
+			return  userController.removeProfile(crxActionMap.getObjectIds());
 		case "deleteUser":
 			SessionController sessionController = new SessionController(session,em);
 			if( sessionController.authorize(session,"user.delete") || sessionController.authorize(session,"student.delete") ) {
-				return  userController.deleteStudents(ossActionMap.getObjectIds());
+				return  userController.deleteStudents(crxActionMap.getObjectIds());
 			} else {
 				responses.add(new CrxResponse(session,"ERROR","You have no right to execute this action."));
 				return responses;

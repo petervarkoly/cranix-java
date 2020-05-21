@@ -141,15 +141,15 @@ public class HwconfResourceImpl implements HwconfResource {
 	public CrxResponse importHWConfs(Session session, List<HWConf> hwconfs) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CloneToolController  cloneToolController = new CloneToolController(session,em);
-		CrxResponse ossResponse = null;
+		CrxResponse crxResponse = null;
 		for( HWConf hwconf : hwconfs ) {
-			ossResponse = cloneToolController.addHWConf(hwconf);
-			if( ossResponse.getCode().equals("ERROR")) {
+			crxResponse = cloneToolController.addHWConf(hwconf);
+			if( crxResponse.getCode().equals("ERROR")) {
 				break;
 			}
 		}
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override

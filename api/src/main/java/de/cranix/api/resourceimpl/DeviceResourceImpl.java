@@ -1,5 +1,4 @@
-
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resourceimpl;
 
 import java.io.InputStream;
@@ -451,17 +450,17 @@ public class DeviceResourceImpl implements DeviceResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		DeviceController deviceController = new DeviceController(session,em);
 		Device device = deviceController.getById(deviceId);
-		CrxResponse ossResponse = deviceController.addMConfig(device, dhcpParameter.getKeyword(), dhcpParameter.getValue());
-		if( ossResponse.getCode().equals("ERROR") ) {
+		CrxResponse crxResponse = deviceController.addMConfig(device, dhcpParameter.getKeyword(), dhcpParameter.getValue());
+		if( crxResponse.getCode().equals("ERROR") ) {
 			em.close();
-			return ossResponse;
+			return crxResponse;
 		}
-		Long dhcpParameterId = ossResponse.getObjectId();
-		ossResponse = new DHCPConfig(session,em).Test();
-		if( ossResponse.getCode().equals("ERROR") ) {
+		Long dhcpParameterId = crxResponse.getObjectId();
+		crxResponse = new DHCPConfig(session,em).Test();
+		if( crxResponse.getCode().equals("ERROR") ) {
 			deviceController.deleteMConfig(null, dhcpParameterId);
 			em.close();
-			return ossResponse;
+			return crxResponse;
 		}
 		new DHCPConfig(session,em).Create();
 		em.close();

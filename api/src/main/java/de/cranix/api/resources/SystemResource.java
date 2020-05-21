@@ -1,4 +1,4 @@
-/* (c) 2017 Peter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Peter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.*;
@@ -127,7 +127,7 @@ public interface SystemResource {
 	@Path("customize")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@ApiOperation(value = "Upload picture for oss logon site.")
+	@ApiOperation(value = "Upload picture for crx logon site.")
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator") }
 	)
@@ -894,4 +894,15 @@ public interface SystemResource {
 			@PathParam("name")	String name,
 			@PathParam("key")	String key
 	);
+
+/*	@POST
+	@Path("support")
+        @Produces(JSON_UTF8)
+        @ApiOperation(value = "Create a support request ")
+        @ApiResponses(value = {
+		@ApiResponse(code = 400, message = "Missing data for request"),
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+        @RolesAllowed("system.support")
+        CrxResponse createSupportRequest(@ApiParam(hidden = true) @Auth Session session, SupportRequest supportRequest);*/
 }

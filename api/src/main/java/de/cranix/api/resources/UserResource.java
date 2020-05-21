@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resources;
 
 
@@ -382,7 +382,7 @@ public interface UserResource {
 	 * PUT users/sync Synchronize user to other systems. In first case the role membership for squid is concerned
 	 * This must be called if new user was created or removed or after import of users.
 	 * @param session
-	 * @return The result in an ossResponse object.
+	 * @return The result in an crxResponse object.
 	 */
 	@POST
 	@Path("sync")

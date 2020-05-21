@@ -216,7 +216,7 @@ public class PrinterResourceImpl implements PrinterResource {
 		}
 		File file = null;
 		try {
-			file = File.createTempFile("oss_driverFile", printer.getName(), new File(cranixTmpDir));
+			file = File.createTempFile("crx_driverFile", printer.getName(), new File(cranixTmpDir));
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);

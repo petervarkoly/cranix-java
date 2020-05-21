@@ -1,4 +1,4 @@
-/* (c) 2018 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
@@ -46,14 +46,14 @@ public interface PrinterResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
 	CrxResponse addPrinter(
-			@ApiParam(hidden = true) @Auth Session session,
-			@FormDataParam("name")          String  name,
-			@FormDataParam("mac")      		String  mac,
-			@FormDataParam("roomId")   		Long    roomId,
-			@FormDataParam("model")   		String  model,
-			@FormDataParam("windowsDriver") boolean windowsDriver,
-            @FormDataParam("file") final InputStream fileInputStream,
-            @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+		@ApiParam(hidden = true) @Auth  Session session,
+		@FormDataParam("name")          String  name,
+		@FormDataParam("mac")           String  mac,
+		@FormDataParam("roomId")        Long    roomId,
+		@FormDataParam("model")         String  model,
+		@FormDataParam("windowsDriver") boolean windowsDriver,
+		@FormDataParam("file")          final InputStream fileInputStream,
+		@FormDataParam("file")          final FormDataContentDisposition contentDispositionHeader
 			);
 
 	@POST
@@ -65,13 +65,13 @@ public interface PrinterResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
 	CrxResponse addPrinterQueue(
-			@ApiParam(hidden = true) @Auth Session session,
-			@FormDataParam("name")          String  name,
-			@FormDataParam("deviceId")   	Long    deviceId,
-			@FormDataParam("model")   		String  model,
-			@FormDataParam("windowsDriver") boolean windowsDriver,
-            @FormDataParam("file") final InputStream fileInputStream,
-            @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+		@ApiParam(hidden = true) @Auth  Session session,
+		@FormDataParam("name")          String  name,
+		@FormDataParam("deviceId")   	Long    deviceId,
+		@FormDataParam("model") 	String  model,
+		@FormDataParam("windowsDriver") boolean windowsDriver,
+		@FormDataParam("file")          final InputStream fileInputStream,
+		@FormDataParam("file")          final FormDataContentDisposition contentDispositionHeader
 			);
 
 	@POST

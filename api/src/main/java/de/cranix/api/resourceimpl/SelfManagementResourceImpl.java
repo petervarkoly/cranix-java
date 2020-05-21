@@ -1,3 +1,4 @@
+/* (c) 2020 Peter Varkoly <peter@varkoly.de> all rights reserved*/
 package de.cranix.api.resourceimpl;
 
 import java.io.File;
@@ -47,14 +48,14 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		UserController userController = new UserController(session,em);
 		User oldUser = session.getUser();
-		CrxResponse  ossResponse = null;
+		CrxResponse  crxResponse = null;
 		logger.debug("modifyMySelf" + user);
 		if( userController.isAllowed("myself.manage") ) {
 			if( user.getPassword() != null && !user.getPassword().isEmpty() ) {
-				ossResponse = userController.checkPassword(user.getPassword());
-				logger.debug("Check-Password:" + ossResponse );
-				if( ossResponse != null  && ossResponse.getCode().equals("ERROR")) {
-					return ossResponse;
+				crxResponse = userController.checkPassword(user.getPassword());
+				logger.debug("Check-Password:" + crxResponse );
+				if( crxResponse != null  && crxResponse.getCode().equals("ERROR")) {
+					return crxResponse;
 				}
 				oldUser.setPassword(user.getPassword());
 			}
@@ -73,14 +74,14 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 			} finally {
 				em.close();
 			}
-			ossResponse = new CrxResponse(session,"OK","User parameters were set successfully.");
+			crxResponse = new CrxResponse(session,"OK","User parameters were set successfully.");
 		} else {
 			if( user.getPassword() != null && !user.getPassword().isEmpty() ) {
-				ossResponse = userController.checkPassword(user.getPassword());
+				crxResponse = userController.checkPassword(user.getPassword());
 				em.close();
-				if( ossResponse != null  && ossResponse.getCode().equals("ERROR")) {
-					logger.debug("checkPassword:" + ossResponse);
-					return ossResponse;
+				if( crxResponse != null  && crxResponse.getCode().equals("ERROR")) {
+					logger.debug("checkPassword:" + crxResponse);
+					return crxResponse;
 				}
 				StringBuffer reply = new StringBuffer();
 				StringBuffer error = new StringBuffer();
@@ -92,10 +93,10 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 				program[4] = "--newpassword=" + user.getPassword();
 				OSSShellTools.exec(program, reply, error, null);
 				logger.debug("sambatool:" + reply.toString() + " Error" + error.toString() );
-				ossResponse = new CrxResponse(session,"OK","User parameters were set successfully.");
+				crxResponse = new CrxResponse(session,"OK","User parameters were set successfully.");
 			}
 		}
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
@@ -117,20 +118,20 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		if( ! haveVpn(session)) {
 			throw new WebApplicationException(401);
 		}
-		Config config   = new Config("/etc/sysconfig/oss-vpn","");
+		Config config   = new Config("/etc/sysconfig/cranix-vpn","");
 		String vpnId    = config.getConfigValue("VPN_ID");
 		File configFile = null;
 		String uid  =  session.getUser().getUid();
 		switch(OS) {
 		case "Win7":
 		case "Win10":
-			configFile = new File("/var/adm/oss/vpn/oss-vpn-installer-" + vpnId + "-" + uid + ".exe");
+			configFile = new File("/var/adm/crx/vpn/crx-vpn-installer-" + vpnId + "-" + uid + ".exe");
 			break;
 		case "Mac":
-			configFile = new File("/var/adm/oss/vpn/" + vpnId + "-" + uid + ".tar.bz2");
+			configFile = new File("/var/adm/crx/vpn/" + vpnId + "-" + uid + ".tar.bz2");
 			break;
 		case "Linux":
-			configFile = new File("/var/adm/oss/vpn/" + vpnId + "-" + uid + ".tgz");
+			configFile = new File("/var/adm/crx/vpn/" + vpnId + "-" + uid + ".tgz");
 			break;
 		}
 		if( ! configFile.exists() ) {
@@ -201,8 +202,8 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 				List<Room> rooms = roomController.getRoomToRegisterForUser(session.getUser());
 				if( rooms != null && rooms.size() > 0 ) {
 					Integer count = session.getUser().getOwnedDevices().size();
-					CrxResponse ossResponse = roomController.addDevice(rooms.get(0).getId(), MAC, count.toString());
-					resp =  ossResponse.getCode() + " " + ossResponse.getValue() + " " + ossResponse.getParameters();
+					CrxResponse crxResponse = roomController.addDevice(rooms.get(0).getId(), MAC, count.toString());
+					resp =  crxResponse.getCode() + " " + crxResponse.getValue() + " " + crxResponse.getParameters();
 				} else  {
 					resp = "You can not register devices.";
 				}

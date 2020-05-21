@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resourceimpl;
 
 import de.cranix.dao.AccessInRoom;
@@ -228,9 +228,9 @@ public class RoomRescourceImpl implements RoomResource {
 	public CrxResponse addDevices(Session session, Long roomId, List<Device> devices) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		CrxResponse ossResponse = roomController.addDevices(roomId,devices);
+		CrxResponse crxResponse = roomController.addDevices(roomId,devices);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
@@ -452,15 +452,15 @@ public class RoomRescourceImpl implements RoomResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		RoomController roomController = new RoomController(session,em);
 		Room room = roomController.getById(roomId);
-		CrxResponse ossResponse = roomController.addMConfig(room, dhcpParameter.getKeyword(), dhcpParameter.getValue());
-		if( ossResponse.getCode().equals("ERROR") ) {
-			return ossResponse;
+		CrxResponse crxResponse = roomController.addMConfig(room, dhcpParameter.getKeyword(), dhcpParameter.getValue());
+		if( crxResponse.getCode().equals("ERROR") ) {
+			return crxResponse;
 		}
-		Long dhcpParameterId = ossResponse.getObjectId();
-		ossResponse = new DHCPConfig(session,em).Test();
-		if( ossResponse.getCode().equals("ERROR") ) {
+		Long dhcpParameterId = crxResponse.getObjectId();
+		crxResponse = new DHCPConfig(session,em).Test();
+		if( crxResponse.getCode().equals("ERROR") ) {
 			roomController.deleteMConfig(null, dhcpParameterId);
-			return ossResponse;
+			return crxResponse;
 		}
 		new DHCPConfig(session,em).Create();
 		em.close();

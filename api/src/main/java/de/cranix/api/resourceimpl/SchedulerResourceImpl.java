@@ -1,3 +1,4 @@
+/* (c) 2020 Peter Varkoly <peter@varkoly.de> */
 package de.cranix.api.resourceimpl;
 
 import java.util.List;

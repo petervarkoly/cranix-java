@@ -1,4 +1,4 @@
-/* (c) 2017 Peter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2020 Peter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resourceimpl;
 
 import java.io.IOException;
@@ -152,12 +152,12 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	public CrxResponse deleteInstalation(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CategoryController categoryController = new CategoryController(session,em);
-		CrxResponse ossResponse = categoryController.delete(installationId);
-		if( ossResponse.getCode().equals("OK") ) {
-			ossResponse = this.apply(session);
+		CrxResponse crxResponse = categoryController.delete(installationId);
+		if( crxResponse.getCode().equals("OK") ) {
+			crxResponse = this.apply(session);
 		}
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override

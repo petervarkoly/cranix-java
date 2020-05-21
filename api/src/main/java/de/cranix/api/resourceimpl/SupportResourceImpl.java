@@ -1,3 +1,4 @@
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resourceimpl;
 
 import java.io.File;
@@ -36,9 +37,7 @@ public class SupportResourceImpl implements SupportResource {
 		isLinux = !((os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0));
 	}
 
-	private void loadConf(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController sc = new SystemController(session,em);
+	private void loadConf(Session session, SystemController sc) {
 		supportUrl = sc.getConfigValue("SUPPORT_URL");
 		if (supportUrl != null) {
 			supportUrl = supportUrl.trim();
@@ -57,8 +56,7 @@ public class SupportResourceImpl implements SupportResource {
 			supportEmail = null;
 			supportEmailFrom = null;
 		} else {
-			// not configured therefore use default
-			supportUrl = "https://support.extis.de/support";
+			supportUrl = "https://repo.cephalix.eu/api/tickets/add";
 			supportEmail = null;
 			supportEmailFrom = null;
 		}
@@ -66,7 +64,8 @@ public class SupportResourceImpl implements SupportResource {
 
 	@Override
 	public CrxResponse create(Session session, SupportRequest supportRequest) {
-		loadConf(session);
+		SystemController sc = new SystemController(session,null);
+		loadConf(session,sc);
 		List<String> parameters  = new ArrayList<String>();
 		logger.debug("URL: " + supportUrl);
 		logger.debug(supportRequest.toString());
@@ -79,6 +78,16 @@ public class SupportResourceImpl implements SupportResource {
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			return new CrxResponse(session,"ERROR", e.getMessage());
+		}
+		//Add default values if not given in support request
+		if( supportRequest.getRegcode() == null || supportRequest.getRegcode().isEmpty() )  {
+			supportRequest.setRegcode(sc.getConfigValue("REG_CODE"));
+		}
+		if( supportRequest.getProduct() == null || supportRequest.getProduct().isEmpty() )  {
+			supportRequest.setProduct("CRANIX");
+		}
+		if( supportRequest.getCompany() == null || supportRequest.getCompany().isEmpty() )  {
+			supportRequest.setCompany(sc.getConfigValue("NAME"));
 		}
 		if (supportUrl != null && supportUrl.length() > 0) {
 			String[] program    = new String[12];

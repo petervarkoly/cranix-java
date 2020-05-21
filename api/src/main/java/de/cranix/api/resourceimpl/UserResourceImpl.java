@@ -86,46 +86,46 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public CrxResponse insert(Session session, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse ossResponse =  new UserController(session,em).add(user);
+		CrxResponse crxResponse =  new UserController(session,em).add(user);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
 	public CrxResponse add(Session session, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse ossResponse =  new UserController(session,em).add(user);
+		CrxResponse crxResponse =  new UserController(session,em).add(user);
 		em.close();
-		if( ossResponse.getCode().equals("OK")) {
+		if( crxResponse.getCode().equals("OK")) {
 			sync(session);
 		}
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
 	public List<CrxResponse> add(Session session, List<User> users) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> ossResponses =  new UserController(session,em).add(users);
+		List<CrxResponse> crxResponses =  new UserController(session,em).add(users);
 		sync(session);
 		em.close();
-		return ossResponses;
+		return crxResponses;
 	}
 
 	@Override
 	public CrxResponse delete(Session session, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse ossResponse = new UserController(session,em).delete(userId);
+		CrxResponse crxResponse = new UserController(session,em).delete(userId);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
 	public CrxResponse modify(Session session, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final UserController userController = new UserController(session,em);
-		CrxResponse ossResponse = userController.modify(user);
+		CrxResponse crxResponse = userController.modify(user);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
@@ -133,9 +133,9 @@ public class UserResourceImpl implements UserResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		user.setId(userId);
 		final UserController userController = new UserController(session,em);
-		CrxResponse ossResponse = userController.modify(user);
+		CrxResponse crxResponse = userController.modify(user);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
@@ -177,18 +177,18 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public CrxResponse setMembers(Session session, Long userId, List<Long> groupIds) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse ossResponse =  new UserController(session,em).setGroups(userId,groupIds);
+		CrxResponse crxResponse =  new UserController(session,em).setGroups(userId,groupIds);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
 	public CrxResponse removeMember(Session session, Long groupId, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final GroupController groupController = new GroupController(session,em);
-		CrxResponse ossResponse = groupController.removeMember(groupId,userId);
+		CrxResponse crxResponse = groupController.removeMember(groupId,userId);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
@@ -197,9 +197,9 @@ public class UserResourceImpl implements UserResource {
 		StringBuilder error = new StringBuilder();
 		final GroupController groupController = new GroupController(session,em);
 		for( Long groupId : groups ) {
-			CrxResponse ossResponse = groupController.addMember(groupId,userId);
-			if( !ossResponse.getCode().equals("OK")  ) {
-				error.append(ossResponse.getValue()).append("<br>");
+			CrxResponse crxResponse = groupController.addMember(groupId,userId);
+			if( !crxResponse.getCode().equals("OK")  ) {
+				error.append(crxResponse.getValue()).append("<br>");
 			}
 		}
 		em.close();
@@ -213,18 +213,18 @@ public class UserResourceImpl implements UserResource {
 	public CrxResponse addMember(Session session, Long groupId, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final GroupController groupController = new GroupController(session,em);
-		CrxResponse ossResponse = groupController.addMember(groupId,userId);
+		CrxResponse crxResponse = groupController.addMember(groupId,userId);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
 	public CrxResponse syncFsQuotas(Session session, List<List<String>> Quotas) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final UserController userController = new UserController(session,em);
-		CrxResponse ossResponse = userController.syncFsQuotas(Quotas);
+		CrxResponse crxResponse = userController.syncFsQuotas(Quotas);
 		em.close();
-		return ossResponse;
+		return crxResponse;
 	}
 
 	@Override
@@ -363,10 +363,10 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public String addToGroup(Session session, String userName, String groupName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse ossResponse = new GroupController(session,em).addMember(groupName, userName);
-		String resp = ossResponse.getCode();
-	    if( ossResponse.getCode().equals("ERROR") ) {
-			resp = resp + " " + ossResponse.getValue();
+		CrxResponse crxResponse = new GroupController(session,em).addMember(groupName, userName);
+		String resp = crxResponse.getCode();
+	    if( crxResponse.getCode().equals("ERROR") ) {
+			resp = resp + " " + crxResponse.getValue();
 		}
 		em.close();
 		return resp;
@@ -376,10 +376,10 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public String addGroupToUser(Session session, String userName, String groupName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse ossResponse = new GroupController(session,em).setOwner(groupName, userName);
-		String resp = ossResponse.getCode();
-	        if( ossResponse.getCode().equals("ERROR") ) {
-			resp = resp + " " + ossResponse.getValue();
+		CrxResponse crxResponse = new GroupController(session,em).setOwner(groupName, userName);
+		String resp = crxResponse.getCode();
+	        if( crxResponse.getCode().equals("ERROR") ) {
+			resp = resp + " " + crxResponse.getValue();
 		}
 		em.close();
 		return resp;
@@ -413,10 +413,10 @@ public class UserResourceImpl implements UserResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		UserController uc = new UserController(session,em);
 		User user = uc.getByUid(userName);
-		CrxResponse ossResponse = uc.addDefaultAliase(user);
-		String resp = ossResponse.getCode();
-	        if( ossResponse.getCode().equals("ERROR") ) {
-			resp = resp + " " + ossResponse.getValue();
+		CrxResponse crxResponse = uc.addDefaultAliase(user);
+		String resp = crxResponse.getCode();
+	        if( crxResponse.getCode().equals("ERROR") ) {
+			resp = resp + " " + crxResponse.getValue();
 		}
 		em.close();
 		return resp;
@@ -424,10 +424,10 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public String removeFromGroup(Session session, String userName, String groupName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse ossResponse = new GroupController(session,em).removeMember(groupName, userName);
-		String resp = ossResponse.getCode();
-	        if( ossResponse.getCode().equals("ERROR") ) {
-			resp = resp + " " + ossResponse.getValue();
+		CrxResponse crxResponse = new GroupController(session,em).removeMember(groupName, userName);
+		String resp = crxResponse.getCode();
+	        if( crxResponse.getCode().equals("ERROR") ) {
+			resp = resp + " " + crxResponse.getValue();
 		}
 		em.close();
 		return resp;
@@ -436,10 +436,10 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	public String delete(Session session, String userName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse ossResponse = new UserController(session,em).delete(userName);
-		String resp = ossResponse.getCode();
-	        if( ossResponse.getCode().equals("ERROR") ) {
-			resp = resp + " " + ossResponse.getValue();
+		CrxResponse crxResponse = new UserController(session,em).delete(userName);
+		String resp = crxResponse.getCode();
+	        if( crxResponse.getCode().equals("ERROR") ) {
+			resp = resp + " " + crxResponse.getValue();
 		}
 		em.close();
 		return resp;
@@ -471,7 +471,7 @@ public class UserResourceImpl implements UserResource {
 			FormDataContentDisposition contentDispositionHeader) {
 		File file = null;
 		try {
-			file = File.createTempFile("oss", "importUser", new File(cranixTmpDir));
+			file = File.createTempFile("crx", "importUser", new File(cranixTmpDir));
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
@@ -500,7 +500,7 @@ public class UserResourceImpl implements UserResource {
 		parameters.add("/sbin/startproc");
 		parameters.add("-l");
 		parameters.add("/var/log/import-user.log");
-		parameters.add("/usr/sbin/oss_import_user_list.py");
+		parameters.add("/usr/sbin/crx_import_user_list.py");
 		parameters.add("--input");
 		parameters.add(file.getAbsolutePath());
 		parameters.add("--role");
@@ -602,7 +602,7 @@ public class UserResourceImpl implements UserResource {
 			parameters.add("/sbin/startproc");
 			parameters.add("-l");
 			parameters.add("/var/log/import-user.log");
-			parameters.add("/usr/sbin/oss_import_user_list.py");
+			parameters.add("/usr/sbin/crx_import_user_list.py");
 			parameters.add("--input");
 			parameters.add(importFile.toString());
 			parameters.add("--role");
@@ -671,7 +671,7 @@ public class UserResourceImpl implements UserResource {
 	public UserImport getRunningImport(Session session) {
 		List<String> runningImport;
 		try {
-			runningImport = Files.readAllLines(Paths.get("/run/oss_import_user"));
+			runningImport = Files.readAllLines(Paths.get("/run/crx_import_user"));
 			if( !runningImport.isEmpty() ) {
 				return getImport(session,runningImport.get(0));
 			}
@@ -756,7 +756,7 @@ public class UserResourceImpl implements UserResource {
 	public CrxResponse sync(Session session) {
 		//TODO make it over plugin
 		String[] program = new String[1];
-		program[0] = "/usr/sbin/oss_refresh_squidGuard_user.sh";
+		program[0] = "/usr/sbin/crx_refresh_squidGuard_user.sh";
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		OSSShellTools.exec(program, reply, stderr, null);

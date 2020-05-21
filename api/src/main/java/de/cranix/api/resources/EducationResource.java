@@ -1,4 +1,4 @@
-/* (c) Péter Varkoly <peter@varkoly.de> - all rights reserved  */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
 package de.cranix.api.resources;
 
 
@@ -937,7 +937,7 @@ public interface EducationResource {
 	})
 	@RolesAllowed("education.users")
 	List<CrxResponse> applyAction(@ApiParam(hidden = true) @Auth Session session,
-	                CrxActionMap ossActionMap
+	                CrxActionMap crxActionMap
 	                );
 
 

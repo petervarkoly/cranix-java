@@ -1,3 +1,4 @@
+/* (c) 2020 Peter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;

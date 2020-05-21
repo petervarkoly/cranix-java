@@ -1,3 +1,4 @@
+/* (c) 2020 Peter Varkoly - all rights reserved */
 /* (c) 2018 EXTIS GmbH - all rights reserved */
 package de.cranix.dao;
 
@@ -13,11 +14,11 @@ public class SupportRequest {
 	private String description;
 	private String regcode;
 
-	private String product; // OSS, OSSClient, Cephalix
+	private String product; // CRANIX, CrxClient, CEPHALIX
 	private String firstname;
 	private String lastname;
 	private String company;
-	private SUPPORT_TYPE supporttype; // Error, FeatureRequest, Feedback, ProductOrder, OfferInq, SalesInq
+	private SUPPORT_TYPE supporttype = SUPPORT_TYPE.Error; // Error, FeatureRequest, Feedback, ProductOrder, OfferInq, SalesInq
 
 	// response fields
 	private String regcodeValidUntil;

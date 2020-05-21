@@ -1,3 +1,4 @@
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 /* (c) 2018 EXTIS GmbH - all rights reserved */
 package de.cranix.api.resources;
 
@@ -24,10 +25,11 @@ public interface SupportResource {
 	@POST
 	@Path("create")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "create a support request ")
-	@ApiResponses(value = { @ApiResponse(code = 400, message = "Missing data for request"),
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("device.manage")
+	@ApiOperation(value = "Create a support request.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 400, message = "Missing data for request"),
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@RolesAllowed("system.support")
 	CrxResponse create(@ApiParam(hidden = true) @Auth Session session, SupportRequest supportRequest);
 
 }
