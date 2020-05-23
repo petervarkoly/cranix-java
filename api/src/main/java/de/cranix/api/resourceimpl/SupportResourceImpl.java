@@ -66,6 +66,16 @@ public class SupportResourceImpl implements SupportResource {
 	public CrxResponse create(Session session, SupportRequest supportRequest) {
 		SystemController sc = new SystemController(session,null);
 		loadConf(session,sc);
+		//Add default values if not given in support request
+		if( supportRequest.getRegcode() == null || supportRequest.getRegcode().isEmpty() )  {
+			supportRequest.setRegcode(sc.getConfigValue("REG_CODE"));
+		}
+		if( supportRequest.getProduct() == null || supportRequest.getProduct().isEmpty() )  {
+			supportRequest.setProduct("CRANIX");
+		}
+		if( supportRequest.getCompany() == null || supportRequest.getCompany().isEmpty() )  {
+			supportRequest.setCompany(sc.getConfigValue("NAME"));
+		}
 		List<String> parameters  = new ArrayList<String>();
 		logger.debug("URL: " + supportUrl);
 		logger.debug(supportRequest.toString());
@@ -78,16 +88,6 @@ public class SupportResourceImpl implements SupportResource {
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			return new CrxResponse(session,"ERROR", e.getMessage());
-		}
-		//Add default values if not given in support request
-		if( supportRequest.getRegcode() == null || supportRequest.getRegcode().isEmpty() )  {
-			supportRequest.setRegcode(sc.getConfigValue("REG_CODE"));
-		}
-		if( supportRequest.getProduct() == null || supportRequest.getProduct().isEmpty() )  {
-			supportRequest.setProduct("CRANIX");
-		}
-		if( supportRequest.getCompany() == null || supportRequest.getCompany().isEmpty() )  {
-			supportRequest.setCompany(sc.getConfigValue("NAME"));
 		}
 		if (supportUrl != null && supportUrl.length() > 0) {
 			String[] program    = new String[12];
@@ -111,12 +111,18 @@ public class SupportResourceImpl implements SupportResource {
 			try {
 				ObjectMapper mapper = new ObjectMapper();
 				SupportRequest suppres = mapper.readValue(IOUtils.toInputStream(reply.toString(), "UTF-8"), SupportRequest.class);
-				parameters.add(supportRequest.getSubject());
-				parameters.add(suppres.getTicketno());
-				parameters.add(supportRequest.getEmail());
-				parameters.add(suppres.getTicketResponseInfo());
 				logger.debug("Support Respons :" + suppres);
-				return new CrxResponse(session,"OK","Support request '%s' was created with ticket number '%s'. Answer will be sent to '%s'.",null,parameters);
+				if( suppres.getStatus() != null && suppres.getStatus().equals("OK") ) {
+					parameters.add(suppres.getSubject());
+					parameters.add(suppres.getTicketno());
+					parameters.add(suppres.getEmail());
+					parameters.add(suppres.getTicketResponseInfo());
+					return new CrxResponse(session,"OK","Support request '%s' was created with ticket number '%s'. Answer will be sent to '%s'.",null,parameters);
+				} else {
+					parameters.add(suppres.getSubject());
+					parameters.add(suppres.getTicketResponseInfo());
+					return new CrxResponse(session,"ERROR","Support request '%s' was was not created. The reason is:'%s'.",null,parameters);
+				}
 			} catch (Exception e) {
 				logger.error("GETObject :" + e.getMessage());
 				return new CrxResponse(session,"ERROR","Can not sent supprt request");
