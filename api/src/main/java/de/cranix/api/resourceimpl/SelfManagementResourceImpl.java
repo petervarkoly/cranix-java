@@ -125,13 +125,13 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		switch(OS) {
 		case "Win7":
 		case "Win10":
-			configFile = new File("/var/adm/crx/vpn/crx-vpn-installer-" + vpnId + "-" + uid + ".exe");
+			configFile = new File("/var/adm/cranix/vpn/crx-vpn-installer-" + vpnId + "-" + uid + ".exe");
 			break;
 		case "Mac":
-			configFile = new File("/var/adm/crx/vpn/" + vpnId + "-" + uid + ".tar.bz2");
+			configFile = new File("/var/cranix/crx/vpn/" + vpnId + "-" + uid + ".tar.bz2");
 			break;
 		case "Linux":
-			configFile = new File("/var/adm/crx/vpn/" + vpnId + "-" + uid + ".tgz");
+			configFile = new File("/var/cranix/crx/vpn/" + vpnId + "-" + uid + ".tgz");
 			break;
 		}
 		if( ! configFile.exists() ) {
