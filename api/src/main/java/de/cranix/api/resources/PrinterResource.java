@@ -50,6 +50,7 @@ public interface PrinterResource {
 		@FormDataParam("name")          String  name,
 		@FormDataParam("mac")           String  mac,
 		@FormDataParam("roomId")        Long    roomId,
+		@FormDataParam("ip")            String  ip,
 		@FormDataParam("model")         String  model,
 		@FormDataParam("windowsDriver") boolean windowsDriver,
 		@FormDataParam("file")          final InputStream fileInputStream,

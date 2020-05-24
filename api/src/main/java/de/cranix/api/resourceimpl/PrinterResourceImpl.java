@@ -158,12 +158,13 @@ public class PrinterResourceImpl implements PrinterResource {
 			String name,
 			String mac,
 			Long roomId,
+			String ip,
 			String model,
 			boolean windowsDriver,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new PrinterController(session,em).addPrinter(name.toLowerCase().trim(),mac,roomId,model,windowsDriver,fileInputStream,contentDispositionHeader);
+		CrxResponse resp = new PrinterController(session,em).addPrinter(name.toLowerCase().trim(),mac,roomId,ip,model,windowsDriver,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
 	}

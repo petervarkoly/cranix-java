@@ -230,8 +230,16 @@ public class PrinterController extends Controller {
 		return new CrxResponse(session,"OK","Windows driver was activated.");
 	}
 
-	public CrxResponse addPrinter(String name, String mac, Long roomId, String model, boolean windowsDriver,
-			InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
+	public CrxResponse addPrinter(
+			String name,
+			String mac,
+			Long roomId,
+			String ip,
+			String model,
+			boolean windowsDriver,
+			InputStream fileInputStream,
+			FormDataContentDisposition contentDispositionHeader) {
+
 		logger.debug("addPrinter: " + name + "#" + mac + "#" + roomId + "#" + model +"#" + ( windowsDriver ? "yes" : "no" ) + "#" + session.getPassword() );
 
 		if( session.getPassword().equals("dummy") ) {
@@ -243,6 +251,7 @@ public class PrinterController extends Controller {
 		Device device = new Device();
 		device.setMac(mac.trim());
 		device.setName(name);
+		device.setIp(ip);
 		device.setHwconfId(hwconf.getId());
 		logger.debug(hwconf.getName() + "#" + hwconf.getId() );
 		List<Device> devices = new ArrayList<Device>();
