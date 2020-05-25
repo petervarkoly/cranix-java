@@ -1,4 +1,7 @@
 #!/bin/bash
+if [ -e /var/adm/cranix/migrated-to-cranix ]; then
+	exit 0
+fi
 export HOME="/root"
 CRANIX=$( echo "show tables" | mysql CRX | grep CrxNextID )
 if [ "${CRANIX}" ];  then
@@ -133,3 +136,29 @@ password=$( mktemp cranixXXXXXXXXXXXX )
 sed -i s/javax.persistence.jdbc.password=.*$/javax.persistence.jdbc.password=${password}/ /opt/cranix-java/conf/cranix-api.properties
 sed -i 's/=claxss/=cranix/' /opt/cranix-java/conf/cranix-api.properties
 echo "grant all on CRX.* to 'cranix'@'localhost'  identified by '$password'" | mysql
+echo "drop table CephalixOssCareMessages;" | mysql CRX
+echo "drop table CephalixOssCares;" | mysql CRX
+echo "CREATE TABLE IF NOT EXISTS CephalixCares (
+        id       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        cephalixinstitute_id BIGINT UNSIGNED NOT NULL,
+        description VARCHAR(1024) DEFAULT NULL,
+        access      VARCHAR(1024) NOT NULL,
+        contact     VARCHAR(256) NOT NULL,
+        recDate     DATETIME NOT NULL DEFAULT NOW(),
+        validity    DATETIME NOT NULL DEFAULT NOW(),
+        FOREIGN KEY(cephalixinstitute_id) REFERENCES CephalixInstitutes(id) ON DELETE CASCADE,
+        PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+
+CREATE TABLE IF NOT EXISTS CephalixCareMessages (
+        id       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        cephalixcare_id BIGINT UNSIGNED NOT NULL,
+        recDate  DATETIME NOT NULL DEFAULT NOW(),
+        type     enum('WARNING','REPORT') NOT NULL,
+        description VARCHAR(128) NOT NULL,
+        text     TEXT    NOT NULL,
+        FOREIGN KEY(cephalixcare_id) REFERENCES CephalixCares(id) ON DELETE CASCADE,
+        PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;" | | mysql CRX
+
+touch /var/adm/cranix/migrated-to-cranix
