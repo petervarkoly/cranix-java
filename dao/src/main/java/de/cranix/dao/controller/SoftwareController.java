@@ -533,13 +533,13 @@ public class SoftwareController extends Controller {
 	public CrxResponse downloadSoftwares(List<String> softwares) {
 		File file = null;
 		try {
-			file = File.createTempFile("oss_download_job", ".ossb", new File(cranixTmpDir));
+			file = File.createTempFile("crx_download_job", ".crxb", new File(cranixTmpDir));
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
 		StringBuilder command = new StringBuilder();
-		command.append("/usr/sbin/oss_download_packages ");
+		command.append("/usr/sbin/crx_download_packages ");
 		for(int i = 0; i < softwares.size(); i++) {
 			command.append("oss-pkg-").append(softwares.get(i)).append(" ");
 		}
@@ -619,13 +619,13 @@ public class SoftwareController extends Controller {
 	public CrxResponse updateSoftwares(List<String> softwares) {
 		File file = null;
 		try {
-			file = File.createTempFile("oss_update_softwares_job", ".ossb", new File(cranixTmpDir));
+			file = File.createTempFile("crx_update_softwares_job", ".crxb", new File(cranixTmpDir));
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
 		StringBuilder command = new StringBuilder();
-		command.append("/usr/sbin/oss_update_packages ");
+		command.append("/usr/sbin/crx_update_packages ");
 		for(int i = 0; i < softwares.size(); i++) {
 			command.append("oss-pkg-").append(softwares.get(i)).append(" ");
 		}
@@ -789,7 +789,7 @@ public class SoftwareController extends Controller {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());;
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse(this.getSession(),"addSoftwareToCategory ERROR",e.getMessage());
 		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Software was added to the installation succesfully.");
@@ -873,7 +873,7 @@ public class SoftwareController extends Controller {
 		} else {
 			File file = null;
 			try {
-				file = File.createTempFile("oss_uploadFile", ".ossb", new File(cranixTmpDir));
+				file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
 				Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 				this.em.getTransaction().begin();
 				for( String line : Files.readAllLines(file.toPath())) {
@@ -1525,7 +1525,7 @@ public class SoftwareController extends Controller {
 				e.printStackTrace();
 			}
 			this.systemctl("try-restart", "salt-master");
-			this.systemctl("try-restart", "oss_salt_event_watcher");
+			this.systemctl("try-restart", "crx_salt_event_watcher");
 		}
 		//TO SET THE RIGHTS
 		if( errorMessages.length() > 0 ) {

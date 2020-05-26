@@ -61,73 +61,73 @@ public class Category implements Serializable {
 	private Long ownerId;
 
 	//bi-directional many-to-many association to Device
+	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(        
 			name="DeviceInCategories",
 			joinColumns={ @JoinColumn(name="category_id") },
 			inverseJoinColumns={ @JoinColumn(name="device_id") }
 			)
-	@JsonIgnore
 	private List<Device> devices;
 
 	//bi-directional many-to-many association to Group
+	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name="GroupInCategories", 
 			joinColumns={ @JoinColumn(name="category_id") },
 			inverseJoinColumns={ @JoinColumn(name="group_id") }
 			)
-	@JsonIgnore
 	private List<Group> groups = new ArrayList<Group>();
 
 	//bi-directional many-to-many association to Group
+	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name="HWConfInCategories", 
 			joinColumns={ @JoinColumn(name="category_id") },
 			inverseJoinColumns={ @JoinColumn(name="hwconf_id") }
 			)
-	@JsonIgnore
 	private List<HWConf> hwconfs;
 
 	//bi-directional many-to-many association to Room
+	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name="RoomInCategories", 
 			joinColumns={ @JoinColumn(name="category_id") },
 			inverseJoinColumns={ @JoinColumn(name="room_id") }
 			)
-	@JsonIgnore
 	private List<Room> rooms;
 
 	//bi-directional many-to-many association to Software
+	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name="SoftwareInCategories", 
 			joinColumns={ @JoinColumn(name="category_id") },
 			inverseJoinColumns={ @JoinColumn(name="software_id") }
 			)
-	@JsonIgnore
 	private List<Software> softwares;
 
 	//bi-directional many-to-many association to Software
+	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name="SoftwareRemovedFromCategories", 
 			joinColumns={ @JoinColumn(name="category_id") },
 			inverseJoinColumns={ @JoinColumn(name="software_id") }
 			)
-	@JsonIgnore
 	private List<Software> removedSoftwares;
 
 	//bi-directional many-to-many association to User
+	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name="UserInCategories", 
 			joinColumns={ @JoinColumn(name="category_id") },
 			inverseJoinColumns={ @JoinColumn(name="user_id") }
 			)
-	@JsonIgnore
 	private List<User> users = new ArrayList<User>();
 
 	//bi-directional many-to-many association to Announcement
@@ -330,14 +330,6 @@ public class Category implements Serializable {
 		this.groupIds = ids;
 	}
 
-	public List<HWConf> getHWConfs() {
-		return this.hwconfs;
-	}
-
-	public void setHWConfs(List<HWConf> hwconfs) {
-		this.hwconfs = hwconfs;
-	}
-
 	public List<Long> getHWConfIds() {
 		return this.hwConfIds;
 	}
@@ -485,7 +477,7 @@ public class Category implements Serializable {
 			}
 		}
 		if( this.hwconfs != null ) {
-			for (HWConf h: this.getHWConfs()) {
+			for (HWConf h: this.getHwconfs()) {
 				this.hwConfIds.add(h.getId());
 			}
 		}

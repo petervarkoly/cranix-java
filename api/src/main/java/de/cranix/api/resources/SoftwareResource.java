@@ -742,7 +742,7 @@ public interface SoftwareResource {
             @ApiResponse(code = 404, message = "Software not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<CrxBaseObject> getHWConfs(
+    List<CrxBaseObject> getHwconfs(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
     );

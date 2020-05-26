@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.apache.commons.lang3.SerializationUtils;
 
 import de.cranix.api.resources.SoftwareResource;
 import de.cranix.dao.Category;
@@ -104,11 +105,43 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		return resp;
 	}
 
-
 	@Override
 	public CrxResponse createInstallation(Session session, Category category) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SoftwareController(session,em).createInstallationCategory(category);
+		SoftwareController sc = new SoftwareController(session,em);
+		CategoryController cc = new CategoryController(session,em);
+		Category deepCopy = (Category) SerializationUtils.clone(category);
+		CrxResponse resp  = sc.createInstallationCategory(category);
+		CrxResponse resp1;
+		logger.debug("resp" + resp);
+		if( resp.getCode().equals("OK") ) {
+			long installationId = resp.getObjectId();
+			if( deepCopy.getSoftwareIds() != null ) {
+				for( long softwareId : deepCopy.getSoftwareIds() ) {
+					resp1 = sc.addSoftwareToCategory(softwareId,installationId);
+					logger.debug("software resp" + resp1);
+				}
+			}
+			if( deepCopy.getHwConfIds() != null ) {
+				for( long id : deepCopy.getHwConfIds() ) {
+					resp1 = cc.addMember(installationId, "hwconf", id);
+					logger.debug("hwconf resp" + resp1);
+				}
+			}
+			if( deepCopy.getRoomIds() != null ) {
+				for( long id : deepCopy.getRoomIds() ) {
+					resp1 = cc.addMember(installationId, "room", id);
+					logger.debug("room resp" + resp1);
+				}
+			}
+			if( deepCopy.getDeviceIds() != null ) {
+				for( long id : deepCopy.getDeviceIds() ) {
+					resp1 = cc.addMember(installationId, "device", id);
+					logger.debug("device resp" + resp1);
+				}
+			}
+			sc.applySoftwareStateToHosts();
+		}
 		em.close();
 		return resp;
 	}
@@ -233,11 +266,11 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 
 	@Override
-	public List<CrxBaseObject> getHWConfs(Session session, long installationId) {
+	public List<CrxBaseObject> getHwconfs(Session session, long installationId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Category category = new CategoryController(session,em).getById(installationId);
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
-		for( HWConf object : category.getHWConfs() ) {
+		for( HWConf object : category.getHwconfs() ) {
 			objects.add(new CrxBaseObject(object.getId(),object.getName()));
 		}
 		em.close();

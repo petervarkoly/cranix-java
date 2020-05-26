@@ -23,9 +23,14 @@ public class CategoryController extends Controller {
 	}
 
 	public List<Category> getAll() {
+		List<Category> res = new ArrayList<Category>();
 		try {
 			Query query = this.em.createNamedQuery("Category.findAll"); 
-			return query.getResultList();
+			for( Category cat : (List<Category>) query.getResultList() ) {
+				cat.setIds();
+				res.add(cat);
+			}
+			return res;
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
@@ -35,7 +40,9 @@ public class CategoryController extends Controller {
 
 	public Category getById(long categoryId) {
 		try {
-			return this.em.find(Category.class, categoryId);
+			 Category cat = this.em.find(Category.class, categoryId);
+			 cat.setIds();
+			 return cat;
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
@@ -164,7 +171,7 @@ public class CategoryController extends Controller {
 				o.getCategories().remove(category);
 				this.em.merge(o);
 			}
-			for(HWConf o : category.getHWConfs() ) {
+			for(HWConf o : category.getHwconfs() ) {
 				o.getCategories().remove(category);
 				this.em.merge(o);
 			}
@@ -238,7 +245,7 @@ public class CategoryController extends Controller {
 			}
 		break;
 		case("hwconf"):
-			for(HWConf h : c.getHWConfs()) {
+			for(HWConf h : c.getHwconfs()) {
 				objectIds.remove(h.getId());
 			}
 		break;
@@ -293,7 +300,7 @@ public class CategoryController extends Controller {
 			}
 		break;
 		case("hwconf"):
-			for(HWConf h : c.getHWConfs()) {
+			for(HWConf h : c.getHwconfs()) {
 				objectIds.add(h.getId());
 			}
 		break;
@@ -358,8 +365,8 @@ public class CategoryController extends Controller {
 			break;
 			case("hwconf"):
 				HWConf hwconf = this.em.find(HWConf.class, objectId);
-				if(!category.getHWConfs().contains(hwconf)) {
-					category.getHWConfs().add(hwconf);
+				if(!category.getHwconfs().contains(hwconf)) {
+					category.getHwconfs().add(hwconf);
 					category.getHWConfIds().add(hwconf.getId());
 					hwconf.getCategories().add(category);
 					this.em.merge(hwconf);
@@ -433,8 +440,8 @@ public class CategoryController extends Controller {
 			}
 			if( changes ) {
 				this.em.merge(category);
-				this.em.getTransaction().commit();
 			}
+			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("addMember: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
@@ -467,8 +474,8 @@ public class CategoryController extends Controller {
 			break;
 			case("hwconf"):
 				HWConf hwconf = this.em.find(HWConf.class, objectId);
-				if(category.getHWConfs().contains(hwconf)) {
-					category.getHWConfs().remove(hwconf);
+				if(category.getHwconfs().contains(hwconf)) {
+					category.getHwconfs().remove(hwconf);
 					hwconf.getCategories().remove(category);
 					this.em.merge(hwconf);
 				}

@@ -116,19 +116,6 @@ echo "RENAME TABLE OssNextID TO CrxNextID;"     | mysql OSS
 echo "RENAME TABLE OSSConfig  TO CrxConfig"     | mysql OSS
 echo "RENAME TABLE OSSMConfig TO CrxMConfig"    | mysql OSS
 echo "RENAME TABLE OssResponses TO CrxResponse" | mysql OSS
-echo "RENAME TABLE CephalixOssCares TO CephalixCares" | mysql OSS
-echo "DROP TABLE CephalixOssCareMessages" | mysql OSS
-echo "CREATE TABLE IF NOT EXISTS CephalixCareMessages (
-        id       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-        cephalixcare_id BIGINT UNSIGNED NOT NULL,
-        recDate  DATETIME NOT NULL DEFAULT NOW(),
-        type     enum('WARNING','REPORT') NOT NULL,
-        description VARCHAR(128) NOT NULL,
-        text     TEXT    NOT NULL,
-        FOREIGN KEY(cephalixcare_id) REFERENCES CephalixCares(id) ON DELETE CASCADE,
-        PRIMARY KEY(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
-" | OSS
 mysqldump --databases OSS > CRX.sql
 sed -i '1,26s/OSS/CRX/' CRX.sql
 mysql < CRX.sql
@@ -159,6 +146,6 @@ CREATE TABLE IF NOT EXISTS CephalixCareMessages (
         text     TEXT    NOT NULL,
         FOREIGN KEY(cephalixcare_id) REFERENCES CephalixCares(id) ON DELETE CASCADE,
         PRIMARY KEY(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;" | | mysql CRX
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;" | mysql CRX
 
 touch /var/adm/cranix/migrated-to-cranix
