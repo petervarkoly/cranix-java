@@ -447,6 +447,19 @@ public interface SystemResource {
 	 * Proxy default handling
 	*/
 	@GET
+	@Path("proxy/basic")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Delivers the default setting for proxy.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.proxy")
+	Object getProxyBasic(
+	    @ApiParam(hidden = true) @Auth Session session
+	);
+
+	/*
+	 * Proxy default handling
+	*/
+	@GET
 	@Path("proxy/defaults")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default setting for proxy.")
