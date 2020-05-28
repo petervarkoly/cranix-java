@@ -33,7 +33,7 @@ public class ProxyController extends Controller {
 
 	private Path DESCIPTION = Paths.get("/var/lib/squidGuard/db/BL/global_usage");
 	private Map<String,String>   desc     = new HashMap<>();
-	private Map<String,String>   longDesc = new HashMap<>();;
+	private Map<String,String>   longDesc = new HashMap<>();
 	private List<String>         configFile;
 
 	public ProxyController(Session session,EntityManager em) {

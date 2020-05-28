@@ -490,7 +490,7 @@ public class CategoryController extends Controller {
 			break;
 			case("software"):
 				Software software = this.em.find(Software.class, objectId);
-			    logger.debug("Software:" + software);
+				logger.debug("Software:" + software);
 				if( category.getSoftwares().contains(software) ) {
 					category.getSoftwares().remove(software);
 					category.getRemovedSoftwares().add(software);

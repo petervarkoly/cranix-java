@@ -500,6 +500,26 @@ public interface SoftwareResource {
             Category category
             );
 
+    /**
+     * Creates a new software installation set.
+     * @param session
+     * @param category
+     * @return The result in an OssResult object.
+     */
+    @POST
+    @Path("installations/{installationId}")
+    @Produces(JSON_UTF8)
+    @ApiOperation( value = "Modifies a software installation" )
+    @ApiResponses(value = {
+                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed("software.install")
+    CrxResponse modifyInstallation(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("installationId") Long installationId,
+            Category category
+            );
+
     /*
      * GET softwares/installations
      */
