@@ -282,6 +282,17 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
+	public  Object getProxyBasic(Session session) {
+                String[] program   = new String[2];
+                program[0] = cranixBaseDir + "tools/squidGuard.pl";
+                program[1] = "readJson";
+                StringBuffer reply = new StringBuffer();
+                StringBuffer error = new StringBuffer();
+                OSSShellTools.exec(program, reply, error, "");
+		return reply.toString();
+	}
+
+	@Override
 	public CrxResponse setProxyDefault(Session session, String role, List<ProxyRule> acl) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CrxResponse resp = new ProxyController(session,em).setDefaults(role, acl);
