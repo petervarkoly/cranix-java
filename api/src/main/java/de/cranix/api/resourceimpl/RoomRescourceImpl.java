@@ -17,6 +17,7 @@ import de.cranix.dao.internal.CommonEntityManagerFactory;
 import de.cranix.api.resources.RoomResource;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.ws.rs.WebApplicationException;
 import java.util.List;
 import java.io.InputStream;
@@ -151,6 +152,21 @@ public class RoomRescourceImpl implements RoomResource {
 			throw new WebApplicationException(404);
 		}
 		return users;
+	}
+
+	@Override
+	public List<AccessInRoom> getAccessList(Session session) {
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<AccessInRoom> accesses = null;
+		try {
+                        Query query = em.createNamedQuery("AccessInRoom.findAll");
+                        accesses = query.getResultList();
+                } catch (Exception e) {
+                        logger.error(e.getMessage());
+                } finally {
+                }
+		em.close();
+		return accesses;
 	}
 
 	@Override
