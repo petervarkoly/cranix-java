@@ -50,7 +50,7 @@ public class RoomRescourceImpl implements RoomResource {
 	public List<Room> getAll(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		final List<Room> rooms = roomController.getAllToUse();
+		final List<Room> rooms = roomController.getAll();
 		em.close();
 		return rooms;
 	}

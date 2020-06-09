@@ -777,9 +777,48 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
+		                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                List<CrxResponse> responses = new ArrayList<CrxResponse>();
+                UserController userController = new UserController(session,em);
+                logger.debug(crxActionMap.toString());
+                switch(crxActionMap.getName()) {
+                case "setPassword":
+                        return  userController.resetUserPassword(
+                                        crxActionMap.getObjectIds(),
+                                        crxActionMap.getStringValue(),
+                                        crxActionMap.isBooleanValue());
+                case "setFilesystemQuota":
+                        return  userController.setFsQuota(
+                                        crxActionMap.getObjectIds(),
+                                        crxActionMap.getLongValue());
+                case "setMailsystemQuota":
+                        return  userController.setMsQuota(
+                                        crxActionMap.getObjectIds(),
+                                        crxActionMap.getLongValue());
+                case "disableLogin":
+                        return  userController.disableLogin(
+                                        crxActionMap.getObjectIds(),
+                                        crxActionMap.isBooleanValue());
+                case "disableInternet":
+                        return  userController.disableInternet(
+                                        crxActionMap.getObjectIds(),
+                                        crxActionMap.isBooleanValue());
+                case "mandatoryProfile":
+                        return  userController.mandatoryProfile(
+                                        crxActionMap.getObjectIds(),
+                                        crxActionMap.isBooleanValue());
+                case "copyTemplate":
+                        return  userController.copyTemplate(
+                                        crxActionMap.getObjectIds(),
+                                        crxActionMap.getStringValue());
+                case "removeProfiles":
+                        return  userController.removeProfile(crxActionMap.getObjectIds());
+                case "deleteUser":
+                        return  userController.deleteStudents(crxActionMap.getObjectIds());
+                }
+                em.close();
+                return responses;
 	}
 
 }

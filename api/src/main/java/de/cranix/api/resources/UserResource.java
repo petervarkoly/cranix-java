@@ -780,9 +780,9 @@ public interface UserResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
-	CrxResponse applyAction(
+	List<CrxResponse> applyAction(
 			@ApiParam(hidden = true) @Auth Session session,
-			CrxActionMap actionMap
+			CrxActionMap crxActionMap
 			);
 
 }

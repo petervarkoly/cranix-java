@@ -487,8 +487,14 @@ public class DeviceResourceImpl implements DeviceResource {
 	}
 
 	@Override
-	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<CrxResponse> applyAction(Session session, CrxActionMap actionMap) {
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		DeviceController deviceController = new DeviceController(session,em);
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		for( Long id: actionMap.getObjectIds() ) {
+			responses.add(deviceController.manageDevice(id,actionMap.getName(),null));
+		}
+		em.close();
+		return responses;
 	}
 }

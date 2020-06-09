@@ -266,7 +266,7 @@ public interface SystemResource {
 	@GET
 	@Path("firewall/outgoingRules")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the incoming firewall rules.")
+	@ApiOperation(value = "Gets the outgoing firewall rules.")
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -278,7 +278,7 @@ public interface SystemResource {
 	@POST
 	@Path("firewall/outgoingRules")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets the incoming firewall rules.")
+	@ApiOperation(value = "Sets the outgoing firewall rules.")
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -291,7 +291,7 @@ public interface SystemResource {
 	@GET
 	@Path("firewall/remoteAccessRules")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the incoming firewall rules.")
+	@ApiOperation(value = "Gets the remote access firewall rules.")
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -303,7 +303,7 @@ public interface SystemResource {
 	@POST
 	@Path("firewall/remoteAccessRules")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets the incoming firewall rules.")
+	@ApiOperation(value = "Sets the remote access firewall rules.")
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -311,7 +311,7 @@ public interface SystemResource {
 	CrxResponse  setFirewallRemoteAccessRules(
 	    @ApiParam(hidden = true) @Auth Session session,
 	    List<Map<String, String>> incomingRules
-	    );
+        );
 
 	/*
 	 * Translations stuff
