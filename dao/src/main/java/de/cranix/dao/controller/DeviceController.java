@@ -1076,7 +1076,7 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 	case "startclone":
 		return cloneToolController.startCloning("device",device.getId(),0);
 	case "stopclone":
-		return cloneToolController.stopCloning("device",device.getId(),0);
+		return cloneToolController.stopCloning("device",device.getId());
 	case "controlproxy":
 		//TODO
 		break;
