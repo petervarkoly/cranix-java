@@ -994,6 +994,7 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 	if( this.session.getDevice() != null  && this.session.getDevice().equals(device)) {
 		return new CrxResponse(this.getSession(),"ERROR", "Do not control the own client.");
 	}
+	CloneToolController cloneToolController = new CloneToolController(this.session,this.em);
 	StringBuilder FQHN = new StringBuilder();
 	FQHN.append(device.getName()).append(".").append(this.getConfigValue("DOMAIN"));
 	File file;
@@ -1072,6 +1073,10 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		program[1] = device.getMac();
 		program[2] = device.getIp();
 		break;
+	case "startclone":
+		return cloneToolController.startCloning("device",device.getId(),0);
+	case "stopclone":
+		return cloneToolController.stopCloning("device",device.getId(),0);
 	case "controlproxy":
 		//TODO
 		break;
@@ -1080,64 +1085,64 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		fileContent.add(actionContent.get("content"));
 		String fileName = actionContent.get("fileName");
 		try {
-			file  = File.createTempFile("oss_", fileName + ".ossb", new File(cranixTmpDir));
-				Files.write(file.toPath(), fileContent);
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-				return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-			}
-			program = new String[4];
-			program[0] = "/usr/bin/salt-cp";
-			program[1] = FQHN.toString();
-			program[2] = file.toPath().toString();
-			program[3] = actionContent.get("path");
-			break;
-		case "logoff":
-		case "logout":
-			program = new String[4];
-			program[0] = "/usr/bin/salt";
-			program[1] = "--async";
-			program[2] = FQHN.toString();
-			program[3] = "oss_client.logOff";
-		case "cleanuploggedin":
-			try {
-				this.em.getTransaction().begin();
-				for( User user : device.getLoggedIn() ) {
-					user.getLoggedOn().remove(device);
-					this.em.merge(user);
-				}
-				device.setLoggedIn(new ArrayList<User>());
-				this.em.merge(device);
-				this.em.getTransaction().commit();
-			} catch (Exception e) {
-				logger.error("cleanuploggedin:" + e.getMessage(), e);
-			}
-			break;
-		case "download":
-			UserController uc = new UserController(this.session,this.em);;
-			boolean cleanUpExport = true;
-			boolean sortInDirs    = true;
-			String  projectName   = this.nowString();
-			if( actionContent != null ) {
-				if( actionContent.containsKey("projectName")) {
-					projectName = actionContent.get("projectName");
-				}
-				if( actionContent.containsKey("sortInDirs")) {
-					sortInDirs = actionContent.get("sortInDirs").equals("true");
-				}
-				if( actionContent.containsKey("cleanUpExport")) {
-					cleanUpExport = actionContent.get("cleanUpExport").equals("true");
-				}
-			}
-			for( User user : device.getLoggedIn() ) {
-				 uc.collectFileFromUser(user, projectName, cleanUpExport, sortInDirs);
-			}
-			return new CrxResponse(this.getSession(),"OK", "Device control was applied on '%s'.",null,FQHN.toString());
-		default:
-				return new CrxResponse(this.getSession(),"ERROR", "Unknonw action.");
+		file  = File.createTempFile("oss_", fileName + ".ossb", new File(cranixTmpDir));
+			Files.write(file.toPath(), fileContent);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
-		OSSShellTools.exec(program, reply, stderr, null);
+		program = new String[4];
+		program[0] = "/usr/bin/salt-cp";
+		program[1] = FQHN.toString();
+		program[2] = file.toPath().toString();
+		program[3] = actionContent.get("path");
+		break;
+	case "logoff":
+	case "logout":
+		program = new String[4];
+		program[0] = "/usr/bin/salt";
+		program[1] = "--async";
+		program[2] = FQHN.toString();
+		program[3] = "oss_client.logOff";
+	case "cleanuploggedin":
+		try {
+			this.em.getTransaction().begin();
+			for( User user : device.getLoggedIn() ) {
+				user.getLoggedOn().remove(device);
+				this.em.merge(user);
+			}
+			device.setLoggedIn(new ArrayList<User>());
+			this.em.merge(device);
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			logger.error("cleanuploggedin:" + e.getMessage(), e);
+		}
+		break;
+	case "download":
+		UserController uc = new UserController(this.session,this.em);;
+		boolean cleanUpExport = true;
+		boolean sortInDirs    = true;
+		String  projectName   = this.nowString();
+		if( actionContent != null ) {
+			if( actionContent.containsKey("projectName")) {
+				projectName = actionContent.get("projectName");
+			}
+			if( actionContent.containsKey("sortInDirs")) {
+				sortInDirs = actionContent.get("sortInDirs").equals("true");
+			}
+			if( actionContent.containsKey("cleanUpExport")) {
+				cleanUpExport = actionContent.get("cleanUpExport").equals("true");
+			}
+		}
+		for( User user : device.getLoggedIn() ) {
+			 uc.collectFileFromUser(user, projectName, cleanUpExport, sortInDirs);
+		}
 		return new CrxResponse(this.getSession(),"OK", "Device control was applied on '%s'.",null,FQHN.toString());
+	default:
+		return new CrxResponse(this.getSession(),"ERROR", "Unknonw action.");
+	}
+	OSSShellTools.exec(program, reply, stderr, null);
+	return new CrxResponse(this.getSession(),"OK", "Device control was applied on '%s'.",null,FQHN.toString());
 	}
 
 	public CrxResponse cleanUpLoggedIn() {
