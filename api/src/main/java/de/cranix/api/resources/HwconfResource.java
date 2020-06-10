@@ -306,11 +306,11 @@ public interface HwconfResource {
 	@POST
 	@Path("applyAction")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Apply actions on selected institutes.")
+	@ApiOperation(value = "Apply actions on selected hwconfs.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("cephalix.manage")
-	CrxResponse applyAction(
+	List<CrxResponse> applyAction(
 			@ApiParam(hidden = true) @Auth Session session,
 			CrxActionMap actionMap
 			);

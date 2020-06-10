@@ -750,7 +750,7 @@ public interface DeviceResource {
 	@POST
 	@Path("applyAction")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Apply actions on selected institutes.")
+	@ApiOperation(value = "Apply actions on selected devices.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("device.manage")

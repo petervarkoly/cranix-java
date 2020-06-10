@@ -776,7 +776,7 @@ public interface UserResource {
 	@POST
 	@Path("applyAction")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Apply actions on selected institutes.")
+	@ApiOperation(value = "Apply actions on selected users.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")

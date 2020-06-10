@@ -503,7 +503,7 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
+	public List<CrxResponse> applyAction(Session session, CrxActionMap actionMap) {
                 EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		RoomController roomController = new RoomController(session,em);
                 List<CrxResponse> responses = new ArrayList<CrxResponse>();

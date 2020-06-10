@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.WebApplicationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
 
 import de.cranix.api.resources.HwconfResource;
 import de.cranix.dao.Clone;
@@ -17,7 +20,10 @@ import de.cranix.dao.Session;
 import de.cranix.dao.controller.CloneToolController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
 
+
 public class HwconfResourceImpl implements HwconfResource {
+
+	Logger logger = LoggerFactory.getLogger(HwconfResourceImpl.class);
 
 	public HwconfResourceImpl() {
 	}
@@ -153,20 +159,20 @@ public class HwconfResourceImpl implements HwconfResource {
 	}
 
 	@Override
-	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
+	public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
                 List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		CloneToolController  cloneToolController = new CloneToolController(session,em);
                 logger.debug(crxActionMap.toString());
                 for( Long id : crxActionMap.getObjectIds() ) {
-                        switch(crxActionMap.getName().attribute.toLowerCase()) {
+                        switch(crxActionMap.getName().toLowerCase()) {
                                 case "delete":  responses.add(cloneToolController.delete(id));
                                                 break;
 /*                                case "cleanup": responses.add(cloneToolController.cleanUp(id));
                                                 break;*/
-                                case "startclone": responses.add(cloneToolController.startCloning(id),0);
+                                case "startclone": responses.add(cloneToolController.startCloning("hwconf",id,0));
                                                 break;
-                                case "stopclone": responses.add(cloneToolController.stopCloning(id));
+                                case "stopclone": responses.add(cloneToolController.stopCloning("hwconf",id));
                                                 break;
                         }
                 }

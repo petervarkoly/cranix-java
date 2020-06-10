@@ -16,10 +16,14 @@ import de.cranix.dao.controller.GroupController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
 import de.cranix.dao.Session;
 import de.cranix.dao.CrxResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GroupResourceImpl implements GroupResource {
 
-		public GroupResourceImpl() {
+	Logger logger = LoggerFactory.getLogger(GroupResourceImpl.class);
+
+	public GroupResourceImpl() {
 	}
 
 	@Override
@@ -197,7 +201,7 @@ public class GroupResourceImpl implements GroupResource {
                 logger.debug(crxActionMap.toString());
                 for( Long id : crxActionMap.getObjectIds() ) {
 			Group group = gc.getById(id);
-	                switch(crxActionMap.getName().attribute.toLowerCase()) {
+	                switch(crxActionMap.getName().toLowerCase()) {
 				case "delete":  responses.add(gc.delete(group));
 					        break;
 				case "cleanup": responses.add(gc.cleanGrupDirectory(group));
