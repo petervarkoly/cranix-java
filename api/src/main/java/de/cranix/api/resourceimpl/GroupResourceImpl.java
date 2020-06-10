@@ -190,8 +190,22 @@ public class GroupResourceImpl implements GroupResource {
 	}
 
 	@Override
-	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		GroupController gc = new GroupController(session,em);
+                logger.debug(crxActionMap.toString());
+                for( Long id : crxActionMap.getObjectIds() ) {
+			Group group = gc.getById(id);
+	                switch(crxActionMap.getName().attribute.toLowerCase()) {
+				case "delete":  responses.add(gc.delete(group));
+					        break;
+				case "cleanup": responses.add(gc.cleanGrupDirectory(group));
+					        break;
+			}
+		}
+		em.close();
+		return responses;
+
 	}
 }

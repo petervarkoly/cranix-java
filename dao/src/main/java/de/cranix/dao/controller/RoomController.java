@@ -1343,7 +1343,7 @@ public class RoomController extends Controller {
 	public CrxResponse organizeRoom(long roomId) {
 		Room room = this.getById(roomId);
 		if( room.getRoomType().equals("smartRoom")) {
-			return new CrxResponse(this.getSession(),"OK", "RSmart room can not get reorganized");
+			return new CrxResponse(this.getSession(),"OK", "Smart room can not get reorganized");
 		}
 		boolean changed  = false;
 		List<Integer> coordinates;

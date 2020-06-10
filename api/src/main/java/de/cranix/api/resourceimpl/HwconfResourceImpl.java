@@ -154,7 +154,24 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
-		// TODO Auto-generated method stub
-		return null;
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		CloneToolController  cloneToolController = new CloneToolController(session,em);
+                logger.debug(crxActionMap.toString());
+                for( Long id : crxActionMap.getObjectIds() ) {
+                        switch(crxActionMap.getName().attribute.toLowerCase()) {
+                                case "delete":  responses.add(cloneToolController.delete(id));
+                                                break;
+/*                                case "cleanup": responses.add(cloneToolController.cleanUp(id));
+                                                break;*/
+                                case "startclone": responses.add(cloneToolController.startCloning(id),0);
+                                                break;
+                                case "stopclone": responses.add(cloneToolController.stopCloning(id));
+                                                break;
+                        }
+                }
+                em.close();
+                return responses;
+
 	}
 }

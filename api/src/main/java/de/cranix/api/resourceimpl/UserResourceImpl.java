@@ -778,7 +778,7 @@ public class UserResourceImpl implements UserResource {
 
 	@Override
 	public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
-		                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
                 List<CrxResponse> responses = new ArrayList<CrxResponse>();
                 UserController userController = new UserController(session,em);
                 logger.debug(crxActionMap.toString());
@@ -814,8 +814,14 @@ public class UserResourceImpl implements UserResource {
                                         crxActionMap.getStringValue());
                 case "removeProfiles":
                         return  userController.removeProfile(crxActionMap.getObjectIds());
-                case "deleteUser":
-                        return  userController.deleteStudents(crxActionMap.getObjectIds());
+                case "delete":
+			for( Long userId : crxActionMap.getObjectIds() ) {
+				User user = userController.getById(userId);
+				if( user != null ) {
+					logger.debug("delete user:" + user);
+					responses.add(userController.delete(user));
+				}
+			}
                 }
                 em.close();
                 return responses;

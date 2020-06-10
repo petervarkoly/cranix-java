@@ -504,7 +504,13 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse applyAction(Session session, CrxActionMap actionMap) {
-		// TODO Auto-generated method stub
-		return null;
+                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		RoomController roomController = new RoomController(session,em);
+                List<CrxResponse> responses = new ArrayList<CrxResponse>();
+                for( Long id: actionMap.getObjectIds() ) {
+                        responses.add(roomController.manageRoom(id,actionMap.getName(),null));
+                }
+                em.close();
+                return responses;
 	}
 }
