@@ -799,15 +799,27 @@ public class UserResourceImpl implements UserResource {
                 case "disableLogin":
                         return  userController.disableLogin(
                                         crxActionMap.getObjectIds(),
-                                        crxActionMap.isBooleanValue());
+                                        true);
+                case "enableLogin":
+                        return  userController.disableLogin(
+                                        crxActionMap.getObjectIds(),
+                                        false);
                 case "disableInternet":
                         return  userController.disableInternet(
                                         crxActionMap.getObjectIds(),
-                                        crxActionMap.isBooleanValue());
+                                        true);
+                case "enableInternet":
+                        return  userController.disableInternet(
+                                        crxActionMap.getObjectIds(),
+                                        false);
                 case "mandatoryProfile":
                         return  userController.mandatoryProfile(
                                         crxActionMap.getObjectIds(),
-                                        crxActionMap.isBooleanValue());
+                                        true);
+                case "openProfile":
+                        return  userController.mandatoryProfile(
+                                        crxActionMap.getObjectIds(),
+                                        false);
                 case "copyTemplate":
                         return  userController.copyTemplate(
                                         crxActionMap.getObjectIds(),
