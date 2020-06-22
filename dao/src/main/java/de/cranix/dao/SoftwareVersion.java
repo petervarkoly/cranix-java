@@ -49,7 +49,7 @@ public class SoftwareVersion implements Serializable {
 	 * C -> current this is the most recent version and does exists on the server and can be installed
 	 * R -> replaced this version does not exists on the server but is installed on some clients
 	 * D -> deprecated this is an older version which does exists on the server and can be installed
-	 * U -> unknown this version of software was not installed from the oss
+	 * U -> unknown this version of software was not installed from the cranix
 	 */
 	private String status;
 	

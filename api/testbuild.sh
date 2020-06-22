@@ -27,6 +27,7 @@ if [ -e cranix-java ]; then
 fi
 mv de.cranix.api-4.2  cranix-java
 chmod 644 cranix-java/lib/*
+cp /opt/cranix-java/lib/eclipselink.jar  cranix-java/lib/eclipselink-2.6.0.jar
 tar cjf ${REPO}/cranix-java.tar.bz2 cranix-java
 cp ${HERE}/../dao/data/school-INSERT.sql.in   ${HERE}/../dao/data/school-INSERT.sql
 cp ${HERE}/../dao/data/business-INSERT.sql.in ${HERE}/../dao/data/business-INSERT.sql

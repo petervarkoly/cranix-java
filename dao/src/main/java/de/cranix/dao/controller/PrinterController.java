@@ -154,7 +154,7 @@ public class PrinterController extends Controller {
 			return new CrxResponse(session,"ERROR","The session password of the administrator is expiered. Please login into the web interface again.");
 		}*/
 
-		CrxResponse ossResponse = new CrxResponse(session,"OK","Printer was deleted succesfully.");
+		CrxResponse crxResponse = new CrxResponse(session,"OK","Printer was deleted succesfully.");
 		try {
 			Printer printer = this.em.find(Printer.class, printerId);
 			if( printer == null ) {
@@ -176,7 +176,7 @@ public class PrinterController extends Controller {
 			this.em.merge(printerDevice);
 			this.em.getTransaction().commit();
 			if( printerDevice.getPrinterQueue().isEmpty() ) {
-				ossResponse = new DeviceController(this.session,this.em).delete(printerDevice, true);
+				crxResponse = new DeviceController(this.session,this.em).delete(printerDevice, true);
 			}
 			this.systemctl("reload", "samba-printserver");
 		} catch (Exception e) {
@@ -187,7 +187,7 @@ public class PrinterController extends Controller {
 				this.em.getTransaction().rollback();
 			}
 		}
-		return ossResponse;
+		return crxResponse;
 	}
 
 	public CrxResponse activateWindowsDriver(String printerName) {
@@ -257,9 +257,9 @@ public class PrinterController extends Controller {
 		List<Device> devices = new ArrayList<Device>();
 		devices.add(device);
 		//Persist the device object
-		CrxResponse ossResponse = roomController.addDevices(roomId, devices);
-		if( ossResponse.getCode().equals("ERROR")) {
-			return ossResponse;
+		CrxResponse crxResponse = roomController.addDevices(roomId, devices);
+		if( crxResponse.getCode().equals("ERROR")) {
+			return crxResponse;
 		}
 		return addPrinterQueue(session,name,device.getId(),model,windowsDriver,fileInputStream,contentDispositionHeader);
 	}
@@ -295,7 +295,7 @@ public class PrinterController extends Controller {
 		if( fileInputStream != null ) {
 			File file = null;
 			try {
-				file = File.createTempFile("oss_driverFile", name, new File(cranixTmpDir));
+				file = File.createTempFile("crx_driverFile", name, new File(cranixTmpDir));
 				Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
@@ -358,9 +358,9 @@ public class PrinterController extends Controller {
 		} while( !stderr.toString().isEmpty() && tries > -1  );
 		
 		if(windowsDriver) {
-			CrxResponse ossResponse = activateWindowsDriver(name);
-			if( ossResponse.getCode().equals("ERROR")) { 
-				return ossResponse;
+			CrxResponse crxResponse = activateWindowsDriver(name);
+			if( crxResponse.getCode().equals("ERROR")) { 
+				return crxResponse;
 			}
 		}
 		enablePrinter(name);

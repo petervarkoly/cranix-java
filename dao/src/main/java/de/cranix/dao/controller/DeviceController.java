@@ -203,7 +203,7 @@ public CrxResponse delete(Device device, boolean atomic) {
 			this.em.merge(loggedInUser);
 		}
 		//Remove salt sls file if exists
-		File saltFile = new File("/srv/salt/oss_device_" + device.getName() + ".sls");
+		File saltFile = new File("/srv/salt/crx_device_" + device.getName() + ".sls");
 		if( saltFile.exists() ) {
 			try {
 				saltFile.delete();
@@ -511,7 +511,7 @@ public CrxResponse importDevices(InputStream fileInputStream,
 	File file = null;
 	List<String> importFile;
 	try {
-		file = File.createTempFile("oss_uploadFile", ".ossb", new File(cranixTmpDir));
+		file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
 		Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		importFile = Files.readAllLines(file.toPath());
 	} catch (IOException e) {
@@ -609,11 +609,11 @@ public CrxResponse importDevices(InputStream fileInputStream,
 
 	for( Room r : roomController.getAllToUse() ) {
 		if( !devicesToImport.get(r.getId()).isEmpty() ) {
-			CrxResponse ossResponse = roomController.addDevices(r.getId(), devicesToImport.get(r.getId()));
-			if( ossResponse.getCode().equals("ERROR")) {
-				error.append(ossResponse.getValue()).append("<br>");
-				if( !ossResponse.getParameters().isEmpty() ) {
-					parameters.addAll(ossResponse.getParameters());
+			CrxResponse crxResponse = roomController.addDevices(r.getId(), devicesToImport.get(r.getId()));
+			if( crxResponse.getCode().equals("ERROR")) {
+				error.append(crxResponse.getValue()).append("<br>");
+				if( !crxResponse.getParameters().isEmpty() ) {
+					parameters.addAll(crxResponse.getParameters());
 				}
 			}
 		}
@@ -1012,6 +1012,8 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 	StringBuffer reply  = new StringBuffer();
 	StringBuffer stderr = new StringBuffer();
 	switch(action.toLowerCase()) {
+	case "delete":
+		return this.delete(device, false);
 	case "shutdown":
 		if( message.isEmpty() ) {
 			message = "System will shutdown in " + graceTime + "minutes";
@@ -1037,28 +1039,28 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		program[0] = "/usr/bin/salt";
 		program[1] = "--async";
 		program[2] = FQHN.toString();
-		program[3] = "oss_client.lockClient";
+		program[3] = "crx_client.lockClient";
 		break;
 	case "open":
 		program = new String[4];
 		program[0] = "/usr/bin/salt";
 		program[1] = "--async";
 		program[2] = FQHN.toString();
-		program[3] = "oss_client.unLockClient";
+		program[3] = "crx_client.unLockClient";
 		break;
 	case "lockinput":
 		program = new String[4];
 		program[0] = "/usr/bin/salt";
 		program[1] = "--async";
 		program[2] = FQHN.toString();
-		program[3] = "oss_client.blockInput";
+		program[3] = "crx_client.blockInput";
 		break;
 	case "unlockinput":
 		program = new String[4];
 		program[0] = "/usr/bin/salt";
 		program[1] = "--async";
 		program[2] = FQHN.toString();
-		program[3] = "oss_client.unBlockInput";
+		program[3] = "crx_client.unBlockInput";
 		break;
 	case "applystate":
 		program = new String[4];
@@ -1069,7 +1071,7 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		break;
 	case "wol":
 		program = new String[3];
-		program[0] = "/usr/sbin/oss_wol.sh";
+		program[0] = "/usr/sbin/crx_wol.sh";
 		program[1] = device.getMac();
 		program[2] = device.getIp();
 		break;
@@ -1085,7 +1087,7 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		fileContent.add(actionContent.get("content"));
 		String fileName = actionContent.get("fileName");
 		try {
-		file  = File.createTempFile("oss_", fileName + ".ossb", new File(cranixTmpDir));
+		file  = File.createTempFile("crx_", fileName + ".crxb", new File(cranixTmpDir));
 			Files.write(file.toPath(), fileContent);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
@@ -1103,7 +1105,7 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		program[0] = "/usr/bin/salt";
 		program[1] = "--async";
 		program[2] = FQHN.toString();
-		program[3] = "oss_client.logOff";
+		program[3] = "crx_client.logOff";
 	case "cleanuploggedin":
 		try {
 			this.em.getTransaction().begin();

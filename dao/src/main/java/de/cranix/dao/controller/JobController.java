@@ -103,12 +103,12 @@ public class JobController extends Controller {
 			path.append(String.valueOf(job.getId()));
 			Path jobFile     = Paths.get(path.toString());
 			List<String> tmp =  new ArrayList<String>();
-			tmp.add("( cranixBaseDirtools/oss_date.sh");
+			tmp.add("( "+ cranixBaseDirtools +"/crx_date.sh");
 			tmp.add(job.getCommand());
 			tmp.add("E=$?");
-			tmp.add("oss_api.sh PUT system/jobs/"+String.valueOf(job.getId())+"/exit/$E");
+			tmp.add("crx_api.sh PUT system/jobs/"+String.valueOf(job.getId())+"/exit/$E");
 			tmp.add("echo $E");
-			tmp.add( cranixBaseDir + "tools/oss_date.sh) &> " + path.toString()+ ".log");
+			tmp.add( cranixBaseDir + "tools/crx_date.sh) &> " + path.toString()+ ".log");
 			Files.write(jobFile, tmp );
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);

@@ -273,10 +273,10 @@ public class Controller extends Config {
 			neededRights.add("hwconf.add");
 			break;
 		case "de.cranix.dao.CrxConfig":
-			neededRights.add("ossconfig.add");
+			neededRights.add("crxconfig.add");
 			break;
 		case "de.cranix.dao.CrxMConfig":
-			neededRights.add("ossmconfig.add");
+			neededRights.add("crxmconfig.add");
 			break;
 		case "de.cranix.dao.Room":
 			neededRights.add("room.add");
@@ -371,14 +371,14 @@ public class Controller extends Config {
 			neededRights.add("hwconf.modify");
 			break;
 		case "de.cranix.dao.CrxConfig":
-			CrxConfig ossConfig = (CrxConfig)object;
-			owner = ossConfig.getCreator();
-			neededRights.add("ossconfig.modify");
+			CrxConfig crxConfig = (CrxConfig)object;
+			owner = crxConfig.getCreator();
+			neededRights.add("crxconfig.modify");
 			break;
 		case "de.cranix.dao.CrxMConfig":
-			CrxMConfig ossMConfig = (CrxMConfig)object;
-			owner = ossMConfig.getCreator();
-			neededRights.add("ossmconfig.modify");
+			CrxMConfig crxMConfig = (CrxMConfig)object;
+			owner = crxMConfig.getCreator();
+			neededRights.add("crxmconfig.modify");
 			break;
 		case "de.cranix.dao.Room":
 			Room room = (Room)object;
@@ -496,14 +496,14 @@ public class Controller extends Config {
 			neededRights.add("hwconf.delete");
 			break;
 		case "de.cranix.dao.CrxConfig":
-			CrxConfig ossConfig = (CrxConfig)object;
-			owner = ossConfig.getCreator();
-			neededRights.add("ossconfig.delete");
+			CrxConfig crxConfig = (CrxConfig)object;
+			owner = crxConfig.getCreator();
+			neededRights.add("crxconfig.delete");
 			break;
 		case "de.cranix.dao.CrxMConfig":
-			CrxMConfig ossMConfig = (CrxMConfig)object;
-			owner = ossMConfig.getCreator();
-			neededRights.add("ossmconfig.delete");
+			CrxMConfig crxMConfig = (CrxMConfig)object;
+			owner = crxMConfig.getCreator();
+			neededRights.add("crxmconfig.delete");
 			break;
 		case "de.cranix.dao.Room":
 			Room room = (Room)object;
@@ -769,27 +769,27 @@ public class Controller extends Config {
 	}
 
 	public CrxConfig getConfig(String type, String key) {
-		CrxConfig     ossConfig = null;
+		CrxConfig     crxConfig = null;
 		Query query      = this.em.createNamedQuery("CrxConfig.getAllByKey");
 		query.setParameter("type",type).setParameter("keyword",key);
 		if( ! query.getResultList().isEmpty() ) {
-			ossConfig = (CrxConfig)  query.getResultList().get(0);
+			crxConfig = (CrxConfig)  query.getResultList().get(0);
 		}
-		return ossConfig;
+		return crxConfig;
 	}
 
 	public List<CrxMConfig> getMConfigs(String key) {
 		Query query = this.em.createNamedQuery("CrxMConfig.getAllForKey");
 		query.setParameter("keyword",key);
-		List<CrxMConfig> ossMConfigs = (List<CrxMConfig>) query.getResultList();
-		return ossMConfigs;
+		List<CrxMConfig> crxMConfigs = (List<CrxMConfig>) query.getResultList();
+		return crxMConfigs;
 	}
 
 	public List<CrxMConfig> getMConfigs(String type, String key) {
 		Query query = this.em.createNamedQuery("CrxMConfig.getAllByKey");
 		query.setParameter("type",type).setParameter("keyword",key);
-		List<CrxMConfig> ossMConfigs = (List<CrxMConfig>) query.getResultList();
-		return ossMConfigs;
+		List<CrxMConfig> crxMConfigs = (List<CrxMConfig>) query.getResultList();
+		return crxMConfigs;
 	}
 
 	public List<String> getMConfigs(Object object, String key) {

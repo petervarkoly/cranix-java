@@ -1505,9 +1505,9 @@ public class SoftwareController extends Controller {
 				firstLine.append("  ").append(device.getName()).append(".").append(domainName).append(":");
 
 				topSls.add(firstLine.toString());
-				topSls.add("    - oss_device_" + device.getName() );
+				topSls.add("    - crx_device_" + device.getName() );
 
-				Path SALT_DEV   = Paths.get("/srv/salt/oss_device_" + device.getName() + ".sls");
+				Path SALT_DEV   = Paths.get("/srv/salt/crx_device_" + device.getName() + ".sls");
 				try {
 					Files.write(SALT_DEV, deviceSls);
 					Files.setPosixFilePermissions(SALT_DEV, groupReadDirPermission);

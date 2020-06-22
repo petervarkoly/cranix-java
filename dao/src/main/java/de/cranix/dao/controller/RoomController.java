@@ -657,7 +657,7 @@ public class RoomController extends Controller {
 			program = new String[5];
 			program[4] = this.session.getIp();
 		}
-		program[0] = "/usr/sbin/oss_set_access_state.sh";
+		program[0] = "/usr/sbin/crx_set_access_state.sh";
 		program[2] = room.getStartIP() + "/" + room.getNetMask();
 		access.setRoom(room);
 		StringBuffer reply = new StringBuffer();
@@ -797,7 +797,7 @@ public class RoomController extends Controller {
 		access.setRoomName(room.getName());
 
 		String[] program = new String[3];
-		program[0] = "/usr/sbin/oss_get_access_state.sh";
+		program[0] = "/usr/sbin/crx_get_access_state.sh";
 		program[1] = room.getStartIP() + "/" + room.getNetMask();
 		access.setRoom(room);
 		StringBuffer reply = new StringBuffer();
@@ -925,10 +925,10 @@ public class RoomController extends Controller {
 					}
 				}
 				device.setHwconf(hwconf);
-				CrxResponse ossResponse = deviceController.check(device, room);
-				if( ossResponse.getCode().equals("ERROR") ) {
-					logger.error("addDevices addDevice:" +ossResponse);
-					return ossResponse;
+				CrxResponse crxResponse = deviceController.check(device, room);
+				if( crxResponse.getCode().equals("ERROR") ) {
+					logger.error("addDevices addDevice:" +crxResponse);
+					return crxResponse;
 				}
 				device.setRoom(room);
 				if( hwconf.getDeviceType().equals("FatClient") && this.getDevicesOnMyPlace(room, device).size() > 0 ) {
@@ -1065,9 +1065,9 @@ public class RoomController extends Controller {
 		//Check if the Device settings are OK
 		DeviceController deviceController = new DeviceController(this.session,this.em);
 		logger.debug("DEVICE " + device);
-		CrxResponse ossResponse = deviceController.check(device, room);
-		if( ossResponse.getCode().equals("ERROR") ) {
-			return ossResponse;
+		CrxResponse crxResponse = deviceController.check(device, room);
+		if( crxResponse.getCode().equals("ERROR") ) {
+			return crxResponse;
 		}
 		device.setRoom(room);
 		try {
@@ -1319,7 +1319,7 @@ public class RoomController extends Controller {
 		return new CrxResponse(this.session,"OK","Printers of the room was set.");
 	}
 	public CrxResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
-		CrxResponse ossResponse = null;
+		CrxResponse crxResponse = null;
 		List<String> errors = new ArrayList<String>();
 		DeviceController dc = new DeviceController(this.session,this.em);
 		for( Device device : this.getById(roomId).getDevices() ) {
@@ -1327,9 +1327,9 @@ public class RoomController extends Controller {
 			if( this.session.getDevice().getId().equals(device.getId())) {
 				continue;
 			}
-			ossResponse = dc.manageDevice(device.getId(), action, actionContent);
-			if( ossResponse.getCode().equals("ERROR")) {
-				errors.add(ossResponse.getValue());
+			crxResponse = dc.manageDevice(device.getId(), action, actionContent);
+			if( crxResponse.getCode().equals("ERROR")) {
+				errors.add(crxResponse.getValue());
 			}
 		}
 		if( errors.isEmpty() ) {
@@ -1491,7 +1491,7 @@ public class RoomController extends Controller {
 		File file = null;
 		List<String> importFile;
 		try {
-			file = File.createTempFile("oss_uploadFile", ".ossb", new File(cranixTmpDir));
+			file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			importFile = Files.readAllLines(file.toPath());
 		} catch (IOException e) {
@@ -1500,7 +1500,7 @@ public class RoomController extends Controller {
 		}
 		CloneToolController   cloneToolController = new CloneToolController(this.session,this.em);
 		Map<String,Integer> header                = new HashMap<>();
-		CrxResponse ossResponse;
+		CrxResponse crxResponse;
 		String headerLine = importFile.get(0);
 		Integer i = 0;
 		for(String field : headerLine.split(";")) {
@@ -1568,9 +1568,9 @@ public class RoomController extends Controller {
 					room.setHwconfId(hwconf.getId());
 				}
 			}
-			ossResponse = this.add(room);
-			if( ossResponse.getCode().equals("ERROR") ) {
-				return ossResponse;
+			crxResponse = this.add(room);
+			if( crxResponse.getCode().equals("ERROR") ) {
+	return crxResponse;
 			}
 		}
 		return new CrxResponse(this.getSession(),"OK","Rooms was imported succesfully.");

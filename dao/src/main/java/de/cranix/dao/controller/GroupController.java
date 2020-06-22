@@ -286,9 +286,9 @@ public class GroupController extends Controller {
 			FormDataContentDisposition contentDispositionHeader) {
 		File file = null;
 		List<String> importFile;
-		CrxResponse ossResponse;
+		CrxResponse crxResponse;
 		try {
-			file = File.createTempFile("oss_uploadFile", ".ossb", new File(cranixTmpDir));
+			file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			importFile = Files.readAllLines(file.toPath());
 		} catch (IOException e) {
@@ -306,12 +306,12 @@ public class GroupController extends Controller {
 			Group group = this.getByName(values[0]);
 			if( group == null ) {
 				group = new Group(values[0],values[1],values[2]);
-				ossResponse = this.add(group);
-				if( ossResponse.getCode().equals("ERROR") ) {
-					logger.error("importGroups. Error in line: " + count + ": " + ossResponse.getValue() );
+				crxResponse = this.add(group);
+				if( crxResponse.getCode().equals("ERROR") ) {
+					logger.error("importGroups. Error in line: " + count + ": " + crxResponse.getValue() );
 					continue;
 				}
-				group = this.getById(ossResponse.getObjectId());
+				group = this.getById(crxResponse.getObjectId());
 			}
 			if( values.length > 3 ) {
 				for( String uid : values[3].split(" ") ) {
@@ -542,7 +542,7 @@ public class GroupController extends Controller {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[2];
-		program[0] = "/usr/sbin/oss_clean_group_directory.sh";
+		program[0] = "/usr/sbin/crx_clean_group_directory.sh";
 		program[1] = group.getName();
 		OSSShellTools.exec(program, reply, error, null);
 		if( error.length() > 0 ) {

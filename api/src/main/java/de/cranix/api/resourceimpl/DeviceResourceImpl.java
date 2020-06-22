@@ -24,9 +24,13 @@ import de.cranix.dao.controller.DHCPConfig;
 import de.cranix.dao.controller.DeviceController;
 import de.cranix.dao.controller.EducationController;
 import de.cranix.dao.controller.SessionController;
+import de.cranix.dao.controller.SoftwareController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeviceResourceImpl implements DeviceResource {
+	Logger logger = LoggerFactory.getLogger(DeviceResourceImpl.class);
 
 	public DeviceResourceImpl() {
 	}
@@ -491,8 +495,14 @@ public class DeviceResourceImpl implements DeviceResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		DeviceController deviceController = new DeviceController(session,em);
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		logger.debug("actionMap" + actionMap);
 		for( Long id: actionMap.getObjectIds() ) {
 			responses.add(deviceController.manageDevice(id,actionMap.getName(),null));
+		}
+		if( actionMap.getName().equals("delete") ) {
+			new DHCPConfig(session,em).Create();
+                        new SoftwareController(session,em).applySoftwareStateToHosts();
+
 		}
 		em.close();
 		return responses;

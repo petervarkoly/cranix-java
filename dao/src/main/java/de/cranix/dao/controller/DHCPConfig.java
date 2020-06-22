@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings( "unchecked" )
 public class DHCPConfig extends Controller {
 	private static Logger LOG = LoggerFactory.getLogger(DHCPConfig.class);
-	private String LOCK        = "/run/oss-dhcpd.lock";
-	private String TMPCONF     = "/run/oss-dhcpd.conf";
+	private String LOCK        = "/run/crx-dhcpd.lock";
+	private String TMPCONF     = "/run/crx-dhcpd.conf";
 	private Path DHCP_CONFIG   = Paths.get("/etc/dhcpd.conf");
 	private Path SALT_GROUPS   = Paths.get("/etc/salt/master.d/groups.conf");
 	private Path DHCP_TEMPLATE = Paths.get(cranixBaseDir + "templates/dhcpd.conf");
@@ -59,7 +59,7 @@ public class DHCPConfig extends Controller {
 		    this.systemctl("try-restart", "dhcpd");
 		}
 		this.systemctl("try-restart", "salt-master");
-		this.systemctl("try-restart", "oss_salt_event_watcher");
+		this.systemctl("try-restart", "crx_salt_event_watcher");
 	}
 
 	public CrxResponse Test() {

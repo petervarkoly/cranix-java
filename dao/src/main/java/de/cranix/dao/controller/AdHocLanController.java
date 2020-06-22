@@ -76,12 +76,12 @@ public class AdHocLanController extends Controller {
 		}
 		logger.debug("Add AdHocLan: " + room);
 		RoomController roomConrtoller = new RoomController(this.session,this.em);;
-		CrxResponse ossResponseRoom =  roomConrtoller.add(room);
+		CrxResponse crxResponseRoom =  roomConrtoller.add(room);
 		logger.debug("Add AdHocLan after creating: " + room);
-		if( ossResponseRoom.getCode().equals("ERROR")) {
-			return ossResponseRoom;
+		if( crxResponseRoom.getCode().equals("ERROR")) {
+			return crxResponseRoom;
 		}
-		Long roomId = ossResponseRoom.getObjectId();
+		Long roomId = crxResponseRoom.getObjectId();
 		Category category = new Category();
 		category.setCategoryType("AdHocAccess");
 		category.setName(room.getName());
@@ -91,24 +91,24 @@ public class AdHocLanController extends Controller {
 		category.setStudentsOnly(adHocRoom.isStudentsOnly());
 		logger.debug("Add AdHocLan category: " + category);
 		CategoryController categoryController = new CategoryController(this.session,this.em);;
-		CrxResponse ossResponseCategory = categoryController.add(category);
-		if( ossResponseCategory.getCode().equals("ERROR")) {
-			roomConrtoller.delete(ossResponseRoom.getObjectId());
-			return ossResponseCategory;
+		CrxResponse crxResponseCategory = categoryController.add(category);
+		if( crxResponseCategory.getCode().equals("ERROR")) {
+			roomConrtoller.delete(crxResponseRoom.getObjectId());
+			return crxResponseCategory;
 		}
-		Long categoryId = ossResponseCategory.getObjectId();
-		ossResponseCategory = categoryController.addMember(categoryId, "Room", roomId);
+		Long categoryId = crxResponseCategory.getObjectId();
+		crxResponseCategory = categoryController.addMember(categoryId, "Room", roomId);
 		logger.debug("Add room to Category:"+ categoryId + " " + roomId);
-		if( ossResponseCategory.getCode().equals("ERROR")) {
-			if( ossResponseRoom.getObjectId() != null ) {
-				roomConrtoller.delete(ossResponseRoom.getObjectId());
+		if( crxResponseCategory.getCode().equals("ERROR")) {
+			if( crxResponseRoom.getObjectId() != null ) {
+				roomConrtoller.delete(crxResponseRoom.getObjectId());
 			}
-			if( ossResponseCategory.getObjectId() != null ) {
-				categoryController.delete(ossResponseCategory.getObjectId());
+			if( crxResponseCategory.getObjectId() != null ) {
+				categoryController.delete(crxResponseCategory.getObjectId());
 			}
-			return ossResponseCategory;
+			return crxResponseCategory;
 		}
-		return ossResponseRoom;
+		return crxResponseRoom;
 	}
 
 	public CrxResponse putObjectIntoRoom(Long roomId, String objectType, Long objectId) {

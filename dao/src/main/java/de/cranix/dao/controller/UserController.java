@@ -234,9 +234,9 @@ public class UserController extends Controller {
 		} else if (user.getPassword() == null || user.getPassword().isEmpty()) {
 			user.setPassword(createRandomPassword());
 		} else {
-			CrxResponse ossResponse = this.checkPassword(user.getPassword());
-			if (ossResponse != null) {
-				return ossResponse;
+			CrxResponse crxResponse = this.checkPassword(user.getPassword());
+			if (crxResponse != null) {
+				return crxResponse;
 			}
 		}
 		if (user.getFsQuota() == null) {
@@ -307,9 +307,9 @@ public class UserController extends Controller {
 			return new CrxResponse(this.getSession(), "ERROR", "You must not modify this user.");
 		}
 		if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-			CrxResponse ossResponse = this.checkPassword(user.getPassword());
-			if (ossResponse != null) {
-				return ossResponse;
+			CrxResponse crxResponse = this.checkPassword(user.getPassword());
+			if (crxResponse != null) {
+				return crxResponse;
 			}
 		}
 		logger.debug("modifyUser user:" + user);
@@ -616,7 +616,7 @@ public class UserController extends Controller {
 			program = new String[3];
 			program[2] = stringValue;
 		}
-		program[0] = "/usr/sbin/oss_copy_template_home.sh";
+		program[0] = "/usr/sbin/crx_copy_template_home.sh";
 		for (Long id : userIds) {
 			User user = this.getById(id);
 			if( user != null ) {
@@ -637,7 +637,7 @@ public class UserController extends Controller {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[2];
-		program[0] = "/usr/sbin/oss_remove_profile.sh";
+		program[0] = "/usr/sbin/crx_remove_profile.sh";
 		for (Long id : userIds) {
 			User user = this.getById(id);
 			if( user != null ) {
@@ -714,7 +714,7 @@ public class UserController extends Controller {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[3];
-		program[0] = "/usr/sbin/oss_set_quota.sh";
+		program[0] = "/usr/sbin/crx_set_quota.sh";
 		program[2] = String.valueOf(fsQuota);
 		Integer quota = Integer.valueOf(program[2]);
 		for (Long id : userIds) {
@@ -741,7 +741,7 @@ public class UserController extends Controller {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[3];
-		program[0] = "/usr/sbin/oss_set_mquota.pl";
+		program[0] = "/usr/sbin/crx_set_mquota.pl";
 		program[2] = String.valueOf(msQuota);
 		Integer quota = Integer.valueOf(program[2]);
 		for (Long id : userIds) {
@@ -768,7 +768,7 @@ public class UserController extends Controller {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[11];
-		program[0] = "/usr/sbin/oss_collect_files.sh";
+		program[0] = "/usr/sbin/crx_collect_files.sh";
 		program[1] = "-t";
 		program[2] = this.session.getUser().getUid();
 		program[3] = "-f";
@@ -791,7 +791,7 @@ public class UserController extends Controller {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[11];
-		program[0] = "/usr/sbin/oss_collect_files.sh";
+		program[0] = "/usr/sbin/crx_collect_files.sh";
 		program[1] = "-t";
 		program[2] = this.session.getUser().getUid();
 		program[3] = "-f";
@@ -813,7 +813,7 @@ public class UserController extends Controller {
 		String[] program = new String[11];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
-		program[0] = "/usr/sbin/oss_collect_files.sh";
+		program[0] = "/usr/sbin/crx_collect_files.sh";
 		program[1] = "-t";
 		program[2] = this.session.getUser().getUid();
 		program[3] = "-f";
@@ -938,13 +938,13 @@ public class UserController extends Controller {
 		if( !guestUsers.getPassword().isEmpty() ) {
 			password = guestUsers.getPassword();
 		}
-		CrxResponse ossResponse = this.checkPassword(password);
-		if( ossResponse != null ) {
+		CrxResponse crxResponse = this.checkPassword(password);
+		if( crxResponse != null ) {
 			if (checkPassword) {
 				this.setConfigValue("CHECK_PASSWORD_QUALITY", "yes");
 			}
-			logger.error("Reset Password" + ossResponse);
-			return ossResponse;
+			logger.error("Reset Password" + crxResponse);
+			return crxResponse;
 		}
 		// First we check if we can create room with the requested size
 		if( guestUsers.isCreateAdHocRoom() ) {
@@ -956,11 +956,11 @@ public class UserController extends Controller {
 			room.setRoomControl("allTeachers");
 			room.setHwconfId(3L);
 			room.setRoomType("adHocRoom");
-			ossResponse = roomController.add(room);
-			if( ossResponse.getCode().equals("ERROR")) {
-				return ossResponse;
+			crxResponse = roomController.add(room);
+			if( crxResponse.getCode().equals("ERROR")) {
+				return crxResponse;
 			} else {
-				room = roomController.getById(ossResponse.getObjectId());
+				room = roomController.getById(crxResponse.getObjectId());
 			}
 		}
 
@@ -970,22 +970,22 @@ public class UserController extends Controller {
 		category.setDescription(guestUsers.getDescription());
 		category.setValidFrom(categoryController.now());
 		category.setValidUntil(guestUsers.getValidUntil());
-		ossResponse = categoryController.add(category);
-		if (ossResponse.getCode().equals("ERROR")) {
-			return ossResponse;
+		crxResponse = categoryController.add(category);
+		if (crxResponse.getCode().equals("ERROR")) {
+			return crxResponse;
 		}
-		category = categoryController.getById(ossResponse.getObjectId());
+		category = categoryController.getById(crxResponse.getObjectId());
 		Group group = new Group();
 		group.setGroupType(roleGuest);
 		group.setName(guestUsers.getName());
 		group.setDescription(guestUsers.getDescription());
-		ossResponse = groupController.add(group);
-		if (ossResponse.getCode().equals("ERROR")) {
+		crxResponse = groupController.add(group);
+		if (crxResponse.getCode().equals("ERROR")) {
 			categoryController.delete(category.getId());
-			return ossResponse;
+			return crxResponse;
 		}
 
-		group = groupController.getById(ossResponse.getObjectId());
+		group = groupController.getById(crxResponse.getObjectId());
 		try {
 			this.em.getTransaction().begin();
 			category.setGroups(new ArrayList<Group>());
@@ -1018,17 +1018,17 @@ public class UserController extends Controller {
 			} else {
 				user.setPassword("");
 			}
-			ossResponse = this.add(user);
-			logger.debug("Create user ossResponse:" + ossResponse);
-			user = this.getById(ossResponse.getObjectId());
-			ossResponse = groupController.addMember(group, user);
-			logger.debug("Create user " + ossResponse);
+			crxResponse = this.add(user);
+			logger.debug("Create user crxResponse:" + crxResponse);
+			user = this.getById(crxResponse.getObjectId());
+			crxResponse = groupController.addMember(group, user);
+			logger.debug("Create user " + crxResponse);
 			categoryController.addMember(category.getId(), "user", user.getId());
 		}
-		ossResponse.setObjectId(category.getId());
-		ossResponse.setValue("Guest Users were created succesfully");
-		ossResponse.setCode("OK");
-		return ossResponse;
+		crxResponse.setObjectId(category.getId());
+		crxResponse.setValue("Guest Users were created succesfully");
+		crxResponse.setCode("OK");
+		return crxResponse;
 	}
 
 	public String getGroupsOfUser(String userName, String groupType) {
@@ -1225,17 +1225,17 @@ public class UserController extends Controller {
 
 	public CrxResponse addDefaultAliase(User user) {
 		boolean error = false;
-		CrxResponse ossResponse = this.addAlias(user, normalize(user.getGivenName() + "." + user.getSurName()));
-		error = ossResponse.getCode().equals("ERROR");
-		ossResponse = this.addAlias(user,  normalize(user.getSurName() + "." + user.getGivenName()));
+		CrxResponse crxResponse = this.addAlias(user, normalize(user.getGivenName() + "." + user.getSurName()));
+		error = crxResponse.getCode().equals("ERROR");
+		crxResponse = this.addAlias(user,  normalize(user.getSurName() + "." + user.getGivenName()));
 		if( error ) {
-			if( ossResponse.getCode().equals("ERROR") ) {
+			if( crxResponse.getCode().equals("ERROR") ) {
 				return new CrxResponse(this.getSession(), "ERROR", "Can not add default aliases." );
 			} else {
 				return new CrxResponse(this.getSession(), "ERROR", "Can not add Givenname.Surname alias.");
 			}
 		} else {
-			if( ossResponse.getCode().equals("ERROR") ) {
+			if( crxResponse.getCode().equals("ERROR") ) {
 				return new CrxResponse(this.getSession(), "ERROR", "Can not ad Surname.Givenname alias" );
 			} else {
 				return new CrxResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");

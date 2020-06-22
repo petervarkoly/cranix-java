@@ -610,7 +610,7 @@ public class SystemController extends Controller {
 		String[] program   = new String[1 + packages.size()];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		program[0] = "/usr/sbin/oss_update.sh";
+		program[0] = "/usr/sbin/crx_update.sh";
 		int i = 3;
 		for(String prog : packages) {
 			program[i] = prog;
@@ -631,7 +631,7 @@ public class SystemController extends Controller {
 		String[] program   = new String[1];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		program[0] = "/usr/sbin/oss_update.sh";
+		program[0] = "/usr/sbin/crx_update.sh";
 		if( OSSShellTools.exec(program, reply, error, null) == 0 ) {
 			return new CrxResponse(this.getSession(),"OK","System was updated succesfully.");
 		} else {
@@ -812,7 +812,7 @@ public class SystemController extends Controller {
 		String[] program   = new String[1];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		program[0] = "/usr/sbin/oss_get_dns_domains.sh";
+		program[0] = "/usr/sbin/crx_get_dns_domains.sh";
 		OSSShellTools.exec(program, reply, error, null);
 		return reply.toString().split("\\n");
 	}
@@ -838,7 +838,7 @@ public class SystemController extends Controller {
 		String[] program   = new String[2];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		program[0] = "/usr/sbin/oss_dump_dns_domain.sh";
+		program[0] = "/usr/sbin/crx_dump_dns_domain.sh";
 		program[1] = domainName;
 		OSSShellTools.exec(program, reply, error, null);
 
@@ -972,9 +972,9 @@ public class SystemController extends Controller {
 			break;
 		case "hwconf":
 			break;
-		case "ossonfig":
+		case "crxonfig":
 			break;
-		case "ossmonfig":
+		case "crxmonfig":
 			break;
 		case "room":
 			break;

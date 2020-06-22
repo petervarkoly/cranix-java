@@ -351,7 +351,7 @@ public class EducationController extends UserController {
 		File file = null;
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		try {
-			file = File.createTempFile("oss_uploadFile", ".ossb", new File(cranixTmpDir));
+			file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
@@ -548,7 +548,7 @@ public class EducationController extends UserController {
 
 
 	public CrxResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
-		CrxResponse ossResponse = null;
+		CrxResponse crxResponse = null;
 		List<String> errors = new ArrayList<String>();
 		DeviceController dc = new DeviceController(this.session,this.em);
 
@@ -606,9 +606,9 @@ public class EducationController extends UserController {
 			{
 				continue;
 			}
-			ossResponse = dc.manageDevice(loggedOn.get(1), action, actionContent);
-			if( ossResponse.getCode().equals("ERROR")) {
-				errors.add(ossResponse.getValue());
+			crxResponse = dc.manageDevice(loggedOn.get(1), action, actionContent);
+			if( crxResponse.getCode().equals("ERROR")) {
+				errors.add(crxResponse.getValue());
 			}
 		}
 		if( errors.isEmpty() ) {
@@ -667,7 +667,7 @@ public class EducationController extends UserController {
 		program[0] = "/usr/bin/salt";
 		program[1] = "-L";
 		program[2] = String.join(",", devices);
-		program[3] = "oss_client.set_controller_ip";
+		program[3] = "crx_client.set_controller_ip";
 		program[4] = controllers.toString();
 		OSSShellTools.exec(program, reply, stderr, null);
 
