@@ -161,13 +161,14 @@ public class UserController extends Controller {
 			int endIndex = Integer.valueOf(m.group(2));
 			//logger.debug("have found" + m.group(1) + " " + m.group(2) + " " + endIndex + " " + givenName );
 			switch(m.group(1)) {
+			case "V":
 			case "G":
 				endIndex = endIndex > givenName.length() ?  givenName.length() : endIndex;
 				userId = userId.concat(givenName.substring(0, endIndex));
 				break;
 			case "N":
 			case "S":
-				endIndex = endIndex > surName.length() ?  givenName.length() : endIndex;
+				endIndex = endIndex > surName.length() ?  surName.length() : endIndex;
 				userId = userId.concat(surName.substring(0, endIndex));
 				break;
 			case "Y":
