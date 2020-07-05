@@ -679,7 +679,7 @@ public class UserController extends Controller {
 				}
 				program[1] = user.getUid();
 				OSSShellTools.exec(program, reply, error, null);
-				responses.add(new CrxResponse(this.getSession(), "OK", "The windows profile of '%s' was removed.",null,user.getUid()));
+				responses.add(new CrxResponse(this.getSession(), "OK", "The windows profile of '%s' was froozen.",null,user.getUid()));
 			}
 		}
 		return responses;
@@ -867,9 +867,9 @@ public class UserController extends Controller {
 				}
 				if (disable) {
 					this.setConfig(this.getById(userId), "internetDisabled", "yes");
-					responses.add(new CrxResponse(this.getSession(), "OK", "'%s' was disabled.",null,user.getUid()));
+					responses.add(new CrxResponse(this.getSession(), "OK", "Surfing is for '%s' disabled.",null,user.getUid()));
 				} else {
-					responses.add(new CrxResponse(this.getSession(), "OK", "'%s' was enabled.",null,user.getUid()));
+					responses.add(new CrxResponse(this.getSession(), "OK", "Surfing is for '%s' enabled.",null,user.getUid()));
 					this.deleteConfig(this.getById(userId), "internetDisabled");
 				}
 			}
