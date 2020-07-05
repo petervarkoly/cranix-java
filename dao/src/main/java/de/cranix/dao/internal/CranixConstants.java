@@ -21,6 +21,9 @@ public interface CranixConstants {
 	static String cranixPrinters   = cranixBaseDir + "templates/printers.txt";
 	static String cranixSysConfig  = "/etc/sysconfig/cranix";
 	static String cranixSysPrefix  = "CRANIX_";
+	static String cranixAdm        = "/var/adm/cranix/";
+	static String cranixScreenShots= "/var/adm/cranix/screenShots/";
+	static byte[] cranixComputer   = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAANfwAADX8B0bk+GgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAE1SURBVFiF7de9SmRBEAXgrwYDQQMjNRARDA3EWBZBETbZQPERDJcJfBRjzcTIFzBwA19AHDAXxsDAwGAFjcpkBoYF797byjW5BQVF/5xzqrqguyMzRcQ01hHascRtZr7CPp5Gg23604jb4BvIxz6IUQAHuCqtaUPbwQVMTQy+ZOZzG+wR8TKOe20QVlknoBPQCegEdAI6Ad8uYPI63oqIuZZ418fB5IOkqb3iFEP8xlIJyGeO4AQzOMRRKUgPb4V7H7CBVfwtxHiDM2UPyiH2sIvLQoyzwAL62FbvXzCLtQ/m7tSrRuIPjmVmI8eviox+NsUracLlirn5xmgNs5/CjY8rcI1ohFmTuIcfOK8gH/sJNtH7SgH9GsT/ev8re6CkV2rtiVGG1YsiFrHSUMB9Zj7+b9E7oLWec7/pQbsAAAAASUVORK5CYII=".getBytes();
 
 	static FileAttribute<Set<PosixFilePermission>> privatDirAttribute      = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rwx------"));
 	static FileAttribute<Set<PosixFilePermission>> privatFileAttribute     = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rw-------"));
