@@ -66,8 +66,13 @@ public class AdHocLanController extends Controller {
 		room.setName(adHocRoom.getName());
 		room.setDescription(adHocRoom.getDescription());
 		room.setNetMask(adHocRoom.getNetMask());
+		room.setDevCount(adHocRoom.getDevCount());
 		room.setRoomType("AdHocAccess");
-		room.setPlaces(adHocRoom.getPlaces());
+		if( adHocRoom.getDevicesProUser() != null ) {
+			room.setPlaces(adHocRoom.getDevicesProUser());
+		} else {
+			room.setPlaces(adHocRoom.getPlaces());
+		}
 		room.setRoomControl(adHocRoom.getRoomControl());
 		//Search the BYOD HwConf
 		if( room.getHwconf() == null ) {
@@ -107,6 +112,16 @@ public class AdHocLanController extends Controller {
 				categoryController.delete(crxResponseCategory.getObjectId());
 			}
 			return crxResponseCategory;
+		}
+		if( adHocRoom.getGroupIds() != null ) {
+			for( Long id : adHocRoom.getGroupIds() ) {
+				categoryController.addMember(categoryId, "Group", id);
+			}
+		}
+		if( adHocRoom.getUserIds() != null ) {
+			for( Long id : adHocRoom.getUserIds() ) {
+				categoryController.addMember(categoryId, "User", id);
+			}
 		}
 		return crxResponseRoom;
 	}
