@@ -20,7 +20,7 @@ import java.util.Map;
 @Entity
 @Table(name="Rooms")
 @NamedQueries ({
-	@NamedQuery(name="Room.findAll",                   query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomType != 'adHocAccess'"),
+	@NamedQuery(name="Room.findAll",                   query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom'"),
 	@NamedQuery(name="Room.findAllWithControl",        query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomControl != 'no'"),
 	@NamedQuery(name="Room.findAllWithTeacherControl", query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomControl != 'no' AND r.roomControl != 'sysadminsOnly'"),
 	@NamedQuery(name="Room.findAllWithFirewallControl",query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom'"),
