@@ -272,24 +272,6 @@ public class AdHocLanResourceImpl implements AdHocLanResource {
 	}
 
 	@Override
-	public boolean getStudentsOnly(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		boolean resp = new AdHocLanController(session,em).getAdHocCategoryOfRoom(roomId).getStudentsOnly();
-		em.close();
-		return resp;
-	}
-
-	@Override
-	public CrxResponse setStudentsOnly(Session session, Long roomId, boolean studentsOnly) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Category category = new AdHocLanController(session,em).getAdHocCategoryOfRoom(roomId);
-		category.setStudentsOnly(studentsOnly);
-		CrxResponse resp = new CategoryController(session,em).modify(category);
-		em.close();
-		return resp;
-	}
-
-	@Override
 	public List<Device> getDevicesOfRoom(Session session, Long adHocRoomId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Room room = em.find(Room.class, adHocRoomId);

@@ -29,15 +29,68 @@ import de.cranix.dao.User;
 
 import java.util.List;
 
-@Path("adhoclan")
-@Api(value = "adhoclan")
+@Path("adhocrooms")
+@Api(value = "adhocrooms")
 public interface AdHocLanResource {
 
-	/*
-	 * Get adhoclan/rooms/{roomId}/{objectType}
+	/**
+	 * getRooms Delivers a list of all AdHocRooms
+	 * @param session
+	 * @return
 	 */
 	@GET
-	@Path("rooms/{roomId}/users")
+	@Path("all")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets all defined AdHocLan Rooms which a user may use. Superuser get the list of all AdHocLan rooms.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "No room was found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@PermitAll
+	List<AdHocRoom> getRooms(
+			@ApiParam(hidden = true) @Auth Session session
+			);
+
+	/*
+	 * POST addhoclan/add { hash }
+	 */
+	@POST
+	@Path("add")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Create new AddHocLan room")
+	@ApiResponses(value = {
+			// TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("adhoclan.manage")
+	CrxResponse add(
+			@ApiParam(hidden = true) @Auth Session session,
+			AdHocRoom room
+	);
+
+	/**
+	 * Delets an adhoc room inkl all devices.
+	 * @param session
+	 * @param id The id of the room to be deleted.
+	 * @return
+	 */
+	@DELETE
+	@Path("{id}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Delets a whole adhoc room inkl devices.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "No room was found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("adhoclan.manage")
+	CrxResponse delete(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("id")		Long id
+			);
+
+	/*
+	 * Get adhoclan/{id}/{objectType}
+	 */
+	@GET
+	@Path("{id}/users")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all defined groups or users or devices in a giwen AdHocLan room. Object types can be Group or User")
 	@ApiResponses(value = {
@@ -46,11 +99,11 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	List<User> getUsersOfRoom(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")	 Long roomId
+			@PathParam("id")	 Long id
 			);
 
 	@GET
-	@Path("rooms/{roomId}/groups")
+	@Path("{id}/groups")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all defined groups or users or devices in a giwen AdHocLan room. Object types can be Group or User")
 	@ApiResponses(value = {
@@ -59,14 +112,14 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	List<Group> getGroupsOfRoom(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")	 Long roomId
+			@PathParam("id")	 Long id
 			);
 
 	/*
-	 * GET categories/<roomId>/available/<memeberType>
+	 * GET categories/<id>/available/<memeberType>
 	 */
 	@GET
-	@Path("rooms/{roomId}/available/users")
+	@Path("{id}/available/users")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the non member users of an AdHocLan room.")
 	@ApiResponses(value = {
@@ -75,11 +128,11 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	List<User> getAvailableUser(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId") long roomId
+			@PathParam("id") long id
 			);
 
 	@GET
-	@Path("rooms/{roomId}/available/groups")
+	@Path("{id}/available/groups")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the non member groups of an AdHocLan room.")
 	@ApiResponses(value = {
@@ -88,7 +141,7 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	List<Group> getAvailableGroups(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId") long roomId
+			@PathParam("id") long id
 			);
 
 	/*
@@ -122,24 +175,7 @@ public interface AdHocLanResource {
 			);
 
 	/*
-	 * POST addhoclan/rooms { hash }
-	 */
-	@POST
-	@Path("rooms")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Create new AddHocLan room")
-	@ApiResponses(value = {
-			// TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("adhoclan.manage")
-	CrxResponse add(
-			@ApiParam(hidden = true) @Auth Session session,
-			AdHocRoom room
-	);
-
-	/*
-	 * PUT addhoclan/rooms/{roomId}/{objectType}/{objectId}
+	 * PUT addhoclan/rooms/{roomId}
 	 */
 	@PUT
 	@Path("rooms/{roomId}")
@@ -155,10 +191,10 @@ public interface AdHocLanResource {
 			);
 
 	/*
-	 * POST addhoclan/rooms/{roomId}
+	 * POST addhoclan/{id}
 	 */
 	@GET
-	@Path("rooms/{roomId}")
+	@Path("{id}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets an AdHocLan room.")
 	@ApiResponses(value = {
@@ -167,14 +203,14 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	AdHocRoom getRoomById(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")		Long roomId
+			@PathParam("id")		Long id
 			);
 
 	/*
-	 * POST addhoclan/rooms/{roomId}
+	 * POST addhoclan/{id}
 	 */
 	@POST
-	@Path("rooms/{roomId}")
+	@Path("{id}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify an AdHocLan room")
 	@ApiResponses(value = {
@@ -183,49 +219,15 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	CrxResponse modify(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")		Long roomId,
+			@PathParam("id")		Long id,
 			AdHocRoom room
 			);
 
 	/*
-	 * Get addhoclan/rooms/{roomId}/studentsOnly
-	 */
-	@GET
-	@Path("rooms/{roomId}/studentsOnly")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets an AdHocLan room.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "No category was found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("adhoclan.manage")
-	boolean getStudentsOnly(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")		Long roomId
-			);
-
-	/*
-	 * Get addhoclan/rooms/{roomId}/studentsOnly
-	 */
-	@POST
-	@Path("rooms/{roomId}/studentsOnly")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets an AdHocLan room.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "No category was found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("adhoclan.manage")
-	CrxResponse setStudentsOnly(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")		Long roomId,
-			boolean studentsOnly
-			);
-
-
-	/*
-	 * PUT addhoclan/rooms/{roomId}/{objectType}/{objectId}
+	 * PUT addhoclan/{id}/{objectType}/{objectId}
 	 */
 	@PUT
-	@Path("rooms/{roomId}/{objectType}/{objectId}")
+	@Path("{id}/{objectType}/{objectId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a new group or user to a giwen AdHocLan room")
 	@ApiResponses(value = {
@@ -234,16 +236,16 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	CrxResponse putObjectIntoRoom(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")		Long roomId,
+			@PathParam("id")		Long id,
 			@PathParam("objectType")	String onjectType,
 			@PathParam("objectId")		Long objectId
 			);
 
 	/*
-	 * PUT addhoclan/rooms/{roomId}/{objectType}/{objectId}
+	 * PUT addhoclan/{id}/{objectType}/{objectId}
 	 */
 	@DELETE
-	@Path("rooms/{roomId}/{objectType}/{objectId}")
+	@Path("{id}/{objectType}/{objectId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes a group or user from an AdHocLan room")
 	@ApiResponses(value = {
@@ -252,53 +254,17 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	CrxResponse deleteObjectInRoom(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")		Long roomId,
+			@PathParam("id")		Long id,
 			@PathParam("objectType")	String onjectType,
 			@PathParam("objectId")		Long objectId
 			);
 	/**
-	 * getRooms Delivers a list of all AdHocRooms
 	 * @param session
+	 * @param id
 	 * @return
 	 */
 	@GET
-	@Path("rooms")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets all defined AdHocLan Rooms which a user may use. Superuser get the list of all AdHocLan rooms.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "No room was found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@PermitAll
-	List<AdHocRoom> getRooms(
-			@ApiParam(hidden = true) @Auth Session session
-			);
-
-	/**
-	 * Delets an adhoc room inkl all devices.
-	 * @param session
-	 * @param adHocRoomId The id of the room to be deleted.
-	 * @return
-	 */
-	@DELETE
-	@Path("rooms/{adHocRoomId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delets a whole adhoc room inkl devices.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "No room was found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("adhoclan.manage")
-	CrxResponse delete(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("adHocRoomId")		Long adHocRoomId
-			);
-
-	/**
-	 * @param session
-	 * @param adHocRoomId
-	 * @return
-	 */
-	@GET
-	@Path("rooms/{adHocRoomId}/devices")
+	@Path("{id}/devices")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all devices in an add hoc room.")
 	@ApiResponses(value = {
@@ -307,7 +273,7 @@ public interface AdHocLanResource {
 	@RolesAllowed("adhoclan.manage")
 	List<Device> getDevicesOfRoom(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("adHocRoomId")		Long adHocRoomId
+			@PathParam("id")		Long id
 			);
 
 	/*
@@ -378,7 +344,7 @@ public interface AdHocLanResource {
 			);
 
 	@PUT
-	@Path("rooms/{roomId}/device/{MAC}/{name}")
+	@Path("{id}/device/{MAC}/{name}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
 	@ApiResponses(value = {
@@ -388,7 +354,7 @@ public interface AdHocLanResource {
 	@PermitAll
 	CrxResponse addDevice(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId")		long roomId,
+			@PathParam("id")		long id,
 			@PathParam("MAC")			String macAddress,
 			@PathParam("name")			String name
 	);
