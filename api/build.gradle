@@ -30,8 +30,6 @@ dependencies {
     compile "io.dropwizard:dropwizard-auth:$dropwizardVersion"
     compile "io.dropwizard:dropwizard-client:$dropwizardVersion" // used for proxying support api calls
     compile "com.smoketurner:dropwizard-swagger:1.0.6-1"
-    compile ("de.extis:XPluginLib:1.0.1-SNAPSHOT") { changing = true }
-    compile ("de.claxss:claxssimportlib:1.0.4") 
     compile "org.apache.maven.plugins:maven-shade-plugin:2.4.3"
     compile "com.google.guava:guava:19.0"
     compile "com.google.code.gson:gson:2.4"

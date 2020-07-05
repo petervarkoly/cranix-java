@@ -18,17 +18,8 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-
 import java.io.File;
-
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
-
-import de.extis.xpluginlib.PluginHandler;
-
-//import de.cranix.dao.controller.GetJPAInf;
-//import java.io.IOException;
-//import java.net.ServerSocket;
-
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 public class ServerApplication extends Application<ServerConfiguration> {
@@ -117,12 +108,6 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
 		final InformationResource infoResource = new InformationResourceImpl();
 		environment.jersey().register(infoResource);
-
-		if( new File("/srv/www/ossweb/index.html").exists() ) {
-			final ImporterResource importerResource = new ImporterResourceImpl();
-			environment.jersey().register(importerResource);
-			PluginHandler.registerPlugins(environment);
-		}
 
 		final SupportResource supportResource = new SupportResourceImpl();
 		environment.jersey().register(supportResource);

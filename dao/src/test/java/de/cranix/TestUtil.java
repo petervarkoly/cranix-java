@@ -1,15 +1,12 @@
+/* (c) 2020 Dipl Ing Péter Varkoly <pvarkoly@cephalix.eu> All rights reserved*/
 package de.cranix;
 
-import java.util.Date;
-
-import de.extis.core.util.UserUtil;
+import static de.cranix.dao.tools.StaticHelpers.*;
 
 public class TestUtil {
 	public static void main (String[] args) {
-		System.out.println("Random Password 8 digits: " + UserUtil.createRandomPassword(8));
-		System.out.println("Random Password 8 digits with given chars: " + UserUtil.createRandomPassword(8,"ABCabc897.!"));
+		System.out.println("Random Password 8 digits: " + createRandomPassword());
+		System.out.println("Normalize string 'asdÁŰköäűúőpöóüü': " + normalize("asdÁŰköäűúőpöóüü"));
 	
-		String userid = UserUtil.createUserId("Péter","Varkoly",new Date(), true, true, "G4N2Y2");
-		System.out.println("CreateUserId:"+userid);
 	}
 }
