@@ -7,6 +7,7 @@ import static de.cranix.api.resources.Resource.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.PermitAll;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +28,7 @@ import de.cranix.dao.Printer;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.SmartRoom;
+import de.cranix.dao.Student;
 import de.cranix.dao.User;
 import de.cranix.dao.Device;
 
@@ -42,7 +44,7 @@ public interface EducationResource {
 	 * POST education/rooms
 	 */
 	@POST
-	@Path("rooms")
+	@Path("rooms/add")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new smart room. A smart Room is a category with CategoryType smart room. " +
 	                      "The map can contains a description attribute. " +
@@ -197,13 +199,13 @@ public interface EducationResource {
 	 *  GET education/rooms
 	 */
 	@GET
-	@Path("rooms")
+	@Path("rooms/all")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of the smart rooms the user has created.")
 	@ApiResponses(value = {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@PermitAll
 	List<Room> getMySmartRooms(
 	        @ApiParam(hidden = true) @Auth Session session
 	);
@@ -506,7 +508,7 @@ public interface EducationResource {
 	 * POST education/groups
 	 */
 	@POST
-	@Path("groups")
+	@Path("groups/add")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new workgroup.")
 	@ApiResponses(value = {
@@ -555,13 +557,13 @@ public interface EducationResource {
 	 * GET education/groups
 	 */
 	@GET
-	@Path("groups")
+	@Path("groups/all")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the workgroups and classes of a usrer.")
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.groups")
+	@PermitAll
 	List<Group>  getMyGroups(
 	        @ApiParam(hidden = true) @Auth Session session
 	);
@@ -788,18 +790,17 @@ public interface EducationResource {
 	/* Actions on logged in users and smart rooms and groups. */
 	/************************************************************/
 
-	@POST
-	@Path("users")
+	@GET
+	@Path("users/all")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a list of users by the userids." )
 	@ApiResponses(value = {
 	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.users")
-	List<User> getUsersById(
-	                @ApiParam(hidden = true) @Auth Session session,
-	                List<Long> userIds
+	@PermitAll
+	List<Student> getUsers(
+	                @ApiParam(hidden = true) @Auth Session session
 	                );
 
 	/*
@@ -898,11 +899,11 @@ public interface EducationResource {
 	})
 	@RolesAllowed("education.users")
 	List<CrxResponse> uploadFileToUsers(@ApiParam(hidden = true) @Auth Session session,
-			@FormDataParam("userIds") final String userIds,
-			@FormDataParam("cleanUp") Boolean cleanUp,
+		@FormDataParam("userIds") final String userIds,
+		@FormDataParam("cleanUp") Boolean cleanUp,
 	        @FormDataParam("file") final InputStream fileInputStream,
 	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-	        );
+        );
 
 	@POST
 	@Path("users/collect")
@@ -917,7 +918,7 @@ public interface EducationResource {
 		@FormDataParam("sortInDirs")  boolean sortInDirs,
 		@FormDataParam("cleanUpExport") boolean cleanUpExport,
 		@FormDataParam("userIds") final String userIds
-	        );
+        );
 
 	@POST
 	@Path("users/applyAction")

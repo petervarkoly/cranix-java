@@ -28,6 +28,7 @@ import de.cranix.dao.Printer;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.SmartRoom;
+import de.cranix.dao.Student;
 import de.cranix.dao.User;
 import de.cranix.dao.controller.*;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
@@ -667,9 +668,19 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<User> getUsersById(Session session, List<Long> userIds) {
+	public List<Student> getUsers(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<User> resp = new UserController(session,em).getUsers(userIds);
+		List<Student> resp = new ArrayList<Student>();
+		for( User user : new UserController(session,em).getByRole(roleStudent) ) {
+			for( Group group : user.getGroups() ) {
+				if( !group.getGroupType().equals("primary") ) {
+					Student student = new Student(user);
+					student.setGroupName(group.getName());
+					student.setGroupId(group.getId());
+					resp.add(student);
+				}
+			}
+		}
 		em.close();
 		return resp;
 	}
@@ -685,6 +696,7 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	@Override
 	public List<Group> getMyGroups(Session session) {
 		List<Group> groups = new ArrayList<Group>();
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		for( Group group : session.getUser().getGroups() ) {
 			if( !group.getGroupType().equals("primary") ) {
 				groups.add(group);
@@ -696,6 +708,12 @@ public class EducationResourceImpl implements Resource, EducationResource {
 				groups.add(group);
 			}
 		}
+		for( Group group : new GroupController(session,em).getByType("class") ) {
+			if( !groups.contains(group)) {
+				groups.add(group);
+			}
+		}
+		em.close();
 		return groups;
 	}
 
