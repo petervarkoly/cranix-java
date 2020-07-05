@@ -403,7 +403,7 @@ public class GroupController extends Controller {
 	public CrxResponse addMember(Group group, User user) {
 		if( !this.mayModify(group) ) {
 			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
-        }
+		}
 		parameters = new ArrayList<String>();
 		parameters.add(user.getUid());
 		parameters.add(group.getName());
@@ -431,7 +431,7 @@ public class GroupController extends Controller {
 	public CrxResponse addMembers(Group group, List<User> users) {
 		if( !this.mayModify(group) ) {
 			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
-        }
+	        }
 		try {
 			for( User user: users ) {
 				if(! user.getGroups().contains(group) ) {
@@ -485,8 +485,8 @@ public class GroupController extends Controller {
 	public CrxResponse removeMember(long groupId, long userId) {
 		Group group = this.em.find(Group.class, groupId);
 		if( !this.mayModify(group) ) {
-       return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
-        }
+			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
+		}
 		User  user  = this.em.find(User.class, userId);
 		if( user.getRole().equals(group.getName()) ) {
 			return new CrxResponse(this.getSession(),"ERROR","User must not be removed from it's primary group.");

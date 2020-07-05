@@ -340,9 +340,9 @@ public class RoomController extends Controller {
 		if( room.getRoomType().equals("smartRoom") ) {
 			return new CrxResponse(this.getSession(),"ERROR", "Smart Rooms can only be created by Education Controller.");
 		}
-        HWConf hwconf = new HWConf();
-        CloneToolController cloneToolController = new CloneToolController(this.session,this.em);
-        HWConf firstFatClient = cloneToolController.getByType("FatClient").get(0);
+		HWConf hwconf = new HWConf();
+		CloneToolController cloneToolController = new CloneToolController(this.session,this.em);
+		HWConf firstFatClient = cloneToolController.getByType("FatClient").get(0);
 		logger.debug("First HWConf:" +  firstFatClient.toString());
 
 		//Check parameters
@@ -371,6 +371,7 @@ public class RoomController extends Controller {
 		if( room.getNetwork() == null || room.getNetwork().isEmpty() ) {
 			room.setNetwork(this.getConfigValue("NETWORK") + "/" + this.getConfigValue("NETMASK"));
 		}
+		logger.debug("Add Room:" +  room );
 
 		// If the starIp is not given we have to search the next room IP
 		if( room.getStartIP() == null || room.getStartIP().isEmpty() ) {
