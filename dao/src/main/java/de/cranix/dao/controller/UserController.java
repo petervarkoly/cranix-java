@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.OrderBy;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
@@ -60,6 +61,7 @@ public class UserController extends Controller {
 		return homeDir.toString();
 	}
 
+	@OrderBy("uid,surName")
 	public List<User> getByRole(String role) {
 		List<User> users = new ArrayList<User>();
 		try {
@@ -70,7 +72,7 @@ public class UserController extends Controller {
 			logger.error("getByRole: " + e.getMessage());
 		} finally {
 		}
-		users.sort(Comparator.comparing(User::getUid));
+		//users.sort(Comparator.comparing(User::getUid));
 		return users;
 	}
 
@@ -104,6 +106,7 @@ public class UserController extends Controller {
 		}
 	}
 
+	@OrderBy("uid,surName")
 	public List<User> findByName(String givenName, String surName) {
 		try {
 			Query query = this.em.createNamedQuery("User.findByName");
@@ -117,6 +120,7 @@ public class UserController extends Controller {
 		}
 	}
 
+	@OrderBy("uid,surName")
 	public List<User> findByNameAndRole(String givenName, String surName, String role) {
 		try {
 			Query query = this.em.createNamedQuery("User.findByNameAndRole");
@@ -131,6 +135,7 @@ public class UserController extends Controller {
 		}
 	}
 
+	@OrderBy("uid,surName")
 	public List<User> getAll() {
 		List<User> users = new ArrayList<User>();
 		boolean userManage = this.isAllowed("user.manage");
@@ -146,13 +151,14 @@ public class UserController extends Controller {
 			logger.error("getAll: " + e.getMessage());
 		} finally {
 		}
-		users.sort(Comparator.comparing(User::getUid));
+		//users.sort(Comparator.comparing(User::getUid));
 		return users;
 	}
 
 	public void createUid(User user) {
 		user.setUid(this.createUid(user.getGivenName(), user.getSurName(), user.getBirthDay()));
 	}
+
 	@SuppressWarnings("deprecation")
 	public String createUid(String givenName, String surName, Date birthDay) {
 		String userId = "";
