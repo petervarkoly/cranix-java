@@ -180,6 +180,9 @@ public class Device implements Serializable {
 	private List<User> loggedIn = new ArrayList<User>();
 
 	@Transient
+	private Long loggedInId = 0L;
+
+	@Transient
 	private byte[] screenShot;
 
 	public Device() {
@@ -475,4 +478,13 @@ public class Device implements Serializable {
 	public void setScreenShot(byte[] screenShot) {
 		this.screenShot = screenShot;
 	}
+
+	public Long getLoggedInId() {
+		return loggedInId;
+	}
+
+	public void setLoggedInId(Long loggedInId) {
+		this.ownerId = loggedInId;
+	}
+
 }

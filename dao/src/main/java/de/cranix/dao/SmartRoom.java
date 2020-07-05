@@ -81,6 +81,9 @@ public class SmartRoom {
 		}
 		/* Read the screen shots */
 		for( Device d : this.devices ) {
+			if( d.getLoggedIn() != null && ! d.getLoggedIn().isEmpty() ) {
+				d.setLoggedInId(d.getLoggedIn().get(0).getId());
+			}
 			Path fileName = Path.of( cranixScreenShots + d.getName() );
 			try {
 				d.setScreenShot(Base64.getEncoder().encode(Files.readAllBytes(fileName)));
