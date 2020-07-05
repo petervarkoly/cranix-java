@@ -148,6 +148,14 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
+	public CrxResponse setMembers(Session session, Long groupId, List<Long> users) {
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new GroupController(session,em).setMembers(groupId,users);
+		em.close();
+		return resp;
+	}
+
+	@Override
 	public CrxResponse logOut(Session session, Long userId, Long deviceId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CrxResponse resp = new DeviceController(session,em).removeLoggedInUser(deviceId, userId);
@@ -566,6 +574,24 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
+	public List<CrxResponse> groupsApplyAction(Session session, CrxActionMap crxActionMap) {
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<Long> userIds = new ArrayList<Long>();
+		GroupController gc = new GroupController(session,em);
+		for( Long id: crxActionMap.getObjectIds() ) {
+			Group g = gc.getById(id);
+			for( User u: g.getUsers() ) {
+				if( u.getRole().equals(roleStudent) || u.getRole().equals(roleGuest) ) {
+					userIds.add(u.getId());
+				}
+			}
+		}
+		em.close();
+		crxActionMap.setObjectIds(userIds);
+		return this.applyAction(session, crxActionMap);
+	}
+
+	@Override
 	public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
@@ -588,11 +614,19 @@ public class EducationResourceImpl implements Resource, EducationResource {
 		case "disableLogin":
 			return  userController.disableLogin(
 					crxActionMap.getObjectIds(),
-					crxActionMap.isBooleanValue());
+					true);
+		case "enableLogin":
+			return  userController.disableLogin(
+					crxActionMap.getObjectIds(),
+					false);
 		case "disableInternet":
 			return  userController.disableInternet(
 					crxActionMap.getObjectIds(),
-					crxActionMap.isBooleanValue());
+					true);
+		case "enableInternet":
+			return  userController.disableInternet(
+					crxActionMap.getObjectIds(),
+					false);
 		case "mandatoryProfile":
 			return  userController.mandatoryProfile(
 					crxActionMap.getObjectIds(),

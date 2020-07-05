@@ -568,6 +568,27 @@ public interface EducationResource {
 	        @ApiParam(hidden = true) @Auth Session session
 	);
 
+	@POST
+	@Path("groups/applyAction")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Apply an action for the members of some groups once.",
+	                        notes = "The following actions are available:<br>"
+	                                        + "setPassword -> stringValue has to contain the password and booleanValue if the users have to reset the password after first login.<br>"
+	                                        + "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
+	                                        + "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
+	                                        + "disableLogin -> booleanValue has to contain the new value.<br>"
+	                                        + "disableInternet -> booleanValue has to contain the new value.<br>"
+	                                        + "copyTemplate -> Copy the home of the template user.<br>"
+	                                        + "mandatoryProfile -> boolenValue has to contain the new value.<br>"
+	                                        + "removeProfiles -> Clean up the profile directories.")
+	@ApiResponses(value = {
+	                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("education.groups")
+	List<CrxResponse> groupsApplyAction(@ApiParam(hidden = true) @Auth Session session,
+	                CrxActionMap crxActionMap
+	                );
+
 	/*
 	 * GET education/groups
 	 */
@@ -614,6 +635,23 @@ public interface EducationResource {
 	List<User> getMembers(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") long groupId
+	);
+
+	/*
+	* POST groups/<groupId>/members
+	*/
+	@POST
+	@Path("groups/{groupId}/members")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Sets the member of this group.")
+	@ApiResponses(value = {
+	        @ApiResponse(code = 404, message = "Group not found"),
+	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.groups")
+	CrxResponse setMembers(
+	        @ApiParam(hidden = true) @Auth Session session,
+	        @PathParam("groupId") Long groupId,
+	        List<Long> users
 	);
 
 	/*
