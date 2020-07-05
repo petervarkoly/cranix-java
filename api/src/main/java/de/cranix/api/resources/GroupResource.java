@@ -7,6 +7,7 @@ import io.dropwizard.auth.Auth;
 
 import io.swagger.annotations.*;
 import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
@@ -151,7 +152,7 @@ public interface GroupResource {
 	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one group was not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("group.search")
+	@PermitAll
 	List<Group> getAll(
 	        @ApiParam(hidden = true) @Auth Session session
 	);

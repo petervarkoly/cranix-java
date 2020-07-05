@@ -8,6 +8,7 @@ import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 
 import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.*;
@@ -106,11 +107,11 @@ public interface UserResource {
 			// TODO so oder anders? @ApiResponse(code = 404, message = "At least one user was not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("user.search")
+	@PermitAll
 	@JsonIgnoreProperties({"groups"})
 	List<User> getAll(
 			@ApiParam(hidden = true) @Auth Session session
-			);
+	);
 
 	/*
 	 * GET search/{search}

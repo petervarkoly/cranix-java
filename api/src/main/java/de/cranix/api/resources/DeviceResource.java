@@ -80,7 +80,7 @@ public interface DeviceResource {
 	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("device.manage")
+	@PermitAll
 	List<Device> getAll(
 	        @ApiParam(hidden = true) @Auth Session session
 	);

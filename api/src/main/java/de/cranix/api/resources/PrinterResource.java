@@ -4,6 +4,7 @@ package de.cranix.api.resources;
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 
 import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.POST;
@@ -97,7 +98,7 @@ public interface PrinterResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "No device was found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.manage")
+	@PermitAll
 	List<Printer> getPrinters(
 			@ApiParam(hidden = true) @Auth Session session
 			);
