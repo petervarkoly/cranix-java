@@ -424,19 +424,23 @@ public class Controller extends Config {
 		if( this.isSuperuser() && ownerId != 6 ) {
 			//Super User must not modify the objects of CEPHALIX
 			//TODO 6 need be evaluated eventually
+			logger.debug("mayModify is Superuser");
 			return true;
 		}
 		if( owner != null && this.session.getUser().equals(owner) ) {
-				return true;
+			logger.debug("mayModify is owner");
+			return true;
 		}
 		logger.debug("mayModify needed Rights:" + neededRights + " user: " + session.getUser() + " object: " + object);
 		for( String right : neededRights ) {
 			if( this.session.getAcls() != null ) {
 				if( this.session.getAcls().contains(right) ) {
+					logger.debug("mayModify is allowed to modify");
 					return true;
 				}
 			}
 		}
+		logger.debug("mayModify is not allowed to modify");
 		//TODO some other acls based on object
 		return false;
 	}
