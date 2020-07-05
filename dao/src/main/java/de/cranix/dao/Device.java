@@ -179,6 +179,9 @@ public class Device implements Serializable {
 	@JsonIgnore
 	private List<User> loggedIn = new ArrayList<User>();
 
+	@Transient
+	private byte[] screenShot;
+
 	public Device() {
 		this.hwconfId = null;
 		this.name = "";
@@ -463,5 +466,13 @@ public class Device implements Serializable {
 
 	public void setOwnerName(String ownerName) {
 		this.ownerName = ownerName;
+	}
+
+	public byte[] getScreenShot() {
+		return screenShot;
+	}
+
+	public void setScreenShot(byte[] screenShot) {
+		this.screenShot = screenShot;
 	}
 }

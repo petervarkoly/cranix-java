@@ -1,15 +1,19 @@
+/* (c) 202 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.EntityManager;
-
+import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import static de.cranix.dao.internal.CranixConstants.cranixScreenShots;
+import static de.cranix.dao.internal.CranixConstants.cranixComputer;
 import de.cranix.dao.controller.*;
 
 public class SmartRoom {
@@ -73,6 +77,15 @@ public class SmartRoom {
 			}
 			if( device != null && !this.devices.contains(device) ) {
 				this.devices.add(device);
+			}
+		}
+		/* Read the screen shots */
+		for( Device d : this.devices ) {
+			Path fileName = Path.of( cranixScreenShots + d.getName() );
+			try {
+				d.setScreenShot(Base64.getEncoder().encode(Files.readAllBytes(fileName)));
+			} catch (IOException e) {
+				d.setScreenShot(cranixComputer);
 			}
 		}
 		/*If this is a smart room, we have to organize the devices.
