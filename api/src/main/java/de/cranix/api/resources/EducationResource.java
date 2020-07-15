@@ -785,7 +785,7 @@ public interface EducationResource {
 	       @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	List<CrxResponse> uploadFileToGroups(@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("groupIds")     String groupIds,
+	        @FormDataParam("objectIds")     String groupIds,
 	        @FormDataParam("cleanUp") Boolean cleanUp,
 	        @FormDataParam("studentsOnly") Boolean studentsOnly,
 	        @FormDataParam("file") final InputStream fileInputStream,
@@ -937,10 +937,10 @@ public interface EducationResource {
 	})
 	@RolesAllowed("education.users")
 	List<CrxResponse> uploadFileToUsers(@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("userIds") final String userIds,
-		@FormDataParam("cleanUp") Boolean cleanUp,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+		@FormDataParam("objectIds") final String userIds,
+		@FormDataParam("cleanUp")   Boolean cleanUp,
+	        @FormDataParam("file")      final InputStream fileInputStream,
+	        @FormDataParam("file")      final FormDataContentDisposition contentDispositionHeader
         );
 
 	@POST
