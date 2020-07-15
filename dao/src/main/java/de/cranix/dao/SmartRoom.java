@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.persistence.EntityManager;
+import java.lang.StringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Base64;
@@ -84,9 +85,15 @@ public class SmartRoom {
 			if( d.getLoggedIn() != null && ! d.getLoggedIn().isEmpty() ) {
 				d.setLoggedInId(d.getLoggedIn().get(0).getId());
 			}
-			Path fileName = Path.of( cranixScreenShots + d.getName() );
+			Path fileName = Path.of( cranixScreenShots + d.getName() + ".jpg" );
 			try {
-				d.setScreenShot(Base64.getEncoder().encode(Files.readAllBytes(fileName)));
+				StringBuilder sb = new StringBuilder();
+				for( String line: Files.readAllLines(fileName)) {
+					sb.append(line);
+				}
+				char[] charArray = new char[sb.length()];
+				sb.getChars(0, sb.length(), charArray, 0);
+				d.setScreenShot(charArray);
 			} catch (IOException e) {
 				d.setScreenShot(cranixComputer);
 			}
