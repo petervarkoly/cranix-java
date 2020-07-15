@@ -1106,6 +1106,7 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		program[1] = "--async";
 		program[2] = FQHN.toString();
 		program[3] = "crx_client.logOff";
+		break;
 	case "cleanuploggedin":
 		try {
 			this.em.getTransaction().begin();
