@@ -1325,7 +1325,7 @@ public class RoomController extends Controller {
 		DeviceController dc = new DeviceController(this.session,this.em);
 		for( Device device : this.getById(roomId).getDevices() ) {
 			//Do not control the own workstation
-			if( this.session.getDevice().getId().equals(device.getId())) {
+			if( this.session.getDevice() != null && this.session.getDevice().getId().equals(device.getId())) {
 				continue;
 			}
 			crxResponse = dc.manageDevice(device.getId(), action, actionContent);
