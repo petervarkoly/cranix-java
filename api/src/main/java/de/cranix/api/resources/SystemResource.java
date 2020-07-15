@@ -459,6 +459,20 @@ public interface SystemResource {
 	/*
 	 * Proxy default handling
 	*/
+	@POST
+	@Path("proxy/basic")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Writes the default setting for proxy.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.proxy")
+	CrxResponse setProxyBasic(
+	    @ApiParam(hidden = true) @Auth Session session,
+	    String acls
+	);
+
+	/*
+	 * Proxy default handling
+	*/
 	@GET
 	@Path("proxy/defaults")
 	@Produces(JSON_UTF8)
