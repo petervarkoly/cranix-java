@@ -25,7 +25,7 @@
 		    </descriptors>
 		    <archive>
                       <manifest>
-                         <mainClass>de.cranix.api.ServerApplication</mainClass>
+                         <mainClass>de.cranix.api.CranixApplication</mainClass>
                       </manifest>
                     </archive>
                 </configuration>
