@@ -41,7 +41,12 @@
                 <configuration>
                     <descriptors>
                         <descriptor>src/assembly/assembly.xml</descriptor>
-                    </descriptors>
+		    </descriptors>
+		    <archive>
+                      <manifest>
+                         <mainClass>de.cranix.api.CranixApplication</mainClass>
+                      </manifest>
+                    </archive>
                 </configuration>
                 <executions>
                     <execution>
