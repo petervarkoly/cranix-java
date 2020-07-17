@@ -459,14 +459,14 @@ public class UserResourceImpl implements UserResource {
 			String role,
 			String lang,
 			String identifier,
-			boolean test,
+			Boolean test,
 			String password,
-			boolean mustChange,
-			boolean full,
-			boolean allClasses,
-			boolean cleanClassDirs,
-			boolean resetPassword,
-			boolean appendBirthdayToPassword,
+			Boolean mustChange,
+			Boolean full,
+			Boolean allClasses,
+			Boolean cleanClassDirs,
+			Boolean resetPassword,
+			Boolean appendBirthdayToPassword,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		File file = null;
@@ -485,11 +485,11 @@ public class UserResourceImpl implements UserResource {
 		}
 		if( password != null && !password.isEmpty() ) {
 			UserController uc = new UserController(session,null);
-			boolean checkPassword = uc.getConfigValue("CHECK_PASSWORD_QUALITY").toLowerCase().equals("yes");
+			Boolean checkPassword = uc.getConfigValue("CHECK_PASSWORD_QUALITY").toLowerCase().equals("yes");
 			uc.setConfigValue("CHECK_PASSWORD_QUALITY", "no");
 			CrxResponse passwordResponse = uc.checkPassword(password);
 			if( passwordResponse != null ) {
-				if (checkPassword) {
+				if(checkPassword) {
 					uc.setConfigValue("CHECK_PASSWORD_QUALITY", "yes");
 				}
 				logger.error("Reset Password" + passwordResponse);
