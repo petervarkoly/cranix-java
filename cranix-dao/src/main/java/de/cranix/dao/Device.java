@@ -183,7 +183,7 @@ public class Device implements Serializable {
 	private Long loggedInId = 0L;
 
 	@Transient
-	private byte[] screenShot;
+	private char[] screenShot;
 
 	public Device() {
 		this.hwconfId = null;
@@ -471,11 +471,11 @@ public class Device implements Serializable {
 		this.ownerName = ownerName;
 	}
 
-	public byte[] getScreenShot() {
+	public char[] getScreenShot() {
 		return screenShot;
 	}
 
-	public void setScreenShot(byte[] screenShot) {
+	public void setScreenShot(char[] screenShot) {
 		this.screenShot = screenShot;
 	}
 
