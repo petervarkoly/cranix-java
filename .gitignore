@@ -1,1 +1,7 @@
-.gradle/
+.idea/
+cranix-dao/target/
+cranix-assembly/target
+cranix-api/target
+cranix-dao/dao.iml
+cranix-assembly/cranix-dao.iml
+cranix-api/cranix-api.iml

@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <parent>
+        <groupId>eu.cranix</groupId>
+        <artifactId>cranix</artifactId>
+        <version>4.2</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>eu.cranix</groupId>
+    <artifactId>cranix-api</artifactId>
+    <version>4.2</version>
+
+    <name>CRANIX API</name>
+    <description>CRANIX API</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>eu.cranix</groupId>
+            <artifactId>cranix-dao</artifactId>
+            <version>4.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.smoketurner/dropwizard-swagger -->
+        <dependency>
+            <groupId>com.smoketurner</groupId>
+            <artifactId>dropwizard-swagger</artifactId>
+            <version>1.0.6-1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.dropwizard/dropwizard-client -->
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-client</artifactId>
+            <version>1.0.6</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,4 +1,0 @@
-rootProject.name = 'de.cranix.api'
-
-include ':de.cranix.dao'
-project(':de.cranix.dao').projectDir = new File(settingsDir, '../dao')
