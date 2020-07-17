@@ -24,7 +24,7 @@ import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 public class CranixApplication extends Application<ServerConfiguration> {
 
 	public static void main(String[] args) throws Exception {
-		new ServerApplication().run(args);
+		new CranixApplication().run(args);
 	}
 
 	@Override
