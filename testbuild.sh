@@ -35,7 +35,7 @@ fi
 mkdir -p cranix-java/bin
 mv    cranix-api/target/cranix-api-4.2-with-dependencies/cranix-api-4.2/lib/ cranix-java/
 chmod 644 cranix-java/lib/*
-rsync -a data/                     cranix-java/data/
+rsync -a cranix-dao/data/          cranix-java/data/
 rsync -a bin/                      cranix-java/bin/
 rsync -a conf/                     cranix-java/conf/
 cd cranix-api/src/main/java/de/cranix/api/resources/
