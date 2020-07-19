@@ -36,6 +36,7 @@ if [ -d /run/lock/cranix-api ]; then
         mkdir -p /run/lock/cranix-api
 fi
 
+CLASSPATH=""
 for i in /opt/cranix-java/lib/*
 do
         CLASSPATH="$i:$CLASSPATH"

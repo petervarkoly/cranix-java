@@ -20,7 +20,7 @@
     <modules>
         <module>cranix-dao</module>
         <module>cranix-api</module>
-        <module>cranix-assembly</module>
+        <!-- module>cranix-assembly</module -->
     </modules>
 
     <dependencies>
