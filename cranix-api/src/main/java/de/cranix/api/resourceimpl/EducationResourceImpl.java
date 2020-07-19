@@ -258,52 +258,43 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<CrxResponse> uploadFileToRoom(Session session,
-			Long roomId,
-			Boolean cleanUp,
-			InputStream fileInputStream,
-			FormDataContentDisposition contentDispositionHeader) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).uploadFileTo("room",roomId,null,fileInputStream,contentDispositionHeader,false, cleanUp);
-		em.close();
-		return resp;
-	}
-
-	@Override
-	public CrxResponse uploadFileToUser(Session session,
-			Long userId,
-			Boolean cleanUp,
-			InputStream fileInputStream,
-			FormDataContentDisposition contentDispositionHeader) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).uploadFileTo("user",userId,null,fileInputStream,contentDispositionHeader,false, cleanUp).get(0);
-		em.close();
-		return resp;
-	}
-
-	@Override
-	public CrxResponse uploadFileToDevice(Session session,
-			Long deviceId,
-			Boolean cleanUp,
-			InputStream fileInputStream,
-			FormDataContentDisposition contentDispositionHeader) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).uploadFileTo("device",deviceId,null,fileInputStream,contentDispositionHeader,false, cleanUp).get(0);
-		em.close();
-		return resp;
-	}
-
-	@Override
-	public List<CrxResponse> uploadFileToGroup(Session session,
-			Long groupId,
+	public List<CrxResponse> uploadFileToRooms(Session session,
+			String objectIds,
 			Boolean cleanUp,
 			Boolean studentsOnly,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).uploadFileTo("group",groupId,null,fileInputStream,contentDispositionHeader,studentsOnly, cleanUp);
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		EducationController ec = new EducationController(session,em);
+		for(String sObjectId : objectIds.split(",")) {
+			Long objectId = Long.valueOf(sObjectId);
+			if( objectId != null ) {
+				responses.addAll(ec.uploadFileTo("room",objectId,null,fileInputStream,contentDispositionHeader,studentsOnly, cleanUp));
+			}
+		}
 		em.close();
-		return resp;
+		return responses;
+	}
+
+	@Override
+	public List<CrxResponse> uploadFileToDevices(Session session,
+			String objectIds,
+			Boolean cleanUp,
+			Boolean studentsOnly,
+			InputStream fileInputStream,
+			FormDataContentDisposition contentDispositionHeader) {
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		EducationController ec = new EducationController(session,em);
+		for(String sObjectId : objectIds.split(",")) {
+			Long objectId = Long.valueOf(sObjectId);
+			if( objectId != null ) {
+				responses.addAll(ec.uploadFileTo("device",objectId,null,fileInputStream,contentDispositionHeader,studentsOnly, cleanUp));
+			}
+		}
+		em.close();
+		return responses;
 	}
 
 	@Override
@@ -344,8 +335,8 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<CrxResponse> collectFileFromUsers(Session session, String projectName, boolean sortInDirs,
-			boolean cleanUpExport, String userIds) {
+	public List<CrxResponse> collectFileFromUsers(Session session, String projectName, Boolean sortInDirs,
+			Boolean cleanUpExport, String userIds) {
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		UserController userController = new UserController(session,em);
@@ -502,28 +493,29 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public CrxResponse collectFileFromDevice(Session session, Long deviceId, String projectName) {
+	public List<CrxResponse> collectFileFromDevices(Session session,
+			String deviceIds,
+			String projectName,
+			Boolean sortInDirs,
+			Boolean cleanUpExport,
+			Boolean studentsOnly
+		       ) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Device device = new DeviceController(session,em).getById(deviceId);
-		CrxResponse resp = new UserController(session,em).collectFile(device.getLoggedIn(), projectName);
-		em.close();
-		return resp;
-	}
-
-	@Override
-	public List<CrxResponse> collectFileFromRoom(Session session, Long roomId, String projectName, boolean sortInDirs, boolean cleanUpExport) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		UserController userController     = new UserController(session,em);
-		DeviceController deviceController = new DeviceController(session,em);
-		List<CrxResponse> responses       = new ArrayList<CrxResponse>();
-		for( List<Long> logged : new EducationController(session,em).getRoom(roomId) ) {
-			User   user   = userController.getById(logged.get(0));
-			Device device =  deviceController.getById(logged.get(1));
-			if( user == null ) {
-				user = userController.getByUid(device.getName());
-			}
-			if( user != null ) {
+		List<CrxResponse> responses        = new ArrayList<CrxResponse>();
+		UserController    userController   = new UserController(session,em);
+		DeviceController  deviceController = new DeviceController(session,em);
+		for(String sDeviceId : deviceIds.split(",")) {
+			Long deviceId = Long.valueOf(sDeviceId);
+			Device device = deviceController.getById(deviceId);
+			if( device.getLoggedIn() == null || device.getLoggedIn().isEmpty() ) {
+				User     user = userController.getByUid(device.getName());
 				responses.add(userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
+			} else {
+				for( User user : device.getLoggedIn() ) {
+					if( !studentsOnly || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) || user.getRole().equals(roleWorkstation) ) {
+	                                	responses.add(userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
+					}
+				}
 			}
 		}
 		em.close();
@@ -531,23 +523,30 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<CrxResponse> collectFileFromGroup(Session session,
-			Long groupId,
-			String projectName,
-			boolean sortInDirs,
-			boolean cleanUpExport,
-			boolean studentsOnly
-			) {
+	public List<CrxResponse> collectFileFromRooms(Session session,
+		       String roomIds,
+		       String projectName,
+		       Boolean sortInDirs,
+		       Boolean cleanUpExport,
+		       Boolean studentsOnly
+		       ) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		UserController userController = new UserController(session,em);
-		Group          group          = new GroupController(session,em).getById(groupId);
-		List<CrxResponse> responses   = new ArrayList<CrxResponse>();
-		for( User user : group.getUsers() ) {
-			if( !studentsOnly ||  user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest)) {
-				if( user.getRole().equals(roleTeacher) ) {
-					responses.add(userController.collectFileFromUser(user, projectName, sortInDirs, false));
-				} else {
-					responses.add(userController.collectFileFromUser(user, projectName, sortInDirs, cleanUpExport));
+		UserController      userController   = new UserController(session,em);
+		DeviceController    deviceController = new DeviceController(session,em);
+		EducationController eduController    = new EducationController(session,em);
+		List<CrxResponse> responses       = new ArrayList<CrxResponse>();
+		for(String sRoomId : roomIds.split(",")) {
+			Long roomId = Long.valueOf(sRoomId);
+			for( List<Long> logged : eduController.getRoom(roomId) ) {
+				User   user   = userController.getById(logged.get(0));
+				Device device =  deviceController.getById(logged.get(1));
+				if( user == null ) {
+					user = userController.getByUid(device.getName());
+				}
+				if( user != null ) {
+					if( !studentsOnly || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) || user.getRole().equals(roleWorkstation) ) {
+						responses.add(userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
+					}
 				}
 			}
 		}
@@ -557,19 +556,30 @@ public class EducationResourceImpl implements Resource, EducationResource {
 
 	@Override
 	public List<CrxResponse> collectFileFromGroups(Session session,
-			String groupIds,
-			String projectName,
-			boolean sortInDirs,
-			boolean cleanUpExport,
-			boolean studentsOnly
+			String  groupIds,
+			String  projectName,
+			Boolean sortInDirs,
+			Boolean cleanUpExport,
+			Boolean studentsOnly
 			) {
-		List<CrxResponse> responses   = new ArrayList<CrxResponse>();
-		for(String sgroupId : groupIds.split(",")) {
-			Long groupId = Long.valueOf(sgroupId);
-			if(groupId != null ) {
-				responses.addAll(collectFileFromGroup(session,Long.valueOf(sgroupId),projectName,sortInDirs,cleanUpExport,studentsOnly));
+		EntityManager   em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		UserController  userController  = new UserController(session,em);
+		GroupController groupController = new GroupController(session,em);
+		List<CrxResponse> responses     = new ArrayList<CrxResponse>();
+		for(String sGroupId : groupIds.split(",")) {
+			Long groupId = Long.valueOf(sGroupId);
+			Group   group = new GroupController(session,em).getById(groupId);
+			for( User user : group.getUsers() ) {
+				if( !studentsOnly ||  user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest)) {
+					if( user.getRole().equals(roleTeacher) ) {
+						responses.add(userController.collectFileFromUser(user, projectName, sortInDirs, false));
+					} else {
+						responses.add(userController.collectFileFromUser(user, projectName, sortInDirs, cleanUpExport));
+					}
+				}
 			}
 		}
+		em.close();
 		return responses;
 	}
 

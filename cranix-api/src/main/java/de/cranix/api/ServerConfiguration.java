@@ -5,11 +5,12 @@ package de.cranix.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-import org.hibernate.validator.constraints.NotEmpty;
 import io.dropwizard.client.JerseyClientConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotEmpty;
+//import javax.validation.constraints.NotEmpty;
 
 public class ServerConfiguration extends Configuration {
 

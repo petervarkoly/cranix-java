@@ -470,33 +470,35 @@ public interface EducationResource {
 	);
 
 	@POST
-	@Path("rooms/{roomId}/upload")
+	@Path("rooms/upload")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<CrxResponse> uploadFileToRoom(@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @FormDataParam("cleanUp") Boolean cleanUp,
-	        @FormDataParam("file")    final InputStream fileInputStream,
-	        @FormDataParam("file")    final FormDataContentDisposition contentDispositionHeader
+	List<CrxResponse> uploadFileToRooms(@ApiParam(hidden = true) @Auth Session session,
+	        @FormDataParam("objectIds")    String  roomIds,
+	        @FormDataParam("cleanUp")      Boolean cleanUp,
+	        @FormDataParam("studentsOnly") Boolean studentsOnly,
+	        @FormDataParam("file")         final InputStream fileInputStream,
+	        @FormDataParam("file")         final FormDataContentDisposition contentDispositionHeader
 	);
 
 	@POST
-	@Path("rooms/{roomId}/collect")
+	@Path("rooms/collect")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<CrxResponse> collectFileFromRoom(@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @FormDataParam("projectName") String projectName,
-	        @FormDataParam("sortInDirs")  boolean sortInDirs,
-	        @FormDataParam("cleanUpExport") boolean cleanUpExport
+	List<CrxResponse> collectFileFromRooms(@ApiParam(hidden = true) @Auth Session session,
+	        @FormDataParam("objectIds")     String  roomIds,
+	        @FormDataParam("projectName")   String projectName,
+	        @FormDataParam("studentsOnly")  Boolean studentsOnly,
+	        @FormDataParam("sortInDirs")    Boolean sortInDirs,
+	        @FormDataParam("cleanUpExport") Boolean cleanUpExport
 	);
 
 
@@ -573,7 +575,7 @@ public interface EducationResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Apply an action for the members of some groups once.",
 	                        notes = "The following actions are available:<br>"
-	                                        + "setPassword -> stringValue has to contain the password and booleanValue if the users have to reset the password after first login.<br>"
+	                                        + "setPassword -> stringValue has to contain the password and Boolean if the users have to reset the password after first login.<br>"
 	                                        + "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
 	                                        + "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
 	                                        + "disableLogin -> booleanValue has to contain the new value.<br>"
@@ -761,22 +763,6 @@ public interface EducationResource {
 	);
 
 	@POST
-	@Path("groups/{groupId}/upload")
-	@Produces(JSON_UTF8)
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@ApiOperation( value = "Puts data to te member of a group" )
-	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	List<CrxResponse> uploadFileToGroup(@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId")  Long  groupId,
-	        @FormDataParam("cleanUp") Boolean cleanUp,
-	        @FormDataParam("studentsOnly") Boolean studentsOnly,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-	        );
-
-	@POST
 	@Path("groups/upload")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -792,23 +778,6 @@ public interface EducationResource {
 	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
 	        );
 
-
-	@POST
-	@Path("groups/{groupId}/collect")
-	@Produces(JSON_UTF8)
-	@ApiOperation( value = "Collects data from member of the corresponding group.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.groups")
-	List<CrxResponse> collectFileFromGroup(@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") Long roomId,
-	        @FormDataParam("projectName")  String projectName,
-	        @FormDataParam("sortInDirs")   boolean sortInDirs,
-	        @FormDataParam("cleanUpExport")boolean cleanUpExport,
-	        @FormDataParam("studentsOnly") boolean studentsOnly
-        );
-
 	@POST
 	@Path("groups/collect")
 	@Produces(JSON_UTF8)
@@ -818,11 +787,11 @@ public interface EducationResource {
 	})
 	@RolesAllowed("education.groups")
 	List<CrxResponse> collectFileFromGroups(@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("groupIds")     String groupIds,
+		@FormDataParam("objectIds")    String groupIds,
 		@FormDataParam("projectName")  String projectName,
-		@FormDataParam("sortInDirs")   boolean sortInDirs,
-		@FormDataParam("cleanUpExport")boolean cleanUpExport,
-		@FormDataParam("studentsOnly") boolean studentsOnly
+		@FormDataParam("sortInDirs")   Boolean sortInDirs,
+		@FormDataParam("cleanUpExport")Boolean cleanUpExport,
+		@FormDataParam("studentsOnly") Boolean studentsOnly
 	);
 	/************************************************************/
 	/* Actions on logged in users and smart rooms and groups. */
@@ -912,22 +881,6 @@ public interface EducationResource {
 	);
 
 	@POST
-	@Path("users/{userId}/upload")
-	@Produces(JSON_UTF8)
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@ApiOperation( value = "Puts data to the member of the smart rooms" )
-	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.users")
-	CrxResponse uploadFileToUser(@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("userId")   Long  userId,
-	        @FormDataParam("cleanUp") Boolean cleanUp,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-	        );
-
-	@POST
 	@Path("users/upload")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -952,10 +905,10 @@ public interface EducationResource {
 	})
 	@RolesAllowed("education.users")
 	List<CrxResponse> collectFileFromUsers(@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("projectName") String projectName,
-		@FormDataParam("sortInDirs")  boolean sortInDirs,
-		@FormDataParam("cleanUpExport") boolean cleanUpExport,
-		@FormDataParam("userIds") final String userIds
+		@FormDataParam("projectName")   String projectName,
+		@FormDataParam("sortInDirs")    Boolean sortInDirs,
+		@FormDataParam("cleanUpExport") Boolean cleanUpExport,
+		@FormDataParam("userIds")       final String userIds
         );
 
 	@POST
@@ -977,7 +930,7 @@ public interface EducationResource {
 	@RolesAllowed("education.users")
 	List<CrxResponse> applyAction(@ApiParam(hidden = true) @Auth Session session,
 	                CrxActionMap crxActionMap
-	                );
+	);
 
 
 	/****************************/
@@ -1108,7 +1061,7 @@ public interface EducationResource {
 
 
 	@POST
-	@Path("devices/{deviceId}/upload")
+	@Path("devices/upload")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
@@ -1116,25 +1069,28 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	CrxResponse uploadFileToDevice(@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @FormDataParam("cleanUp") Boolean cleanUp,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+	List<CrxResponse> uploadFileToDevices(@ApiParam(hidden = true) @Auth Session session,
+	        @FormDataParam("objectIds")    String  deviceIds,
+	        @FormDataParam("cleanUp")      Boolean cleanUp,
+		@FormDataParam("studentsOnly") Boolean studentsOnly,
+	        @FormDataParam("file") final   InputStream fileInputStream,
+	        @FormDataParam("file") final   FormDataContentDisposition contentDispositionHeader
 	);
 
-	@GET
-	@Path("devices/{deviceId}/collect/{projectName}")
+	@POST
+	@Path("devices/collect")
 	@Produces(JSON_UTF8)
-	@ApiOperation( value = "Collects data from a user logged on the corresponding device." )
+	@ApiOperation( value = "Collects data from the students member of the corresponding group." )
 	@ApiResponses(value = {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	CrxResponse collectFileFromDevice(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("deviceId") Long deviceId,
-	    @PathParam("projectName") String projectName
+	List<CrxResponse> collectFileFromDevices(@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("objectIds")    String roomIds,
+		@FormDataParam("projectName")  String projectName,
+		@FormDataParam("sortInDirs")   Boolean sortInDirs,
+		@FormDataParam("cleanUpExport")Boolean cleanUpExport,
+		@FormDataParam("studentsOnly") Boolean studentsOnly
 	);
 
 	/*

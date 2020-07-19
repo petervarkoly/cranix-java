@@ -2,7 +2,7 @@
     <id>with-dependencies</id>
     <!-- Specifies that our binary distribution is a zip package -->
     <formats>
-        <format>jar</format>
+        <format>dir</format>
     </formats>
 
     <!-- add all jars into the lib library (within the zip archive)-->
@@ -12,6 +12,9 @@
             <useProjectArtifact>true</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <unpack>false</unpack>
+            <excludes>
+              <exclude>javax.ws.rs:jsr311-api</exclude>
+            </excludes>
         </dependencySet>
     </dependencySets>
 
