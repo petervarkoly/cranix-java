@@ -36,9 +36,9 @@ if [ -d /run/lock/cranix-api ]; then
         mkdir -p /run/lock/cranix-api
 fi
 
-#Java path
-APP_HOME="/opt/cranix-java"
-
-@CLASSPATH@
+for i in /opt/cranix-java/lib/*
+do
+        CLASSPATH="$i:$CLASSPATH"
+done
 exec java --add-modules java.xml.bind -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp $CLASSPATH de.cranix.api.ServerApplication server /opt/cranix-java/conf/config.yml
 
