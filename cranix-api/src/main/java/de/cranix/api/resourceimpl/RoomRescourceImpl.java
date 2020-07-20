@@ -13,6 +13,7 @@ import de.cranix.dao.Session;
 import de.cranix.dao.controller.DHCPConfig;
 import de.cranix.dao.controller.EducationController;
 import de.cranix.dao.controller.RoomController;
+import de.cranix.dao.controller.SoftwareController;
 import de.cranix.dao.internal.CommonEntityManagerFactory;
 import de.cranix.api.resources.RoomResource;
 
@@ -510,6 +511,12 @@ public class RoomRescourceImpl implements RoomResource {
                 for( Long id: actionMap.getObjectIds() ) {
                         responses.add(roomController.manageRoom(id,actionMap.getName(),null));
                 }
+                if( actionMap.getName().equals("delete") ) {
+                        new DHCPConfig(session,em).Create();
+                        new SoftwareController(session,em).applySoftwareStateToHosts();
+
+                }
+
                 em.close();
                 return responses;
 	}

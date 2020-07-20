@@ -110,18 +110,41 @@ public class EducationResourceImpl implements Resource, EducationResource {
 		return resp;
 	}
 
-	@Override
-	public CrxResponse manageRoom(Session session, Long roomId, String action, Map<String, String> actionContent) {
-		try {
-			logger.debug("EducationResourceImpl.manageRoom:" + roomId + " action:" + action);
-		}  catch (Exception e) {
-			logger.error("EducationResourceImpl.manageRoom error:" + e.getMessage());
+        @Override
+        public List<CrxResponse> manageDevices(Session session, CrxActionMap actionMap) {
+                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                DeviceController deviceController = new DeviceController(session,em);
+                List<CrxResponse> responses = new ArrayList<CrxResponse>();
+                logger.debug("actionMap" + actionMap);
+                if( actionMap.getName().equals("delete") ) {
+                        responses.add(new CrxResponse(session,"ERROR","You must not delete devices"));
+
+                } else {
+			for( Long id: actionMap.getObjectIds() ) {
+			        responses.add(deviceController.manageDevice(id,actionMap.getName(),null));
+			}
 		}
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).manageRoom(roomId,action, actionContent);
-		em.close();
-		return resp;
-	}
+                em.close();
+                return responses;
+        }
+
+        @Override
+        public List<CrxResponse> manageRooms(Session session, CrxActionMap actionMap) {
+                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                RoomController roomController = new RoomController(session,em);
+                List<CrxResponse> responses = new ArrayList<CrxResponse>();
+                logger.debug("actionMap" + actionMap);
+                if( actionMap.getName().equals("delete") ) {
+                        responses.add(new CrxResponse(session,"ERROR","You must not delete rooms"));
+
+                } else {
+			for( Long id: actionMap.getObjectIds() ) {
+			        responses.add(roomController.manageRoom(id,actionMap.getName(),null));
+			}
+		}
+                em.close();
+                return responses;
+        }
 
 	@Override
 	public CrxResponse addGroup(Session session, Group group) {
@@ -191,14 +214,6 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	public CrxResponse manageDevice(Session session, Long deviceId, String action) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,null);
-		em.close();
-		return resp;
-	}
-
-	@Override
-	public CrxResponse manageDevice(Session session, Long deviceId, String action, Map<String, String> actionContent) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,actionContent);
 		em.close();
 		return resp;
 	}

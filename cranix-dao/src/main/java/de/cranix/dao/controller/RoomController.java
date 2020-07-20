@@ -1334,7 +1334,7 @@ public class RoomController extends Controller {
 			}
 		}
 		if( errors.isEmpty() ) {
-			new CrxResponse(this.getSession(),"OK", "Device control was applied.");
+			new CrxResponse(this.getSession(),"OK", "Room control was applied.");
 		} else {
 			return new CrxResponse(this.getSession(),"ERROR",String.join("<br>", errors));
 		}
