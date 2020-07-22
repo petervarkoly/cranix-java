@@ -14,6 +14,7 @@
     <description>CRANIX API</description>
 
     <properties>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>11</maven.compiler.target><!-- TODO: check tags -->
 	<maven.compiler.source>11</maven.compiler.source>
 	<jackson.version>2.8.4</jackson.version>
