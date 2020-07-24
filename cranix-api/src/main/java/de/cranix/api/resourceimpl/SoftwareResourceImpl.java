@@ -153,74 +153,77 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		SoftwareController sc = new SoftwareController(session,em);
 		CategoryController cc = new CategoryController(session,em);
 		Category oldCategory  = cc.getById(installationId);
-		CrxResponse resp      = cc.modify(category);
-		CrxResponse resp1;
-		logger.debug("resp" + resp);
-		if( resp.getCode().equals("OK") ) {
-			if( category.getSoftwareIds() == null ) {
-				category.setSoftwareIds(new ArrayList<Long>());
-			}
-			if( category.getHwConfIds() != null ) {
-				category.setHwConfIds(new ArrayList<Long>());
-			}
-			if( category.getRoomIds() != null ) {
-				category.setRoomIds(new ArrayList<Long>());
-			}
-			if( category.getDeviceIds() != null ) {
-				category.setDeviceIds(new ArrayList<Long>());
-			}
-			//First add new objects
-			for( long id : category.getSoftwareIds() ) {
-				if( ! oldCategory.getSoftwareIds().contains(id) ) {
-					resp1 = cc.addMember(installationId, "software", id);
-					logger.debug("software resp" + resp1);
-				}
-			}
-			for( long id : category.getHwConfIds() ) {
-				if( ! oldCategory.getSoftwareIds().contains(id) ) {
-					resp1 = cc.addMember(installationId, "hwconf", id);
-					logger.debug("hwconf resp" + resp1);
-				}
-			}
-			for( long id : category.getRoomIds() ) {
-				if( ! oldCategory.getSoftwareIds().contains(id) ) {
-					resp1 = cc.addMember(installationId, "room", id);
-					logger.debug("room resp" + resp1);
-				}
-			}
-			for( long id : category.getDeviceIds() ) {
-				if( ! oldCategory.getSoftwareIds().contains(id) ) {
-					resp1 = cc.addMember(installationId, "device", id);
-					logger.debug("device resp" + resp1);
-				}
-			}
-			//Now remove objects
-			for( long id : oldCategory.getSoftwareIds() ) {
-				if( ! category.getSoftwareIds().contains(id) ) {
-					resp1 = cc.deleteMember(installationId, "software", id);
-					logger.debug("software resp" + resp1);
-				}
-			}
-			for( long id : oldCategory.getHwConfIds() ) {
-				if( ! category.getSoftwareIds().contains(id) ) {
-					resp1 = cc.deleteMember(installationId, "hwconf", id);
-					logger.debug("hwconf resp" + resp1);
-				}
-			}
-			for( long id : oldCategory.getRoomIds() ) {
-				if( ! category.getSoftwareIds().contains(id) ) {
-					resp1 = cc.deleteMember(installationId, "room", id);
-					logger.debug("room resp" + resp1);
-				}
-			}
-			for( long id : oldCategory.getDeviceIds() ) {
-				if( ! category.getSoftwareIds().contains(id) ) {
-					resp1 = cc.deleteMember(installationId, "device", id);
-					logger.debug("device resp" + resp1);
-				}
-			}
-			sc.applySoftwareStateToHosts();
+		CrxResponse resp  = null;
+		CrxResponse resp1 = null;
+		logger.debug("old:" + oldCategory);
+		logger.debug("category:" + category);
+		logger.debug("resp:" + resp);
+		if( category.getSoftwareIds() == null ) {
+			category.setSoftwareIds(new ArrayList<Long>());
 		}
+		if( category.getHwConfIds() == null ) {
+			category.setHwConfIds(new ArrayList<Long>());
+		}
+		if( category.getRoomIds() == null ) {
+			category.setRoomIds(new ArrayList<Long>());
+		}
+		if( category.getDeviceIds() == null ) {
+			category.setDeviceIds(new ArrayList<Long>());
+		}
+		//First add new objects
+		for( long id : category.getSoftwareIds() ) {
+			if( ! oldCategory.getSoftwareIds().contains(id) ) {
+				resp1 = cc.addMember(installationId, "software", id);
+				logger.debug("software resp" + resp1);
+			}
+		}
+		for( long id : category.getHwConfIds() ) {
+			if( ! oldCategory.getHwConfIds().contains(id) ) {
+				resp1 = cc.addMember(installationId, "hwconf", id);
+				logger.debug("hwconf resp" + resp1);
+			}
+		}
+		for( long id : category.getRoomIds() ) {
+			if( ! oldCategory.getHwConfIds().contains(id) ) {
+				resp1 = cc.addMember(installationId, "room", id);
+				logger.debug("room resp" + resp1);
+			}
+		}
+		for( long id : category.getDeviceIds() ) {
+			if( ! oldCategory.getDeviceIds().contains(id) ) {
+				resp1 = cc.addMember(installationId, "device", id);
+				logger.debug("device resp" + resp1);
+			}
+		}
+		//Now remove objects
+		for( long id : oldCategory.getSoftwareIds() ) {
+			if( ! category.getSoftwareIds().contains(id) ) {
+				resp1 = cc.deleteMember(installationId, "software", id);
+				logger.debug("software resp" + resp1);
+			}
+		}
+		for( long id : oldCategory.getHwConfIds() ) {
+			if( ! category.getHwConfIds().contains(id) ) {
+				resp1 = cc.deleteMember(installationId, "hwconf", id);
+				logger.debug("hwconf resp" + resp1);
+			}
+		}
+		for( long id : oldCategory.getRoomIds() ) {
+			if( ! category.getRoomIds().contains(id) ) {
+				resp1 = cc.deleteMember(installationId, "room", id);
+				logger.debug("room resp" + resp1);
+			}
+		}
+		for( long id : oldCategory.getDeviceIds() ) {
+			if( ! category.getDeviceIds().contains(id) ) {
+				resp1 = cc.deleteMember(installationId, "device", id);
+				logger.debug("device resp" + resp1);
+			}
+		}
+		//TODO check if it is neccessary
+		sc.applySoftwareStateToHosts();
+		//TODO
+		//CrxResponse resp = cc.modify(category);
 		em.close();
 		return resp;
 	}
