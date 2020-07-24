@@ -243,6 +243,9 @@ public class ProxyController extends Controller {
 				int count = user.getOwnedPositiveLists().size();
 				positiveList.setName(user.getUid() + String.valueOf(count));
 				positiveList.setOwner(user);
+				if( positiveList.getSubject() == null || positiveList.getSubject().isEmpty() ) {
+					positiveList.setSubject(positiveList.getName());
+				}
 				this.em.persist(positiveList);
 				user.getOwnedPositiveLists().add(positiveList);
 				this.em.merge(user);

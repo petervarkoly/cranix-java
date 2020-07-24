@@ -1204,7 +1204,7 @@ public interface EducationResource {
 	@GET
 	@Path("proxy/rooms/{roomId}")
 	@Produces(JSON_UTF8)
-	@ApiOperation( value = "Activates positive lists in a room." )
+	@ApiOperation( value = "Gets the active positive lists in a room." )
 	@ApiResponses(value = {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
