@@ -1124,7 +1124,7 @@ public interface EducationResource {
 	/* Functions to handle proxy settings.     */
 	/*******************************************/
 	@GET
-	@Path("proxy/positiveLists")
+	@Path("proxy/positiveLists/all")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets all positive lists." )
 	@ApiResponses(value = {
@@ -1148,7 +1148,7 @@ public interface EducationResource {
 	);
 
 	@POST
-	@Path("proxy/positiveLists")
+	@Path("proxy/positiveLists/add")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Creates a new positive list." )
 	@ApiResponses(value = {
