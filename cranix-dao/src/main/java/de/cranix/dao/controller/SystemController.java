@@ -387,9 +387,9 @@ public class SystemController extends Controller {
 		Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2","FW_");
 		RoomController roomController = new RoomController(this.session,this.em);
 		DeviceController deviceController = new DeviceController(this.session,this.em);
-		Device device = null;
-		Room   room;
 		for( Map<String,String> map : firewallList ) {
+			Device device = null;
+			Room   room   = null;
 			StringBuilder data = new StringBuilder();
 			if( map.get("type").equals("room")) {
 				if( map.get("id").equals("0") ) {
@@ -407,7 +407,7 @@ public class SystemController extends Controller {
 				data.append(",").append(map.get("prot")).append(",").append(map.get("port"));
 			}
 			fwMasqNets.add(data.toString());
-			if( map.get("type").equals("device") && device != null && device.getWlanIp() != null && !device.getWlanIp().isEmpty() ) {
+			if( device != null && device.getWlanIp() != null && !device.getWlanIp().isEmpty() ) {
 			   data = new StringBuilder();
 			   data.append(device.getWlanIp()).append("/32,");
 			   data.append(map.get("dest"));
