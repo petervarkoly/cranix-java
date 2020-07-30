@@ -344,8 +344,10 @@ public class SystemController extends Controller {
 				String   prot = rule.length > 2 ? rule[2] : "all";
 				String   port = rule.length > 3 ? rule[3] : "all";
 				if(host.length == 1 || host[1].equals("32")) {
+					logger.debug("host " + host[0]);
 					Device device = deviceController.getByMainIP(host[0]);
 					if( device == null ) {
+						logger.debug("not found");
 						continue;
 					}
 					statusMap.put("id", Long.toString(device.getId()));

@@ -385,7 +385,7 @@ public Device getByMainIP(String IP) {
 		}
 		return (Device) query.getResultList().get(0);
 	} catch (Exception e) {
-		logger.debug("device.getByIP " + IP + " "+ e.getMessage());
+		logger.debug("device.getByMainIP " + IP + " "+ e.getMessage());
 		return null;
 	} finally {
 	}

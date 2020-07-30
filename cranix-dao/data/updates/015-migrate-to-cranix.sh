@@ -23,5 +23,5 @@ password=$( mktemp cranixXXXXXXXXXXXX )
 sed -i s/javax.persistence.jdbc.password=.*$/javax.persistence.jdbc.password=${password}/ /opt/cranix-java/conf/cranix-api.properties
 sed -i 's/=claxss/=cranix/' /opt/cranix-java/conf/cranix-api.properties
 echo "grant all on CRX.* to 'cranix'@'localhost'  identified by '$password'" | mysql
-
+mkdir -p /var/adm/cranix/
 touch /var/adm/cranix/migrated-to-cranix

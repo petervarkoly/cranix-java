@@ -133,4 +133,5 @@ CREATE TABLE IF NOT EXISTS CephalixCareMessages (
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;" | mysql CRX
 
+mkdir -p  /var/adm/cranix/
 touch /var/adm/cranix/adapt-cephalix-to-cranix
