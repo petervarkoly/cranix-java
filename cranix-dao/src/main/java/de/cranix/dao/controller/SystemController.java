@@ -344,7 +344,7 @@ public class SystemController extends Controller {
 				String   prot = rule.length > 2 ? rule[2] : "all";
 				String   port = rule.length > 3 ? rule[3] : "all";
 				if(host.length == 1 || host[1].equals("32")) {
-					Device device = deviceController.getByIP(host[0]);
+					Device device = deviceController.getByMainIP(host[0]);
 					if( device == null ) {
 						continue;
 					}
@@ -385,7 +385,7 @@ public class SystemController extends Controller {
 		Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2","FW_");
 		RoomController roomController = new RoomController(this.session,this.em);
 		DeviceController deviceController = new DeviceController(this.session,this.em);
-		Device device;
+		Device device = null;
 		Room   room;
 		for( Map<String,String> map : firewallList ) {
 			StringBuilder data = new StringBuilder();
@@ -405,6 +405,15 @@ public class SystemController extends Controller {
 				data.append(",").append(map.get("prot")).append(",").append(map.get("port"));
 			}
 			fwMasqNets.add(data.toString());
+			if( map.get("type").equals("device") && device != null && device.getWlanIp() != null && !device.getWlanIp().isEmpty() ) {
+			   data = new StringBuilder();
+			   data.append(device.getWlanIp()).append("/32,");
+			   data.append(map.get("dest"));
+			   if( !map.get("prot").equals("all") ) {
+				data.append(",").append(map.get("prot")).append(",").append(map.get("port"));
+			   }
+			   fwMasqNets.add(data.toString());
+			}
 		}
 		fwConfig.setConfigValue("ROUTE","yes");
 		if( fwMasqNets.isEmpty() ) {

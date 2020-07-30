@@ -374,6 +374,24 @@ public Device getByIP(String IP) {
 }
 
 /*
+ * Find a device given by the main IP address
+ */
+public Device getByMainIP(String IP) {
+	try {
+		Query query = this.em.createNamedQuery("Device.getByMainIP");
+		query.setParameter("IP", IP);
+		if( query.getResultList().isEmpty() ) {
+			return null;
+		}
+		return (Device) query.getResultList().get(0);
+	} catch (Exception e) {
+		logger.debug("device.getByIP " + IP + " "+ e.getMessage());
+		return null;
+	} finally {
+	}
+}
+
+/*
  * Find a device given by the MAC address
  */
 public Device getByMAC(String MAC) {
