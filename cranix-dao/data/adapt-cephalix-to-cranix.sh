@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -e /var/adm/cranix/adapt-cephalix-to-cranix ]; then
+if [ -e /var/adm/cranix/adapt-cephalix-to-cranix -o -e /etc/products.d/CRANIX.prod ]; then
 	exit 0
 fi
 export HOME="/root"
