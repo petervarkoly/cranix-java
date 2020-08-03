@@ -1,11 +1,6 @@
 #!/bin/bash -x
 REPO="/home/groups/OSC/home:varkoly:CRANIX-4-2/cranix-java"
 HERE=$( pwd )
-if [ ! -e ../cranix-java ]; then
-	echo "Please get first cranix-java"
-	exit 1
-fi
-
 mvn clean package install
 
 if [ "$1" ]; then
@@ -38,8 +33,8 @@ chmod 644 cranix-java/lib/*
 rsync -a cranix-dao/data/          cranix-java/data/
 rsync -a bin/                      cranix-java/bin/
 rsync -a conf/                     cranix-java/conf/
-cp ${HERE}/cranix-java/data/school-INSERT.sql.in   ${HERE}/cranix-java/data/school-INSERT.sql
-cp ${HERE}/cranix-java/data/business-INSERT.sql.in ${HERE}/cranix-java/data/business-INSERT.sql
+mv ${HERE}/cranix-java/data/school-INSERT.sql.in   ${HERE}/cranix-java/data/school-INSERT.sql
+mv ${HERE}/cranix-java/data/business-INSERT.sql.in ${HERE}/cranix-java/data/business-INSERT.sql
 cd cranix-api/src/main/java/de/cranix/api/resources/
 ./find-rolles.pl >>                ${HERE}/cranix-java/data/school-INSERT.sql
 ./find-rolles.pl >>                ${HERE}/cranix-java/data/business-INSERT.sql
