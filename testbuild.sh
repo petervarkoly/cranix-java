@@ -33,8 +33,8 @@ chmod 644 cranix-java/lib/*
 rsync -a cranix-dao/data/          cranix-java/data/
 rsync -a bin/                      cranix-java/bin/
 rsync -a conf/                     cranix-java/conf/
-mv ${HERE}/cranix-java/data/school-INSERT.sql.in   ${HERE}/cranix-java/data/school-INSERT.sql
-mv ${HERE}/cranix-java/data/business-INSERT.sql.in ${HERE}/cranix-java/data/business-INSERT.sql
+mv cranix-java/data/school-INSERT.sql.in   cranix-java/data/school-INSERT.sql
+mv cranix-java/data/business-INSERT.sql.in cranix-java/data/business-INSERT.sql
 cd cranix-api/src/main/java/de/cranix/api/resources/
 ./find-rolles.pl >>                ${HERE}/cranix-java/data/school-INSERT.sql
 ./find-rolles.pl >>                ${HERE}/cranix-java/data/business-INSERT.sql
