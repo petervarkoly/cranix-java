@@ -309,7 +309,7 @@ public interface HwconfResource {
 	@ApiOperation(value = "Apply actions on selected hwconfs.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("cephalix.manage")
+	@RolesAllowed("hwconf.manage")
 	List<CrxResponse> applyAction(
 			@ApiParam(hidden = true) @Auth Session session,
 			CrxActionMap actionMap
