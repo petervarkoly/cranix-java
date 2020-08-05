@@ -25,6 +25,7 @@ public class AdHocLanController extends Controller {
 		for( Category category : room.getCategories() ) {
 			logger.debug("getAdHocCategoryOfRoom" + category);
 			if( category.getCategoryType().equals("AdHocAccess")) {
+				category.setIds();
 				return category;
 			}
 		}
@@ -222,7 +223,10 @@ public class AdHocLanController extends Controller {
 		AdHocRoom adHocRoom = new AdHocRoom(room);
 		Category cat = this.getAdHocCategoryOfRoom(room);
 		if( cat != null ) {
+			cat.setIds();
 			adHocRoom.setStudentsOnly(cat.getStudentsOnly());
+			adHocRoom.setGroupIds(cat.getGroupIds());
+			adHocRoom.setUserIds(cat.getUserIds());
 		}
 		return adHocRoom;
 	}
