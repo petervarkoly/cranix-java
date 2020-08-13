@@ -929,7 +929,9 @@ public class RoomController extends Controller {
 				CrxResponse crxResponse = deviceController.check(device, room);
 				if( crxResponse.getCode().equals("ERROR") ) {
 					logger.error("addDevices addDevice:" +crxResponse);
-					return crxResponse;
+					this.em.getTransaction().rollback();
+					continue;
+					//return crxResponse;
 				}
 				device.setRoom(room);
 				if( hwconf.getDeviceType().equals("FatClient") && this.getDevicesOnMyPlace(room, device).size() > 0 ) {
