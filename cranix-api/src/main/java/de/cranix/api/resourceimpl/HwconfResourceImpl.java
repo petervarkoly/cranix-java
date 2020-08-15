@@ -29,24 +29,6 @@ public class HwconfResourceImpl implements HwconfResource {
 	}
 
 	@Override
-	public Long getMaster(Session session, Long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CloneToolController cloneToolController = new CloneToolController(session,em);
-		HWConf hwconf = cloneToolController.getById(hwconfId);
-		Long resp = null;
-		if( hwconf != null ) {
-			for( Device device : hwconf.getDevices() ) {
-				if( cloneToolController.checkConfig(device, "isMaster") ) {
-					resp = device.getId();
-					break;
-				}
-			}
-		}
-		em.close();
-		return resp;
-	}
-
-	@Override
 	public CrxResponse add(Session session, HWConf hwconf) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		CrxResponse resp = new CloneToolController(session,em).addHWConf(hwconf);

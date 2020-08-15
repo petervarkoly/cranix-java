@@ -314,25 +314,6 @@ public interface CloneToolResource {
 	        HWConf hwconf
 	);
 
-	/**
-	 * Import a list of ne hardware configurations.
-	 * @param session
-	 * @param hwconfs
-	 * @return
-	 */
-	@POST
-	@Path("hwconf/import")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Import a list of ne hardware configurations.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("hwconf.add")
-	CrxResponse importHWConfs(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        List<HWConf> hwconfs
-	);
-
 	/*
 	 * Post clonetool/{hwconfId}
 	 */

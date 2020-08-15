@@ -67,24 +67,24 @@ public interface HwconfResource {
 	        @PathParam("hwconfId") Long hwconfId
 	);
 
-	/**
-	 * Delivers the id of the master of the hwconf
-	 * @param session
-	 * @param hwconfId
-	 * @return
-	 */
-	@GET
-	@Path("{hwconfId}/master")
-	@Produces(TEXT)
-	@ApiOperation(value = "Delivers the id of the master device of this HWConf.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@PermitAll
-	Long getMaster(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("hwconfId") Long hwconfId
-	);
+        /**
+         * Import a list of ne hardware configurations.
+         * @param session
+         * @param hwconfs
+         * @return
+         */
+        @POST
+        @Path("import")
+        @Produces(JSON_UTF8)
+        @ApiOperation(value = "Import a list of ne hardware configurations.")
+        @ApiResponses(value = {
+                @ApiResponse(code = 404, message = "Device not found"),
+                @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+        @RolesAllowed("hwconf.add")
+        CrxResponse importHWConfs(
+                @ApiParam(hidden = true) @Auth Session session,
+                List<HWConf> hwconfs
+        );
 
 	/**
 	 * Creates a new hwconf
@@ -103,25 +103,6 @@ public interface HwconfResource {
 	CrxResponse add(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        HWConf hwconf
-	);
-
-	/**
-	 * Import a list of a hardware configurations.
-	 * @param session
-	 * @param hwconfs
-	 * @return
-	 */
-	@POST
-	@Path("hwconf/import")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Import a list of ne hardware configurations.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("hwconf.add")
-	CrxResponse importHWConfs(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        List<HWConf> hwconfs
 	);
 
 	/**

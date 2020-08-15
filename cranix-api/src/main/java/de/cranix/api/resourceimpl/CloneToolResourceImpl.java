@@ -425,19 +425,4 @@ public class CloneToolResourceImpl implements CloneToolResource {
 		em.close();
 		return resp;
 	}
-
-	@Override
-	public CrxResponse importHWConfs(Session session, List<HWConf> hwconfs) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CloneToolController  cloneToolController = new CloneToolController(session,em);
-		CrxResponse crxResponse = null;
-		for( HWConf hwconf : hwconfs ) {
-			crxResponse = cloneToolController.addHWConf(hwconf);
-			if( crxResponse.getCode().equals("ERROR")) {
-				break;
-			}
-		}
-		em.close();
-		return crxResponse;
-	}
 }
