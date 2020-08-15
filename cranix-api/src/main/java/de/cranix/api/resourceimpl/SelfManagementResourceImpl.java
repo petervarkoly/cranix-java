@@ -13,13 +13,16 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.util.List;
+import java.util.List;
 import de.cranix.api.resources.SelfManagementResource;
-import de.cranix.dao.Group;
 import de.cranix.dao.CrxResponse;
+import de.cranix.dao.Device;
+import de.cranix.dao.Group;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
+import de.cranix.dao.controller.DHCPConfig;
 import de.cranix.dao.controller.Config;
 import de.cranix.dao.controller.DeviceController;
 import de.cranix.dao.controller.RoomController;
@@ -218,4 +221,75 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		}
 		return resp;
 	}
+
+        @Override
+        public List<Room> getMyRooms(Session session) {
+                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                RoomController roomController = new RoomController(session,em);
+                List<Room> resp= roomController.getAllToRegister();
+                em.close();
+                return resp;
+        }
+
+        @Override
+        public List<Device> getDevices(Session session) {
+                return session.getUser().getOwnedDevices();
+        }
+
+        @Override
+        public CrxResponse deleteDevice(Session session, Long deviceId) {
+                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                DeviceController deviceController = new DeviceController(session,em);
+                CrxResponse resp;
+                if( deviceController.isSuperuser() ) {
+                        resp = deviceController.delete(deviceId, true);
+                } else {
+                        Device device = deviceController.getById(deviceId);
+                        if( deviceController.mayModify(device) ) {
+                                resp = deviceController.delete(deviceId, true);
+                        } else {
+                                resp = new CrxResponse(session,"ERROR", "This is not your device.");
+                        }
+                }
+                em.close();
+                return resp;
+        }
+
+        @Override
+        public CrxResponse modifyDevice(Session session, Long deviceId, Device device) {
+                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                DeviceController deviceController = new DeviceController(session,em);
+                try {
+                        Device oldDevice = em.find(Device.class, deviceId);
+                        if( oldDevice == null ) {
+                                return new CrxResponse(session,"ERROR","Can not find the device.");
+                        }
+                        if( deviceId != device.getId() ) {
+                                return new CrxResponse(session,"ERROR","Device ID mismatch.");
+                        }
+                        if( ! deviceController.mayModify(device) ) {
+                                return new CrxResponse(session,"ERROR", "This is not your device.");
+                        }
+                        em.getTransaction().begin();
+                        oldDevice.setMac(device.getMac());
+                        em.merge(oldDevice);
+                        em.getTransaction().commit();
+                        new DHCPConfig(session,em).Create();
+                }  catch (Exception e) {
+                        logger.error(e.getMessage());
+                        return new CrxResponse(session,"ERROR", e.getMessage());
+                } finally {
+                        em.close();
+                }
+                return new CrxResponse(session,"OK", "Device was modified successfully");
+        }
+
+        @Override
+        public CrxResponse addDevice(Session session, Device device) {
+                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                CrxResponse resp = new RoomController(session,em).addDevice(device.getRoomId(), device.getMac(), device.getName());
+                em.close();
+                return resp;
+        }
+
 }

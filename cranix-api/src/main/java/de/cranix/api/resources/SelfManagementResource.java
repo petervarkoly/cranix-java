@@ -7,6 +7,7 @@ import static de.cranix.api.resources.Resource.TEXT;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -16,8 +17,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 import de.cranix.dao.CrxResponse;
+import de.cranix.dao.Device;
+import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
 import io.dropwizard.auth.Auth;
@@ -35,127 +39,214 @@ public interface SelfManagementResource {
 	/*
 	 * GET selfmanagement/me
 	 */
-    @GET
-    @Path("me")
-    @Produces(JSON_UTF8)
-    @ApiOperation(value = "Get my own datas")
-    @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("myself.search")
-    User getBySession(
-            @ApiParam(hidden = true) @Auth Session session
-    );
+	@GET
+	@Path("me")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get my own datas")
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "User not found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("myself.search")
+	User getBySession(
+			@ApiParam(hidden = true) @Auth Session session
+	);
 
-    /*
-     * POST users/modify { hash }
-     */
-    @POST
-    @Path("modify")
-    @Produces(JSON_UTF8)
-    @ApiOperation(value = "Modify my own datas")
-    @ApiResponses(value = {
-            // TODO so oder anders? @ApiResponse(code = 404, message = "At least one user was not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-    })
-    @PermitAll
-    CrxResponse modifyMySelf(
-            @ApiParam(hidden = true) @Auth Session session,
-            User user
-    );
+	/*
+	 * POST users/modify { hash }
+	 */
+	@POST
+	@Path("modify")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Modify my own datas")
+	@ApiResponses(value = {
+			// TODO so oder anders? @ApiResponse(code = 404, message = "At least one user was not found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	CrxResponse modifyMySelf(
+			@ApiParam(hidden = true) @Auth Session session,
+			User user
+	);
 
-    /*
-     * VPN Management
-     */
+	/*
+	 * VPN Management
+	 */
 
-    /**
-     * Checks if a user is allowed to use vpn connection to the school
-     * @param session
-     * @return true/false
-     */
-    @GET
-    @Path("vpn/have")
-    @Produces(JSON_UTF8)
-    @ApiOperation(value = "Checks if a user is allowed to use vpn connection to the school")
-    @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("myself.search")
-    Boolean haveVpn(
-            @ApiParam(hidden = true) @Auth Session session
-    );
+	/**
+	 * Checks if a user is allowed to use vpn connection to the school
+	 * @param session
+	 * @return true/false
+	 */
+	@GET
+	@Path("vpn/have")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Checks if a user is allowed to use vpn connection to the school")
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "User not found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("myself.search")
+	Boolean haveVpn(
+			@ApiParam(hidden = true) @Auth Session session
+	);
 
 
-    /**
-     * Delivers the list of supported clients OS for the VPN.
-     * @param session
-     * @return List of the supported OS
-     */
-    @GET
-    @Path("vpn/OS")
-    @Produces(JSON_UTF8)
-    @ApiOperation(value = "Delivers the list of supported clients OS for the VPN.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("myself.search")
-    String[] vpnOS(
-            @ApiParam(hidden = true) @Auth Session session
-    );
+	/**
+	 * Delivers the list of supported clients OS for the VPN.
+	 * @param session
+	 * @return List of the supported OS
+	 */
+	@GET
+	@Path("vpn/OS")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Delivers the list of supported clients OS for the VPN.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "User not found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("myself.search")
+	String[] vpnOS(
+			@ApiParam(hidden = true) @Auth Session session
+	);
 
-    /**
-     * Delivers the configuration for a given operating system.
-     * @param OS The operating system: Win, Mac or Linux
-     * @return The configuration as an installer or tar archive.
-     */
-    @GET
-    @Path("vpn/config/{OS}")
-    @Produces("application/x-dosexec")
-    @ApiOperation(value = "Delivers the configuration for a given operating system.",
+	/**
+	 * Delivers the configuration for a given operating system.
+	 * @param OS The operating system: Win, Mac or Linux
+	 * @return The configuration as an installer or tar archive.
+	 */
+	@GET
+	@Path("vpn/config/{OS}")
+	@Produces("application/x-dosexec")
+	@ApiOperation(value = "Delivers the configuration for a given operating system.",
 	notes = "OS The operating system: the list of the supported os will be delivered by GET selfmanagement/vpn/OS")
-    @ApiResponses(value = {
+	@ApiResponses(value = {
 	@ApiResponse(code = 401, message = "You are not allowed to use VPN."),
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator."),
-            @ApiResponse(code = 501, message = "Can not create your configuration. Please contact adminstrator.")})
-    @RolesAllowed("myself.search")
-    Response getConfig(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("OS") String OS
-    );
+			@ApiResponse(code = 404, message = "User not found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator."),
+			@ApiResponse(code = 501, message = "Can not create your configuration. Please contact adminstrator.")})
+	@RolesAllowed("myself.search")
+	Response getConfig(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("OS") String OS
+	);
 
-    /**
-     * Delivers the configuration for a given operating system.
-     * @param OS The operating system: Win, Mac or Linux
-     * @return The configuration as an installer or tar archive.
-     */
-    @GET
-    @Path("vpn/installer/{OS}")
-    @Produces("application/x-dosexec")
-    @ApiOperation(value = "Delivers the installer for a given operating system.",
+	/**
+	 * Delivers the configuration for a given operating system.
+	 * @param OS The operating system: Win, Mac or Linux
+	 * @return The configuration as an installer or tar archive.
+	 */
+	@GET
+	@Path("vpn/installer/{OS}")
+	@Produces("application/x-dosexec")
+	@ApiOperation(value = "Delivers the installer for a given operating system.",
 	notes = "OS The operating system: the list of the supported os will be delivered by GET selfmanagement/vpn/OS")
-    @ApiResponses(value = {
+	@ApiResponses(value = {
 	@ApiResponse(code = 401, message = "You are not allowed to use VPN."),
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("myself.search")
-    Response getInstaller(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("OS") String OS
-    );
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("myself.search")
+	Response getInstaller(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("OS") String OS
+	);
 
-    @PUT
+	/**
+	 * This function is for the radius plugin to automatic registration of BYOD devices.
+	 * This call is allowed only from localhost.
+	 * @param ui UriInfo
+	 * @param req HttpServletRequest
+	 * @param mac The mac address of the device to register
+	 * @param uid The uid of the owner of the device
+	 * @return The result of the registration
+	 **/
+	@PUT
 	@Path("addDeviceToUser/{MAC}/{userName}")
 	@Produces(TEXT)
 	@ApiOperation(value = "Set the logged on user on a device defined by MAC. All other users logged on users will be removed." )
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Cant be called only from localhost."),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Cant be called only from localhost."),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	String addDeviceToUser(
-			@Context UriInfo ui,
-	        @Context HttpServletRequest req,
-	        @PathParam("MAC") String partitionName,
-	        @PathParam("userName") String key
+		@Context UriInfo ui,
+		@Context HttpServletRequest req,
+		@PathParam("MAC") String mac,
+		@PathParam("userName") String uid
 	);
+
+	/**
+	 * getRooms Delivers a list of all AdHocRooms
+	 * @param session
+	 * @return
+	 */
+	@GET
+	@Path("rooms")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets all defined AdHocLan Rooms which a user may use. Superuser get the list of all AdHocLan rooms.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "No room was found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@PermitAll
+	List<Room> getMyRooms(
+			@ApiParam(hidden = true) @Auth Session session
+			);
+
+	/**
+	 * getDevices Delivers a list of the owned devices
+	 * @param session
+	 * @return
+	 */
+	@GET
+	@Path("devices")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets all owned AdHocLan Devices of a user.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "No category was found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@PermitAll
+	List<Device> getDevices(
+		@ApiParam(hidden = true) @Auth Session session
+	);
+
+	/*
+	 *
+	 */
+	@DELETE
+	@Path("devices/{deviceId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Delets an owned AdHocLan Devices of a user.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "No category was found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@PermitAll
+	CrxResponse deleteDevice(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId")		   Long   deviceId
+	);
+
+	@POST
+	@Path("devices/{deviceId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Modify an owned AdHocLan Devices of a user.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "No category was found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@PermitAll
+	CrxResponse modifyDevice(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId")		   Long   deviceId,
+		Device device
+	);
+
+	@POST
+        @Path("devices/add")
+        @Produces(JSON_UTF8)
+        @ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
+        @ApiResponses(value = {
+                        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
+                        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+        })
+        @PermitAll
+        CrxResponse addDevice(
+                        @ApiParam(hidden = true) @Auth Session session,
+			Device device
+        );
 
 }
