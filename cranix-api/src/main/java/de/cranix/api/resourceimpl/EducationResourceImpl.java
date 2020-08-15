@@ -322,6 +322,7 @@ public class EducationResourceImpl implements Resource, EducationResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		EducationController ec = new EducationController(session,em);
+		logger.debug("uploadFileToGroups:"+ groupIds + " " + studentsOnly + " " +cleanUp);
 		for(String sgroupId : groupIds.split(",")) {
 			Long groupId = Long.valueOf(sgroupId);
 			if( groupId != null ) {
