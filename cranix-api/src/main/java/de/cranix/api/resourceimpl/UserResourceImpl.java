@@ -615,7 +615,7 @@ public class UserResourceImpl implements UserResource {
 				parameters.add("--password");
 				parameters.add(userImport.getPassword());
 			}
-			if( userImport.isMustchange()  ) {
+			if( userImport.isMustChange()  ) {
 				parameters.add("--mustChange");
 			}
 			if( userImport.isFull() ) {
