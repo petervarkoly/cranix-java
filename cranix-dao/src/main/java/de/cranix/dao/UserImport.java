@@ -46,10 +46,10 @@ public class UserImport {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public boolean isMustchange() {
+	public boolean isMustChange() {
 		return mustChange;
 	}
-	public void setMustchange(boolean mustChange) {
+	public void setMustChange(boolean mustChange) {
 		this.mustChange = mustChange;
 	}
 	public boolean isFull() {
