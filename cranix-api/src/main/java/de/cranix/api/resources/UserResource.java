@@ -693,9 +693,9 @@ public interface UserResource {
 	@PUT
 	@Path("imports/{startTime}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get the list of imports.")
+	@ApiOperation(value = "Restart an user import.")
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "User not found"),
+			@ApiResponse(code = 404, message = "User import not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
 	CrxResponse restartImport(
@@ -706,9 +706,9 @@ public interface UserResource {
 	@DELETE
 	@Path("imports/{startTime}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get the list of imports.")
+	@ApiOperation(value = "Remove an user import.")
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "User not found"),
+			@ApiResponse(code = 404, message = "User import not found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
 	CrxResponse deleteImport(
@@ -719,9 +719,9 @@ public interface UserResource {
 	@GET
 	@Path("imports/running")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get the list of imports.")
+	@ApiOperation(value = "Get the running import.")
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "User not found"),
+			@ApiResponse(code = 404, message = "There is no running import found"),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.manage")
 	UserImport getRunningImport(
