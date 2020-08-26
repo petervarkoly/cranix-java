@@ -192,7 +192,7 @@ public class UserController extends Controller {
 			newUserId = this.getConfigValue("LOGIN_PREFIX") + userId + i;
 			i++;
 		}
-		return normalize(newUserId.toLowerCase());
+		return normalize(newUserId.toLowerCase()).replace(' ','');
 	}
 
 	public CrxResponse add(User user) {
@@ -1232,9 +1232,9 @@ public class UserController extends Controller {
 
 	public CrxResponse addDefaultAliase(User user) {
 		boolean error = false;
-		CrxResponse crxResponse = this.addAlias(user, normalize(user.getGivenName() + "." + user.getSurName()));
+		CrxResponse crxResponse = this.addAlias(user, normalize(user.getGivenName() + "." + user.getSurName()).replace(' ',''));
 		error = crxResponse.getCode().equals("ERROR");
-		crxResponse = this.addAlias(user,  normalize(user.getSurName() + "." + user.getGivenName()));
+		crxResponse = this.addAlias(user,  normalize(user.getSurName() + "." + user.getGivenName()).replace(' ',''));
 		if( error ) {
 			if( crxResponse.getCode().equals("ERROR") ) {
 				return new CrxResponse(this.getSession(), "ERROR", "Can not add default aliases." );
