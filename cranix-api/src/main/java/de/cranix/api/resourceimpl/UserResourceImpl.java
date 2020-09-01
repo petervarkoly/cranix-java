@@ -15,6 +15,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -478,6 +479,18 @@ public class UserResourceImpl implements UserResource {
 			return new CrxResponse(session,"ERROR", "Import file can not be saved" + e.getMessage());
 		}
 		try {
+			List<String> lines = Files.readAllLines(file.toPath(), Charset.forName("ISO-8859-1"));
+			List<String> utf8lines = new ArrayList<String>();
+			for( String line : lines ) {
+				byte[] utf8 = new String(line.getBytes("ISO-8859-1"),"UTF-8").getBytes("UTF-8");
+				utf8lines.add( new String(utf8,"UTF-8"));
+			}
+			Files.write(file.toPath(),utf8lines);
+
+		} catch (IOException ioe) {
+				logger.error(ioe.getMessage(), ioe);
+		}
+		try {
 				Files.readAllLines(file.toPath(), Charset.forName("UTF-8"));
 		} catch (IOException ioe) {
 				logger.error(ioe.getMessage(), ioe);
@@ -668,6 +681,22 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
+	public CrxResponse stopRunningImport(Session session) {
+		String[] program = new String[2];
+		program[0] = "killall";
+		program[1] = "crx_import_user_list.py";
+		StringBuffer reply  = new StringBuffer();
+		StringBuffer stderr = new StringBuffer();
+		OSSShellTools.exec(program, reply, stderr, null);
+		program = new String[3];
+		program[0] = "rm";
+		program[1] = "-f";
+		program[2] = "/run/crx_import_user";
+		OSSShellTools.exec(program, reply, stderr, null);
+		return new CrxResponse(session,"OK", "Import was stopped.");
+	}
+
+	@Override
 	public UserImport getRunningImport(Session session) {
 		List<String> runningImport;
 		try {
@@ -689,8 +718,19 @@ public class UserResourceImpl implements UserResource {
 
 	@Override
 	public Response getImportAsTxt(Session session, String startTime) {
-		// TODO Auto-generated method stub
-		return null;
+		Controller controller    = new Controller(session,null);
+		StringBuilder importDir  = controller.getImportDir(startTime);
+		String[] program = new String[2];
+		program[0] = "/usr/share/cranix/tools/pack_import.sh";
+		program[1] = startTime;
+		StringBuffer reply  = new StringBuffer();
+		StringBuffer stderr = new StringBuffer();
+		OSSShellTools.exec(program, reply, stderr, null);
+		File importFile = new File(importDir.append("/userimport.zip").toString());
+		ResponseBuilder response = Response.ok((Object) importFile);
+                response = response.header("Content-Disposition","attachment; filename="+ importFile.getName());
+                return response.build();
+
 	}
 
 	@Override

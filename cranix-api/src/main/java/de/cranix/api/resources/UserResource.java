@@ -728,6 +728,18 @@ public interface UserResource {
 			@ApiParam(hidden = true) @Auth Session session
 			);
 
+	@DELETE
+	@Path("imports/running")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Stops the running import.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 404, message = "There is no running import found"),
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("user.manage")
+	CrxResponse stopRunningImport(
+			@ApiParam(hidden = true) @Auth Session session
+			);
+
 	@GET
 	@Path("imports/{startTime}/pdf")
 	@Produces("*/*")
