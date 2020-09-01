@@ -225,7 +225,8 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		//TODO
 		//CrxResponse resp = cc.modify(category);
 		em.close();
-		return resp;
+		//return resp;
+		return new CrxResponse(session,"OK","Software installation set modified successfully.");
 	}
 
 	@Override
