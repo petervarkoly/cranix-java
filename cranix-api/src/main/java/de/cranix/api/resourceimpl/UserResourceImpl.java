@@ -482,7 +482,7 @@ public class UserResourceImpl implements UserResource {
 			List<String> lines = Files.readAllLines(file.toPath(), Charset.forName("ISO-8859-1"));
 			List<String> utf8lines = new ArrayList<String>();
 			for( String line : lines ) {
-				byte[] utf8 = new String(line.getBytes("ISO-8859-1"),"UTF-8").getBytes("UTF-8");
+				byte[] utf8 = new String(line.getBytes("ISO-8859-1"),"ISO-8859-1").getBytes("UTF-8");
 				utf8lines.add( new String(utf8,"UTF-8"));
 			}
 			Files.write(file.toPath(),utf8lines);
