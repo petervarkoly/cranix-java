@@ -479,22 +479,21 @@ public class UserResourceImpl implements UserResource {
 			return new CrxResponse(session,"ERROR", "Import file can not be saved" + e.getMessage());
 		}
 		try {
-			List<String> lines = Files.readAllLines(file.toPath(), Charset.forName("ISO-8859-1"));
-			List<String> utf8lines = new ArrayList<String>();
-			for( String line : lines ) {
-				byte[] utf8 = new String(line.getBytes("ISO-8859-1"),"ISO-8859-1").getBytes("UTF-8");
-				utf8lines.add( new String(utf8,"UTF-8"));
-			}
-			Files.write(file.toPath(),utf8lines);
-
-		} catch (IOException ioe) {
-				logger.error(ioe.getMessage(), ioe);
-		}
-		try {
 				Files.readAllLines(file.toPath(), Charset.forName("UTF-8"));
 		} catch (IOException ioe) {
-				logger.error(ioe.getMessage(), ioe);
+			logger.debug("Import file is not UTF-8 try ISO-8859-1");
+			try {
+				List<String> lines = Files.readAllLines(file.toPath(), Charset.forName("ISO-8859-1"));
+				List<String> utf8lines = new ArrayList<String>();
+				for( String line : lines ) {
+					byte[] utf8 = new String(line.getBytes("ISO-8859-1"),"ISO-8859-1").getBytes("UTF-8");
+					utf8lines.add( new String(utf8,"UTF-8"));
+				}
+				Files.write(file.toPath(),utf8lines);
+
+			} catch (IOException ioe2) {
 				return new CrxResponse(session,"ERROR", "Import file is not UTF-8 coded.");
+			}
 		}
 		if( password != null && !password.isEmpty() ) {
 			UserController uc = new UserController(session,null);
