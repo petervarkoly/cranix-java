@@ -158,6 +158,7 @@ public class SessionController extends Controller {
 
 		this.session.setAcls(modules);
 		this.session.setPassword(password);
+		this.session.setName(user.getUid());
 		sessions.put(token, this.session);
 		save(session);
 		return this.session;
