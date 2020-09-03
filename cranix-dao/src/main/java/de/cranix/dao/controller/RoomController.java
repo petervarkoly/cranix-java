@@ -1115,11 +1115,11 @@ public class RoomController extends Controller {
 		}
 	}
 
-	public CrxResponse setHWConf(long roomId, long hwConfId) {
+	public CrxResponse setHWConf(long roomId, long hwconfId) {
 		try {
 			this.em.getTransaction().begin();
 			Room room = this.em.find(Room.class, roomId);
-			room.setHwconf(em.find(HWConf.class, hwConfId));
+			room.setHwconf(em.find(HWConf.class, hwconfId));
 			this.em.merge(room);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {

@@ -296,10 +296,10 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public CrxResponse setHwConf(Session session, Long roomId, Long hwConfId) {
+	public CrxResponse setHwConf(Session session, Long roomId, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		CrxResponse resp = roomController.setHWConf(roomId,hwConfId);
+		CrxResponse resp = roomController.setHWConf(roomId,hwconfId);
 		em.close();
 		return resp;
 	}

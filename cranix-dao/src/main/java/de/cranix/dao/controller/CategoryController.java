@@ -367,7 +367,7 @@ public class CategoryController extends Controller {
 				HWConf hwconf = this.em.find(HWConf.class, objectId);
 				if(!category.getHwconfs().contains(hwconf)) {
 					category.getHwconfs().add(hwconf);
-					category.getHWConfIds().add(hwconf.getId());
+					category.getHwconfIds().add(hwconf.getId());
 					hwconf.getCategories().add(category);
 					this.em.merge(hwconf);
 					changes = true;

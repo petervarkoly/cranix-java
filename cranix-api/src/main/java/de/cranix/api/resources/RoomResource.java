@@ -260,10 +260,10 @@ public interface RoomResource {
 	);
 
 	/*
-	 * SET rooms/{roomId}/{hwConfId}
+	 * SET rooms/{roomId}/{hwconfId}
 	 */
 	@PUT
-	@Path("{roomId}/{hwConfId}")
+	@Path("{roomId}/{hwconfId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set hardware configuration of the room")
 	    @ApiResponses(value = {
@@ -274,7 +274,7 @@ public interface RoomResource {
 	CrxResponse setHwConf(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")   Long roomId,
-	        @PathParam("hwConfId") Long hwConfId
+	        @PathParam("hwconfId") Long hwconfId
 	);
 
 	/*

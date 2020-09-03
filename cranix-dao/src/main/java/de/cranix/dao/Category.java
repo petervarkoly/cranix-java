@@ -164,7 +164,7 @@ public class Category implements Serializable {
 	private List<Long> deviceIds;
 
 	@Transient
-	private List<Long> hwConfIds;
+	private List<Long> hwconfIds;
 
 	@Transient
 	private List<Long> roomIds;
@@ -249,7 +249,7 @@ public class Category implements Serializable {
 		this.deviceIds  = new ArrayList<Long>();
 		this.faqIds     = new ArrayList<Long>();
 		this.groupIds   = new ArrayList<Long>();
-		this.hwConfIds  = new ArrayList<Long>();
+		this.hwconfIds  = new ArrayList<Long>();
 		this.roomIds    = new ArrayList<Long>();
 		this.softwareIds= new ArrayList<Long>();
 		this.userIds    = new ArrayList<Long>();
@@ -330,12 +330,12 @@ public class Category implements Serializable {
 		this.groupIds = ids;
 	}
 
-	public List<Long> getHWConfIds() {
-		return this.hwConfIds;
+	public List<Long> getHwconfIds() {
+		return this.hwconfIds;
 	}
 
-	public void setHWConfIds(List<Long> ids) {
-		this.hwConfIds = ids;
+	public void setHwconfIds(List<Long> ids) {
+		this.hwconfIds = ids;
 	}
 
 	public List<Room> getRooms() {
@@ -478,7 +478,7 @@ public class Category implements Serializable {
 		}
 		if( this.hwconfs != null ) {
 			for (HWConf h: this.getHwconfs()) {
-				this.hwConfIds.add(h.getId());
+				this.hwconfIds.add(h.getId());
 			}
 		}
 		if( this.rooms != null ) {
@@ -531,17 +531,6 @@ public class Category implements Serializable {
 	public void setHwconfs(List<HWConf> hwconfs) {
 		this.hwconfs = hwconfs;
 	}
-
-
-	public List<Long> getHwConfIds() {
-		return hwConfIds;
-	}
-
-
-	public void setHwConfIds(List<Long> hwConfIds) {
-		this.hwConfIds = hwConfIds;
-	}
-
 
 	public List<Long> getFaqIds() {
 		return faqIds;

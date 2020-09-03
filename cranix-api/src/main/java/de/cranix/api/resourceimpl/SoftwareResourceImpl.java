@@ -123,8 +123,8 @@ public class SoftwareResourceImpl implements SoftwareResource {
 					logger.debug("software resp" + resp1);
 				}
 			}
-			if( deepCopy.getHwConfIds() != null ) {
-				for( long id : deepCopy.getHwConfIds() ) {
+			if( deepCopy.getHwconfIds() != null ) {
+				for( long id : deepCopy.getHwconfIds() ) {
 					resp1 = cc.addMember(installationId, "hwconf", id);
 					logger.debug("hwconf resp" + resp1);
 				}
@@ -161,8 +161,8 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		if( category.getSoftwareIds() == null ) {
 			category.setSoftwareIds(new ArrayList<Long>());
 		}
-		if( category.getHwConfIds() == null ) {
-			category.setHwConfIds(new ArrayList<Long>());
+		if( category.getHwconfIds() == null ) {
+			category.setHwconfIds(new ArrayList<Long>());
 		}
 		if( category.getRoomIds() == null ) {
 			category.setRoomIds(new ArrayList<Long>());
@@ -177,14 +177,14 @@ public class SoftwareResourceImpl implements SoftwareResource {
 				logger.debug("software resp" + resp1);
 			}
 		}
-		for( long id : category.getHwConfIds() ) {
-			if( ! oldCategory.getHwConfIds().contains(id) ) {
+		for( long id : category.getHwconfIds() ) {
+			if( ! oldCategory.getHwconfIds().contains(id) ) {
 				resp1 = cc.addMember(installationId, "hwconf", id);
 				logger.debug("hwconf resp" + resp1);
 			}
 		}
 		for( long id : category.getRoomIds() ) {
-			if( ! oldCategory.getHwConfIds().contains(id) ) {
+			if( ! oldCategory.getHwconfIds().contains(id) ) {
 				resp1 = cc.addMember(installationId, "room", id);
 				logger.debug("room resp" + resp1);
 			}
@@ -202,8 +202,8 @@ public class SoftwareResourceImpl implements SoftwareResource {
 				logger.debug("software resp" + resp1);
 			}
 		}
-		for( long id : oldCategory.getHwConfIds() ) {
-			if( ! category.getHwConfIds().contains(id) ) {
+		for( long id : oldCategory.getHwconfIds() ) {
+			if( ! category.getHwconfIds().contains(id) ) {
 				resp1 = cc.deleteMember(installationId, "hwconf", id);
 				logger.debug("hwconf resp" + resp1);
 			}
