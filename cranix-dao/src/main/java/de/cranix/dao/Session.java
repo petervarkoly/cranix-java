@@ -91,12 +91,19 @@ public class Session implements Principal {
 	@Transient
 	private String commonName;
 
+	@Transient
+	private String name;
+
 	public Object getTemporaryUploadData() {
 		return temporaryUploadData;
 	}
 
 	public void setTemporaryUploadData(Object temporaryUploadData) {
 		this.temporaryUploadData = temporaryUploadData;
+	}
+
+	public Session(String name) {
+		this.name = name;
 	}
 
 	public Session(String token, Long userid, String password, String ip) {
@@ -111,6 +118,11 @@ public class Session implements Principal {
 		this.roomId   = null;
 		this.dnsName  = null;
 		this.mac	  = null;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
 	}
 
 	@Override
@@ -148,11 +160,6 @@ public class Session implements Principal {
 		data.append("mac: '" + this.mac).append("' ");
 		data.append("role: '" + this.role).append("' ");
 		return data.toString();
-	}
-
-	@Override
-	public String getName() {
-		return "dummy";
 	}
 
 	public String getSchoolId() {

@@ -44,7 +44,7 @@ public class SessionsResourceImpl implements SessionsResource {
 			username = "Administrator";
 		}
 
-		Session session =  new Session();
+		Session session =  new Session(username);
 		session.setIp(req.getRemoteAddr());
 		SessionController sessionController = new SessionController(session,em);
 		session = sessionController.createSessionWithUser(username, password, device);
