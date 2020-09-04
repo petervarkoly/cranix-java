@@ -351,8 +351,12 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<CrxResponse> collectFileFromUsers(Session session, String projectName, Boolean sortInDirs,
-			Boolean cleanUpExport, String userIds) {
+	public List<CrxResponse> collectFileFromUsers(
+			Session session,
+			String  userIds,
+			String  projectName,
+			Boolean sortInDirs,
+			Boolean cleanUpExport) {
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		UserController userController = new UserController(session,em);
@@ -571,7 +575,8 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<CrxResponse> collectFileFromGroups(Session session,
+	public List<CrxResponse> collectFileFromGroups(
+			Session session,
 			String  groupIds,
 			String  projectName,
 			Boolean sortInDirs,

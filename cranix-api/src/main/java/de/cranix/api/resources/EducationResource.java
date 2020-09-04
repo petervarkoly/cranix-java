@@ -901,11 +901,12 @@ public interface EducationResource {
 	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	List<CrxResponse> collectFileFromUsers(@ApiParam(hidden = true) @Auth Session session,
+	List<CrxResponse> collectFileFromUsers(
+		@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("objectIds")     String userIds,
 		@FormDataParam("projectName")   String projectName,
 		@FormDataParam("sortInDirs")    Boolean sortInDirs,
-		@FormDataParam("cleanUpExport") Boolean cleanUpExport,
-		@FormDataParam("userIds")       final String userIds
+		@FormDataParam("cleanUpExport") Boolean cleanUpExport
         );
 
 	@POST
