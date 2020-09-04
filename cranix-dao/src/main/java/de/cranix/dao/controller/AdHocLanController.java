@@ -197,6 +197,13 @@ public class AdHocLanController extends Controller {
 			Category cat = this.getAdHocCategoryOfRoom(oldRoom);
 			cat.setStudentsOnly(room.isStudentsOnly());
 			cat.setDescription(room.getDescription());
+			//Handle group changes:
+			cat.setGroups(new ArrayList<Group>());
+			cat.setGroupIds(room.getGroupIds());
+			for( Long groupId : room.getGroupIds() ) {
+				Group g = this.em.find(Group.class, groupId);
+				cat.getGroups().add(g);
+			}
 			try {
 				em.getTransaction().begin();
 				em.merge(oldRoom);
@@ -206,8 +213,6 @@ public class AdHocLanController extends Controller {
 			} catch (Exception e) {
 				logger.error("modify:" + e.getMessage());
 				return new CrxResponse(session,"ERROR","AdHocLan room could not be modified.");
-			} finally {
-				em.close();
 			}
 		}
 	}
@@ -218,7 +223,7 @@ public class AdHocLanController extends Controller {
 	 * @return The created AdHocRoom object
 	 */
 	public AdHocRoom roomToAdHoc(Room room) {
-		//This should work. But casting does not work. 
+		//This should work. But casting does not work.
 		//AdHocRoom adHocRoom = (AdHocRoom) room;
 		AdHocRoom adHocRoom = new AdHocRoom(room);
 		Category cat = this.getAdHocCategoryOfRoom(room);

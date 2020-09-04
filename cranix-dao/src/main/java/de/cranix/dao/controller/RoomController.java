@@ -1350,6 +1350,11 @@ public class RoomController extends Controller {
 		}
 		boolean changed  = false;
 		List<Integer> coordinates;
+		if( room.getRoomType().equals("AdHocAccess")) {
+			room.setPlaces(4);
+			room.setRows(4);
+
+		}
 		int availablePlaces  = room.getPlaces() * room.getRows();
 		int workstationCount = room.getDevices().size();
 		while( workstationCount > availablePlaces ) {
@@ -1358,7 +1363,7 @@ public class RoomController extends Controller {
 			availablePlaces  = room.getPlaces() * room.getRows();
 			changed = true;
 		}
-		if( changed ) {
+		if( changed && ! room.getRoomType().equals("AdHocAccess") ) {
 			try {
 				this.em.getTransaction().begin();
 				this.em.merge(room);

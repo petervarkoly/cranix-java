@@ -451,6 +451,15 @@ public class Category implements Serializable {
 	}
 
 	public void setIds() {
+		this.announcementIds = new ArrayList<Long>();
+		this.contactIds      = new ArrayList<Long>();
+		this.deviceIds       = new ArrayList<Long>();
+		this.faqIds          = new ArrayList<Long>();
+		this.groupIds        = new ArrayList<Long>();
+		this.hwconfIds       = new ArrayList<Long>();
+		this.roomIds         = new ArrayList<Long>();
+		this.softwareIds     = new ArrayList<Long>();
+		this.userIds         = new ArrayList<Long>();
 		if( this.announcements != null ) {
 			for (Announcement a : this.getAnnouncements() ) {
 				this.announcementIds.add(a.getId());
