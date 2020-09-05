@@ -1,8 +1,8 @@
 #!/bin/bash
 HERE=$( pwd )
 sudo /usr/sbin/update-alternatives --set java /usr/lib64/jvm/jre-11-openjdk/bin/java
-#gradle --offline clean build
-gradle clean build
+gradle -c settings.gradle --offline clean build
+#gradle clean build
 tar xf build/distributions/de.openschoolserver.api-1.0-SNAPSHOT.tar
 REPO="/data1/OSC/home:varkoly:OSS-4-1:leap15.1/oss-java/"
 
@@ -26,6 +26,8 @@ if [ -e oss-java ]; then
     rm -r oss-java
 fi
 mv de.openschoolserver.api-1.0-SNAPSHOT  oss-java
+#Dirty fix
+cp eclipselink-2.7.7.jar oss-java/lib/eclipselink-2.6.0.jar
 chmod 644 oss-java/lib/*
 tar cjf ${REPO}/oss-java.tar.bz2 oss-java
 cp ${HERE}/../oss-dao/data/school-INSERT.sql.in   ${HERE}/../oss-dao/data/school-INSERT.sql
