@@ -544,18 +544,6 @@ public class UserController extends Controller {
 			responses.add(passwordResponse);
 			return responses;
 		}
-		StringBuffer reply = new StringBuffer();
-		StringBuffer error = new StringBuffer();
-		String[] program = new String[5];
-		if (mustChange) {
-			program    = new String[6];
-			program[5] = "--must-change-at-next-login";
-		}
-		program[0] = "/usr/bin/samba-tool";
-		program[1] = "user";
-		program[2] = "setpassword";
-		program[4] = "--newpassword=" + password;
-
 		for (Long id : userIds) {
 			User user = this.getById(id);
 			if( user == null ) {
@@ -572,12 +560,9 @@ public class UserController extends Controller {
 			 *              continue;
 			 *      }
 			 */
-			error = new StringBuffer();
-			reply = new StringBuffer();
-			program[3] = user.getUid();
-			OSSShellTools.exec(program, reply, error, null);
-			logger.debug(program[0] + " " + program[1] + " " + program[2] + " " + program[3] + " R:"
-					+ reply.toString() + " E:" + error.toString());
+			user.setPassword(password);
+			user.setMustChange(mustChange);
+			startPlugin("modify_user", user);
 			responses.add(new OssResponse(this.getSession(), "OK", "The password of '%s' was reseted.",null,user.getUid()));
 		}
 		if (checkPassword) {
