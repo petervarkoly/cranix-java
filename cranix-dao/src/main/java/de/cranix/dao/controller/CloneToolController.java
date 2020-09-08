@@ -402,6 +402,7 @@ public class CloneToolController extends Controller {
 	public CrxResponse startCloning(String type, Long id, int multiCast) {
 		List<String> pxeBoot;
 		List<String> efiBoot;
+		List<String> deviceNames = new ArrayList<String>();
 		StringBuilder ERROR = new StringBuilder();
 		try {
 			pxeBoot   = Files.readAllLines(PXE_BOOT);
@@ -442,8 +443,10 @@ public class CloneToolController extends Controller {
 		}
 
 		for( Device device : devices ) {
+			deviceNames.add(device.getName());
 			String pathPxe  = String.format("/srv/tftp/pxelinux.cfg/01-%s", device.getMac().toLowerCase().replace(":", "-"));
 			String pathElilo= String.format("/srv/tftp/boot/%s", device.getMac().toLowerCase());
+
 			try {
 				Files.write(Paths.get(pathPxe), pxeBoot);
 				Files.write(Paths.get(pathElilo), efiBoot);
@@ -453,7 +456,7 @@ public class CloneToolController extends Controller {
 			}
 		}
 		if( ERROR.length() == 0 ) {
-			return new CrxResponse(this.getSession(),"OK", "Boot configuration was saved succesfully." );
+			return new CrxResponse(this.getSession(),"OK", "Boot configuration was saved succesfully for %s.",null,String.join(" ",deviceNames) );
 		}
 		parameters.add(ERROR.toString());
 		return new CrxResponse(this.getSession(),"ERROR","Error(s) accoured during saving the boot configuration: %s",null,parameters);
@@ -522,6 +525,7 @@ public class CloneToolController extends Controller {
 	public CrxResponse stopCloning(String type, Long id) {
 		StringBuilder ERROR = new StringBuilder();
 		List<Device> devices = new ArrayList<Device>();
+		List<String> deviceNames = new ArrayList<String>();
 		switch(type) {
 			case "device":
 				devices.add(new DeviceController(this.session,this.em).getById(id));
@@ -533,6 +537,7 @@ public class CloneToolController extends Controller {
 				devices = new RoomController(this.session,this.em).getById(id).getDevices();
 		}
 		for( Device device : devices ) {
+			deviceNames.add(device.getName());
 			String pathPxe  = String.format("/srv/tftp/pxelinux.cfg/01-%s", device.getMac().toLowerCase().replace(":", "-"));
 			String pathElilo= String.format("/srv/tftp/boot/%s", device.getMac().toLowerCase());
 			try {
@@ -544,7 +549,7 @@ public class CloneToolController extends Controller {
 			}
 		}
 		if( ERROR.length() == 0 ) {
-			return new CrxResponse(this.getSession(),"OK", "Boot configuration was removed succesfully." );
+			return new CrxResponse(this.getSession(),"OK", "Boot configuration for %s was removed succesfully.",null, String.join(" ",deviceNames));
 		}
 		parameters.add(ERROR.toString());
 		return new CrxResponse(this.getSession(),"ERROR","Error(s) accoured during removing the boot configuration: %s",null,parameters);

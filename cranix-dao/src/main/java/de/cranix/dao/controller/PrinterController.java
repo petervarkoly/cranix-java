@@ -257,7 +257,7 @@ public class PrinterController extends Controller {
 		List<Device> devices = new ArrayList<Device>();
 		devices.add(device);
 		//Persist the device object
-		CrxResponse crxResponse = roomController.addDevices(roomId, devices);
+		CrxResponse crxResponse = roomController.addDevices(roomId, devices).get(0);
 		if( crxResponse.getCode().equals("ERROR")) {
 			return crxResponse;
 		}

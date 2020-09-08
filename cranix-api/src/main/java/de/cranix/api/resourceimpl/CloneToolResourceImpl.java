@@ -282,7 +282,7 @@ public class CloneToolResourceImpl implements CloneToolResource {
 		}
 		ArrayList<Device> devices = new ArrayList<Device>();
 		devices.add(device);
-		CrxResponse resp = rc.addDevices(roomId, devices);
+		CrxResponse resp = rc.addDevices(roomId, devices).get(0);
 		em.close();
 		return resp;
 	}

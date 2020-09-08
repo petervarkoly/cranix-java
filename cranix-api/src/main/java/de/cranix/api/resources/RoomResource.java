@@ -532,7 +532,7 @@ public interface RoomResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.add")
-	CrxResponse addDevices(
+	List<CrxResponse> addDevices(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId") Long roomId,
 	        List<Device> devices

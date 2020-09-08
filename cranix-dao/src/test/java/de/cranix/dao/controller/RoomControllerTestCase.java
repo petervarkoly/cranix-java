@@ -1,4 +1,7 @@
-package de.cranix.dao.controller;import java.util.ArrayList;
+package de.cranix.dao.controller;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -23,8 +26,8 @@ public class RoomControllerTestCase extends OSSDaoTestCase  {
 		dev1.setWlanMac("");
 		dev1.setWlanIp("");
 		devices.add(dev1);
-		CrxResponse res = r.addDevices(1, devices);
-		assertEquals("OK",res.getCode());
+		List<CrxResponse> res = r.addDevices(1, devices);
+		assertEquals("OK",res.get(0).getCode());
 		
 		devices.clear();
 		 dev1 = new Device();
@@ -35,6 +38,6 @@ public class RoomControllerTestCase extends OSSDaoTestCase  {
 		dev1.setWlanIp("");
 		devices.add(dev1);
 		 res = r.addDevices(1, devices);
-		assertEquals("OK",res.getCode());
+		assertEquals("OK",res.get(0).getCode());
 	}
 }

@@ -242,10 +242,10 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public CrxResponse addDevices(Session session, Long roomId, List<Device> devices) {
+	public List<CrxResponse> addDevices(Session session, Long roomId, List<Device> devices) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		CrxResponse crxResponse = roomController.addDevices(roomId,devices);
+		List<CrxResponse> crxResponse = roomController.addDevices(roomId,devices);
 		em.close();
 		return crxResponse;
 	}

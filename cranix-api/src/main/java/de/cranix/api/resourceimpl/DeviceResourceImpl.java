@@ -310,10 +310,10 @@ public class DeviceResourceImpl implements DeviceResource {
 	}
 
 	@Override
-	public CrxResponse importDevices(Session session, InputStream fileInputStream,
+	public List<CrxResponse> importDevices(Session session, InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new DeviceController(session,em).importDevices(fileInputStream, contentDispositionHeader);
+		List<CrxResponse> resp = new DeviceController(session,em).importDevices(fileInputStream, contentDispositionHeader);
 		em.close();
 		return resp;
 	}

@@ -524,25 +524,26 @@ public List<String> getLoggedInUsers(Long deviceId) {
  * @param contentDispositionHeader
  * @return
  */
-public CrxResponse importDevices(InputStream fileInputStream,
+public List<CrxResponse> importDevices(InputStream fileInputStream,
 		FormDataContentDisposition contentDispositionHeader) {
 	File file = null;
 	List<String> importFile;
+	Map<Long,List<Device>> devicesToImport     = new HashMap<>();
+	Map<Integer,String>    header              = new HashMap<>();
+	List<String>           parameters	   = new ArrayList<String>();
+	List<CrxResponse>      responses           = new ArrayList<CrxResponse>();
 	try {
 		file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
 		Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		importFile = Files.readAllLines(file.toPath());
 	} catch (IOException e) {
 		logger.error("File error:" + e.getMessage(), e);
-		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+		responses.add(new CrxResponse(this.getSession(),"ERROR", e.getMessage()));
+		return responses;
 	}
-	RoomController        roomController      = new RoomController(this.session,this.em);
-	CloneToolController   cloneToolController = new CloneToolController(this.session,this.em);
-	UserController        userController      = new UserController(this.session,this.em);
-	Map<Long,List<Device>> devicesToImport    = new HashMap<>();
-	Map<Integer,String> header                = new HashMap<>();
-	StringBuilder error                       = new StringBuilder();
-	List<String>  parameters				  = new ArrayList<String>();
+	RoomController         roomController      = new RoomController(this.session,this.em);
+	CloneToolController    cloneToolController = new CloneToolController(this.session,this.em);
+	UserController         userController      = new UserController(this.session,this.em);
 
 	//Initialize the the hash for the rooms
 	for( Room r : roomController.getAllToUse() ) {
@@ -557,7 +558,8 @@ public CrxResponse importDevices(InputStream fileInputStream,
 
 	logger.debug("header" + header);
 	if( !header.containsValue("mac") || !header.containsValue("room")) {
-		return new CrxResponse(this.getSession(),"ERROR", "MAC and Room are mandatory fields.");
+		responses.add(new CrxResponse(this.getSession(),"ERROR", "MAC and Room are mandatory fields."));
+		return responses;
 	}
 	for(String line : importFile.subList(1, importFile.size()) ) {
 		Map<String,String> values = new HashMap<>();
@@ -570,7 +572,9 @@ public CrxResponse importDevices(InputStream fileInputStream,
 		Room room = roomController.getByName(values.get("room"));
 		if( room == null ) {
 			logger.debug("Can Not find the Room" +values.get("room") );
-			error.append("Can not find the Room: ").append(values.get("room")).append("<br>");
+			parameters.add(values.get("room"));
+			responses.add(new CrxResponse(this.getSession(),"ERROR", "Can not find the Room: %s",null,parameters));
+			parameters = new ArrayList<String>();
 			continue;
 		}
 		Device device = new Device();
@@ -627,20 +631,10 @@ public CrxResponse importDevices(InputStream fileInputStream,
 
 	for( Room r : roomController.getAllToUse() ) {
 		if( !devicesToImport.get(r.getId()).isEmpty() ) {
-			CrxResponse crxResponse = roomController.addDevices(r.getId(), devicesToImport.get(r.getId()));
-			if( crxResponse.getCode().equals("ERROR")) {
-				error.append(crxResponse.getValue()).append("<br>");
-				if( !crxResponse.getParameters().isEmpty() ) {
-					parameters.addAll(crxResponse.getParameters());
-				}
-			}
+			responses.addAll( roomController.addDevices(r.getId(), devicesToImport.get(r.getId())));
 		}
 	}
-	if( error.length() == 0 ) {
-		return new CrxResponse(this.getSession(),"OK", "Devices were imported succesfully.");
-	}
-	logger.error("ImportDevices:" + error.toString() + " Parameters: " + String.join(";",parameters));
-	return new CrxResponse(this.getSession(),"ERROR","End error:" + error.toString());
+	return responses;
 }
 
 public CrxResponse setDefaultPrinter(long deviceId, long printerId) {
@@ -1012,6 +1006,7 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 	if( this.session.getDevice() != null  && this.session.getDevice().equals(device)) {
 		return new CrxResponse(this.getSession(),"ERROR", "Do not control the own client.");
 	}
+	logger.debug("manageDevice: " + device.getName() + " " + action);
 	CloneToolController cloneToolController = new CloneToolController(this.session,this.em);
 	StringBuilder FQHN = new StringBuilder();
 	FQHN.append(device.getName()).append(".").append(this.getConfigValue("DOMAIN"));
@@ -1095,6 +1090,8 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		break;
 	case "startclone":
 		return cloneToolController.startCloning("device",device.getId(),0);
+	case "startmulticastclone":
+		return cloneToolController.startCloning("device",device.getId(),1);
 	case "stopclone":
 		return cloneToolController.stopCloning("device",device.getId());
 	case "controlproxy":

@@ -878,7 +878,7 @@ public class RoomController extends Controller {
 	/*
 	 * Creates new devices in the room
 	 */
-	public CrxResponse addDevices(long roomId,List<Device> devices){
+	public List<CrxResponse> addDevices(long roomId,List<Device> devices){
 		Room room = this.getById(roomId);
 		HWConf hwconf = new HWConf();
 		DeviceController deviceController = new DeviceController(this.session,this.em);
@@ -887,6 +887,7 @@ public class RoomController extends Controller {
 		List<String> ipAddress;
 		List<Device> newDevices = new ArrayList<Device>();
 		List<String> parameters  = new ArrayList<String>();
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		logger.debug("addDevices room" + room);
 		try {
 			for(Device device : devices) {
@@ -900,8 +901,9 @@ public class RoomController extends Controller {
 					if( ipAddress.isEmpty() ) {
 						this.em.getTransaction().rollback();
 						parameters.add(device.getMac());
-						return new CrxResponse(this.getSession(),"ERROR",
-								"There are no more free ip addresses in this room for the MAC: %s.",room.getId(),parameters);
+						responses.add(new CrxResponse(this.getSession(),"ERROR",
+								"There are no more free ip addresses in this room for the MAC: %s.",room.getId(),parameters));
+						return responses;
 					}
 					if( device.getName().isEmpty() ) {
 						device.setName(ipAddress.get(0).split(" ")[1]);
@@ -912,8 +914,9 @@ public class RoomController extends Controller {
 					if( ipAddress.size() < 2 ) {
 						this.em.getTransaction().rollback();
 						parameters.add(device.getWlanMac());
-						return new CrxResponse(this.getSession(),"ERROR",
-								"There are no more free ip addresses in this room for the MAC: %s.",room.getId(),parameters);
+						responses.add(new CrxResponse(this.getSession(),"ERROR",
+								"There are no more free ip addresses in this room for the MAC: %s.",room.getId(),parameters));
+						return responses;
 					}
 					device.setWlanIp(ipAddress.get(1).split(" ")[0]);
 				}
@@ -927,11 +930,11 @@ public class RoomController extends Controller {
 				}
 				device.setHwconf(hwconf);
 				CrxResponse crxResponse = deviceController.check(device, room);
+				responses.add(crxResponse);
 				if( crxResponse.getCode().equals("ERROR") ) {
 					logger.error("addDevices addDevice:" +crxResponse);
 					this.em.getTransaction().rollback();
 					continue;
-					//return crxResponse;
 				}
 				device.setRoom(room);
 				if( hwconf.getDeviceType().equals("FatClient") && this.getDevicesOnMyPlace(room, device).size() > 0 ) {
@@ -953,7 +956,8 @@ public class RoomController extends Controller {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", "Error by creating the device: " + e.getMessage());
+			responses.add(new CrxResponse(this.getSession(),"ERROR", "Error by creating the device: " + e.getMessage()));
+			return responses;
 		} finally {
 			if( this.em.getTransaction().isActive() ) {
 				this.em.getTransaction().rollback();
@@ -977,6 +981,7 @@ public class RoomController extends Controller {
 				user.setRole("workstations");
 				//TODO do not ignore response.
 				CrxResponse answer = userController.add(user);
+				responses.add(answer);
 				logger.debug(answer.getValue());
 				needWriteSalt = true;
 			}
@@ -985,7 +990,7 @@ public class RoomController extends Controller {
 		if( needWriteSalt ) {
 			new SoftwareController(this.session,this.em).applySoftwareStateToHosts();
 		}
-		return new CrxResponse(this.getSession(),"OK", "Devices were created succesfully." );
+		return responses;
 	}
 
 	/*
