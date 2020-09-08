@@ -119,7 +119,7 @@ public interface HwconfResource {
 	@ApiResponses(value = {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("hwconf.add")
+	@RolesAllowed("hwconf.modify")
 	CrxResponse modifyHWConf(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
@@ -140,7 +140,7 @@ public interface HwconfResource {
 	@ApiResponses(value = {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("hwconf.manage")
+	@RolesAllowed("hwconf.modify")
 	CrxResponse addPartition(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
@@ -160,7 +160,7 @@ public interface HwconfResource {
 	@ApiResponses(value = {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("hwconf.manage")
+	@RolesAllowed("hwconf.delete")
 	CrxResponse delete(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId
@@ -176,7 +176,7 @@ public interface HwconfResource {
 	@ApiResponses(value = {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("hwconf.add")
+	@RolesAllowed("hwconf.modify")
 	CrxResponse deletePartition(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("hwconfId") Long hwconfId,
@@ -219,7 +219,7 @@ public interface HwconfResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for all workstations in a hwconf." +
 						  "Multicast can be 0 or 1"
-						)
+		)
 	@RolesAllowed("hwconf.manage")
 	CrxResponse startRecover(
 			@ApiParam(hidden = true) @Auth Session session,
@@ -272,7 +272,7 @@ public interface HwconfResource {
 	@Path("partitions/{partitionId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the parameters of an existing partition.")
-	@RolesAllowed("hwconf.manage")
+	@RolesAllowed("hwconf.modify")
 	CrxResponse modifyPartition(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("partitionId") Long partitionId,
