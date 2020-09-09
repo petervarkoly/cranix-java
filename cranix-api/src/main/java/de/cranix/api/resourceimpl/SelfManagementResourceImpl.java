@@ -53,53 +53,32 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		User oldUser = session.getUser();
 		CrxResponse  crxResponse = null;
 		logger.debug("modifyMySelf" + user);
-		if( userController.isAllowed("myself.manage") ) {
-			if( user.getPassword() != null && !user.getPassword().isEmpty() ) {
-				crxResponse = userController.checkPassword(user.getPassword());
-				logger.debug("Check-Password:" + crxResponse );
-				if( crxResponse != null  && crxResponse.getCode().equals("ERROR")) {
-					return crxResponse;
-				}
-				oldUser.setPassword(user.getPassword());
+		if( user.getPassword() != null && !user.getPassword().isEmpty() ) {
+			crxResponse = userController.checkPassword(user.getPassword());
+			logger.debug("Check-Password:" + crxResponse );
+			if( crxResponse != null  && crxResponse.getCode().equals("ERROR")) {
+				return crxResponse;
 			}
+			oldUser.setPassword(user.getPassword());
+		}
+		if( userController.isAllowed("myself.manage") ) {
 			oldUser.setGivenName(user.getGivenName());
 			oldUser.setSurName(user.getSurName());
 			oldUser.setBirthDay(user.getBirthDay());
 			oldUser.setFsQuota(user.getFsQuota());
 			oldUser.setMsQuota(user.getMsQuota());
-			try {
-				em.getTransaction().begin();
-				em.merge(oldUser);
-				em.getTransaction().commit();
-				startPlugin("modify_user", oldUser);
-			} catch (Exception e) {
-				return null;
-			} finally {
-				em.close();
-			}
-			crxResponse = new CrxResponse(session,"OK","User parameters were set successfully.");
-		} else {
-			if( user.getPassword() != null && !user.getPassword().isEmpty() ) {
-				crxResponse = userController.checkPassword(user.getPassword());
-				em.close();
-				if( crxResponse != null  && crxResponse.getCode().equals("ERROR")) {
-					logger.debug("checkPassword:" + crxResponse);
-					return crxResponse;
-				}
-				StringBuffer reply = new StringBuffer();
-				StringBuffer error = new StringBuffer();
-				String[]   program = new String[5];
-				program[0] = "/usr/bin/samba-tool";
-				program[1] = "user";
-				program[2] = "setpassword";
-				program[3] = session.getUser().getUid();
-				program[4] = "--newpassword=" + user.getPassword();
-				OSSShellTools.exec(program, reply, error, null);
-				logger.debug("sambatool:" + reply.toString() + " Error" + error.toString() );
-				crxResponse = new CrxResponse(session,"OK","User parameters were set successfully.");
-			}
 		}
-		return crxResponse;
+		try {
+			em.getTransaction().begin();
+			em.merge(oldUser);
+			em.getTransaction().commit();
+			startPlugin("modify_user", oldUser);
+		} catch (Exception e) {
+			return new CrxResponse(session,"ERROR","Could not modify user parameter.");
+		} finally {
+			em.close();
+		}
+		return new CrxResponse(session,"OK","User parameters were modified successfully.");
 	}
 
 	@Override
