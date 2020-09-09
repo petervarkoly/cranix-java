@@ -69,7 +69,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 			em.getTransaction().commit();
 			startPlugin("modify_user", oldUser);
 		} catch (Exception e) {
-			return OssResponse(session,"ERROR","Could not modify user parameter.");
+			return new OssResponse(session,"ERROR","Could not modify user parameter.");
 		} finally {
 			em.close();
 		}

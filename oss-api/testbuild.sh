@@ -1,6 +1,5 @@
 #!/bin/bash
 HERE=$( pwd )
-sudo /usr/sbin/update-alternatives --set java /usr/lib64/jvm/jre-11-openjdk/bin/java
 gradle -c settings.gradle --offline clean build
 #gradle clean build
 tar xf build/distributions/de.openschoolserver.api-1.0-SNAPSHOT.tar
