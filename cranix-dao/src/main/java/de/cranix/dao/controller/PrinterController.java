@@ -93,6 +93,8 @@ public class PrinterController extends Controller {
 			query.setParameter("name", name);
 			Printer printer = (Printer) query.getSingleResult();
 			printer.setRoomId(printer.getDevice().getRoom().getId());
+			printer.setMac(printer.getDevice().getMac());
+			printer.setDeviceName(printer.getDevice().getName());
 			return printer;
 		} catch (Exception e) {
 			logger.debug("name " + name  + " " + e.getMessage());

@@ -485,7 +485,7 @@ public class Device implements Serializable {
 	}
 
 	public void setLoggedInId(Long loggedInId) {
-		this.ownerId = loggedInId;
+		this.loggedInId = loggedInId;
 	}
 
 }

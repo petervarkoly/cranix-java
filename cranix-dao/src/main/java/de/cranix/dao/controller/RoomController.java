@@ -953,6 +953,7 @@ public class RoomController extends Controller {
 				newDevices.add(device);
 				logger.debug(device.toString());
 				this.em.getTransaction().commit();
+				responses.add(new CrxResponse(this.getSession(),"OK","%s was created succesfully.",null,device.getName()));
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -979,7 +980,6 @@ public class RoomController extends Controller {
 				user.setGivenName(device.getName());
 				user.setSurName("Workstation-User");
 				user.setRole("workstations");
-				//TODO do not ignore response.
 				CrxResponse answer = userController.add(user);
 				responses.add(answer);
 				logger.debug(answer.getValue());

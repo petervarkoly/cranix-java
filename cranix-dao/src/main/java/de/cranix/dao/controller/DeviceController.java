@@ -126,6 +126,7 @@ public CrxResponse delete(List<Long> deviceIds) {
  */
 public CrxResponse delete(Device device, boolean atomic) {
 	boolean needReloadSalt = false;
+	String  name = device.getName();
 	if( device == null ) {
 		return new CrxResponse(this.getSession(),"ERROR", "Can not delete null device.");
 	}
@@ -215,10 +216,10 @@ public CrxResponse delete(Device device, boolean atomic) {
 		this.deletAllConfigs(device);
 		this.em.remove(device);
 		//Clean up room
-		room.getDevices().remove(device);
 		this.em.merge(room);
 		this.em.flush();
 		this.em.getTransaction().commit();
+		room.getDevices().remove(device);
 		if( atomic ) {
 			new DHCPConfig(session,em).Create();
 			if( needReloadSalt ) {
@@ -230,7 +231,7 @@ public CrxResponse delete(Device device, boolean atomic) {
 		if( user != null ) {
 			userController.delete(user);
 		}
-		return new CrxResponse(this.getSession(),"OK", "Device was deleted succesfully.");
+		return new CrxResponse(this.getSession(),"OK", "%s was deleted succesfully.",null,name);
 	} catch (Exception e) {
 		logger.error("device: " + device.getName() + " " + e.getMessage(),e);
 		return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
