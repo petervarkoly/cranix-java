@@ -17,6 +17,7 @@ public class UserImport {
 	private boolean cleanClassDirs;
 	private boolean resetPassword;
 	private boolean appendBirthdayToPassword;
+	private boolean appendClassToPassword;
 	private String  startTime;
 	private String  result;
 	public UserImport() {
@@ -119,5 +120,11 @@ public class UserImport {
 	}
 	public void setAppendBirthdayToPassword(boolean appendBirthdayToPassword) {
 		this.appendBirthdayToPassword = appendBirthdayToPassword;
+	}
+	public boolean isAppendClassToPassword() {
+		return appendClassToPassword;
+	}
+	public void setAppendClassToPassword(boolean appendClassToPassword) {
+		this.appendClassToPassword = appendClassToPassword;
 	}
 }

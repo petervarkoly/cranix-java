@@ -661,6 +661,7 @@ public interface UserResource {
 			@FormDataParam("cleanClassDirs") Boolean cleanClassDirs,
 			@FormDataParam("resetPassword")  Boolean resetPassword,
 			@FormDataParam("appendBirthdayToPassword")  Boolean appendBirthdayToPassword,
+			@FormDataParam("appendClassToPassword")     Boolean appendClassToPassword,
 			@FormDataParam("file") final InputStream fileInputStream,
 			@FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
 			);

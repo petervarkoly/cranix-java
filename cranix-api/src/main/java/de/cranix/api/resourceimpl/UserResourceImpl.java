@@ -468,6 +468,7 @@ public class UserResourceImpl implements UserResource {
 			Boolean cleanClassDirs,
 			Boolean resetPassword,
 			Boolean appendBirthdayToPassword,
+			Boolean appendClassToPassword,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 		File file = null;
@@ -547,6 +548,9 @@ public class UserResourceImpl implements UserResource {
 		}
 		if( appendBirthdayToPassword ) {
 			parameters.add("--appendBirthdayToPassword");
+		}
+		if( appendClassToPassword ) {
+			parameters.add("--appendClassToPassword");
 		}
 		if( logger.isDebugEnabled() ) {
 			parameters.add("--debug");
