@@ -192,7 +192,7 @@ public class UserController extends Controller {
 			newUserId = this.getConfigValue("LOGIN_PREFIX") + userId + i;
 			i++;
 		}
-		return normalize(newUserId.toLowerCase()).replace(" ","");
+		return normalize(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9]", "");
 	}
 
 	public CrxResponse add(User user) {
