@@ -513,7 +513,8 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<CrxResponse> collectFileFromDevices(Session session,
+	public List<CrxResponse> collectFileFromDevices(
+			Session session,
 			String deviceIds,
 			String projectName,
 			Boolean sortInDirs,
@@ -543,7 +544,8 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	}
 
 	@Override
-	public List<CrxResponse> collectFileFromRooms(Session session,
+	public List<CrxResponse> collectFileFromRooms(
+		       Session session,
 		       String roomIds,
 		       String projectName,
 		       Boolean sortInDirs,
@@ -554,7 +556,7 @@ public class EducationResourceImpl implements Resource, EducationResource {
 		UserController      userController   = new UserController(session,em);
 		DeviceController    deviceController = new DeviceController(session,em);
 		EducationController eduController    = new EducationController(session,em);
-		List<CrxResponse> responses       = new ArrayList<CrxResponse>();
+		List<CrxResponse> responses          = new ArrayList<CrxResponse>();
 		for(String sRoomId : roomIds.split(",")) {
 			Long roomId = Long.valueOf(sRoomId);
 			for( List<Long> logged : eduController.getRoom(roomId) ) {
@@ -565,7 +567,13 @@ public class EducationResourceImpl implements Resource, EducationResource {
 				}
 				if( user != null ) {
 					if( !studentsOnly || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) || user.getRole().equals(roleWorkstation) ) {
-						responses.add(userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
+						logger.debug("user" +user);
+						logger.debug("projectName" + projectName);
+						logger.debug("sortInDirs" + sortInDirs);
+						logger.debug("cleanUpExport" + cleanUpExport);
+						CrxResponse resp = userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport);
+						logger.debug("response" + resp);
+						responses.add(resp);
 					}
 				}
 			}
