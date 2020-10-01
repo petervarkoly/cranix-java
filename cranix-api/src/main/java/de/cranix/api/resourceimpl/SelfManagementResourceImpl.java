@@ -183,8 +183,8 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 				final RoomController roomController = new RoomController(session,em);
 				List<Room> rooms = roomController.getRoomToRegisterForUser(session.getUser());
 				if( rooms != null && rooms.size() > 0 ) {
-					Integer count = session.getUser().getOwnedDevices().size();
-					CrxResponse crxResponse = roomController.addDevice(rooms.get(0).getId(), MAC, count.toString());
+					String devName = MAC.substring(8).replaceAll(":", "");
+					CrxResponse crxResponse = roomController.addDevice(rooms.get(0).getId(), MAC, devName);
 					resp =  crxResponse.getCode() + " " + crxResponse.getValue() + " " + crxResponse.getParameters();
 				} else  {
 					resp = "You can not register devices.";

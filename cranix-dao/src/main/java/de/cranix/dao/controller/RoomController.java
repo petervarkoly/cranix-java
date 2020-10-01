@@ -1055,7 +1055,7 @@ public class RoomController extends Controller {
 					hwconf = (HWConf) query.getResultList().get(0);
 			}
 			device.setMac(macAddress);
-			device.setName(name.toLowerCase().trim() + "-" + owner.getUid().replaceAll("_", "-").replaceAll("\\.", ""));
+			device.setName(owner.getUid().replaceAll("_", "-").replaceAll("\\.", "") + "-" +name.toLowerCase().trim() );
 			device.setIp(ipAddress.get(0).split(" ")[0]);
 			device.setHwconf(hwconf);
 			device.setOwner(owner);
