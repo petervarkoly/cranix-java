@@ -64,9 +64,11 @@ public class StaticHelpers {
 	}
 
 	static public String normalize(String input) {
-		String output = Normalizer.normalize(input, Normalizer.Form.NFD);
-		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-		return pattern.matcher(output).replaceAll("");
+		return  Normalizer.normalize(
+			input.replace("ß","s"),
+			Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+		//Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+		//return pattern.matcher(output).replaceAll("");
 	}
 
 	/**
