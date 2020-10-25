@@ -189,7 +189,7 @@ public class GroupController extends Controller {
 		Group oldGroup = this.getById(group.getId());
 		if( !this.mayModify(oldGroup) ) {
 			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
-        }
+		}
 		oldGroup.setDescription(group.getDescription());
 		//Check group parameter
 		StringBuilder errorMessage = new StringBuilder();
@@ -221,7 +221,7 @@ public class GroupController extends Controller {
 		}
 		if( !this.mayDelete(group) ) {
 			return new CrxResponse(this.getSession(),"ERROR","You must not delete this group.");
-        }
+		}
 		//Primary group must not be deleted if there are member
 		if( group.getGroupType().equals("primary")) {
 			if( group.getUsers() != null  && !group.getUsers().isEmpty() ) {
@@ -232,10 +232,15 @@ public class GroupController extends Controller {
 		startPlugin("delete_group", group);
 		try {
 			this.em.getTransaction().begin();
-			if( !em.contains(group)) {
+			if( !this.em.contains(group)) {
 				group = this.em.merge(group);
 			}
-
+			if( this.getSession().getUser().getOwnedGroups().contains(group) ) {
+				this.getSession().getUser().getOwnedGroups().remove(group);
+				User user = this.em.find(User.class, this.getSession().getUser().getId());
+				user.getOwnedGroups().remove(group);
+				em.merge(user);
+			}
 			for ( Category category : group.getCategories() ) {
 				if( category.getCategoryType().equals("smartRoom") && category.getName().equals(group.getName()) ) {
 					for( Room room : category.getRooms() ) {
@@ -265,7 +270,6 @@ public class GroupController extends Controller {
 			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		this.getSession().getUser().getOwnedGroups().remove(group);
 		return new CrxResponse(this.getSession(),"OK","Group was deleted.");
 	}
 
