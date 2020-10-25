@@ -347,9 +347,16 @@ public class EducationController extends UserController {
 			FormDataContentDisposition contentDispositionHeader,
 			Boolean studentsOnly,
 			Boolean cleanUp ) {
-		String fileName = contentDispositionHeader.getFileName();
 		File file = null;
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		String fileName = "";
+		try {
+			fileName = new  String(contentDispositionHeader.getFileName().getBytes("ISO-8859-1"),"UTF-8");
+		} catch (IOException e) {
+                        logger.error(e.getMessage(), e);
+                        responses.add(new CrxResponse(this.getSession(),"ERROR", e.getMessage()));
+                        return responses;
+                }
 		try {
 			file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -436,7 +443,7 @@ public class EducationController extends UserController {
 		try {
 			UserPrincipal owner = lookupService.lookupPrincipalByName(user.getUid());
 			String homeDir = this.getHomeDir(user);
-			//TODO make it configurable
+			//For workstations users the whole home directory will be removed
 			if( user.getRole().equals(roleWorkstation) && cleanUp ) {
 				StringBuffer reply = new StringBuffer();
 				StringBuffer error = new StringBuffer();
@@ -448,6 +455,15 @@ public class EducationController extends UserController {
 				File homeDirF = new File( homeDir );
 				Files.createDirectories(homeDirF.toPath(), privatDirAttribute );
 				Files.setOwner(homeDirF.toPath(), owner);
+			} else if( ( user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) )  && cleanUp ) {
+			        //For students and guest users only the Import directory will be removed
+				StringBuffer reply = new StringBuffer();
+				StringBuffer error = new StringBuffer();
+				String[] program   = new String[3];
+				program[0] = "/usr/bin/rm";
+				program[1] = "-rf";
+				program[2] = homeDir + "/Import/";
+				OSSShellTools.exec(program, reply, error, null);
 			}
 			String importDir = homeDir + "Import/";
 			// Create the directory first.
@@ -463,13 +479,12 @@ public class EducationController extends UserController {
 			Files.setOwner(newFile.toPath(), owner);
 
 			//Clean up export of target
-			//TODO MAKE IT BOOLEAN
 			String export  = homeDir + "Export/";
 			File exportDir = new File( export );
 			Files.createDirectories(exportDir.toPath(), privatDirAttribute );
 			Files.setOwner(exportDir.toPath(), owner);
-			if( cleanUp && ( user.getRole().equals(roleStudent) || user.getRole().equals(roleWorkstation) || user.getRole().equals(roleGuest) ) ) {
-				//Clean up Export by students workstations and guests
+			if( cleanUp && ( user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) ) ) {
+				//Clean up Export by students and guests by workstations the home was deleted
 				for( String mist : exportDir.list() ) {
 					File f = new File(mist);
 					if( !f.isDirectory() ) {

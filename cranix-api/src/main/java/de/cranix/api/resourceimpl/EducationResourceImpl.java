@@ -343,7 +343,7 @@ public class EducationResourceImpl implements Resource, EducationResource {
 		for( String id : sUserIds.split(",")) {
 			userIds.add(Long.valueOf(id));
 		}
-		logger.debug("uploadFileToUsers: " + sUserIds + " " + userIds);
+		logger.debug("uploadFileToUsers: " + sUserIds + " " + userIds + " cleanUp " + cleanUp);
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<CrxResponse> resp = new EducationController(session,em).uploadFileTo("users",0l,userIds,fileInputStream,contentDispositionHeader,false, cleanUp);
 		em.close();
