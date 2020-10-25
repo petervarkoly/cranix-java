@@ -205,45 +205,19 @@ public class PrinterResourceImpl implements PrinterResource {
 	}
 
 	@Override
-	public CrxResponse setDriver(Session session,
-			Long printerId, InputStream fileInputStream,
-			FormDataContentDisposition contentDispositionHeader) {
+	public CrxResponse setDriver(
+		Session session,
+		Long printerId,
+		String model,
+		InputStream fileInputStream,
+		FormDataContentDisposition contentDispositionHeader)
+	{
 
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Printer printer = new PrinterController(session,em).getById(printerId);
+		PrinterController pc = new PrinterController(session,em);
+		CrxResponse resp = pc.setDriver(printerId,model,fileInputStream,contentDispositionHeader);
 		em.close();
-		if( printer == null ) {
-			throw new WebApplicationException(404);
-		}
-		File file = null;
-		try {
-			file = File.createTempFile("crx_driverFile", printer.getName(), new File(cranixTmpDir));
-			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-			return new CrxResponse(session,"ERROR", e.getMessage());
-		}
-		String driverFile = file.toPath().toString();
-		String[] program = new String[11];
-		StringBuffer reply  = new StringBuffer();
-		StringBuffer stderr = new StringBuffer();
-		program[0] = "/usr/sbin/lpadmin";
-		program[1] = "-p";
-		program[2] = printer.getName();
-		program[3] = "-P";
-		program[4] = driverFile;
-		program[5] = "-o";
-		program[6] = "printer-error-policy=abort-job";
-		program[7] = "-o";
-		program[8] = "PageSize=A4";
-		program[9] = "-v";
-		program[10]= "socket://"+ printer.getName();
-
-		OSSShellTools.exec(program, reply, stderr, null);
-		logger.debug("activateWindowsDriver error" + stderr.toString());
-		logger.debug("activateWindowsDriver reply" + reply.toString());
-		//TODO check output
-		return new CrxResponse(session,"OK", "Printer driver was set succesfully.");
+		return resp;
 	}
 
 	@Override

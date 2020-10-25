@@ -18,6 +18,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -400,4 +401,58 @@ public class PrinterController extends Controller {
 		return new CrxResponse(session,"OK","Printer was disabled succesfully.");
 	}
 
+	public CrxResponse setDriver(
+		Long printerId,
+		String model,
+		InputStream fileInputStream,
+		FormDataContentDisposition contentDispositionHeader)
+	{
+		Printer printer = this.getById(printerId);
+		if( printer == null ) {
+                        throw new WebApplicationException(404);
+                }
+                String driverFile = "/usr/share/cups/model/Postscript.ppd.gz";
+                if( fileInputStream != null ) {
+                        File file = null;
+                        try {
+                                file = File.createTempFile("crx_driverFile", printer.getName(), new File(cranixTmpDir));
+                                Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        } catch (IOException e) {
+                                logger.error(e.getMessage(), e);
+                                return new CrxResponse(session,"ERROR", e.getMessage());
+                        }
+                        driverFile = file.toPath().toString();
+                } else {
+                        try {
+                                for( String line : Files.readAllLines(DRIVERS) ) {
+                                        String[] fields = line.split("###");
+                                        if( fields.length == 2 && fields[0].equals(model) ) {
+                                                driverFile = fields[1];
+                                                break;
+                                        }
+                                }
+                        } catch (IOException e) {
+                                logger.error(e.getMessage(), e);
+                                return new CrxResponse(session,"ERROR", e.getMessage());
+                        }
+                }
+                logger.debug("Add printer/usr/sbin/lpadmin -p " + printer.getName() + " -P " + driverFile + " -o printer-error-policy=abort-job -o PageSize=A4"  );
+                String[] program = new String[9];
+                StringBuffer reply  = new StringBuffer();
+                StringBuffer stderr = new StringBuffer();
+                program[0] = "/usr/sbin/lpadmin";
+                program[1] = "-p";
+                program[2] = printer.getName();
+                program[3] = "-P";
+                program[4] = driverFile;
+                program[5] = "-o";
+                program[6] = "printer-error-policy=abort-job";
+                program[7] = "-o";
+                program[8] = "PageSize=A4";
+                OSSShellTools.exec(program, reply, stderr, null);
+                logger.debug("setDriver error" + stderr.toString());
+                logger.debug("setDriver reply" + reply.toString());
+                //TODO check output
+                return new CrxResponse(session,"OK", "Printer driver was set succesfully.");
+	}
 }

@@ -85,11 +85,12 @@ public interface PrinterResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("printers.add")
 	CrxResponse setDriver(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("printerId")	Long printerId,
-            @FormDataParam("file") final InputStream fileInputStream,
-            @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-			);
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("printerId")	Long printerId,
+		@FormDataParam("model")	String  model,
+		@FormDataParam("file")  final InputStream fileInputStream,
+		@FormDataParam("file")  final FormDataContentDisposition contentDispositionHeader
+	);
 
 	@GET
 	@Path("all")
