@@ -154,7 +154,10 @@ public class DHCPConfig extends Controller {
 			if( device.getMac().isEmpty() ) {
 				continue;
 			}
-
+			//Dirty fix to avoid duplicate entries in dhcpd.conf
+			if( line.contains(device.getName() + domainName) ) {
+				continue;
+			}
 			line.add(device.getName() + domainName);
 			dhcpConfigFile.add("    host " + device.getName() + " {");
 			dhcpConfigFile.add("      hardware ethernet " + device.getMac() + ";");
