@@ -101,6 +101,10 @@ public class CloneToolController extends Controller {
 		return this.getById(hwconfId).getName();
 	}
 
+	public String getDeviceType(Long hwconfId ) {
+		return this.getById(hwconfId).getDeviceType();
+	}
+
 	public Partition getPartition(Long hwconfId, String partition) {
 		try {
 			Query query = this.em.createNamedQuery("Partition.getPartitionByName");

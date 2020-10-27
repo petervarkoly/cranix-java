@@ -43,7 +43,7 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	String getHWConf(
-			@Context UriInfo ui,
+		@Context UriInfo ui,
 	        @Context HttpServletRequest req
 	);
 
@@ -78,56 +78,6 @@ public interface CloneToolResource {
 	        @PathParam("deviceId") Long deviceId
 	);
 
-
-	/*
-	 * Get clonetool/devices/{deviceId}/isMaster
-	 */
-	@GET
-	@Path("devices/{deviceId}/isMaster")
-	@Produces(TEXT)
-	@ApiOperation(value = "Returns 'true' if the workstation of the deviceId is master. Returns empty if not.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@PermitAll
-	String isMaster(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
-	);
-
-	/*
-	 * Get clonetool/devices/{deviceId}/setMaster/{isMaster}
-	 */
-	@PUT
-	@Path("devices/{deviceId}/setMaster/{isMaster}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets or resets master marking on a workstation. isMaster can be 1 or 0.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("hwconf.manage")
-	CrxResponse setMaster(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @PathParam("isMaster") int isMaster
-	);
-
-	/*
-	 * Get clonetool/devices/{deviceIisMaster
-	 */
-	@PUT
-	@Path("devices/setMaster/{isMaster}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Returns 'true' if the workstation of the session is master. Returns empty if not.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("hwconf.manage")
-	CrxResponse setMaster(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("isMaster") int isMaster
-	);
-
 	/*
 	 * Get clonetool/all
 	 */
@@ -160,24 +110,24 @@ public interface CloneToolResource {
 	);
 
 	/*
-     * GET clonetool/{hwconfId}/master
-    */
+	 * GET clonetool/byMac/{MAC}
+	*/
 	@GET
-	@Path("{hwconfId}/master")
+	@Path("byMac/{MAC}")
 	@Produces(TEXT)
-	@ApiOperation(value = "Delivers the id of the master device of this HWConf.")
+	@ApiOperation(value = "Gets the hwconf by MAC.")
 	@ApiResponses(value = {
 	        @ApiResponse(code = 404, message = "Device not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
-	Long getMaster(
+	String getByMac(
 	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("hwconfId") Long hwconfId
+	        @PathParam("MAC") String mac
 	);
 
 	/*
-     * GET clonetool/{hwconfId}/description
-    */
+	 * GET clonetool/{hwconfId}/description
+	*/
 	@GET
 	@Path("{hwconfId}/description")
 	@Produces(TEXT)
@@ -192,8 +142,24 @@ public interface CloneToolResource {
 	);
 
 	/*
-     * GET clonetool/{hwconfId}/partitions
-    */
+	 * GET clonetool/{hwconfId}/deviceType
+	*/
+	@GET
+	@Path("{hwconfId}/deviceType")
+	@Produces(TEXT)
+	@ApiOperation(value = "Gets the deviceType of a hardware configuration.")
+	@ApiResponses(value = {
+	        @ApiResponse(code = 404, message = "Device not found"),
+	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@PermitAll
+	String getDeviceType(
+	        @ApiParam(hidden = true) @Auth Session session,
+	        @PathParam("hwconfId") Long hwconfId
+	);
+
+	/*
+	* GET clonetool/{hwconfId}/partitions
+	*/
 	@GET
 	@Path("{hwconfId}/partitions")
 	@Produces(TEXT)
@@ -260,41 +226,41 @@ public interface CloneToolResource {
 	);
 
 	/*
-     * GET rooms/{roomId}/getAvailableIPAddresses
-     */
-    @GET
-    @Path("rooms/{roomId}/availableIPAddresses")
-    @Produces(TEXT)
-    @ApiOperation(value = "Get count available ip-adresses of the room. The string list will contains the proposed name too: 'IP-Addres Proposed-Name'")
-        @ApiResponses(value = {
-        @ApiResponse(code = 404, message = "There is no more IP address in this room."),
-        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-    })
-    @RolesAllowed("hwconf.add")
-    String getAvailableIPAddresses(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("roomId") long roomId
-    );
+	* GET rooms/{roomId}/getAvailableIPAddresses
+	*/
+	@GET
+	@Path("rooms/{roomId}/availableIPAddresses")
+	@Produces(TEXT)
+	@ApiOperation(value = "Get count available ip-adresses of the room. The string list will contains the proposed name too: 'IP-Addres Proposed-Name'")
+		@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "There is no more IP address in this room."),
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("hwconf.add")
+	String getAvailableIPAddresses(
+	        @ApiParam(hidden = true) @Auth Session session,
+	        @PathParam("roomId") long roomId
+	);
 
-    /*
-     * PUT rooms/{roomId}/device/{macAddress}/{name}
-     */
-    @PUT
-    @Path("rooms/{roomId}/{macAddress}/{IP}/{name}")
-    @Produces(JSON_UTF8)
-    @ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
-    @ApiResponses(value = {
-            // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-    })
-    @PermitAll
-    CrxResponse addDevice(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("roomId") long roomId,
-            @PathParam("macAddress") String macAddress,
-            @PathParam("IP") String IP,
-            @PathParam("name") String name
-    );
+	/*
+	 * PUT rooms/{roomId}/device/{macAddress}/{name}
+	 */
+	@PUT
+	@Path("rooms/{roomId}/{macAddress}/{IP}/{name}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
+	@ApiResponses(value = {
+	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
+	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	CrxResponse addDevice(
+	        @ApiParam(hidden = true) @Auth Session session,
+	        @PathParam("roomId") long roomId,
+	        @PathParam("macAddress") String macAddress,
+	        @PathParam("IP") String IP,
+	        @PathParam("name") String name
+	);
 
 	// POST and PUSH methodes.
 
@@ -644,21 +610,6 @@ public interface CloneToolResource {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	String getDomainName(
-	        @Context UriInfo ui,
-	        @Context HttpServletRequest req
-	);
-
-	/*
-	 * Get clonetool/isMaster
-	 */
-	@GET
-	@Path("isMaster")
-	@Produces(TEXT)
-	@ApiOperation(value = "Returns 'true' if the workstation of the session is master. Returns empty if not.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	String isMaster(
 	        @Context UriInfo ui,
 	        @Context HttpServletRequest req
 	);

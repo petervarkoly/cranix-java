@@ -63,65 +63,15 @@ public class CloneToolResourceImpl implements CloneToolResource {
 
 
 	@Override
-	public String isMaster(Session session, Long deviceId) {
+	public String getByMac(Session session, String mac) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		final DeviceController deviceController = new DeviceController(session,em);
-		Device device = deviceController.getById(deviceId);
-		String resp   = "";
-		if( device != null &&  deviceController.checkConfig(device,"isMaster" ) ) {
-			resp = "true";
-		}
+		DeviceController deviceController = new DeviceController(session,em);
+		Device device = deviceController.getByMAC(mac);
 		em.close();
-		return resp;
-	}
-
-	@Override
-	public Long getMaster(Session session, Long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CloneToolController cloneToolController = new CloneToolController(session,em);
-		HWConf hwconf = cloneToolController.getById(hwconfId);
-		Long resp = null;
-		if( hwconf != null ) {
-			for( Device device : hwconf.getDevices() ) {
-				if( cloneToolController.checkConfig(device, "isMaster") ) {
-					resp = device.getId();
-					break;
-				}
-			}
+		if( device != null && device.getHwconf() != null ) {
+			return Long.toString(device.getHwconf().getId());
 		}
-		em.close();
-		return resp;
-	}
-
-	@Override
-	public CrxResponse setMaster(Session session, Long deviceId, int isMaster) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		final DeviceController deviceController = new DeviceController(session,em);
-		Device device = deviceController.getById(deviceId);
-		CrxResponse resp = new CrxResponse(session,"OK","Nothing to change.");
-		if( device == null ) {
-			resp = new CrxResponse(session,"ERRO","Device was not found.");
-		} else {
-			if( deviceController.checkConfig(device,"isMaster" ) && isMaster == 0) {
-				resp = deviceController.deleteConfig(device, "isMaster");
-			} else {
-				if( ! deviceController.checkConfig(device,"isMaster" ) && isMaster == 1 ) {
-					for( Device dev : device.getHwconf().getDevices() ) {
-						if( !dev.equals(device) ) {
-							deviceController.deleteConfig(dev,"isMaster");
-						}
-					}
-					resp = deviceController.setConfig(device, "isMaster","true");
-				}
-			}
-		}
-		em.close();
-		return resp;
-	}
-
-	@Override
-	public CrxResponse setMaster(Session session, int isMaster) {
-		return this.setMaster(session, session.getDevice().getId(), isMaster);
+		return "";
 	}
 
 	@Override
@@ -149,6 +99,14 @@ public class CloneToolResourceImpl implements CloneToolResource {
 	public String getDescription(Session session, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		String resp = new CloneToolController(session,em).getDescription(hwconfId);
+		em.close();
+		return resp;
+	}
+
+	@Override
+	public String getDeviceType(Session session, Long hwconfId) {
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		String resp = new CloneToolController(session,em).getDeviceType(hwconfId);
 		em.close();
 		return resp;
 	}
@@ -412,17 +370,4 @@ public class CloneToolResourceImpl implements CloneToolResource {
 		return new Config().getConfigValue("DOMAIN");
 	}
 
-	@Override
-	public String isMaster(UriInfo ui, HttpServletRequest req) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Session session  = new SessionController(em).getLocalhostSession();
-		DeviceController deviceController = new DeviceController(session,em);
-		Device device = deviceController.getByIP(req.getRemoteAddr());
-		String resp = "";
-		if( device != null  &&	deviceController.checkConfig(device, "isMaster") ) {
-			resp = "true";
-		}
-		em.close();
-		return resp;
-	}
 }
