@@ -374,7 +374,7 @@ public interface RoomResource {
 	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("room.add")
+	@RolesAllowed("room.manage")
 	List<AccessInRoom> getAccessList(
 	        @ApiParam(hidden = true) @Auth Session session
 	);
@@ -447,7 +447,7 @@ public interface RoomResource {
 	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("room.add")
+	@RolesAllowed("room.manage")
 	CrxResponse setScheduledAccess(
 	    @ApiParam(hidden = true) @Auth Session session
 	);
@@ -463,7 +463,7 @@ public interface RoomResource {
 	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("room.add")
+	@RolesAllowed("room.manage")
 	CrxResponse setDefaultAccess(
 	    @ApiParam(hidden = true) @Auth Session session
 	);
@@ -479,7 +479,7 @@ public interface RoomResource {
 	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("room.add")
+	@RolesAllowed("room.manage")
 	List<AccessInRoom> getAccessStatus(
 	   @ApiParam(hidden = true) @Auth Session session
 	);
@@ -519,7 +519,6 @@ public interface RoomResource {
 	        AccessInRoom access
 	);
 
-	// Functions to manage Devices in Rooms
 	/*
 	 * POST rooms/{roomId}/devices { hash }
 	 */
