@@ -84,6 +84,7 @@ public class SmartRoom {
 		for( Device d : this.devices ) {
 			if( d.getLoggedIn() != null && ! d.getLoggedIn().isEmpty() ) {
 				d.setLoggedInId(d.getLoggedIn().get(0).getId());
+				d.setLoggedInName(d.getLoggedIn().get(0).getFullName());
 			}
 			Path fileName = Path.of( cranixScreenShots + d.getName() + ".jpg" );
 			try {

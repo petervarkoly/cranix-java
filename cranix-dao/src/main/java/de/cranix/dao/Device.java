@@ -184,6 +184,9 @@ public class Device implements Serializable {
 	private Long loggedInId = 0L;
 
 	@Transient
+	private String loggedInName = "nobody";
+
+	@Transient
 	private char[] screenShot;
 
 	public Device() {
@@ -486,6 +489,14 @@ public class Device implements Serializable {
 
 	public void setLoggedInId(Long loggedInId) {
 		this.loggedInId = loggedInId;
+	}
+
+	public void setLoggedInName(String loggedInName) {
+		this.loggedInName = loggedInName;
+	}
+
+	public String getLoggedInName() {
+		return loggedInName;
 	}
 
 }

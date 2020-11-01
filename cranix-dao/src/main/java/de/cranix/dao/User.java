@@ -718,4 +718,10 @@ public class User implements Serializable {
 	public void setCreatedCrxMConfig(List<CrxMConfig> createdCrxMConfig) {
 		this.createdCrxMConfig = createdCrxMConfig;
 	}
+
+	public String getFullName() {
+		StringBuilder fullName = new StringBuilder(this.uid);
+		fullName.append(" (").append(this.surName).append(" ").append(this.givenName).append(")");
+		return fullName.toString();
+	}
 }
