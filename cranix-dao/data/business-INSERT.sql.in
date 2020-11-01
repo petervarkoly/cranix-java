@@ -39,6 +39,7 @@ INSERT INTO Enumerates VALUES(NULL,'deviceType','Server',1);
 INSERT INTO Enumerates VALUES(NULL,'deviceType','Switch',1);
 INSERT INTO Enumerates VALUES(NULL,'deviceType','ThinClient',1);
 INSERT INTO Enumerates VALUES(NULL,'deviceType','BYOD',1);
+INSERT INTO Enumerates VALUES(NULL,'deviceType','cloneProxy',1);
 INSERT INTO Enumerates VALUES(NULL,'role','sysadmins',1);
 INSERT INTO Enumerates VALUES(NULL,'role','administration',1);
 INSERT INTO Enumerates VALUES(NULL,'role','workstations',1);
