@@ -29,6 +29,7 @@ INSERT INTO HWConfs VALUES(4,'Win10-64-Domain','Win10 64Bit Domain Member','FatC
 INSERT INTO Partitions values(1,4,'sda1','Boot','WinBoot','no','partimage',NULL,1);
 INSERT INTO Partitions values(2,4,'sda2','System','Win10','Domain','partimage',NULL,1);
 INSERT INTO HWConfs VALUES(5,'Win10-64-No-Join','Win10 64Bit without Domain Join','FatClient',1);
+INSERT INTO HWConfs VALUES(6,'CloneProxy','Clone Proxy for WLAN Devices','cloneProxy',1);
 INSERT INTO Partitions values(3,5,'sda1','Boot','WinBoot','no','partimage',NULL,1);
 INSERT INTO Partitions values(4,5,'sda2','System','Win10','no','partimage',NULL,1);
 INSERT INTO Rooms VALUES(1,1,'SERVER_NET','Virtual room for servers','technicalRoom','no',10,10,'#SERVER_NETWORK#',#SERVER_NETMASK#,6);
