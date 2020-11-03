@@ -1123,6 +1123,19 @@ public CrxResponse manageDevice(Device device, String action, Map<String, String
 		program[2] = FQHN.toString();
 		program[3] = "crx_client.logOff";
 		break;
+	case "sethwconfofroom":
+		try {
+			this.em.getTransaction().begin();
+			device.setHwconf(device.getRoom().getHwconf());
+			if( !device.getHwconf().getDevices().contains(device) ){
+			       device.getHwconf().getDevices().add(device);
+			}
+			this.em.merge(device);
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			logger.error("sethwconfofroom:" + e.getMessage(), e);
+		}
+		break;
 	case "cleanuploggedin":
 		try {
 			this.em.getTransaction().begin();
