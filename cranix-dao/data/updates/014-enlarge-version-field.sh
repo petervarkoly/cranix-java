@@ -6,4 +6,5 @@ SIZE=$( echo "describe SoftwareVersions" | mysql OSS | grep version | gawk '{ pr
 if [ $SIZE != 'varchar(128)' ]
 then
 	echo "ALTER TABLE SoftwareVersions MODIFY COLUMN version VARCHAR(128)" | mysql OSS
+	touch /run/cranix-db-changed
 fi
