@@ -160,7 +160,7 @@ public class UserController extends Controller {
 	}
 
 	@SuppressWarnings("deprecation")
-	public String createUid(String givenName, String surName, Date birthDay) {
+	public String createUid(String givenName, String surName, String birthDay) {
 		String userId = "";
 		Pattern pattern = Pattern.compile( "([GNY])(\\d+)" );
 		for ( Matcher m = pattern.matcher( this.getConfigValue("LOGIN_SCHEME") ); m.find(); ) {
@@ -178,7 +178,7 @@ public class UserController extends Controller {
 				userId = userId.concat(surName.substring(0, endIndex));
 				break;
 			case "Y":
-				String  bds = String.valueOf(birthDay.getYear());
+				String  bds = String.valueOf(birthDay.substring(0,4));
 				switch(endIndex) {
 					case 2: userId = userId.concat(bds.substring(2, 4)); break;
 					case 4: userId = userId.concat(bds);
@@ -215,7 +215,7 @@ public class UserController extends Controller {
 		// Check Birthday
 		if (user.getBirthDay() == null) {
 			if (user.getRole().equals("sysadmins") || user.getRole().equals("templates")) {
-				user.setBirthDay(this.now());
+				user.setBirthDay(this.now().toString());
 			} else {
 				return new CrxResponse(this.getSession(), "ERROR", "You have to define the birthday.");
 			}

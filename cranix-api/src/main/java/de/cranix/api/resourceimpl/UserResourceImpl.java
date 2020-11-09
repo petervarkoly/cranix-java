@@ -447,7 +447,7 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public String createUid(Session session, String givenName, String surName, Date birthDay) {
+	public String createUid(Session session, String givenName, String surName, String birthDay) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		String resp = new UserController(session,em).createUid(givenName,surName,birthDay);
 		em.close();

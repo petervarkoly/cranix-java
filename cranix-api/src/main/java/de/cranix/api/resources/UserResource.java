@@ -626,7 +626,7 @@ public interface UserResource {
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("givenName")  String    givenName,
 			@PathParam("surName")    String    surName,
-			@PathParam("birthDay")   Date      birthDay
+			@PathParam("birthDay")   String    birthDay
 			);
 
 	@POST

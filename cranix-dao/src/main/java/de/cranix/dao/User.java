@@ -13,7 +13,6 @@ import javax.persistence.*;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
 import org.eclipse.persistence.annotations.Cache;
 import org.eclipse.persistence.annotations.CacheType;
 
@@ -73,9 +72,7 @@ public class User implements Serializable {
 	@Size(max=64, message="UUID must not be longer then 64 characters.")
 	private String uuid;
 
-	@Temporal(TemporalType.DATE)
-	@Past
-	private Date birthDay;
+	private String birthDay;
 
 	//bi-directional many-to-one association to Alias
 	@OneToMany(mappedBy="user", cascade ={CascadeType.ALL})
@@ -109,6 +106,9 @@ public class User implements Serializable {
 
 	@Transient
 	List<String> mailAliases = new ArrayList<String>();
+
+	@Transient
+	String fullName;
 
 	public List<Partition> getCreatedPartitions() {
 		return createdPartitions;
@@ -292,7 +292,7 @@ public class User implements Serializable {
 		this.fsQuotaUsed = 0;
 		this.msQuota = 0;
 		this.msQuotaUsed = 0;
-		this.birthDay = new Date(System.currentTimeMillis());
+		this.birthDay = new Date(System.currentTimeMillis()).toString();
 		this.mustChange = false;
 	}
 
@@ -386,11 +386,11 @@ public class User implements Serializable {
 		this.uuid = uuid;
 	}
 
-	public Date getBirthDay() {
+	public String getBirthDay() {
 		return this.birthDay;
 	}
 
-	public void setBirthDay(Date birthday) {
+	public void setBirthDay(String birthday) {
 		this.birthDay = birthday;
 	}
 
