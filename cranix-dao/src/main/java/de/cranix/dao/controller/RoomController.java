@@ -980,6 +980,7 @@ public class RoomController extends Controller {
 				user.setGivenName(device.getName());
 				user.setSurName("Workstation-User");
 				user.setRole("workstations");
+				user.setRole("workstations");
 				CrxResponse answer = userController.add(user);
 				responses.add(answer);
 				logger.debug(answer.getValue());

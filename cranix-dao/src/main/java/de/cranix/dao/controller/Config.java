@@ -20,17 +20,17 @@ public class Config {
 	private Map<String,String>   configHelp;
 	private Map<String,Boolean>  readOnly;
 	private List<String>         configFile;
-	
+
 	public Config() {
 		this.InitConfig();
 	}
-	
+
 	public Config(String configPath, String prefix) {
 		this.OSS_CONFIG = Paths.get(configPath);
 		this.prefix = prefix;
 		this.InitConfig();
 	}
-	
+
 	public void InitConfig() {
 		config     = new HashMap<>();
 		readOnly   = new HashMap<>();
@@ -40,7 +40,7 @@ public class Config {
 		try {
 			configFile = Files.readAllLines(this.OSS_CONFIG);
 		}
-		catch( IOException e ) { 
+		catch( IOException e ) {
 			e.printStackTrace();
 		}
 		Boolean ro = false;
@@ -98,11 +98,16 @@ public class Config {
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd.HH-mm-ss");
 		return  fmt.format(new Date());
 	}
-	
+
+	public String nowDateString() {
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+		return  fmt.format(new Date());
+	}
+
 	public Boolean isConfgiReadOnly(String key){
 		return readOnly.get(key);
 	}
-	
+
 	public String getConfigValue(String key){
 		if( config.containsKey(key)) {
 			return config.get(key);
@@ -110,11 +115,11 @@ public class Config {
 			return "";
 		}
 	}
-	
+
 	public String getConfigPath(String key){
 		return configPath.get(key);
 	}
-	
+
 	public String getConfigType(String key){
 		return configType.get(key);
 	}
@@ -128,7 +133,7 @@ public class Config {
 		}
 		return paths;
 	}
-	
+
 	public List<String> getKeysOfPath(String path) {
 		List<String> keys = new ArrayList<String>();
 		for ( String key : configPath.keySet() ) {
@@ -138,7 +143,7 @@ public class Config {
 		Collections.sort(keys);
 		return keys;
 	}
-	
+
 	public Boolean setConfigValue(String key, String value){
 		Boolean ro = readOnly.get(key);
 		if(ro!=null && ro.booleanValue()){
@@ -148,7 +153,7 @@ public class Config {
 		List<String> tmpConfig =  new ArrayList<String>();
 		for ( String line : configFile ){
 			if(line.startsWith(this.prefix + key + "=")){
-				tmpConfig.add( this.prefix + key + "=\"" + value + "\"" );  
+				tmpConfig.add( this.prefix + key + "=\"" + value + "\"" );
 			}
 			else{
 				tmpConfig.add( line );
@@ -158,13 +163,13 @@ public class Config {
 		try {
 			Files.write(this.OSS_CONFIG, tmpConfig );
 		}
-		catch( IOException e ) { 
+		catch( IOException e ) {
 			e.printStackTrace();
 			return false;
 		}
 		return true;
 	}
-	
+
 	public List<Map<String,String>> getConfig() {
 		List<Map<String, String>> configs = new ArrayList<>();
 		for( String key : config.keySet() ){

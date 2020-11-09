@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
 import javax.persistence.*;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
@@ -281,6 +282,7 @@ public class User implements Serializable {
 	private boolean mustChange = false;
 
 	public User() {
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 		this.id  = null;
 		this.uid = "";
 		this.uuid = "";
@@ -292,7 +294,7 @@ public class User implements Serializable {
 		this.fsQuotaUsed = 0;
 		this.msQuota = 0;
 		this.msQuotaUsed = 0;
-		this.birthDay = new Date(System.currentTimeMillis()).toString();
+		this.birthDay = fmt.format(new Date());
 		this.mustChange = false;
 	}
 

@@ -214,8 +214,8 @@ public class UserController extends Controller {
 		}
 		// Check Birthday
 		if (user.getBirthDay() == null) {
-			if (user.getRole().equals("sysadmins") || user.getRole().equals("templates")) {
-				user.setBirthDay(this.now().toString());
+			if ( !user.getRole().equals(roleStudent) ) {
+				user.setBirthDay(this.nowDateString());
 			} else {
 				return new CrxResponse(this.getSession(), "ERROR", "You have to define the birthday.");
 			}
