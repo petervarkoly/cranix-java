@@ -32,8 +32,9 @@ public class ProxyController extends Controller {
 	Logger logger = LoggerFactory.getLogger(ProxyController.class);
 
 	private Path DESCIPTION = Paths.get("/var/lib/squidGuard/db/BL/global_usage");
-	private Map<String,String>   desc     = new HashMap<>();
-	private Map<String,String>   longDesc = new HashMap<>();
+	private List<Map<String,String>> lists = new ArrayList<Map<String,String>>();
+	private Map<String,String>   desc      = new HashMap<>();
+	private Map<String,String>   longDesc  = new HashMap<>();
 	private List<String>         configFile;
 
 	public ProxyController(Session session,EntityManager em) {
@@ -45,6 +46,7 @@ public class ProxyController extends Controller {
 			e.printStackTrace();
 		}
 		String  lang        = this.getConfigValue("LANGUAGE");
+		String  type        = "";
 		String  key         = "";
 		String  value       = "";
 		String  longValue   = "";
@@ -66,12 +68,22 @@ public class ProxyController extends Controller {
 					} else {
 						longDesc.put(key, longValueEN);
 					}
+					Map<String,String> tmpHash = new HashMap<>();
+					tmpHash.put("name",key);
+					tmpHash.put("type",type);
+					tmpHash.put("desc",value);
+					tmpHash.put("description",longValue);
+					lists.add(tmpHash);
 				}
 				key         = line.split(":\\s+")[1].replaceFirst("/", "-");
+				type        = "white";
 				value       = "";
 				longValue   = "";
 				valueEN     = "";
 				longValueEN = "";
+			}
+			if( line.startsWith("DEFAULT_TYPE:")) {
+				type     = line.split(":\\s")[1];
 			}
 			if( line.startsWith("NAME EN:")) {
 				valueEN     = line.split(":\\s")[1];
@@ -104,6 +116,10 @@ public class ProxyController extends Controller {
 				longDesc.put(key, longValueEN);
 			}
 		}
+	}
+
+	public List<Map<String,String>> getLists(){
+		return lists;
 	}
 
 	/*

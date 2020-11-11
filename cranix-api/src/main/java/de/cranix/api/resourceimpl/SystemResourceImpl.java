@@ -282,6 +282,21 @@ public class SystemResourceImpl implements SystemResource {
 	}
 
 	@Override
+	public List<Map<String,String>>  getProxyLists(Session session) {
+		return new ProxyController(session,null).getLists();
+	}
+
+	@Override
+	public CrxResponse resetUnbound(Session session){
+                String[] program   = new String[1];
+                program[0] = cranixBaseDir + "tools/unbound/create_unbound_redirects.sh";
+                StringBuffer reply = new StringBuffer();
+                StringBuffer error = new StringBuffer();
+                OSSShellTools.exec(program, reply, error, "");
+		//TODO check error
+		return new CrxResponse(session,"OK","DNS server configuration was written succesfully.");
+	}
+	@Override
 	public  Object getProxyBasic(Session session) {
                 String[] program   = new String[2];
                 program[0] = cranixBaseDir + "tools/squidGuard.pl";

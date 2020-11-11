@@ -444,6 +444,32 @@ public interface SystemResource {
 	    );
 
 	/*
+	 * Get the proxy lists
+	*/
+	@GET
+	@Path("proxy/lists")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Delivers the proxy lists.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.proxy")
+	List<Map<String,String>> getProxyLists(
+	    @ApiParam(hidden = true) @Auth Session session
+	);
+
+	/*
+	 * Get the proxy lists
+	*/
+	@PUT
+	@Path("unbound")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Resets the unbound server reading the new configuration.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.unbound")
+	CrxResponse resetUnbound(
+	    @ApiParam(hidden = true) @Auth Session session
+	);
+
+	/*
 	 * Proxy default handling
 	*/
 	@GET
