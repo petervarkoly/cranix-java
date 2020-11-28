@@ -1,6 +1,5 @@
 /* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-/* (c) 2016 EXTIS GmbH - all rights reserved */
-package de.cranix.api;
+package de.cranix.api.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;

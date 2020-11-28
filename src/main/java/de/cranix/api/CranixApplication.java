@@ -1,8 +1,8 @@
 /* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api;
 
+import de.cranix.api.config.*;
 import de.cranix.api.auth.CrxAuthorizer;
-
 import de.cranix.api.auth.CrxTokenAuthenticator;
 import de.cranix.api.health.TemplateHealthCheck;
 import de.cranix.api.resourceimpl.*;
@@ -15,11 +15,13 @@ import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.federecio.dropwizard.swagger.SwaggerBundle;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+//import io.federecio.dropwizard.swagger.SwaggerBundle;
+//import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import javax.persistence.EntityManager;
+import de.cranix.dao.internal.CommonEntityManagerFactory;
 
 public class CranixApplication extends Application<ServerConfiguration> {
 
@@ -34,17 +36,18 @@ public class CranixApplication extends Application<ServerConfiguration> {
 
 	@Override
 	public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
-		bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
-			@Override
-			protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ServerConfiguration configuration) {
-				return configuration.swaggerBundleConfiguration;
-			}
-		});
+/*		bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
+                       @Override
+                       protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ServerConfiguration configuration) {
+                               return configuration.swaggerBundleConfiguration;
+                       }
+               });*/
 	}
 
 	@Override
 	public void run(ServerConfiguration configuration, Environment environment) {
 
+		final EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 
 		@SuppressWarnings("rawtypes")
 		AuthFilter tokenAuthorizer = new OAuthCredentialAuthFilter.Builder<Session>()
@@ -65,8 +68,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final SystemResource systemResource = new SystemResourceImpl();
 		environment.jersey().register(systemResource);
 
-		//TODO check if allowed
-		final AdHocLanResource adHocLanResource = new AdHocLanResourceImpl();
+		final AdHocLanResource adHocLanResource = new AdHocLanResourceImpl(em);
 		environment.jersey().register(adHocLanResource);
 
 		final SessionsResource sessionsResource = new SessionsResourceImpl();

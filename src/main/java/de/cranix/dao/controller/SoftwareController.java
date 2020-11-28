@@ -26,9 +26,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.ws.rs.WebApplicationException;
 
-import org.jdom.*;
-import org.jdom.filter.ElementFilter;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.*;
+import org.jdom2.filter.ElementFilter;
+import org.jdom2.input.SAXBuilder;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;

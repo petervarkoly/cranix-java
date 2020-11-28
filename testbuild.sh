@@ -8,7 +8,7 @@ if [ "$1" ]; then
         if [ "$2" ]; then
            PORT=$2
         fi
-	scp -P $PORT cranix-api/target/cranix-api-4.2-with-dependencies/cranix-api-4.2/lib/cranix* root@$1:/opt/cranix-java/lib/
+	scp -P $PORT target/cranix-4.3.jar root@$1:/opt/cranix-java/lib/
 	ssh -p $PORT root@$1 systemctl restart cranix-api
 fi
 echo  -n "Do you want to check in (y/n)?"
@@ -27,10 +27,10 @@ cd $HERE
 if [ -e cranix-java ]; then
     rm -r cranix-java
 fi
-mkdir -p cranix-java/bin
-mv    cranix-api/target/cranix-api-4.2-with-dependencies/cranix-api-4.2/lib/ cranix-java/
+mkdir -p cranix-java/lib
+mv    target/cranix-4.3.jar        cranix-java/lib/
 chmod 644 cranix-java/lib/*
-rsync -a cranix-dao/data/          cranix-java/data/
+rsync -a data/                     cranix-java/data/
 rsync -a bin/                      cranix-java/bin/
 rsync -a conf/                     cranix-java/conf/
 mv cranix-java/data/school-INSERT.sql.in   cranix-java/data/school-INSERT.sql
