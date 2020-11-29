@@ -20,8 +20,6 @@ import io.dropwizard.setup.Environment;
 import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import javax.persistence.EntityManager;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
 
 public class CranixApplication extends Application<ServerConfiguration> {
 
@@ -47,8 +45,6 @@ public class CranixApplication extends Application<ServerConfiguration> {
 	@Override
 	public void run(ServerConfiguration configuration, Environment environment) {
 
-		final EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-
 		@SuppressWarnings("rawtypes")
 		AuthFilter tokenAuthorizer = new OAuthCredentialAuthFilter.Builder<Session>()
 		.setAuthenticator(new CrxTokenAuthenticator())
@@ -68,7 +64,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final SystemResource systemResource = new SystemResourceImpl();
 		environment.jersey().register(systemResource);
 
-		final AdHocLanResource adHocLanResource = new AdHocLanResourceImpl(em);
+		final AdHocLanResource adHocLanResource = new AdHocLanResourceImpl();
 		environment.jersey().register(adHocLanResource);
 
 		final SessionsResource sessionsResource = new SessionsResourceImpl();

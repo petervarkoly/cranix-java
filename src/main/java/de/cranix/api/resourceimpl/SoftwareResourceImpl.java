@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -483,7 +482,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		softwareLicense.setCount(count);
 		softwareLicense.setValue(value);
 		softwareLicense.setLicenseType(licenseType);
-		CrxResponse resp = softwareController.modifySoftwareLIcense(
+		CrxResponse resp = softwareController.modifySoftwareLicense(
 				softwareLicense,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;

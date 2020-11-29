@@ -354,12 +354,22 @@ public class SoftwareController extends Controller {
 	public Software getByName(String name) {
 		Query query = this.em.createNamedQuery("Software.getByName")
 				.setParameter("name", name);
-		if( query.getResultList().isEmpty() ) {
+		logger.debug("getByName try to find:" + name);
+		try {
+			if (query.getResultList().isEmpty()) {
+				return null;
+			}
+			return (Software) query.getResultList().get(0);
+		}  catch (Exception e) {
+			logger.error("getByName Error to find:" + name);
 			return null;
 		}
-		return (Software) query.getResultList().get(0);
 	}
 
+	/**
+	 * @param name Search software by name or description
+	 * @return The found software or null
+	 */
 	public Software getByNameOrDescription(String name) {
 		Query query = this.em.createNamedQuery("Software.getByNameOrDescription")
 				.setParameter("name", name)
@@ -735,7 +745,6 @@ public class SoftwareController extends Controller {
 
 	/**
 	 * Return a list of all SofwareStatus objects to a given installation status.
-	 * @param installationStatus The installation status searching for.
 	 * @return The list of searched SofwareStatus.
 	 * @see SoftwareStatus
 	 */
@@ -905,7 +914,7 @@ public class SoftwareController extends Controller {
 	/*
 	 * Modify an existing license
 	 */
-	public CrxResponse modifySoftwareLIcense(
+	public CrxResponse modifySoftwareLicense(
 			SoftwareLicense softwareLicense,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader
@@ -1219,24 +1228,24 @@ public class SoftwareController extends Controller {
 	 */
 	public void setInstallUpdateOnDevice(Software software, SoftwareVersion softwareVersion, Device device) {
 		try {
-			boolean update    = false;
-			boolean installed = false;
+			boolean update      = false;
+			boolean newSoftware = true;
 			this.em.getTransaction().begin();
 			for(SoftwareStatus ss : device.getSoftwareStatus() ) {
 				if( ss.getSoftwareVersion().getSoftware().equals(software)) {
 					if( !ss.getSoftwareVersion().equals(softwareVersion) ) {
 						ss.setStatus("US");
-						this.em.merge(ss);
 						update = true;
 					} else {
-						installed = true;
+						newSoftware = false;
 					}
 				}
 			}
-			if( !update && !installed ) {
+			if( newSoftware ) {
 				SoftwareStatus softwareStatus = new SoftwareStatus(device,softwareVersion,"IS");
-				this.em.persist(softwareStatus);
 				device.getSoftwareStatus().add(softwareStatus);
+			}
+			if( newSoftware || update ) {
 				this.em.merge(device);
 			}
 			this.em.getTransaction().commit();
@@ -1251,8 +1260,9 @@ public class SoftwareController extends Controller {
 	public CrxResponse applySoftwareStateToHosts(){
 		RoomController   roomController   = new RoomController(this.session,this.em);
 		DeviceController deviceController = new DeviceController(this.session,this.em);
-		Map<String,List<String>>   softwaresToInstall = new HashMap<>();
-		Map<String,List<Software>> softwaresToRemove  = new HashMap<>();
+		Map<String,List<String>>   softwaresToInstall     = new HashMap<>();
+		Map<String,List<Software>> softwaresToRemove      = new HashMap<>();
+		Map<String,Boolean>        softwareMustBeIncluded = new HashMap<>();
 		List<String>   toInstall    = new ArrayList<String>();
 		List<Software> toRemove     = new ArrayList<Software>();
 		final String domainName     = this.getConfigValue("DOMAIN");
@@ -1267,6 +1277,16 @@ public class SoftwareController extends Controller {
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(session,"ERROR","Can not get salt's user principal.");
+		}
+		/* Analyse all installable software if these are packaged */
+		Query query = this.em.createNamedQuery("Software.findAll");
+		for( Software software : (List<Software>)query.getResultList() ) {
+			if( ! software.getManually() ) {
+				StringBuilder filePath = new StringBuilder(SALT_PACKAGE_DIR);
+				filePath.append(software.getName()).append(".sls");
+				File file = new File(filePath.toString());
+				softwareMustBeIncluded.put(software.getName(), file.exists());
+			}
 		}
 		if( Files.exists(SALT_TOP_TEMPL) ) {
 			try {
@@ -1322,6 +1342,7 @@ public class SoftwareController extends Controller {
 		for( Room room : roomController.getAllToUse() ) {
 			toRemove  = new ArrayList<Software>();
 			toInstall = new ArrayList<String>();
+			/* Search for software to be removed */
 			for( Category category : room.getCategories() ) {
 				if( category.getCategoryType().equals("installation")) {
 					for( Software software : category.getRemovedSoftwares() ) {
@@ -1329,6 +1350,7 @@ public class SoftwareController extends Controller {
 					}
 				}
 			}
+			/* Search for software to be installed */
 			for( Category category : room.getCategories() ) {
 				if( category.getCategoryType().equals("installation")) {
 					for( Software software : category.getSoftwares() ) {
@@ -1342,6 +1364,7 @@ public class SoftwareController extends Controller {
 
 				}
 			}
+			/* Assign result to the devices in room */
 			for( Device device : room.getDevices() ) {
 				if( device.getHwconf() == null || ! device.getHwconf().getDeviceType().equals("FatClient") ) {
 					continue;
@@ -1358,9 +1381,9 @@ public class SoftwareController extends Controller {
 			if( !hwconf.getDeviceType().equals("FatClient")) {
 				continue;
 			}
-			//List of software to be removed
 			toRemove  = new ArrayList<Software>();
 			toInstall = new ArrayList<String>();
+			/* Search for software to be removed */
 			for( Category category : hwconf.getCategories() ) {
 				if( category.getCategoryType().equals("installation")) {
 					for( Software software : category.getRemovedSoftwares() ) {
@@ -1368,6 +1391,7 @@ public class SoftwareController extends Controller {
 					}
 				}
 			}
+			/* Search for software to be installed */
 			for( Category category : hwconf.getCategories() ) {
 				logger.debug("HWConfs Categories: " + category.getName() + " " + category.getCategoryType());
 				if( category.getCategoryType().equals("installation")) {
@@ -1381,6 +1405,7 @@ public class SoftwareController extends Controller {
 					}
 				}
 			}
+			/* Assign result to the devices in hwconf */
 			for( Device device : hwconf.getDevices() ) {
 				softwaresToInstall.get(device.getName()).addAll(toInstall);
 				softwaresToRemove.get(device.getName()).addAll(toRemove);
@@ -1433,7 +1458,10 @@ public class SoftwareController extends Controller {
 				} else {
 					normalizeSoftware.add(softwareName);
 				}
-				Software software               = this.getByName(softwareName);
+				Software software = this.getByName(softwareName);
+				if( software == null ) {
+					continue;
+				}
 				SoftwareVersion softwareVersion = null;
 				for( SoftwareVersion sv : software.getSoftwareVersions() ) {
 					if( sv.getStatus().equals("C") ) {
@@ -1453,13 +1481,12 @@ public class SoftwareController extends Controller {
 				// Set the software version status on device if not the actual version is already installed
 				// The version status can be US or IS
 				if( !this.checkSoftwareVersionStatusOnDevice(device, softwareVersion, "I")) {
+					logger.debug("software "+ softwareName + " must be installed or updated");
 					this.setInstallUpdateOnDevice(software, softwareVersion, device);
 				}
-				//create the software package sls file name
-				StringBuilder filePath = new StringBuilder(SALT_PACKAGE_DIR);
-				filePath.append(softwareName).append(".sls");
-				File file = new File(filePath.toString());
-				if( file.exists() ) {
+				/* If a software has an own sls file outside of the package directory
+				* we have to include this files */
+				if( softwareMustBeIncluded.get(softwareName) ) {
 					/* for( SoftwareLicense sl : device.getSoftwareLicenses() ) {
 						if( sl.getSoftware().equals(software) ) {
 							deviceGrains.add(softwareName + "_KEY");
@@ -1517,18 +1544,23 @@ public class SoftwareController extends Controller {
 				}
 			}
 		}
+		logger.debug("write top.sls");
 		if( topSls.size() > 0 ) {
-			Path SALT_TOP   = Paths.get("/srv/salt/top.sls");
+			Path SALT_TOP = Paths.get("/srv/salt/top.sls");
 			try {
-				Files.write(SALT_TOP, topSls );
-			} catch( IOException e ) {
+				Files.write(SALT_TOP, topSls);
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			logger.debug("restart salt-master");
 			this.systemctl("try-restart", "salt-master");
+			logger.debug("restart crx_salt_event_watcher");
 			this.systemctl("try-restart", "crx_salt_event_watcher");
+			logger.debug("Services restarted");
 		}
 		//TO SET THE RIGHTS
 		if( errorMessages.length() > 0 ) {
+			logger.error(errorMessages.toString());
 			return new CrxResponse(this.getSession(),"ERROR",errorMessages.toString());
 		}
 		return new CrxResponse(this.getSession(),"OK","Software State was saved succesfully");
@@ -1694,7 +1726,6 @@ public class SoftwareController extends Controller {
 	 * @param	device			The corresponding device object
 	 * @param	softwareName	Name of the corresponding software package
 	 * @param	version			The version of the corresponding software
-	 * @param	status			The state to be set
 	 * @return					An CrxResponse object will be returned
 	 */
 	public CrxResponse deleteSoftwareStatusFromDevice(Device device, String softwareName, String version ) {

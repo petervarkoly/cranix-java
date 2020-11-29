@@ -134,7 +134,7 @@ public class Device implements Serializable {
 	private List<SoftwareLicense> softwareLicenses = new ArrayList<SoftwareLicense>() ;
 
 	//bi-directional many-to-one association to SoftwareStatus
-	@OneToMany(mappedBy="device", cascade ={CascadeType.ALL}, orphanRemoval=true)
+	@OneToMany(mappedBy="device", cascade ={CascadeType.ALL})
 	@JsonIgnore
 	private List<SoftwareStatus> softwareStatus = new ArrayList<SoftwareStatus>();
 
