@@ -1,38 +1,21 @@
 /* (c) 2020 Peter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resources;
 
-import static de.cranix.api.resources.Resource.*;
-import javax.annotation.security.RolesAllowed;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.POST;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
+import de.cranix.dao.*;
+import io.dropwizard.auth.Auth;
+import io.swagger.annotations.*;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import io.dropwizard.auth.Auth;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
-import de.cranix.dao.Category;
-import de.cranix.dao.CrxBaseObject;
-import de.cranix.dao.Software;
-import de.cranix.dao.SoftwareLicense;
-import de.cranix.dao.SoftwareStatus;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.Session;
+import static de.cranix.api.resources.Resource.JSON_UTF8;
+import static de.cranix.api.resources.Resource.TEXT;
 
 @Path("softwares")
 @Api(value = "softwares")
@@ -54,22 +37,22 @@ public interface SoftwareResource {
     @RolesAllowed("software.manage")
     List<Software> getAll(
             @ApiParam(hidden = true) @Auth Session session
-            );
+    );
 
     /*
-    * Get softwares/allInstallable
-    */
-   @GET
-   @Path("allInstallable")
-   @Produces(JSON_UTF8)
-   @ApiOperation(value = "Gets all Softwares.")
-   @ApiResponses(value = {
-           @ApiResponse(code = 404, message = "No category was found"),
-           @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-   @RolesAllowed("software.manage")
-   List<Software> getAllInstallable(
-           @ApiParam(hidden = true) @Auth Session session
-           );
+     * Get softwares/allInstallable
+     */
+    @GET
+    @Path("allInstallable")
+    @Produces(JSON_UTF8)
+    @ApiOperation(value = "Gets all Softwares.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "No category was found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+    @RolesAllowed("software.manage")
+    List<Software> getAllInstallable(
+            @ApiParam(hidden = true) @Auth Session session
+    );
 
     /*
      * GET softwares/<softwareId>
@@ -85,22 +68,22 @@ public interface SoftwareResource {
     Software getById(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareId") long softwareId
-            );
+    );
 
     /*
-        * POST softwares/getSoftwares
-        */
-       @POST
-       @Path("getSoftwares")
-       @Produces(JSON_UTF8)
-       @ApiOperation(value = "Gets a list of software objects to the list of softwareIds.")
-       @ApiResponses(value = {
-               @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-       @RolesAllowed("software.manage")
-       List<Software> getSoftwares(
-               @ApiParam(hidden = true) @Auth Session session,
-               List<Long> softwareIds
-       );
+     * POST softwares/getSoftwares
+     */
+    @POST
+    @Path("getSoftwares")
+    @Produces(JSON_UTF8)
+    @ApiOperation(value = "Gets a list of software objects to the list of softwareIds.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+    @RolesAllowed("software.manage")
+    List<Software> getSoftwares(
+            @ApiParam(hidden = true) @Auth Session session,
+            List<Long> softwareIds
+    );
 
     /*
      * GET softwares/search/{search}
@@ -117,7 +100,7 @@ public interface SoftwareResource {
     List<Software> search(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("search") String search
-            );
+    );
 
     /*
      * POST softwares/add { hash }
@@ -126,8 +109,8 @@ public interface SoftwareResource {
     @Path("add")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "Add a new version of software. If the software does not exists this will be create.<br>" +
-                          "If the software does exists all older versions will be set to 'R'eplaced and the current version to 'C'.<br>" +
-                          "The software version must be given! Now we only provides one actual version.")
+            "If the software does exists all older versions will be set to 'R'eplaced and the current version to 'C'.<br>" +
+            "The software version must be given! Now we only provides one actual version.")
     @ApiResponses(value = {
             // TODO so oder anders? @ApiResponse(code = 404, message = "At least one user was not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -136,7 +119,7 @@ public interface SoftwareResource {
     CrxResponse add(
             @ApiParam(hidden = true) @Auth Session session,
             Software Software
-            );
+    );
 
     /*
      * POST softwares/<softwareId> { hash }
@@ -153,7 +136,7 @@ public interface SoftwareResource {
     CrxResponse modify(
             @ApiParam(hidden = true) @Auth Session session,
             Software software
-            );
+    );
 
     /*
      * POST softwares/addRequirements { hash }
@@ -170,7 +153,7 @@ public interface SoftwareResource {
     CrxResponse addRequirements(
             @ApiParam(hidden = true) @Auth Session session,
             List<String> requirement
-            );
+    );
 
     @PUT
     @Path("{softwareId}/{requirementId}")
@@ -183,9 +166,9 @@ public interface SoftwareResource {
     @RolesAllowed("software.modify")
     CrxResponse addRequirements(
             @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("softwareId")    long softwareId,
+            @PathParam("softwareId") long softwareId,
             @PathParam("requirementId") long requirementId
-            );
+    );
 
     @DELETE
     @Path("{softwareId}/{requirementId}")
@@ -198,9 +181,9 @@ public interface SoftwareResource {
     @RolesAllowed("software.modify")
     CrxResponse deleteRequirements(
             @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("softwareId")    long softwareId,
+            @PathParam("softwareId") long softwareId,
             @PathParam("requirementId") long requirementId
-            );
+    );
 
     /*
      * DELETE softwares/<softwareId>
@@ -216,7 +199,7 @@ public interface SoftwareResource {
     CrxResponse delete(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareId") long softwareId
-            );
+    );
 
 
     /*#############################
@@ -229,33 +212,34 @@ public interface SoftwareResource {
     @Path("{softwareId}/license")
     @Produces(JSON_UTF8)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @ApiOperation( value = "Creates licence(s) to a software" )
+    @ApiOperation(value = "Creates licence(s) to a software")
     @ApiResponses(value = {
-                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
     CrxResponse addLicenseToSoftware(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareId") long softwareId,
             @FormDataParam("licenseType") Character licenseType,
-            @FormDataParam("count")          Integer   count,
-            @FormDataParam("value")       String    value,
-            @FormDataParam("file")  final InputStream fileInputStream,
-            @FormDataParam("file")  final FormDataContentDisposition contentDispositionHeader
-            );
+            @FormDataParam("count") Integer count,
+            @FormDataParam("value") String value,
+            @FormDataParam("file") final InputStream fileInputStream,
+            @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+    );
 
     @GET
     @Path("{softwareId}/license")
     @Produces(JSON_UTF8)
-    @ApiOperation( value = "Gets the licences to a software" )
+    @ApiOperation(value = "Gets the licences to a software")
     @ApiResponses(value = {
-                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
     List<SoftwareLicense> getSoftwareLicenses(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareId") long softwareId
-            );
+    );
+
     /*
      * POST softwares/licenses/{licenseId}
      */
@@ -263,20 +247,20 @@ public interface SoftwareResource {
     @Path("licenses/{licenseId}")
     @Produces(JSON_UTF8)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @ApiOperation( value = "Modifies an existing license." )
+    @ApiOperation(value = "Modifies an existing license.")
     @ApiResponses(value = {
-                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
     CrxResponse modifyLicense(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("licenseId") long licenseId,
             @FormDataParam("licenseType") Character licenseType,
-            @FormDataParam("count")          Integer   count,
-            @FormDataParam("value")       String    value,
+            @FormDataParam("count") Integer count,
+            @FormDataParam("value") String value,
             @FormDataParam("file") final InputStream fileInputStream,
             @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-            );
+    );
 
     /*
      * DELETE softwares/licenses/
@@ -284,15 +268,15 @@ public interface SoftwareResource {
     @DELETE
     @Path("licenses/{licenseId}")
     @Produces(JSON_UTF8)
-    @ApiOperation( value = "Deletes an existing licence." )
+    @ApiOperation(value = "Deletes an existing licence.")
     @ApiResponses(value = {
-                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.modify")
     CrxResponse deleteLicense(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("licenseId") long licenseId
-            );
+    );
 
     /* ########################################
      * Functions to manage software download  #
@@ -310,9 +294,9 @@ public interface SoftwareResource {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator"),
             @ApiResponse(code = 600, message = "Connection to CEPHALIX software repository server is broken.")})
     @RolesAllowed("software.download")
-    List<Map<String,String>> getAvailable(
+    List<Map<String, String>> getAvailable(
             @ApiParam(hidden = true) @Auth Session session
-            );
+    );
 
     /*
      * POST softwares/download ['afasd','afasds','dsfasdfs']
@@ -321,9 +305,9 @@ public interface SoftwareResource {
     @Path("download")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "Downloads softwares from the CEPHALIX repository.",
-    notes = "The call must provide a list of softwares to be downloaded: "
-            + "[ \"MSWhatever\", \"AnOtherProgram\" ] "
-            + "The requirements will be solved automaticaly.")
+            notes = "The call must provide a list of softwares to be downloaded: "
+                    + "[ \"MSWhatever\", \"AnOtherProgram\" ] "
+                    + "The requirements will be solved automaticaly.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator"),
@@ -332,7 +316,7 @@ public interface SoftwareResource {
     CrxResponse download(
             @ApiParam(hidden = true) @Auth Session session,
             List<String> softwares
-            );
+    );
 
     /*
      * PUT softwares/download/{softwareName}
@@ -349,7 +333,7 @@ public interface SoftwareResource {
     CrxResponse downloadOne(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("softwareName") String softwareName
-            );
+    );
 
     /*
      * DELET softwares/downloaded/{softwareName}
@@ -366,7 +350,7 @@ public interface SoftwareResource {
     CrxResponse deleteDownloadedSoftwares(
             @ApiParam(hidden = true) @Auth Session session,
             List<String> softwares
-            );
+    );
 
     /*
      * GET softwares/downloadStatus
@@ -377,11 +361,11 @@ public interface SoftwareResource {
     @ApiOperation(value = "Gets the names of the packages being dowloaded. Empty string means no download proceded.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
-            })
+    })
     @RolesAllowed("software.download")
     String downloadStatus(
             @ApiParam(hidden = true) @Auth Session session
-            );
+    );
 
     /*
      * POST softwares/listDownloadedSoftware
@@ -391,17 +375,17 @@ public interface SoftwareResource {
     @Produces(JSON_UTF8)
     @ApiOperation(value = "List the status of the downloaded software. ",
             notes = "This call delivers a list of maps of the downloaded software.<br>"
-            + "[ {<br>"
-            + "    name : name of the software,<br>"
-            + "    versions : the version of the software,<br>"
-            + "    update : this field contains the version of the available update,<br>"
-            + "    updateDescription : this field contains the desription of the available update,<br>"
-            + "} ]")
+                    + "[ {<br>"
+                    + "    name : name of the software,<br>"
+                    + "    versions : the version of the software,<br>"
+                    + "    update : this field contains the version of the available update,<br>"
+                    + "    updateDescription : this field contains the desription of the available update,<br>"
+                    + "} ]")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<Map<String,String>> listDownloadedSoftware(
+    List<Map<String, String>> listDownloadedSoftware(
             @ApiParam(hidden = true) @Auth Session session
     );
 
@@ -413,15 +397,15 @@ public interface SoftwareResource {
     @Produces(JSON_UTF8)
     @ApiOperation(value = "List the status of the downloaded software. ",
             notes = "This call delivers a list of maps of the downloaded software.<br>"
-            + "[ {<br>"
-            + "    name : name of the software,<br>"
-            + "    versions : the new version of the software,<br>"
-            + "} ]")
+                    + "[ {<br>"
+                    + "    name : name of the software,<br>"
+                    + "    versions : the new version of the software,<br>"
+                    + "} ]")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
     @RolesAllowed("software.install")
-    List<Map<String,String>> listUpdatesForSoftwarePackages(
+    List<Map<String, String>> listUpdatesForSoftwarePackages(
             @ApiParam(hidden = true) @Auth Session session
     );
 
@@ -432,9 +416,9 @@ public interface SoftwareResource {
     @Path("updatesSoftwares")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "Downloads softwares from the CEPHALIX repository.",
-    notes = "The call must provide a list of softwares to be downloaded: "
-            + "[ \"MSWhatever\", \"AnOtherProgram\" ] "
-            + "The requirements will be solved automaticaly.")
+            notes = "The call must provide a list of softwares to be downloaded: "
+                    + "[ \"MSWhatever\", \"AnOtherProgram\" ] "
+                    + "The requirements will be solved automaticaly.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator"),
@@ -443,13 +427,14 @@ public interface SoftwareResource {
     CrxResponse updatesSoftwares(
             @ApiParam(hidden = true) @Auth Session session,
             List<String> softwares
-            );
+    );
 
     /**
      * Creates the salt state files for the minions.
+     *
      * @param session
      * @param category
-     * @return  The result in an OssResult object
+     * @return The result in an OssResult object
      */
     @PUT
     @Path("saveState")
@@ -461,13 +446,14 @@ public interface SoftwareResource {
     @RolesAllowed("software.modify")
     CrxResponse apply(
             @ApiParam(hidden = true) @Auth Session session
-            );
+    );
 
     /**
      * Applies the high states created in the salt state files for the minions.
+     *
      * @param session
      * @param category
-     * @return  The result in an OssResult object.
+     * @return The result in an OssResult object.
      */
     @PUT
     @Path("applyState")
@@ -479,10 +465,11 @@ public interface SoftwareResource {
     @RolesAllowed("software.modify")
     CrxResponse applyState(
             @ApiParam(hidden = true) @Auth Session session
-            );
+    );
 
     /**
      * Creates a new software installation set.
+     *
      * @param session
      * @param category
      * @return The result in an OssResult object.
@@ -490,18 +477,19 @@ public interface SoftwareResource {
     @POST
     @Path("installations")
     @Produces(JSON_UTF8)
-    @ApiOperation( value = "Creates a software installation" )
+    @ApiOperation(value = "Creates a software installation")
     @ApiResponses(value = {
-                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.install")
     CrxResponse createInstallation(
             @ApiParam(hidden = true) @Auth Session session,
             Category category
-            );
+    );
 
     /**
      * Creates a new software installation set.
+     *
      * @param session
      * @param category
      * @return The result in an OssResult object.
@@ -509,16 +497,16 @@ public interface SoftwareResource {
     @POST
     @Path("installations/{installationId}")
     @Produces(JSON_UTF8)
-    @ApiOperation( value = "Modifies a software installation" )
+    @ApiOperation(value = "Modifies a software installation")
     @ApiResponses(value = {
-                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.install")
     CrxResponse modifyInstallation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") Long installationId,
             Category category
-            );
+    );
 
     /*
      * GET softwares/installations
@@ -526,9 +514,9 @@ public interface SoftwareResource {
     @GET
     @Path("installations")
     @Produces(JSON_UTF8)
-    @ApiOperation( value = "Gets all installations" )
+    @ApiOperation(value = "Gets all installations")
     @ApiResponses(value = {
-                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.install")
     List<Category> getInstallations(
@@ -541,9 +529,9 @@ public interface SoftwareResource {
     @GET
     @Path("installations/{installationId}")
     @Produces(JSON_UTF8)
-    @ApiOperation( value = "Gets an installations by id." )
+    @ApiOperation(value = "Gets an installations by id.")
     @ApiResponses(value = {
-                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("software.install")
     Category getInstallation(
@@ -565,8 +553,9 @@ public interface SoftwareResource {
     CrxResponse addSoftwareToInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
-            @PathParam("softwareId")     long softwareId
-            );
+            @PathParam("softwareId") long softwareId
+    );
+
     /*
      * PUT softwares/installations/{installationId}/devices/{deviceId}
      */
@@ -581,8 +570,8 @@ public interface SoftwareResource {
     CrxResponse addDeviceToInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
-            @PathParam("deviceId")       long deviceId
-            );
+            @PathParam("deviceId") long deviceId
+    );
 
     /*
      * PUT softwares/installations/{installationId}/rooms/{roomId}
@@ -598,8 +587,8 @@ public interface SoftwareResource {
     CrxResponse addRoomToInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
-            @PathParam("roomId")         long roomId
-            );
+            @PathParam("roomId") long roomId
+    );
 
     /*
      * PUT softwares/installations/{installationId}/hwconfs/{hwconfId}
@@ -615,8 +604,8 @@ public interface SoftwareResource {
     CrxResponse addHWConfToInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
-            @PathParam("hwconfId")       long hwconfId
-            );
+            @PathParam("hwconfId") long hwconfId
+    );
 
     /*
      * DELETE softwares/installations/{installationId}
@@ -632,7 +621,7 @@ public interface SoftwareResource {
     CrxResponse deleteInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId
-            );
+    );
 
     /*
      * DELETE softwares/installations/{installationId}/softwares/{softwareId}
@@ -648,8 +637,8 @@ public interface SoftwareResource {
     CrxResponse deleteSoftwareFromInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
-            @PathParam("softwareId")     long softwareId
-            );
+            @PathParam("softwareId") long softwareId
+    );
 
 
     /*
@@ -666,8 +655,8 @@ public interface SoftwareResource {
     CrxResponse deleteDeviceFromInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
-            @PathParam("deviceId")       long deviceId
-            );
+            @PathParam("deviceId") long deviceId
+    );
 
     /*
      * DELETE softwares/installations/{installationId}/rooms/{roomId}
@@ -683,8 +672,8 @@ public interface SoftwareResource {
     CrxResponse deleteRoomFromInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
-            @PathParam("roomId")         long roomId
-            );
+            @PathParam("roomId") long roomId
+    );
 
     /*
      * DELETE softwares/installations/{installationId}/hwconfs/{hwconfId}
@@ -700,8 +689,8 @@ public interface SoftwareResource {
     CrxResponse deleteHWConfFromInstalation(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("installationId") long installationId,
-            @PathParam("hwconfId")       long hwconfId
-            );
+            @PathParam("hwconfId") long hwconfId
+    );
 
     /*
      * GET softwares/installations/{installationId}/softwares
@@ -849,10 +838,10 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     CrxResponse setSoftwareInstalledOnDevice(
             @ApiParam(hidden = true) @Auth Session session,
-            @ApiParam(value = "Name of the device",  required = true) @PathParam("deviceName")   String deviceName,
-            @ApiParam(value = "Name of the software",required = true) @PathParam("softwareName") String softwareName,
-            @ApiParam(value = "Software version",    required = true) @PathParam("version")  String version
-            );
+            @ApiParam(value = "Name of the device", required = true) @PathParam("deviceName") String deviceName,
+            @ApiParam(value = "Name of the software", required = true) @PathParam("softwareName") String softwareName,
+            @ApiParam(value = "Software version", required = true) @PathParam("version") String version
+    );
 
     @POST
     @Path("devicesByName/{deviceName}")
@@ -865,9 +854,9 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     CrxResponse setSoftwareInstalledOnDevice(
             @ApiParam(hidden = true) @Auth Session session,
-            @ApiParam(value = "Name of the device",  required = true) @PathParam("deviceName")   String deviceName,
-            Map<String,String> software
-            );
+            @ApiParam(value = "Name of the device", required = true) @PathParam("deviceName") String deviceName,
+            Map<String, String> software
+    );
 
     @GET
     @Path("devicesByName/{deviceName}/licences")
@@ -879,8 +868,8 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     String getSoftwareLicencesOnDevice(
             @ApiParam(hidden = true) @Auth Session session,
-            @ApiParam(value = "Name of the device",  required = true) @PathParam("deviceName")   String deviceName
-            );
+            @ApiParam(value = "Name of the device", required = true) @PathParam("deviceName") String deviceName
+    );
 
 
     /* ##########################################
@@ -893,23 +882,23 @@ public interface SoftwareResource {
     @Path("status")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "The state of the installation of software(s) on all devices.",
-              notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
-                + "The delivered list has following format:<br>"
-                + "[ {<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
-                + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
-                + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
-                + "} ]<br>"
-                + "There are following installation states:<br>"
-                + "I  -> installed<br>"
-                + "IS -> installation scheduled<br>"
-                + "MD -> manuell deinstalled<br>"
-                + "DS -> deinstallation scheduled<br>"
-                + "DF -> deinstallation failed<br>"
-                + "IF -> installation failed"
+            notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
+                    + "The delivered list has following format:<br>"
+                    + "[ {<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
+                    + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
+                    + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
+                    + "} ]<br>"
+                    + "There are following installation states:<br>"
+                    + "I  -> installed<br>"
+                    + "IS -> installation scheduled<br>"
+                    + "MD -> manuell deinstalled<br>"
+                    + "DS -> deinstallation scheduled<br>"
+                    + "DF -> deinstallation failed<br>"
+                    + "IF -> installation failed"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -917,29 +906,29 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     List<SoftwareStatus> softwareStatus(
             @ApiParam(hidden = true) @Auth Session session
-            );
+    );
 
     @GET
     @Path("devices/{deviceId}")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "The state of the installation of software(s) on a device.",
-              notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
-                + "The delivered list has following format:<br>"
-                + "[ {<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
-                + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
-                + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
-                + "} ]<br>"
-                + "There are following installation states:<br>"
-                + "I  -> installed<br>"
-                + "IS -> installation scheduled<br>"
-                + "MD -> manuell deinstalled<br>"
-                + "DS -> deinstallation scheduled<br>"
-                + "DF -> deinstallation failed<br>"
-                + "IF -> installation failed"
+            notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
+                    + "The delivered list has following format:<br>"
+                    + "[ {<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
+                    + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
+                    + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
+                    + "} ]<br>"
+                    + "There are following installation states:<br>"
+                    + "I  -> installed<br>"
+                    + "IS -> installation scheduled<br>"
+                    + "MD -> manuell deinstalled<br>"
+                    + "DS -> deinstallation scheduled<br>"
+                    + "DF -> deinstallation failed<br>"
+                    + "IF -> installation failed"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -947,8 +936,8 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     List<SoftwareStatus> getAllSoftwareStatusOnDevice(
             @ApiParam(hidden = true) @Auth Session session,
-            @ApiParam(value = "ID of the device",  required = true) @PathParam("deviceId")   Long deviceId
-            );
+            @ApiParam(value = "ID of the device", required = true) @PathParam("deviceId") Long deviceId
+    );
 
 
     /*
@@ -958,23 +947,23 @@ public interface SoftwareResource {
     @Path("devices/{deviceId}/{softwareId}")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "The state of the installation of software(s) on a device.",
-              notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
-                + "The delivered list has following format:<br>"
-                + "[ {<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
-                + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
-                + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
-                + "} ]<br>"
-                + "There are following installation states:<br>"
-                + "I  -> installed<br>"
-                + "IS -> installation scheduled<br>"
-                + "MD -> manuell deinstalled<br>"
-                + "DS -> deinstallation scheduled<br>"
-                + "DF -> deinstallation failed<br>"
-                + "IF -> installation failed"
+            notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
+                    + "The delivered list has following format:<br>"
+                    + "[ {<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
+                    + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
+                    + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
+                    + "} ]<br>"
+                    + "There are following installation states:<br>"
+                    + "I  -> installed<br>"
+                    + "IS -> installation scheduled<br>"
+                    + "MD -> manuell deinstalled<br>"
+                    + "DS -> deinstallation scheduled<br>"
+                    + "DF -> deinstallation failed<br>"
+                    + "IF -> installation failed"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -982,9 +971,9 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     List<SoftwareStatus> getSoftwareStatusOnDevice(
             @ApiParam(hidden = true) @Auth Session session,
-            @ApiParam(value = "ID of the device",  required = true) @PathParam("deviceId")   Long deviceId,
-            @ApiParam(value = "ID of the software",required = true) @PathParam("sofwtwareId") Long softwareId
-            );
+            @ApiParam(value = "ID of the device", required = true) @PathParam("deviceId") Long deviceId,
+            @ApiParam(value = "ID of the software", required = true) @PathParam("sofwtwareId") Long softwareId
+    );
 
     /*
      * GET softwares/{softwareId}/{softwareName}
@@ -993,22 +982,22 @@ public interface SoftwareResource {
     @Path("{softwareId}/status")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "the state of the installation of software(s) on all devices.",
-              notes = "The delivered list has following format:<br>"
-                + "[ {<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
-                + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
-                + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
-                + "} ]<br>"
-                + "There are following installation states:<br>"
-                + "I  -> installed<br>"
-                + "IS -> installation scheduled<br>"
-                + "MD -> manuell deinstalled<br>"
-                + "DS -> deinstallation scheduled<br>"
-                + "DF -> deinstallation failed<br>"
-                + "IF -> installation failed"
+            notes = "The delivered list has following format:<br>"
+                    + "[ {<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
+                    + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
+                    + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
+                    + "} ]<br>"
+                    + "There are following installation states:<br>"
+                    + "I  -> installed<br>"
+                    + "IS -> installation scheduled<br>"
+                    + "MD -> manuell deinstalled<br>"
+                    + "DS -> deinstallation scheduled<br>"
+                    + "DF -> deinstallation failed<br>"
+                    + "IF -> installation failed"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -1016,8 +1005,8 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     List<SoftwareStatus> getSoftwareStatus(
             @ApiParam(hidden = true) @Auth Session session,
-            @ApiParam(value = "ID of the software",required = true) @PathParam("softwareId") Long softwareId
-            );
+            @ApiParam(value = "ID of the software", required = true) @PathParam("softwareId") Long softwareId
+    );
 
     /*
      * GET softwares/rooms/{roomId}
@@ -1026,22 +1015,22 @@ public interface SoftwareResource {
     @Path("rooms/{roomId}")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "the state of the installation status in a room.",
-              notes = "The delivered list has following format:<br>"
-                + "[ {<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
-                + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
-                + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
-                + "} ]<br>"
-                + "There are following installation states:<br>"
-                + "I  -> installed<br>"
-                + "IS -> installation scheduled<br>"
-                + "MD -> manuell deinstalled<br>"
-                + "DS -> deinstallation scheduled<br>"
-                + "DF -> deinstallation failed<br>"
-                + "IF -> installation failed"
+            notes = "The delivered list has following format:<br>"
+                    + "[ {<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
+                    + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
+                    + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
+                    + "} ]<br>"
+                    + "There are following installation states:<br>"
+                    + "I  -> installed<br>"
+                    + "IS -> installation scheduled<br>"
+                    + "MD -> manuell deinstalled<br>"
+                    + "DS -> deinstallation scheduled<br>"
+                    + "DF -> deinstallation failed<br>"
+                    + "IF -> installation failed"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -1049,8 +1038,8 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     List<SoftwareStatus> getRoomsStatus(
             @ApiParam(hidden = true) @Auth Session session,
-            @ApiParam(value = "ID of the software",required = true) @PathParam("roomId") Long roomId
-            );
+            @ApiParam(value = "ID of the software", required = true) @PathParam("roomId") Long roomId
+    );
 
     /*
      * GET softwares/hwconfs/{hwconfId}
@@ -1059,22 +1048,22 @@ public interface SoftwareResource {
     @Path("hwconfs/{hwconfId}")
     @Produces(JSON_UTF8)
     @ApiOperation(value = "the state of the installation status of a hwconf.",
-              notes = "The delivered list has following format:<br>"
-                + "[ {<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
-                + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
-                + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
-                + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
-                + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
-                + "} ]<br>"
-                + "There are following installation states:<br>"
-                + "I  -> installed<br>"
-                + "IS -> installation scheduled<br>"
-                + "MD -> manuell deinstalled<br>"
-                + "DS -> deinstallation scheduled<br>"
-                + "DF -> deinstallation failed<br>"
-                + "IF -> installation failed"
+            notes = "The delivered list has following format:<br>"
+                    + "[ {<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareName : Name of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;deviceName   : Name of the device<br>"
+                    + "&nbsp;&nbsp;&nbsp;softwareversionId : Id of the SoftwareVersion<br>"
+                    + "&nbsp;&nbsp;&nbsp;version    : Version of the software<br>"
+                    + "&nbsp;&nbsp;&nbsp;status     : Installation status of this version<br>"
+                    + "&nbsp;&nbsp;&nbsp;manually   : Was the softwar installed manually<br>"
+                    + "} ]<br>"
+                    + "There are following installation states:<br>"
+                    + "I  -> installed<br>"
+                    + "IS -> installation scheduled<br>"
+                    + "MD -> manuell deinstalled<br>"
+                    + "DS -> deinstallation scheduled<br>"
+                    + "DF -> deinstallation failed<br>"
+                    + "IF -> installation failed"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -1082,6 +1071,6 @@ public interface SoftwareResource {
     @RolesAllowed("software.install")
     List<SoftwareStatus> getHWConsStatus(
             @ApiParam(hidden = true) @Auth Session session,
-            @ApiParam(value = "ID of the software",required = true) @PathParam("hwconfId") Long hwconfId
-            );
+            @ApiParam(value = "ID of the software", required = true) @PathParam("hwconfId") Long hwconfId
+    );
 }
