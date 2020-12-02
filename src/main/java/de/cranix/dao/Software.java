@@ -51,11 +51,11 @@ public class Software implements Serializable {
 	private List<SoftwareLicense> softwareLicenses;
 
 	//bi-directional many-to-one association to SoftwareVersion
-	@OneToMany(mappedBy="software", cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy="software", cascade = CascadeType.ALL)
 	private List<SoftwareVersion> softwareVersions;
 
 	//bi-directional many-to-one association to SoftwareVersion
-	@OneToMany(mappedBy="software", cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy="software", cascade = CascadeType.ALL)
 	private List<SoftwareFullName> softwareFullNames;
 
 	//bi-directional many-to-many association to Category

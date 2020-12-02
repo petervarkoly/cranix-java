@@ -33,7 +33,6 @@ import de.cranix.dao.Printer;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.SoftwareLicense;
-import de.cranix.dao.SoftwareStatus;
 import de.cranix.dao.User;
 import de.cranix.dao.tools.*;
 import static de.cranix.dao.tools.StaticHelpers.*;
@@ -120,16 +119,16 @@ public CrxResponse delete(List<Long> deviceIds) {
 
 /**
  * Deletes a device given by the device id.
- * @param deviceId The technical id of the device to be deleted
+ * @param device The technical id of the device to be deleted
  * @param atomic If it is true means no other devices will be deleted. DHCP and salt should be reloaded.
  * @return
  */
 public CrxResponse delete(Device device, boolean atomic) {
-	boolean needReloadSalt = false;
-	String  name = device.getName();
 	if( device == null ) {
 		return new CrxResponse(this.getSession(),"ERROR", "Can not delete null device.");
 	}
+	boolean needReloadSalt = false;
+	String  name = device.getName();
 	User user = null;
 	try {
 		HWConf hwconf = device.getHwconf();
@@ -146,6 +145,15 @@ public CrxResponse delete(Device device, boolean atomic) {
 					+ "You have to delete this devices via printer management.");
 		}
 		//Start the transaction
+		if( this.em.getTransaction().isActive() ) {
+			logger.error(("delete Transaction open"));
+			this.em.getTransaction().wait(100L);
+			if( this.em.getTransaction().isActive()) {
+				this.em.getTransaction().rollback();
+			}
+		} else  {
+			logger.error(("Opening transaction"));
+		}
 		this.em.getTransaction().begin();
 		if(hwconf != null )
 		{
@@ -157,7 +165,6 @@ public CrxResponse delete(Device device, boolean atomic) {
 				needReloadSalt = true;
 			}
 		}
-		startPlugin("delete_device", device);
 		if( device.getOwner() != null ) {
 			User owner = device.getOwner();
 			logger.debug("Deleting private device owner:" + owner + " device " + device);
@@ -166,13 +173,6 @@ public CrxResponse delete(Device device, boolean atomic) {
 				session.getUser().getOwnedDevices().remove(device);
 			}
 			this.em.merge(owner);
-		}
-		//Clean up softwareStatus
-		for( SoftwareStatus st : device.getSoftwareStatus() ) {
-			if( st != null ) {
-				logger.debug("Deleteing software status from device:" + device.getName() + " " + st.getId());
-				this.em.remove(st);
-			}
 		}
 		//Clean up softwareLicences
 		for( SoftwareLicense sl : device.getSoftwareLicenses()  ) {
@@ -194,11 +194,7 @@ public CrxResponse delete(Device device, boolean atomic) {
 			cat.getDevices().remove(device);
 			this.em.merge(cat);
 		}
-		/*Clean up sessions
-		for( Session session : device.getSessions() ) {
-			this.em.remove(session);
-		}*/
-		//Clean up loggedIn entries
+
 		for( User loggedInUser : device.getLoggedIn() ) {
 			loggedInUser.getLoggedOn().remove(device);
 			this.em.merge(loggedInUser);
@@ -216,10 +212,11 @@ public CrxResponse delete(Device device, boolean atomic) {
 		this.deletAllConfigs(device);
 		this.em.remove(device);
 		//Clean up room
+		room.getDevices().remove(device);
 		this.em.merge(room);
 		this.em.flush();
 		this.em.getTransaction().commit();
-		room.getDevices().remove(device);
+		startPlugin("delete_device", device);
 		if( atomic ) {
 			new DHCPConfig(session,em).Create();
 			if( needReloadSalt ) {
@@ -241,7 +238,7 @@ public CrxResponse delete(Device device, boolean atomic) {
 
 /**
  * Deletes a device.
- * @param device The device to be deleted
+ * @param deviceId The device to be deleted
  * @param atomic If it is true means no other devices will be deleted. DHCP and salt should be reloaded.
  * @return
  */

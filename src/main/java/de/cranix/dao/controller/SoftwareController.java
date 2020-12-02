@@ -124,13 +124,7 @@ public class SoftwareController extends Controller {
 		Software oldSoftware = this.getByName(software.getName());
 		if( oldSoftware != null ) {
 			logger.debug("Old software found:" + oldSoftware);
-			SoftwareVersion softwareVersion = new SoftwareVersion(oldSoftware,software.getSoftwareVersions().get(0).getVersion(),"C");
-			for(SoftwareVersion sv : software.getSoftwareVersions() ) {
-				if( sv.getStatus().equals("C") ) {
-					softwareVersion = new SoftwareVersion(software,sv.getVersion(),"C");
-					break;
-				}
-			}
+			SoftwareVersion softwareVersion = software.getSoftwareVersions().get(0);
 			try {
 				boolean newVersion = true;
 				this.em.getTransaction().begin();
@@ -148,28 +142,36 @@ public class SoftwareController extends Controller {
 					}
 				}
 				if( newVersion ) {
-					softwareVersion.setStatus("C");
-					oldSoftware.getSoftwareVersions().add(softwareVersion);
-					softwareVersion.setSoftware(oldSoftware);
-					this.em.persist(softwareVersion);
+					softwareVersion = new SoftwareVersion(
+							oldSoftware,
+							software.getSoftwareVersions().get(0).getVersion(),
+							"C"
+					);
 				}
-				for(SoftwareFullName sfn : oldSoftware.getSoftwareFullNames() ) {
-					SoftwareFullName tmp = this.em.find(SoftwareFullName.class, sfn.getId());
-					this.em.remove(tmp);
-				}
-				oldSoftware.setSoftwareFullNames(new ArrayList<SoftwareFullName>());
+				/*
+				 * Add new full name if this is not already configured
+				 */
 				for( SoftwareFullName sfn : software.getSoftwareFullNames() ) {
-					sfn.setId(null);
-					sfn.setSoftware(oldSoftware);
-					oldSoftware.getSoftwareFullNames().add(sfn);
-					this.em.persist(sfn);
+					boolean newFullName = true;
+					for( SoftwareFullName osfn : oldSoftware.getSoftwareFullNames() ) {
+						if (osfn.getFullName().equals(sfn.getFullName() )) {
+							newFullName = false;
+							break;
+						}
+					}
+					if( newFullName ) {
+						sfn.setSoftware(oldSoftware);
+						oldSoftware.getSoftwareFullNames().add(sfn);
+					}
 				}
+
 				if( software.getWeight() != null ) {
 					oldSoftware.setWeight(software.getWeight());
 				}
 				if( software.getManually() != null ) {
 					oldSoftware.setManually(software.getManually());
 				}
+				logger.debug("old software" + oldSoftware);
 				this.em.merge(oldSoftware);
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
@@ -179,37 +181,19 @@ public class SoftwareController extends Controller {
 			return new CrxResponse(this.getSession(),"OK","New software version was created succesfully",softwareVersion.getId());
 		}
 		//This is an new software
-		Software newSoftware = new Software();
-		newSoftware.setCreator(this.session.getUser());
-		newSoftware.setName(software.getName());
-		if( software.getDescription() != null ) {
-			newSoftware.setDescription(software.getDescription());
-		}
-		if( software.getManually() !=  null ) {
-			newSoftware.setManually(software.getManually());
-		}
-		if( software.getWeight() !=  null ) {
-			newSoftware.setWeight(software.getWeight());
-		}
-		logger.debug("New software" + newSoftware);
+		software.setCreator(this.session.getUser());
+		software.getSoftwareVersions().get(0).setSoftware(software);
+		software.getSoftwareFullNames().get(0).setSoftware(software);
 		try {
 			this.em.getTransaction().begin();
-			for( SoftwareFullName sfn : software.getSoftwareFullNames() ) {
-				SoftwareFullName newSoftwareFullName = new SoftwareFullName(newSoftware,sfn.getFullName());
-				newSoftware.getSoftwareFullNames().add(newSoftwareFullName);
-			}
-			logger.debug("New software after adding full names:" + newSoftware);
-			SoftwareVersion newSoftwareVersion = new SoftwareVersion(newSoftware,software.getSoftwareVersions().get(0).getVersion(),"C");
-			logger.debug("New software after adding version:" + newSoftware);
-			newSoftware.getSoftwareVersions().add(newSoftwareVersion);
-			this.em.persist(newSoftware);
+			this.em.persist(software);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK","Software was created succesfully.",newSoftware.getId());
+		return new CrxResponse(this.getSession(),"OK","Software was created succesfully.",software.getId());
 	}
 
 	public CrxResponse delete(Long softwareId) {
@@ -223,32 +207,6 @@ public class SoftwareController extends Controller {
 			if( !this.em.contains(software)) {
 				logger.debug("em does not contains this software.");
 				software = this.em.merge(software);
-			}
-			//Remove all child entries
-			for( SoftwareFullName sf : software.getSoftwareFullNames() ) {
-				logger.debug("delete SoftwareFullName" + sf);
-				this.em.remove(sf);
-			}
-			for( SoftwareVersion sv : software.getSoftwareVersions() ) {
-				logger.debug("delete SoftwareVersion" + sv);
-				for( SoftwareStatus st : sv.getSoftwareStatuses() ) {
-					logger.debug("delete SoftwareStatus" + sv);
-					if( st.getDevice() != null  && st.getDevice().getSoftwareStatus() != null ) {
-						st.getDevice().getSoftwareStatus().remove(st);
-						this.em.merge(st.getDevice());
-					}
-					this.em.remove(st);
-				}
-				this.em.remove(sv);
-			}
-			for( SoftwareLicense sl : software.getSoftwareLicenses() ) {
-				for( Device device : sl.getDevices() ) {
-					if( device != null && device.getSoftwareLicenses() != null ) {
-						device.getSoftwareLicenses().remove(sl);
-						this.em.merge(device);
-					}
-				}
-				this.em.remove(sl);
 			}
 			this.em.remove(software);
 			this.em.getTransaction().commit();
@@ -1610,8 +1568,6 @@ public class SoftwareController extends Controller {
 			logger.debug("Create new software version:" + softwareName + " ## " + version);
 			try {
 				this.em.getTransaction().begin();
-				this.em.persist(softwareVersion);
-				software.addSoftwareVersion(softwareVersion);
 				this.em.merge(software);
 				this.em.getTransaction().commit();
 			} catch (Exception e) {

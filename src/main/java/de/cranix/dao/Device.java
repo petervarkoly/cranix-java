@@ -123,7 +123,6 @@ public class Device implements Serializable {
 	@JsonIgnore
 	private Printer defaultPrinter;
 
-	//bi-directional many-to-one association to SoftwareStatus
 	@OneToMany(mappedBy="device")
 	@JsonIgnore
 	private List<Printer> printerQueue = new ArrayList<Printer>();
@@ -134,7 +133,7 @@ public class Device implements Serializable {
 	private List<SoftwareLicense> softwareLicenses = new ArrayList<SoftwareLicense>() ;
 
 	//bi-directional many-to-one association to SoftwareStatus
-	@OneToMany(mappedBy="device", cascade ={CascadeType.ALL})
+	@OneToMany(mappedBy="device", cascade =CascadeType.ALL)
 	@JsonIgnore
 	private List<SoftwareStatus> softwareStatus = new ArrayList<SoftwareStatus>();
 
@@ -152,7 +151,7 @@ public class Device implements Serializable {
 	private Room room;
 
 	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="device", cascade ={CascadeType.ALL} )
+	@OneToMany(mappedBy="device", cascade =CascadeType.ALL )
 	@JsonIgnore
 	private List<Session> sessions = new ArrayList<Session>();
 

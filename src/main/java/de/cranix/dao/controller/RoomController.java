@@ -434,13 +434,13 @@ public class RoomController extends Controller {
 			toDelete.add(device);
 		}
 		for( Device device : toDelete ) {
-			logger.debug("Deleteing " + device.getName());
+			logger.debug("Deleting " + device.getName());
 			devController.delete(device, false);
 		}
 		//The categories connected to a room must handled too
 		List<Category> categoriesToModify = new ArrayList<Category>();
 		for( Category category : room.getCategories() ) {
-			if( category.getCategoryType().equals("samrtRoom") ) {
+			if( category.getCategoryType().equals("smartRoom") ) {
 				new CategoryController(this.session,this.em).delete(category);
 			} else {
 				categoriesToModify.add(category);
