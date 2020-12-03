@@ -825,49 +825,49 @@ public class UserResourceImpl implements UserResource {
                 List<CrxResponse> responses = new ArrayList<CrxResponse>();
                 UserController userController = new UserController(session,em);
                 logger.debug(crxActionMap.toString());
-                switch(crxActionMap.getName()) {
-                case "setPassword":
+                switch(crxActionMap.getName().toLowerCase()) {
+                case "setpassword":
                         return  userController.resetUserPassword(
                                         crxActionMap.getObjectIds(),
                                         crxActionMap.getStringValue(),
                                         crxActionMap.isBooleanValue());
-                case "setFilesystemQuota":
+                case "setfilesystemquota":
                         return  userController.setFsQuota(
                                         crxActionMap.getObjectIds(),
                                         crxActionMap.getLongValue());
-                case "setMailsystemQuota":
+                case "setmailsystemquota":
                         return  userController.setMsQuota(
                                         crxActionMap.getObjectIds(),
                                         crxActionMap.getLongValue());
-                case "disableLogin":
+                case "disablelogin":
                         return  userController.disableLogin(
                                         crxActionMap.getObjectIds(),
                                         true);
-                case "enableLogin":
+                case "enablelogin":
                         return  userController.disableLogin(
                                         crxActionMap.getObjectIds(),
                                         false);
-                case "disableInternet":
+                case "disableinternet":
                         return  userController.disableInternet(
                                         crxActionMap.getObjectIds(),
                                         true);
-                case "enableInternet":
+                case "enableinternet":
                         return  userController.disableInternet(
                                         crxActionMap.getObjectIds(),
                                         false);
-                case "mandatoryProfile":
+                case "mandatoryprofile":
                         return  userController.mandatoryProfile(
                                         crxActionMap.getObjectIds(),
                                         true);
-                case "openProfile":
+                case "openprofile":
                         return  userController.mandatoryProfile(
                                         crxActionMap.getObjectIds(),
                                         false);
-                case "copyTemplate":
+                case "copytemplate":
                         return  userController.copyTemplate(
                                         crxActionMap.getObjectIds(),
                                         crxActionMap.getStringValue());
-                case "removeProfiles":
+                case "removeprofiles":
                         return  userController.removeProfile(crxActionMap.getObjectIds());
                 case "delete":
 			for( Long userId : crxActionMap.getObjectIds() ) {
