@@ -7,10 +7,12 @@ server:
   - type: http
     port: 9080
     bindHost: 127.0.0.1
+    useForwardedHeaders: true
   adminConnectors:
   - type: http
     port: 9090
     bindHost: 127.0.0.1
+    useForwardedHeaders: true
 
 swagger:
   resourcePackage: de.cranix.api.resources
