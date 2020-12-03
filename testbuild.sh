@@ -1,5 +1,5 @@
 #!/bin/bash -x
-REPO="/home/groups/OSC/home:varkoly:CRANIX-4-2/cranix-java"
+REPO="/home/OSC/home:varkoly:CRANIX-4-2:leap15.2/cranix-java"
 HERE=$( pwd )
 mvn clean package install
 
@@ -15,7 +15,6 @@ echo  -n "Do you want to check in (y/n)?"
 read Y
 if [ "$Y" != "y" ]; then
         exit
-        sudo umount cranix-api cranix-dao
 fi
 
 #Take care, that osc is up to date
@@ -35,7 +34,7 @@ rsync -a bin/                      cranix-java/bin/
 rsync -a conf/                     cranix-java/conf/
 mv cranix-java/data/school-INSERT.sql.in   cranix-java/data/school-INSERT.sql
 mv cranix-java/data/business-INSERT.sql.in cranix-java/data/business-INSERT.sql
-cd cranix-api/src/main/java/de/cranix/api/resources/
+cd src/main/java/de/cranix/api/resources/
 ./find-rolles.pl >>                ${HERE}/cranix-java/data/school-INSERT.sql
 ./find-rolles.pl >>                ${HERE}/cranix-java/data/business-INSERT.sql
 cd ${HERE}
