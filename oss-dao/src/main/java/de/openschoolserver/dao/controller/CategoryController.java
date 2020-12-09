@@ -164,7 +164,7 @@ public class CategoryController extends Controller {
 				o.getCategories().remove(category);
 				this.em.merge(o);
 			}
-			for(HWConf o : category.getHWConfs() ) {
+			for(HWConf o : category.getHwconfs() ) {
 				o.getCategories().remove(category);
 				this.em.merge(o);
 			}
@@ -238,7 +238,7 @@ public class CategoryController extends Controller {
 			}
 		break;
 		case("hwconf"):
-			for(HWConf h : c.getHWConfs()) {
+			for(HWConf h : c.getHwconfs()) {
 				objectIds.remove(h.getId());
 			}
 		break;
@@ -293,7 +293,7 @@ public class CategoryController extends Controller {
 			}
 		break;
 		case("hwconf"):
-			for(HWConf h : c.getHWConfs()) {
+			for(HWConf h : c.getHwconfs()) {
 				objectIds.add(h.getId());
 			}
 		break;
@@ -358,9 +358,9 @@ public class CategoryController extends Controller {
 			break;
 			case("hwconf"):
 				HWConf hwconf = this.em.find(HWConf.class, objectId);
-				if(!category.getHWConfs().contains(hwconf)) {
-					category.getHWConfs().add(hwconf);
-					category.getHWConfIds().add(hwconf.getId());
+				if(!category.getHwconfs().contains(hwconf)) {
+					category.getHwconfs().add(hwconf);
+					category.getHwconfIds().add(hwconf.getId());
 					hwconf.getCategories().add(category);
 					this.em.merge(hwconf);
 					changes = true;
@@ -467,8 +467,8 @@ public class CategoryController extends Controller {
 			break;
 			case("hwconf"):
 				HWConf hwconf = this.em.find(HWConf.class, objectId);
-				if(category.getHWConfs().contains(hwconf)) {
-					category.getHWConfs().remove(hwconf);
+				if(category.getHwconfs().contains(hwconf)) {
+					category.getHwconfs().remove(hwconf);
 					hwconf.getCategories().remove(category);
 					this.em.merge(hwconf);
 				}

@@ -237,7 +237,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Category category = new CategoryController(session,em).getById(installationId);
 		List<OssBaseObject> objects = new ArrayList<OssBaseObject>();
-		for( HWConf object : category.getHWConfs() ) {
+		for( HWConf object : category.getHwconfs() ) {
 			objects.add(new OssBaseObject(object.getId(),object.getName()));
 		}
 		em.close();
