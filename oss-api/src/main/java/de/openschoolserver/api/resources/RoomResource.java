@@ -273,7 +273,7 @@ public interface RoomResource {
 	OssResponse setHwConf(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("roomId")   Long roomId,
-	        @PathParam("hwConfId") Long hwConfId
+	        @PathParam("hwConfId") Long hwconfId
 	);
 
 	/*

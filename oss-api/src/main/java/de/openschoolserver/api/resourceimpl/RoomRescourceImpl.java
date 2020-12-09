@@ -279,10 +279,10 @@ public class RoomRescourceImpl implements RoomResource {
 	}
 
 	@Override
-	public OssResponse setHwConf(Session session, Long roomId, Long hwConfId) {
+	public OssResponse setHwConf(Session session, Long roomId, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final RoomController roomController = new RoomController(session,em);
-		OssResponse resp = roomController.setHWConf(roomId,hwConfId);
+		OssResponse resp = roomController.setHWConf(roomId,hwconfId);
 		em.close();
 		return resp;
 	}
