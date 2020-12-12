@@ -376,9 +376,6 @@ public interface UserResource {
 			@ApiParam(hidden = true) @Auth Session session,
 			List<List<String>> Quotas
 			);
-
-
-
 	/**
 	 * PUT users/sync Synchronize user to other systems. In first case the role membership for squid is concerned
 	 * This must be called if new user was created or removed or after import of users.
