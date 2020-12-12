@@ -411,7 +411,7 @@ public class CategoryController extends Controller {
 				FAQ faq = this.em.find(FAQ.class, objectId);
 				if(!category.getFaqs().contains(faq)) {
 					category.getFaqs().add(faq);
-					category.getFAQIds().add(faq.getId());
+					category.getFaqIds().add(faq.getId());
 					faq.getCategories().add(category);
 					this.em.merge(faq);
 					changes = true;
