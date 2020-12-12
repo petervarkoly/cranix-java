@@ -3,7 +3,7 @@ HERE=$( pwd )
 gradle -c settings.gradle --offline clean build
 #gradle clean build
 tar xf build/distributions/de.openschoolserver.api-1.0-SNAPSHOT.tar
-REPO="/data1/OSC/home:varkoly:OSS-4-1:leap15.1/oss-java/"
+REPO="/home/groups/OSC/home:varkoly:OSS-4-1:leap15.1/oss-java"
 
 if [ "$1" ]; then
         PORT=22
