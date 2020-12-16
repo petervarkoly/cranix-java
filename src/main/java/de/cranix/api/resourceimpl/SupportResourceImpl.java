@@ -121,7 +121,7 @@ public class SupportResourceImpl implements SupportResource {
 				} else {
 					parameters.add(suppres.getSubject());
 					parameters.add(suppres.getTicketResponseInfo());
-					return new CrxResponse(session,"ERROR","Support request '%s' was was not created. The reason is:'%s'.",null,parameters);
+					return new CrxResponse(session,"ERROR","Support request '%s' was not created. The reason is:'%s'",null,parameters);
 				}
 			} catch (Exception e) {
 				logger.error("GETObject :" + e.getMessage());
