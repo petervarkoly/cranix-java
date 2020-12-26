@@ -21,19 +21,19 @@ public class AdHocLanController extends Controller {
 
 
 	public List<AdHocRoom> getAll() {
-                List<AdHocRoom> resp = new ArrayList<AdHocRoom>();
-                RoomController roomController = new RoomController(this.session,this.em);
-                if( roomController.isSuperuser() || this.session.getAcls().contains("adhoclan.manage")) {
-                        for( Room  room : roomController.getByType("AdHocAccess") ) {
-                                resp.add(this.roomToAdHoc(room));
-                        }
-                } else {
-                        for( Room  room : roomController.getAllToRegister() ) {
-                                resp.add(this.roomToAdHoc(room));
-                        }
-                }
-                return resp;
-        }
+		List<AdHocRoom> resp = new ArrayList<AdHocRoom>();
+		RoomController roomController = new RoomController(this.session,this.em);
+		if( roomController.isSuperuser() || this.session.getAcls().contains("adhoclan.manage")) {
+			for( Room  room : roomController.getByType("AdHocAccess") ) {
+				resp.add(this.roomToAdHoc(room));
+			}
+		} else {
+			for( Room  room : roomController.getAllToRegister() ) {
+				resp.add(this.roomToAdHoc(room));
+			}
+		}
+		return resp;
+	}
 
 	public Category getAdHocCategoryOfRoom(Room room) {
 		for( Category category : room.getCategories() ) {
@@ -191,10 +191,10 @@ public class AdHocLanController extends Controller {
 	/**
 	 * Modify the setting of an AdHocRoom
 	 * @param room The AdHocRoom to modify. Following attributes can be modified:
-	 *             * Description
-	 *             * The count of the devices an user may register
-	 *             * The control type in a room
-	 *             * If the room is only for students
+	 *	     * Description
+	 *	     * The count of the devices an user may register
+	 *	     * The control type in a room
+	 *	     * If the room is only for students
 	 * @return The result in a CrxResponse object.
 	 */
 	public CrxResponse modify(AdHocRoom room) {

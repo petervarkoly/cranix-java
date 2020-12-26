@@ -43,66 +43,66 @@ public class DeviceResource {
 
 	Logger logger = LoggerFactory.getLogger(DeviceResource.class);
 
-        public DeviceResource() { }
+	public DeviceResource() { }
 
 	@GET
 	@Path("{deviceId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get device by id")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("device.manage")
 	public Device getById(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final Device device = new DeviceController(session,em).getById(deviceId);
-                em.close();
-                if (device == null) {
-                        throw new WebApplicationException(404);
-                }
-                return device;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final Device device = new DeviceController(session,em).getById(deviceId);
+		em.close();
+		if (device == null) {
+			throw new WebApplicationException(404);
+		}
+		return device;
+	}
 
 	@GET
 	@Path("all")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get all devices")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
 	public List<Device> getAll(
-	        @ApiParam(hidden = true) @Auth Session session
+		@ApiParam(hidden = true) @Auth Session session
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final List<Device> devices = new DeviceController(session,em).getAll();
-                em.close();
-                if (devices == null) {
-                    throw new WebApplicationException(404);
-                }
-                return devices;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final List<Device> devices = new DeviceController(session,em).getAll();
+		em.close();
+		if (devices == null) {
+		    throw new WebApplicationException(404);
+		}
+		return devices;
+	}
 
 	@GET
 	@Path("byHWConf/{hwconfId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get device by hwconfId.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("device.manage")
 	public List<Device> getByHWConf(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("hwconfId") Long id
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId") Long id
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                List<Device> resp = new DeviceController(session,em).getByHWConf(id);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<Device> resp = new DeviceController(session,em).getByHWConf(id);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("byIP/{IP}")
@@ -113,17 +113,17 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.search")
 	public Device getByIP(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("IP") String IP
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("IP") String IP
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final Device device = new DeviceController(session,em).getByIP(IP);
-                em.close();
-                if (device == null) {
-                    throw new WebApplicationException(404);
-                }
-                return device;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final Device device = new DeviceController(session,em).getByIP(IP);
+		em.close();
+		if (device == null) {
+		    throw new WebApplicationException(404);
+		}
+		return device;
+	}
 
 	@GET
 	@Path("byMAC/{MAC}")
@@ -134,17 +134,17 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.search")
 	public Device getByMAC(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("MAC") String MAC
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("MAC") String MAC
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final Device device = new DeviceController(session,em).getByMAC(MAC);
-                em.close();
-                if (device == null) {
-                    throw new WebApplicationException(404);
-                }
-                return device;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final Device device = new DeviceController(session,em).getByMAC(MAC);
+		em.close();
+		if (device == null) {
+		    throw new WebApplicationException(404);
+		}
+		return device;
+	}
 
 	@GET
 	@Path("byName/{Name}")
@@ -155,17 +155,17 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.search")
 	public Device getByName(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("Name") String Name
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("Name") String Name
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final Device device = new DeviceController(session,em).getByName(Name);
-                em.close();
-                if (device == null) {
-                        throw new WebApplicationException(404);
-                }
-                return device;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final Device device = new DeviceController(session,em).getByName(Name);
+		em.close();
+		if (device == null) {
+			throw new WebApplicationException(404);
+		}
+		return device;
+	}
 
 	@GET
 	@Path("hostnameByIP/{IP}")
@@ -176,15 +176,15 @@ public class DeviceResource {
 	})
 	@PermitAll
 	public String getHostnameByIP(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("IP") String IP
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("IP") String IP
 	) {
-                Device device = this.getByIP(session, IP);
-                if( device == null ) {
-                        return "";
-                }
-                return device.getName();
-        }
+		Device device = this.getByIP(session, IP);
+		if( device == null ) {
+			return "";
+		}
+		return device.getName();
+	}
 
 	@GET
 	@Path("hostnameByMAC/{MAC}")
@@ -195,15 +195,15 @@ public class DeviceResource {
 	})
 	@PermitAll
 	public String getHostnameByMAC(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("MAC") String MAC
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("MAC") String MAC
 	)  {
-                Device device = this.getByMAC(session, MAC);
-                if( device == null ) {
-                        return "";
-                }
-                return device.getName();
-        }
+		Device device = this.getByMAC(session, MAC);
+		if( device == null ) {
+			return "";
+		}
+		return device.getName();
+	}
 
 	@GET
 	@Path("owner/{IP}")
@@ -214,18 +214,18 @@ public class DeviceResource {
 	})
 	@PermitAll
 	public String getOwnerByIP(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("IP") String IP
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("IP") String IP
 	) {
-                Device device = this.getByIP(session, IP);
-                if( device == null ) {
-                        return "";
-                }
-                if( device.getOwner() == null ) {
-                        return "";
-                }
-                return device.getOwner().getUid();
-        }
+		Device device = this.getByIP(session, IP);
+		if( device == null ) {
+			return "";
+		}
+		if( device.getOwner() == null ) {
+			return "";
+		}
+		return device.getOwner().getUid();
+	}
 
 	@GET
 	@Path("{deviceId}/defaultPrinter")
@@ -236,14 +236,14 @@ public class DeviceResource {
 	})
 	@PermitAll
 	public Printer getDefaultPrinter(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final Printer resp = new DeviceController(session,em).getDefaultPrinter(deviceId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final Printer resp = new DeviceController(session,em).getDefaultPrinter(deviceId);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("byIP/{IP}/defaultPrinter")
@@ -254,23 +254,23 @@ public class DeviceResource {
 	})
 	@PermitAll
 	public String getDefaultPrinter(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("IP") String IP
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("IP") String IP
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final DeviceController deviceController = new DeviceController(session,em);
-                final Device device =  deviceController.getByIP(IP);
-                if( device == null ) {
-                        em.close();
-                        return "";
-                }
-                Printer printer = deviceController.getDefaultPrinter(device.getId());
-                em.close();
-                if( printer != null ) {
-                        return printer.getName();
-                }
-                return "";
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final DeviceController deviceController = new DeviceController(session,em);
+		final Device device =  deviceController.getByIP(IP);
+		if( device == null ) {
+			em.close();
+			return "";
+		}
+		Printer printer = deviceController.getDefaultPrinter(device.getId());
+		em.close();
+		if( printer != null ) {
+			return printer.getName();
+		}
+		return "";
+	}
 
 	@POST
 	@Path("{deviceId}/printers")
@@ -282,7 +282,7 @@ public class DeviceResource {
 					+ "  availablePrinters: [ id1, id2 ]"
 					+ "}")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
 	public CrxResponse setPrinters(
@@ -290,11 +290,11 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		Map<String, List<Long>> printers
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new DeviceController(session,em).setPrinters(deviceId,printers);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new DeviceController(session,em).setPrinters(deviceId,printers);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("{deviceId}/availablePrinters")
@@ -305,15 +305,15 @@ public class DeviceResource {
 	})
 	@PermitAll
 	public List<Printer> getAvailablePrinters(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final DeviceController deviceController = new DeviceController(session,em);
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final DeviceController deviceController = new DeviceController(session,em);
 		List<Printer> resp = deviceController.getAvailablePrinters(deviceId);
-                em.close();
-                return resp;
-        }
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("byIP/{IP}/availablePrinters")
@@ -324,23 +324,23 @@ public class DeviceResource {
 	})
 	@PermitAll
 	public String getAvailablePrinters(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("IP") String IP
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("IP") String IP
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                DeviceController deviceController = new DeviceController(session,em);
-                Device device = deviceController.getByIP(IP);
-                if( device == null ) {
-                        em.close();
-                        return "";
-                }
-                List<String> printers = new ArrayList<String>();
-                for( Printer printer : deviceController.getAvailablePrinters(device.getId()) ) {
-                        printers.add(printer.getName());
-                }
-                em.close();
-                return String.join(" ", printers);
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		DeviceController deviceController = new DeviceController(session,em);
+		Device device = deviceController.getByIP(IP);
+		if( device == null ) {
+			em.close();
+			return "";
+		}
+		List<String> printers = new ArrayList<String>();
+		for( Printer printer : deviceController.getAvailablePrinters(device.getId()) ) {
+			printers.add(printer.getName());
+		}
+		em.close();
+		return String.join(" ", printers);
+	}
 
 	/*
 	 * Deprecated use setPrinters instead of.
@@ -354,16 +354,16 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse setDefaultPrinter(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @PathParam("printerId") Long printerId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId,
+		@PathParam("printerId") Long printerId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final DeviceController deviceController = new DeviceController(session,em);
-                CrxResponse resp = deviceController.setDefaultPrinter(deviceId,printerId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final DeviceController deviceController = new DeviceController(session,em);
+		CrxResponse resp = deviceController.setDefaultPrinter(deviceId,printerId);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Deprecated use setPrinters instead of.
@@ -377,14 +377,14 @@ public class DeviceResource {
 	})
 	public @RolesAllowed("device.manage")
 	CrxResponse deleteDefaultPrinter(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new DeviceController(session,em).deleteDefaultPrinter(deviceId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new DeviceController(session,em).deleteDefaultPrinter(deviceId);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Deprecated use setPrinters instead of.
@@ -398,15 +398,15 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse addAvailablePrinters(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @PathParam("printerId") Long printerId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId,
+		@PathParam("printerId") Long printerId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new DeviceController(session,em).addAvailablePrinter(deviceId, printerId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new DeviceController(session,em).addAvailablePrinter(deviceId, printerId);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Deprecated use setPrinters instead of.
@@ -420,15 +420,15 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse deleteAvailablePrinters(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @PathParam("printerId") Long printerId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId,
+		@PathParam("printerId") Long printerId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new DeviceController(session,em).deleteAvailablePrinter(deviceId, printerId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new DeviceController(session,em).deleteAvailablePrinter(deviceId, printerId);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("loggedInUsers/{IP}")
@@ -439,14 +439,14 @@ public class DeviceResource {
 	})
 	@RolesAllowed("room.manage")
 	public List<String> getLoggedInUsers(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("IP") String IP
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("IP") String IP
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                List<String> resp = new DeviceController(session,em).getLoggedInUsers(IP);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<String> resp = new DeviceController(session,em).getLoggedInUsers(IP);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("{deviceId}/loggedInUsers")
@@ -457,14 +457,14 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.manage")
 	public List<String> getLoggedInUsers(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final List<String> resp = new DeviceController(session,em).getLoggedInUsers(deviceId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final List<String> resp = new DeviceController(session,em).getLoggedInUsers(deviceId);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("loggedIn/{IP}")
@@ -474,19 +474,19 @@ public class DeviceResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	public String getFirstLoggedInUser( @PathParam("IP") String IP) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final Session session  = new SessionController(em).getLocalhostSession();
-                final DeviceController deviceController = new DeviceController(session,em);
-                final Device device = deviceController.getByIP(IP);
-                if( device != null && !device.getLoggedIn().isEmpty() ) {
-                        if( ! deviceController.checkConfig(device.getLoggedIn().get(0), "disableInternet")) {
-                                em.close();
-                                return device.getLoggedIn().get(0).getUid();
-                        }
-                }
-                em.close();
-                return "";
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final Session session  = new SessionController(em).getLocalhostSession();
+		final DeviceController deviceController = new DeviceController(session,em);
+		final Device device = deviceController.getByIP(IP);
+		if( device != null && !device.getLoggedIn().isEmpty() ) {
+			if( ! deviceController.checkConfig(device.getLoggedIn().get(0), "disableInternet")) {
+				em.close();
+				return device.getLoggedIn().get(0).getUid();
+			}
+		}
+		em.close();
+		return "";
+	}
 
 	@PUT
 	@Path("loggedInUsers/{IP}/{userName}")
@@ -497,39 +497,39 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse setLoggedInUsers(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("IP") String IP,
-	        @PathParam("userName") String userName
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("IP") String IP,
+		@PathParam("userName") String userName
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final DeviceController deviceController = new DeviceController(session,em);
-                CrxResponse resp = deviceController.setLoggedInUsers(IP, userName);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final DeviceController deviceController = new DeviceController(session,em);
+		CrxResponse resp = deviceController.setLoggedInUsers(IP, userName);
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("loggedInUserByMac/{MAC}/{userName}")
 	@Produces(TEXT)
 	@ApiOperation(value = "Set the logged on user on a device defined by MAC. All other users logged on users will be removed." )
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	public String setLoggedInUserByMac(
 		@Context UriInfo ui,
-	        @Context HttpServletRequest req,
-	        @PathParam("MAC") String MAC,
-	        @PathParam("userName") String userName
+		@Context HttpServletRequest req,
+		@PathParam("MAC") String MAC,
+		@PathParam("userName") String userName
 	) {
-                if( !req.getRemoteAddr().equals("127.0.0.1")) {
-                        return "ERROR Connection is allowed only from local host.";
-                }
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                Session session  = new SessionController(em).getLocalhostSession();
-                CrxResponse resp = new DeviceController(session,em).setLoggedInUserByMac(MAC, userName);
-                em.close();
-                return resp.getCode() + " " + resp.getValue();
-        }
+		if( !req.getRemoteAddr().equals("127.0.0.1")) {
+			return "ERROR Connection is allowed only from local host.";
+		}
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		Session session  = new SessionController(em).getLocalhostSession();
+		CrxResponse resp = new DeviceController(session,em).setLoggedInUserByMac(MAC, userName);
+		em.close();
+		return resp.getCode() + " " + resp.getValue();
+	}
 
 	@DELETE
 	@Path("loggedInUsers/{IP}/{userName}")
@@ -540,41 +540,41 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse deleteLoggedInUser(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("IP") String IP,
-	        @PathParam("userName") String userName
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("IP") String IP,
+		@PathParam("userName") String userName
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final DeviceController deviceController = new DeviceController(session,em);
-                CrxResponse resp =  deviceController.removeLoggedInUser(IP, userName);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final DeviceController deviceController = new DeviceController(session,em);
+		CrxResponse resp =  deviceController.removeLoggedInUser(IP, userName);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("loggedInUserByMac/{MAC}/{userName}")
 	@Produces(TEXT)
 	@ApiOperation(value = "Set the logged on user on a device defined by MAC. All other users logged on users will be removed." )
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
 	public String deleteLoggedInUserByMac(
 		@Context UriInfo ui,
-	        @Context HttpServletRequest req,
-	        @PathParam("MAC") String MAC,
-	        @PathParam("userName") String userName
+		@Context HttpServletRequest req,
+		@PathParam("MAC") String MAC,
+		@PathParam("userName") String userName
 	) {
-                if( !req.getRemoteAddr().equals("127.0.0.1")) {
-                        return "ERROR Connection is allowed only from local host.";
-                }
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                Session session  = new SessionController(em).getLocalhostSession();
-                final DeviceController deviceController = new DeviceController(session,em);
-                CrxResponse resp =  deviceController.removeLoggedInUserByMac(MAC, userName);
-                em.close();
-                return resp.getCode() + " " + resp.getValue();
-        }
+		if( !req.getRemoteAddr().equals("127.0.0.1")) {
+			return "ERROR Connection is allowed only from local host.";
+		}
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		Session session  = new SessionController(em).getLocalhostSession();
+		final DeviceController deviceController = new DeviceController(session,em);
+		CrxResponse resp =  deviceController.removeLoggedInUserByMac(MAC, userName);
+		em.close();
+		return resp.getCode() + " " + resp.getValue();
+	}
 
 	/*
 	 * GET devices/refreshConfig
@@ -588,69 +588,69 @@ public class DeviceResource {
 	})
 	@RolesAllowed("device.add")
 	public void refreshConfig(
-	        @ApiParam(hidden = true) @Auth Session session
+		@ApiParam(hidden = true) @Auth Session session
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		new DHCPConfig(session,em).Create();
-                em.close();
-        }
+		em.close();
+	}
 
 	@POST
 	@Path("{deviceId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify the configuration of one device.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
 	public CrxResponse modify(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId,
-	        Device device
+		Device device
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                device.setId(deviceId);
-                CrxResponse resp =  new DeviceController(session,em).modify(device);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		device.setId(deviceId);
+		CrxResponse resp =  new DeviceController(session,em).modify(device);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("forceModify")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify the configuration of one device.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
 	public CrxResponse forceModify(
 		@ApiParam(hidden = true) @Auth Session session,
-	        Device device
+		Device device
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp =  new DeviceController(session,em).forceModify(device);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp =  new DeviceController(session,em).forceModify(device);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("{deviceId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes a device.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.delete")
 	public CrxResponse delete(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final DeviceController deviceController = new DeviceController(session,em);
-                CrxResponse resp = deviceController.delete(deviceId,true);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final DeviceController deviceController = new DeviceController(session,em);
+		CrxResponse resp = deviceController.delete(deviceId,true);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("import")
@@ -663,37 +663,37 @@ public class DeviceResource {
 	    	"* The fields Room and MAC are mandatory.<br>" +
 	    	"* The import is only allowed in existing rooms.<br>")
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
 	public List<CrxResponse> importDevices(
 		@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+		@FormDataParam("file") final InputStream fileInputStream,
+		@FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                List<CrxResponse> resp = new DeviceController(session,em).importDevices(fileInputStream, contentDispositionHeader);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<CrxResponse> resp = new DeviceController(session,em).importDevices(fileInputStream, contentDispositionHeader);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("{deviceId}/actions")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a device.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
 	public List<String> getAvailableDeviceActions(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                List<String> resp = new EducationController(session,em).getAvailableDeviceActions(deviceId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<String> resp = new EducationController(session,em).getAvailableDeviceActions(deviceId);
+		em.close();
+		return resp;
+	}
 
 	/**
 	 * Apply actions on a list of devices.
@@ -713,21 +713,21 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		CrxActionMap actionMap
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                DeviceController deviceController = new DeviceController(session,em);
-                List<CrxResponse> responses = new ArrayList<CrxResponse>();
-                logger.debug("actionMap" + actionMap);
-                for( Long id: actionMap.getObjectIds() ) {
-                        responses.add(deviceController.manageDevice(id,actionMap.getName(),null));
-                }
-                if( actionMap.getName().equals("delete") ) {
-                        new DHCPConfig(session,em).Create();
-                        new SoftwareController(session,em).applySoftwareStateToHosts();
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		DeviceController deviceController = new DeviceController(session,em);
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		logger.debug("actionMap" + actionMap);
+		for( Long id: actionMap.getObjectIds() ) {
+			responses.add(deviceController.manageDevice(id,actionMap.getName(),null));
+		}
+		if( actionMap.getName().equals("delete") ) {
+			new DHCPConfig(session,em).Create();
+			new SoftwareController(session,em).applySoftwareStateToHosts();
 
-                }
-                em.close();
-                return responses;
-        }
+		}
+		em.close();
+		return responses;
+	}
 
 	/*
 	 * Deprecated use applyAction instead
@@ -737,42 +737,42 @@ public class DeviceResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, unlockInput, lockInput, cleanUpLoggedIn.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse manageDevice(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @PathParam("action") String action
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId,
+		@PathParam("action") String action
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,null);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,null);
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("byName/{deviceName}/actions/{action}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, unlockInput, lockInput, cleanUpLoggedIn.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse manageDevice(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceName") String deviceName,
-	        @PathParam("action") String action
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceName") String deviceName,
+		@PathParam("action") String action
 	)  {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new DeviceController(session,em).manageDevice(deviceName,action,null);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceName,action,null);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Deprecated use applyAction instead
-         */
+	 */
 	@POST
 	@Path("{deviceId}/actionWithMap/{action}")
 	@Produces(JSON_UTF8)
@@ -781,37 +781,37 @@ public class DeviceResource {
 			+ "graceTime : seconds to wait befor execute action."
 			+ "message : the message to shown befor/during execute the action.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse manageDevice(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @PathParam("action") String action,
-	        Map<String, String> actionContent
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId,
+		@PathParam("action") String action,
+		Map<String, String> actionContent
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,actionContent);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,actionContent);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("cleanUpLoggedIn")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Cleans up all logged in users on all devices")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.manage")
 	public CrxResponse cleanUpLoggedIn(
-	        @ApiParam(hidden = true) @Auth Session session
+		@ApiParam(hidden = true) @Auth Session session
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new DeviceController(session,em).cleanUpLoggedIn();
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new DeviceController(session,em).cleanUpLoggedIn();
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * DHCP-Management
@@ -834,27 +834,27 @@ public class DeviceResource {
 			+ "value: the value of the dhcpOption or dhcpStatement."
 			)
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		// TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
 	public List<CrxMConfig> getDHCP(
 		@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
-        ) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                List<CrxMConfig> dhcpParameters = new ArrayList<CrxMConfig>();
-                final DeviceController deviceController = new DeviceController(session,em);
-                final Device device = deviceController.getById(deviceId);
-                for(CrxMConfig config : deviceController.getMConfigObjects(device, "dhcpStatements") ) {
-                        dhcpParameters.add(config);
-                }
-                for(CrxMConfig config : deviceController.getMConfigObjects(device, "dhcpOptions") ) {
-                        dhcpParameters.add(config);
-                }
-                em.close();
-                return dhcpParameters;
-        }
+		@PathParam("deviceId") Long deviceId
+	) {
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<CrxMConfig> dhcpParameters = new ArrayList<CrxMConfig>();
+		final DeviceController deviceController = new DeviceController(session,em);
+		final Device device = deviceController.getById(deviceId);
+		for(CrxMConfig config : deviceController.getMConfigObjects(device, "dhcpStatements") ) {
+			dhcpParameters.add(config);
+		}
+		for(CrxMConfig config : deviceController.getMConfigObjects(device, "dhcpOptions") ) {
+			dhcpParameters.add(config);
+		}
+		em.close();
+		return dhcpParameters;
+	}
 
 	@POST
 	@Path("{deviceId}/dhcp")
@@ -865,38 +865,38 @@ public class DeviceResource {
 					+ "value: the value of the dhcpOption or dhcpStatement.<br>"
 					+ "Other parameter can be ignored.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
 	public CrxResponse addDHCP(
 		@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        CrxMConfig dhcpParameter
+		@PathParam("deviceId") Long deviceId,
+		CrxMConfig dhcpParameter
 	)  {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		final CrxResponse crxResponse = new DeviceController(session,em).addDHCP(deviceId,dhcpParameter);
-                return new CrxResponse(session,"OK","DHCP Parameter was added succesfully");
-        }
+		return new CrxResponse(session,"OK","DHCP Parameter was added succesfully");
+	}
 
 	@DELETE
 	@Path("{deviceId}/dhcp/{parameterId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes dhcp parameter to a device")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
 	public CrxResponse deleteDHCP(
 		@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @PathParam("parameterId") Long parameterId
+		@PathParam("deviceId") Long deviceId,
+		@PathParam("parameterId") Long parameterId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                final DeviceController deviceController = new DeviceController(session,em);
-                Device    device = deviceController.getById(deviceId);
-                CrxResponse resp = deviceController.deleteMConfig(device,parameterId);
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		final DeviceController deviceController = new DeviceController(session,em);
+		Device    device = deviceController.getById(deviceId);
+		CrxResponse resp = deviceController.deleteMConfig(device,parameterId);
 		new DHCPConfig(session,em).Create();
-                em.close();
-                return resp;
-        }
+		em.close();
+		return resp;
+	}
 }

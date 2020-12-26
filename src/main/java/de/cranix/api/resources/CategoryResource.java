@@ -37,7 +37,7 @@ import java.util.List;
 public class CategoryResource {
 
 	public CategoryResource() {
-        }
+	}
 
 	/*
 	 * Get categories/all
@@ -51,11 +51,11 @@ public class CategoryResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
 	public List<Category> getAll( @ApiParam(hidden = true) @Auth Session session) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                List<Category> resp = new CategoryController(session,em).getAll();
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<Category> resp = new CategoryController(session,em).getAll();
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * GET categories/<categoryId>
@@ -72,11 +72,11 @@ public class CategoryResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("categoryId") long categoryId
 	)  {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                Category resp = new CategoryController(session,em).getById(categoryId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		Category resp = new CategoryController(session,em).getById(categoryId);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * GET categories/<categoryId>/<memeberType>
@@ -94,11 +94,11 @@ public class CategoryResource {
 		@PathParam("categoryId") long categoryId,
 		@PathParam("memberType") String memberType
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                List<Long> resp = new CategoryController(session,em).getMembers(categoryId,memberType);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<Long> resp = new CategoryController(session,em).getMembers(categoryId,memberType);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * GET categories/<categoryId>/available/<memeberType>
@@ -116,11 +116,11 @@ public class CategoryResource {
 		@PathParam("categoryId") long categoryId,
 		@PathParam("memberType") String memberType
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                List<Long> resp = new CategoryController(session,em).getAvailableMembers(categoryId,memberType);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		List<Long> resp = new CategoryController(session,em).getAvailableMembers(categoryId,memberType);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * POST categories/add { hash }
@@ -137,11 +137,11 @@ public class CategoryResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		Category category
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new CategoryController(session,em).add(category);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new CategoryController(session,em).add(category);
+		em.close();
+		return resp;
+	}
 	
 	/*
 	 * POST categories/modify { hash }
@@ -158,12 +158,12 @@ public class CategoryResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		Category category
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new CategoryController(session,em).modify(category);
-                em.close();
-                return resp;
-        }
-	 
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new CategoryController(session,em).modify(category);
+		em.close();
+		return resp;
+	}
+	
 	/*
 	 * PUT categories/<categoryId>/<memeberType>/<memberId>
 	 */
@@ -181,11 +181,11 @@ public class CategoryResource {
 		@PathParam("memberType") String memberType,
 		@PathParam("memberId")   long memberId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new CategoryController(session,em).addMember(categoryId, memberType, memberId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new CategoryController(session,em).addMember(categoryId, memberType, memberId);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * DELETE categories/<categoryId>
@@ -202,11 +202,11 @@ public class CategoryResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("categoryId") long categoryId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new CategoryController(session,em).delete(categoryId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new CategoryController(session,em).delete(categoryId);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * DELETE categories/<categoryId>/<memeberType>/<memberId>
@@ -225,9 +225,9 @@ public class CategoryResource {
 		@PathParam("memberType") String memberType,
 		@PathParam("memberId") long memberId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new CategoryController(session,em).deleteMember(categoryId, memberType, memberId);
-                em.close();
-                return resp;
-        }
+		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		CrxResponse resp = new CategoryController(session,em).deleteMember(categoryId, memberType, memberId);
+		em.close();
+		return resp;
+	}
 }

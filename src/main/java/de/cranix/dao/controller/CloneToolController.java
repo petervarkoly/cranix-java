@@ -312,13 +312,13 @@ public class CloneToolController extends Controller {
 		try {
 			this.em.getTransaction().begin();
 			HWConf hwconf = this.em.find(HWConf.class, hwconfId);
-	        if( this.isProtected(hwconf)) {
-	            return new CrxResponse(this.getSession(),"ERROR","This hardware configuration must not be deleted.");
-	        }
-	        if( !this.mayModify(hwconf) ) {
-	        	return new CrxResponse(this.getSession(),"ERROR","You must not delete this hardware configuration.");
-	        }
-	        startPlugin("delete_hwconf", hwconf);
+		if( this.isProtected(hwconf)) {
+		    return new CrxResponse(this.getSession(),"ERROR","This hardware configuration must not be deleted.");
+		}
+		if( !this.mayModify(hwconf) ) {
+			return new CrxResponse(this.getSession(),"ERROR","You must not delete this hardware configuration.");
+		}
+		startPlugin("delete_hwconf", hwconf);
 			if( ! this.em.contains(hwconf)) {
 				hwconf = this.em.merge(hwconf);
 			}
@@ -345,8 +345,8 @@ public class CloneToolController extends Controller {
 		HWConf hwconf = this.getById(hwconfId);
 		Partition partition = this.getPartition(hwconfId, partitionName);
 		if( !this.mayModify(partition) ) {
-        	return new CrxResponse(this.getSession(),"ERROR","You must not delete this partition.");
-        }
+		return new CrxResponse(this.getSession(),"ERROR","You must not delete this partition.");
+	}
 		hwconf.removePartition(partition);
 		try {
 			this.em.getTransaction().begin();

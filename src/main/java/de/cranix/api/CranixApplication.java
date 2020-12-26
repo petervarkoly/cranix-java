@@ -35,11 +35,11 @@ public class CranixApplication extends Application<ServerConfiguration> {
 	/* @Override
 	public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
 		bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
-                       @Override
-                       protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ServerConfiguration configuration) {
-                               return configuration.swaggerBundleConfiguration;
-                       }
-               });
+		       @Override
+		       protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ServerConfiguration configuration) {
+			       return configuration.swaggerBundleConfiguration;
+		       }
+	       });
 	}*/
 
 	@Override
