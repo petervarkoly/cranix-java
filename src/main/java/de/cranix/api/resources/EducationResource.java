@@ -751,7 +751,7 @@ public interface EducationResource {
 	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.groups")
 	CrxResponse manageGroup(
 	        @ApiParam(hidden = true) @Auth Session session,
 	        @PathParam("groupId") Long groupId,
@@ -767,12 +767,13 @@ public interface EducationResource {
 	@ApiResponses(value = {
 	       @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
+	@RolesAllowed("education.groups")
 	List<CrxResponse> uploadFileToGroups(@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("objectIds")     String groupIds,
-	        @FormDataParam("cleanUp") Boolean cleanUp,
+	        @FormDataParam("objectIds")    String objectIds,
+	        @FormDataParam("cleanUp")      Boolean cleanUp,
 	        @FormDataParam("studentsOnly") Boolean studentsOnly,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+	        @FormDataParam("file")         final InputStream fileInputStream,
+	        @FormDataParam("file")         final FormDataContentDisposition contentDispositionHeader
 	        );
 
 	@POST
@@ -784,7 +785,7 @@ public interface EducationResource {
 	})
 	@RolesAllowed("education.groups")
 	List<CrxResponse> collectFileFromGroups(@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("objectIds")    String groupIds,
+		@FormDataParam("objectIds")    String objectIds,
 		@FormDataParam("projectName")  String projectName,
 		@FormDataParam("sortInDirs")   Boolean sortInDirs,
 		@FormDataParam("cleanUpExport")Boolean cleanUpExport,

@@ -314,7 +314,7 @@ public class EducationResourceImpl implements Resource, EducationResource {
 
 	@Override
 	public List<CrxResponse> uploadFileToGroups(Session session,
-			String groupIds,
+			String objectIds,
 			Boolean cleanUp,
 			Boolean studentsOnly,
 			InputStream fileInputStream,
@@ -322,8 +322,8 @@ public class EducationResourceImpl implements Resource, EducationResource {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		EducationController ec = new EducationController(session,em);
-		logger.debug("uploadFileToGroups:"+ groupIds + " " + studentsOnly + " " +cleanUp);
-		for(String sgroupId : groupIds.split(",")) {
+		logger.debug("uploadFileToGroups:"+ objectIds + " " + studentsOnly + " " +cleanUp);
+		for(String sgroupId : objectIds.split(",")) {
 			Long groupId = Long.valueOf(sgroupId);
 			if( groupId != null ) {
 				responses.addAll(ec.uploadFileTo("group",groupId,null,fileInputStream,contentDispositionHeader,studentsOnly, cleanUp));
@@ -335,15 +335,15 @@ public class EducationResourceImpl implements Resource, EducationResource {
 
 	@Override
 	public List<CrxResponse> uploadFileToUsers(Session session,
-			String sUserIds,
+			String objectIds,
 			Boolean cleanUp,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader ) {
 		List<Long> userIds = new ArrayList<Long>();
-		for( String id : sUserIds.split(",")) {
+		for( String id : objectIds.split(",")) {
 			userIds.add(Long.valueOf(id));
 		}
-		logger.debug("uploadFileToUsers: " + sUserIds + " " + userIds + " cleanUp " + cleanUp);
+		logger.debug("uploadFileToUsers: " + objectIds + " " + userIds + " cleanUp " + cleanUp);
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<CrxResponse> resp = new EducationController(session,em).uploadFileTo("users",0l,userIds,fileInputStream,contentDispositionHeader,false, cleanUp);
 		em.close();
@@ -353,14 +353,14 @@ public class EducationResourceImpl implements Resource, EducationResource {
 	@Override
 	public List<CrxResponse> collectFileFromUsers(
 			Session session,
-			String  userIds,
+			String  objectIds,
 			String  projectName,
 			Boolean sortInDirs,
 			Boolean cleanUpExport) {
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		UserController userController = new UserController(session,em);
-		for( String id : userIds.split(",")) {
+		for( String id : objectIds.split(",")) {
 			User user = userController.getById(Long.valueOf(id));
 			if( user != null ) {
 				responses.add(userController.collectFileFromUser(user, projectName,  sortInDirs, cleanUpExport));
