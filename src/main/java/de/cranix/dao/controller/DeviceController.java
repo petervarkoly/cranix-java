@@ -1319,4 +1319,24 @@ public class DeviceController extends Controller {
         }
         return new CrxResponse(this.session, "OK", "Printers of the device was set.");
     }
+
+    public CrxResponse addDHCP( Long deviceId, CrxMConfig dhcpParameter)
+    {
+                if( !dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions") ) {
+                        return new CrxResponse(session,"ERROR","Bad DHCP parameter.");
+                }
+                Device device = this.getById(deviceId);
+                CrxResponse crxResponse = this.addMConfig(device, dhcpParameter.getKeyword(), dhcpParameter.getValue());
+                if( crxResponse.getCode().equals("ERROR") ) {
+                        return crxResponse;
+                }
+                Long dhcpParameterId = crxResponse.getObjectId();
+                crxResponse = new DHCPConfig(session,em).Test();
+                if( crxResponse.getCode().equals("ERROR") ) {
+                        this.deleteMConfig(null, dhcpParameterId);
+                        return crxResponse;
+                }
+                new DHCPConfig(session,em).Create();
+                return new CrxResponse(session,"OK","DHCP Parameter was added succesfully");
+    }
 }
