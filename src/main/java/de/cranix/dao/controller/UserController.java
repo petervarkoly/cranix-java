@@ -584,8 +584,8 @@ public class UserController extends Controller {
 			}
 			/* We allow it. We will make it confiugrable
 			 *if( user.getRole().equals(roleWorkstation) ) {
-			 *              logger.error("resetUserPassword: Must not change workstation users password.");
-			 *              continue;
+			 *	      logger.error("resetUserPassword: Must not change workstation users password.");
+			 *	      continue;
 			 *      }
 			 */
 			user.setPassword(password);
@@ -755,52 +755,6 @@ public class UserController extends Controller {
 		return responses;
 	}
 
-	public CrxResponse collectFile(List<User> users, String projectName) {
-		StringBuilder data = new StringBuilder();
-		StringBuffer reply = new StringBuffer();
-		StringBuffer error = new StringBuffer();
-		String[] program = new String[11];
-		program[0] = "/usr/sbin/crx_collect_files.sh";
-		program[1] = "-t";
-		program[2] = this.session.getUser().getUid();
-		program[3] = "-f";
-		program[5] = "-p";
-		program[6] = projectName;
-		program[7] = "-c";
-		program[8] = "y";
-		program[9] = "-d";
-		program[10] = "y";
-		for (User user : users) {
-			program[4] = user.getUid();
-			OSSShellTools.exec(program, reply, error, data.toString());
-		}
-		return new CrxResponse(this.getSession(), "OK",
-				"The files from the export directories of selected users were collected.");
-	}
-
-	public CrxResponse collectFileByIds(List<Long> userIds, String projectName) {
-		StringBuilder data = new StringBuilder();
-		StringBuffer reply = new StringBuffer();
-		StringBuffer error = new StringBuffer();
-		String[] program = new String[11];
-		program[0] = "/usr/sbin/crx_collect_files.sh";
-		program[1] = "-t";
-		program[2] = this.session.getUser().getUid();
-		program[3] = "-f";
-		program[5] = "-p";
-		program[6] = projectName;
-		program[7] = "-c";
-		program[8] = "y";
-		program[9] = "-d";
-		program[10] = "y";
-		for (Long id : userIds) {
-			program[4] = this.getById(id).getUid();
-			OSSShellTools.exec(program, reply, error, data.toString());
-		}
-		return new CrxResponse(this.getSession(), "OK",
-				"The files from the export directories of selected users were collected.");
-	}
-
 	public CrxResponse collectFileFromUser(User user, String project, boolean sortInDirs, boolean cleanUpExport) {
 		String[] program = new String[11];
 		StringBuffer reply = new StringBuffer();
@@ -917,7 +871,7 @@ public class UserController extends Controller {
 		//String name, String description, Long roomId, Long count, Date validUntil)
 		final CategoryController categoryController = new CategoryController(this.session,this.em);
 		final GroupController groupController       = new GroupController(this.session,this.em);
-		final RoomController  roomController        = new RoomController(this.session,this.em);
+		final RoomController  roomController	= new RoomController(this.session,this.em);
 		Room room = null;
 		//TODO make it confiugrable
 		if( guestUsers.getCount() > 255 ) {
