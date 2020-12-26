@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS Partitions (
         FOREIGN KEY(hwconf_id) REFERENCES HWConfs(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX partitions on Partitions(hwconf_id,name);
 
 CREATE TABLE IF NOT EXISTS Rooms (
         id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
