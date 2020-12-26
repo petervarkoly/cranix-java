@@ -64,7 +64,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final SystemResource systemResource = new SystemResourceImpl();
 		environment.jersey().register(systemResource);
 
-		final AdHocLanResource adHocLanResource = new AdHocLanResourceImpl();
+		final AdHocLanResource adHocLanResource = new AdHocLanResource();
 		environment.jersey().register(adHocLanResource);
 
 		final SessionsResource sessionsResource = new SessionsResourceImpl();
@@ -82,19 +82,19 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final GroupResource groupsResource = new GroupResourceImpl();
 		environment.jersey().register(groupsResource);
 
-		final DeviceResource devicesResource = new DeviceResourceImpl();
+		final DeviceResource devicesResource = new DeviceResource();
 		environment.jersey().register(devicesResource);
 
 		final PrinterResource printerResource = new PrinterResourceImpl();
 		environment.jersey().register(printerResource);
 
-		final CloneToolResource cloneToolResource = new CloneToolResourceImpl();
+		final CloneToolResource cloneToolResource = new CloneToolResource();
 		environment.jersey().register(cloneToolResource);
 
 		final HwconfResource hwconfResource = new HwconfResourceImpl();
 		environment.jersey().register(hwconfResource);
 
-		final CategoryResource categoryResource = new CategoryResourceImpl();
+		final CategoryResource categoryResource = new CategoryResource();
 		environment.jersey().register(categoryResource);
 
 		final SoftwareResource softwareResource = new SoftwareResourceImpl();

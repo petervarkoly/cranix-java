@@ -17,9 +17,23 @@ public class AdHocLanController extends Controller {
 
 	public AdHocLanController(Session session,EntityManager em) {
 		super(session,em);
-		// TODO Auto-generated constructor stub
 	}
 
+
+	public List<AdHocRoom> getAll() {
+                List<AdHocRoom> resp = new ArrayList<AdHocRoom>();
+                RoomController roomController = new RoomController(this.session,this.em);
+                if( roomController.isSuperuser() || this.session.getAcls().contains("adhoclan.manage")) {
+                        for( Room  room : roomController.getByType("AdHocAccess") ) {
+                                resp.add(this.roomToAdHoc(room));
+                        }
+                } else {
+                        for( Room  room : roomController.getAllToRegister() ) {
+                                resp.add(this.roomToAdHoc(room));
+                        }
+                }
+                return resp;
+        }
 
 	public Category getAdHocCategoryOfRoom(Room room) {
 		for( Category category : room.getCategories() ) {

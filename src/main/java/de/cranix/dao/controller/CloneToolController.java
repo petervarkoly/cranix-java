@@ -214,6 +214,14 @@ public class CloneToolController extends Controller {
 
 	public CrxResponse addPartitionToHWConf(Long hwconfId, String name ) {
 		HWConf hwconf = this.getById(hwconfId);
+		parameters.add(name);
+		parameters.add(hwconf.getName());
+		parameters.add(hwconf.getDeviceType());
+		for( Partition part : hwconf.getPartitions() ) {
+			if( part.getName().equals(name) ) {
+				return new CrxResponse(this.getSession(),"OK", "Partition: %s is already created in %s (%s)",null,parameters);
+			}
+		}
 		Partition partition = new Partition();
 		partition.setName(name);
 		partition.setCreator(this.session.getUser());
@@ -229,14 +237,19 @@ public class CloneToolController extends Controller {
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		parameters.add(name);
-		parameters.add(hwconf.getName());
-		parameters.add(hwconf.getDeviceType());
 		return new CrxResponse(this.getSession(),"OK", "Partition: %s was created in %s (%s)",null,parameters);
 	}
 
 	public CrxResponse addPartitionToHWConf(Long hwconfId, Partition partition ) {
 		HWConf hwconf = this.getById(hwconfId);
+		parameters.add(partition.getName());
+		parameters.add(hwconf.getName());
+		parameters.add(hwconf.getDeviceType());
+		for( Partition part : hwconf.getPartitions() ) {
+			if( part.getName().equals(partition.getName()) ) {
+				return new CrxResponse(this.getSession(),"OK", "Partition: %s is already created in %s (%s)",null,parameters);
+			}
+		}
 		partition.setCreator(this.session.getUser());
 		hwconf.addPartition(partition);
 		// First we check if the parameter are unique.
@@ -249,9 +262,6 @@ public class CloneToolController extends Controller {
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		parameters.add(partition.getName());
-		parameters.add(hwconf.getName());
-		parameters.add(hwconf.getDeviceType());
 		return new CrxResponse(this.getSession(),"OK", "Partition: %s was created in %s (%s)",null,parameters);
 	}
 
