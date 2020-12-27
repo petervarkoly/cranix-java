@@ -622,7 +622,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 			deviceController.manageDevice(device, "applyState", null);
 		}
 		em.close();
-		return new CrxResponse(session,"OK","Salt High State was applied on all minions.");
+		return new CrxResponse(session,"OK","Salt High State was applied on all running minions.");
 	}
 
 	@Override

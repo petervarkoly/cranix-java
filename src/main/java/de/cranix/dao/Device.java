@@ -328,7 +328,11 @@ public class Device implements Serializable {
 	}
 
 	public void setHwconf(HWConf hwconf) {
-		this.hwconf = hwconf;
+		this.hwconf   = hwconf;
+		this.hwconfId = hwconf.getId();
+		if( ! hwconf.getDevices().contains(this) ) {
+			hwconf.getDevices().add(this);
+		}
 	}
 
 	public Room getRoom() {

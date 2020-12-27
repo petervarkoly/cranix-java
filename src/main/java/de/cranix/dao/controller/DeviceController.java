@@ -605,11 +605,9 @@ public class DeviceController extends Controller {
                 HWConf hwconf = cloneToolController.getByName(values.get("hwconf"));
                 if (hwconf != null) {
                     device.setHwconf(hwconf);
-                    device.setHwconfId(hwconf.getId());
                 }
             } else if (room.getHwconf() != null) {
                 device.setHwconf(room.getHwconf());
-                device.setHwconfId(room.getHwconf().getId());
             }
             devicesToImport.get(room.getId()).add(device);
         }
@@ -927,15 +925,7 @@ public class DeviceController extends Controller {
             this.em.merge(oldDevice);
             logger.debug("OLDHwconf " + oldHwconf + " new hw " + hwconf);
             if (hwconf != oldHwconf) {
-                if (hwconf.getDevices() != null) {
-                    hwconf.getDevices().add(oldDevice);
-                } else {
-                    List<Device> devices = new ArrayList<Device>();
-                    devices.add(oldDevice);
-                    hwconf.setDevices(devices);
-                }
                 oldDevice.setHwconf(hwconf);
-                oldDevice.setHwconfId(hwconf.getId());
                 logger.debug(" new hw " + hwconf);
                 this.em.merge(hwconf);
                 if (oldHwconf != null) {
@@ -1112,15 +1102,12 @@ public class DeviceController extends Controller {
                 try {
                     this.em.getTransaction().begin();
                     device.setHwconf(device.getRoom().getHwconf());
-                    if (!device.getHwconf().getDevices().contains(device)) {
-                        device.getHwconf().getDevices().add(device);
-                    }
                     this.em.merge(device);
                     this.em.getTransaction().commit();
                 } catch (Exception e) {
                     logger.error("sethwconfofroom:" + e.getMessage(), e);
                 }
-				return new CrxResponse(this.getSession(), "OK", "HWConf was set on on '%s'.", null, FQHN.toString());
+		return new CrxResponse(this.getSession(), "OK", "HWConf was set on '%s'.", null, FQHN.toString());
             case "cleanuploggedin":
                 try {
                     this.em.getTransaction().begin();
@@ -1134,10 +1121,10 @@ public class DeviceController extends Controller {
                 } catch (Exception e) {
                     logger.error("cleanuploggedin:" + e.getMessage(), e);
                 }
-				return new CrxResponse(this.getSession(), "OK", "Logged in users was cleaned up on '%s'.", null, FQHN.toString());
+		return new CrxResponse(this.getSession(), "OK", "Logged in users was cleaned up on '%s'.", null, FQHN.toString());
             case "download":
                 UserController uc = new UserController(this.session, this.em);
-				boolean cleanUpExport = true;
+		boolean cleanUpExport = true;
                 boolean sortInDirs = true;
                 String projectName = this.nowString();
                 if (actionContent != null) {
