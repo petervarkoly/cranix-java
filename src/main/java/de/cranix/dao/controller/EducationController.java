@@ -195,7 +195,6 @@ public class EducationController extends UserController {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Smart Room was created succesfully.");
 	}
@@ -212,7 +211,6 @@ public class EducationController extends UserController {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Smart Room was modified succesfully.");
 	}
@@ -220,7 +218,7 @@ public class EducationController extends UserController {
 	public CrxResponse deleteSmartRoom(Long roomId) {
 		try {
 			this.em.getTransaction().begin();
-			Room room         = this.em.find(Room.class, roomId);
+			Room room	 = this.em.find(Room.class, roomId);
 			for( Category category : room.getCategories() ) {
 				if( category.getCategoryType().equals("smartRoom") && category.getName().equals(room.getName()) ) {
 					User owner = category.getOwner();
@@ -236,7 +234,6 @@ public class EducationController extends UserController {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Smart Room was deleted succesfully.");
 	}
@@ -340,6 +337,68 @@ public class EducationController extends UserController {
 		return loggedOns;
 	}
 
+	public List<CrxResponse> uploadFileToUsers(
+			String sUserIds,
+			Boolean cleanUp,
+			InputStream fileInputStream,
+			FormDataContentDisposition contentDispositionHeader ) {
+		List<Long> userIds = new ArrayList<Long>();
+		for( String id : sUserIds.split(",")) {
+			userIds.add(Long.valueOf(id));
+		}
+		logger.debug("uploadFileToUsers: " + sUserIds + " " + userIds + " cleanUp " + cleanUp);
+		List<CrxResponse> resp = this.uploadFileTo("users",0l,userIds,fileInputStream,contentDispositionHeader,false, cleanUp);
+		return resp;
+	}
+
+	public List<CrxResponse> uploadFileToGroups(
+			String groupIds,
+			Boolean cleanUp,
+			Boolean studentsOnly,
+			InputStream fileInputStream,
+			FormDataContentDisposition contentDispositionHeader) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		for(String sgroupId : groupIds.split(",")) {
+			Long groupId = Long.valueOf(sgroupId);
+			if( groupId != null ) {
+				responses.addAll(this.uploadFileTo("group",groupId,null,fileInputStream,contentDispositionHeader,studentsOnly, cleanUp));
+			}
+		}
+		return responses;
+	}
+
+	public List<CrxResponse> uploadFileToDevices(
+			String objectIds,
+			Boolean cleanUp,
+			Boolean studentsOnly,
+			InputStream fileInputStream,
+			FormDataContentDisposition contentDispositionHeader) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		for(String sObjectId : objectIds.split(",")) {
+			Long objectId = Long.valueOf(sObjectId);
+			if( objectId != null ) {
+				responses.addAll(this.uploadFileTo("device",objectId,null,fileInputStream,contentDispositionHeader,studentsOnly, cleanUp));
+			}
+		}
+		return responses;
+	}
+
+	public List<CrxResponse> uploadFileToRooms(
+			String objectIds,
+			Boolean cleanUp,
+			Boolean studentsOnly,
+			InputStream fileInputStream,
+			FormDataContentDisposition contentDispositionHeader) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		for(String sObjectId : objectIds.split(",")) {
+			Long objectId = Long.valueOf(sObjectId);
+			if( objectId != null ) {
+				responses.addAll(this.uploadFileTo("room",objectId,null,fileInputStream,contentDispositionHeader,studentsOnly, cleanUp));
+			}
+		}
+		return responses;
+	}
+
 	public List<CrxResponse> uploadFileTo(String what,
 			Long objectId,
 			List<Long> objectIds,
@@ -353,10 +412,10 @@ public class EducationController extends UserController {
 		try {
 			fileName = new  String(contentDispositionHeader.getFileName().getBytes("ISO-8859-1"),"UTF-8");
 		} catch (IOException e) {
-                        logger.error(e.getMessage(), e);
-                        responses.add(new CrxResponse(this.getSession(),"ERROR", e.getMessage()));
-                        return responses;
-                }
+			logger.error(e.getMessage(), e);
+			responses.add(new CrxResponse(this.getSession(),"ERROR", e.getMessage()));
+			return responses;
+		}
 		try {
 			file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -456,7 +515,7 @@ public class EducationController extends UserController {
 				Files.createDirectories(homeDirF.toPath(), privatDirAttribute );
 				Files.setOwner(homeDirF.toPath(), owner);
 			} else if( ( user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) )  && cleanUp ) {
-			        //For students and guest users only the Import directory will be removed
+				//For students and guest users only the Import directory will be removed
 				StringBuffer reply = new StringBuffer();
 				StringBuffer error = new StringBuffer();
 				String[] program   = new String[3];
@@ -633,6 +692,21 @@ public class EducationController extends UserController {
 		}
 	}
 
+	public List<CrxResponse> manageDevices(CrxActionMap actionMap) {
+		DeviceController deviceController = new DeviceController(this.session,this.em);
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		logger.debug("actionMap" + actionMap);
+		if( actionMap.getName().equals("delete") ) {
+			responses.add(new CrxResponse(this.session,"ERROR","You must not delete devices"));
+
+		} else {
+			for( Long id: actionMap.getObjectIds() ) {
+				responses.add(deviceController.manageDevice(id,actionMap.getName(),null));
+			}
+		}
+		return responses;
+	}
+
 	public Long getRoomActualController(long roomId) {
 		try {
 			Query query = this.em.createNamedQuery("SmartControl.getAllActiveInRoom");
@@ -654,7 +728,7 @@ public class EducationController extends UserController {
 	 * getRoomControl
 	 * @param roomId	The roomId which should be controlled
 	 * @param minutes   How long do you want to control the room
-	 * @return          An CrxResponse object
+	 * @return	  An CrxResponse object
 	 */
 	public CrxResponse getRoomControl(long roomId, long minutes) {
 
@@ -668,7 +742,7 @@ public class EducationController extends UserController {
 		// Get the list of the devices
 		DeviceController dc = new DeviceController(this.session,this.em);
 		List<String>  devices = new ArrayList<String>();
-		String domain         = "." + this.getConfigValue("DOMAIN");
+		String domain	 = "." + this.getConfigValue("DOMAIN");
 		for( List<Long> loggedOn : this.getRoom(roomId) ) {
 			//Do not control the own workstation
 			if( this.session.getDevice().getId().equals(loggedOn.get(1))) {
@@ -697,5 +771,244 @@ public class EducationController extends UserController {
 		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK", "Now you have the control for the selected room.");
+	}
+
+	public List<CrxResponse> collectFileFromUsers(
+			String  userIds,
+			String  projectName,
+			Boolean sortInDirs,
+			Boolean cleanUpExport) {
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		UserController userController = new UserController(this.session,this.em);
+		for( String id : userIds.split(",")) {
+			User user = userController.getById(Long.valueOf(id));
+			if( user != null ) {
+				responses.add(userController.collectFileFromUser(user, projectName,  sortInDirs, cleanUpExport));
+			}
+		}
+		return responses;
+	}
+
+	public List<CrxResponse> collectFileFromDevices(
+			String deviceIds,
+			String projectName,
+			Boolean sortInDirs,
+			Boolean cleanUpExport,
+			Boolean studentsOnly
+		       ) {
+		List<CrxResponse> responses	= new ArrayList<CrxResponse>();
+		UserController    userController   = new UserController(this.session,this.em);
+		DeviceController  deviceController = new DeviceController(this.session,this.em);
+		for(String sDeviceId : deviceIds.split(",")) {
+			Long deviceId = Long.valueOf(sDeviceId);
+			Device device = deviceController.getById(deviceId);
+			if( device.getLoggedIn() == null || device.getLoggedIn().isEmpty() ) {
+				User     user = userController.getByUid(device.getName());
+				responses.add(userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
+			} else {
+				for( User user : device.getLoggedIn() ) {
+					if( !studentsOnly || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) || user.getRole().equals(roleWorkstation) ) {
+						responses.add(userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
+					}
+				}
+			}
+		}
+		return responses;
+	}
+
+	public List<CrxResponse> collectFileFromRooms(
+		       String roomIds,
+		       String projectName,
+		       Boolean sortInDirs,
+		       Boolean cleanUpExport,
+		       Boolean studentsOnly
+		       ) {
+		UserController      userController   = new UserController(this.session,this.em);
+		DeviceController    deviceController = new DeviceController(this.session,this.em);
+		List<CrxResponse> responses	  = new ArrayList<CrxResponse>();
+		for(String sRoomId : roomIds.split(",")) {
+			Long roomId = Long.valueOf(sRoomId);
+			for( List<Long> logged : this.getRoom(roomId) ) {
+				User   user   = userController.getById(logged.get(0));
+				Device device =  deviceController.getById(logged.get(1));
+				if( user == null ) {
+					user = userController.getByUid(device.getName());
+				}
+				if( user != null ) {
+					if( !studentsOnly || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) || user.getRole().equals(roleWorkstation) ) {
+						logger.debug("user" +user);
+						logger.debug("projectName" + projectName);
+						logger.debug("sortInDirs" + sortInDirs);
+						logger.debug("cleanUpExport" + cleanUpExport);
+						CrxResponse resp = userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport);
+						logger.debug("response" + resp);
+						responses.add(resp);
+					}
+				}
+			}
+		}
+		return responses;
+	}
+
+	public List<CrxResponse> collectFileFromGroups(
+			String  groupIds,
+			String  projectName,
+			Boolean sortInDirs,
+			Boolean cleanUpExport,
+			Boolean studentsOnly
+			) {
+		UserController  userController  = new UserController(this.session,this.em);
+		GroupController groupController = new GroupController(this.session,this.em);
+		List<CrxResponse> responses     = new ArrayList<CrxResponse>();
+		for(String sGroupId : groupIds.split(",")) {
+			Long groupId = Long.valueOf(sGroupId);
+			Group   group = new GroupController(this.session,this.em).getById(groupId);
+			for( User user : group.getUsers() ) {
+				if( !studentsOnly ||  user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest)) {
+					if( user.getRole().equals(roleTeacher) ) {
+						responses.add(userController.collectFileFromUser(user, projectName, sortInDirs, false));
+					} else {
+						responses.add(userController.collectFileFromUser(user, projectName, sortInDirs, cleanUpExport));
+					}
+				}
+			}
+		}
+		return responses;
+	}
+
+	public List<Group> getMyGroups() {
+		List<Group> groups = new ArrayList<Group>();
+		for( Group group : this.session.getUser().getGroups() ) {
+			if( !group.getGroupType().equals("primary") ) {
+				groups.add(group);
+			}
+		}
+		for( Group group : this.session.getUser().getOwnedGroups() ) {
+			if( !group.getGroupType().equals("primary") && !groups.contains(group)) {
+				groups.add(group);
+			}
+		}
+		for( Group group : new GroupController(this.session,this.em).getByType("class") ) {
+			if( !groups.contains(group)) {
+				groups.add(group);
+			}
+		}
+		return groups;
+	}
+
+	public List<User> getAvailableMembers(long groupId) {
+		List<User> users = new ArrayList<User>();
+		Group      group = em.find(Group.class, groupId);
+		if( group != null ) {
+			UserController uc = new UserController(this.session,this.em);
+			users = uc.getByRole(roleStudent);
+			users.addAll(uc.getByRole(roleTeacher));
+			users.removeAll(group.getUsers());
+		}
+		return users;
+	}
+
+	public List<User> getMembers(long groupId) {
+		List<User> users = new ArrayList<User>();
+		Group      group = em.find(Group.class, groupId);
+		if( group != null ) {
+			Boolean myGroup = group.getOwner().equals(this.session.getUser());
+			for( User user : group.getUsers() ) {
+				if( myGroup || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) ) {
+					users.add(user);
+				}
+			}
+		}
+		return users;
+	}
+
+	public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {
+		List<CrxResponse>   responses = new ArrayList<CrxResponse>();
+		UserController userController = new UserController(this.session,this.em);
+		logger.debug(crxActionMap.toString());
+		switch(crxActionMap.getName()) {
+		case "setPassword":
+			return  userController.resetUserPassword(
+					crxActionMap.getObjectIds(),
+					crxActionMap.getStringValue(),
+					crxActionMap.isBooleanValue());
+		case "setFilesystemQuota":
+			return  userController.setFsQuota(
+					crxActionMap.getObjectIds(),
+					crxActionMap.getLongValue());
+		case "setMailsystemQuota":
+			return  userController.setMsQuota(
+					crxActionMap.getObjectIds(),
+					crxActionMap.getLongValue());
+		case "disableLogin":
+			return  userController.disableLogin(
+					crxActionMap.getObjectIds(),
+					true);
+		case "enableLogin":
+			return  userController.disableLogin(
+					crxActionMap.getObjectIds(),
+					false);
+		case "disableInternet":
+			return  userController.disableInternet(
+					crxActionMap.getObjectIds(),
+					true);
+		case "enableInternet":
+			return  userController.disableInternet(
+					crxActionMap.getObjectIds(),
+					false);
+		case "mandatoryProfile":
+			return  userController.mandatoryProfile(
+					crxActionMap.getObjectIds(),
+					crxActionMap.isBooleanValue());
+		case "copyTemplate":
+			return  userController.copyTemplate(
+					crxActionMap.getObjectIds(),
+					crxActionMap.getStringValue());
+		case "removeProfiles":
+			return  userController.removeProfile(crxActionMap.getObjectIds());
+		case "deleteUser":
+			SessionController sessionController = new SessionController(this.session,this.em);
+			if( sessionController.authorize(this.session,"user.delete") || sessionController.authorize(this.session,"student.delete") ) {
+				return  userController.deleteStudents(crxActionMap.getObjectIds());
+			} else {
+				responses.add(new CrxResponse(session,"ERROR","You have no right to execute this action."));
+				return responses;
+			}
+		}
+		responses.add(new CrxResponse(session,"ERROR","Unknown action"));
+		return responses;
+	}
+
+	public List<CrxResponse> groupsApplyAction(CrxActionMap crxActionMap) {
+		List<Long> userIds = new ArrayList<Long>();
+		GroupController gc = new GroupController(this.session,this.em);
+		for( Long id: crxActionMap.getObjectIds() ) {
+			Group g = gc.getById(id);
+			for( User u: g.getUsers() ) {
+				if( u.getRole().equals(roleStudent) || u.getRole().equals(roleGuest) ) {
+					userIds.add(u.getId());
+				}
+			}
+		}
+		crxActionMap.setObjectIds(userIds);
+		return this.applyAction(crxActionMap);
+	}
+
+	public CrxResponse modifyDevice(Long deviceId, Device device) {
+		DeviceController deviceConrtoller = new DeviceController(this.session,this.em);
+		Device oldDevice = deviceConrtoller.getById(deviceId);
+		oldDevice.setRow(device.getRow());
+		oldDevice.setPlace(device.getPlace());
+		if( deviceConrtoller.getDevicesOnMyPlace(oldDevice).size() > 0 ) {
+			return new CrxResponse(this.session,"ERROR","Place is already occupied.");
+		}
+		try {
+			this.em.getTransaction().begin();
+			this.em.merge(oldDevice);
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			return new CrxResponse(this.session,"ERROR", e.getMessage());
+		}
+		return new CrxResponse(this.session,"OK","Device was repositioned.");
 	}
 }
