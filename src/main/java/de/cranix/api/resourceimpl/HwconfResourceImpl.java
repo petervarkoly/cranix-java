@@ -17,8 +17,8 @@ import de.cranix.dao.CrxActionMap;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Partition;
 import de.cranix.dao.Session;
-import de.cranix.dao.controller.CloneToolController;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
+import de.cranix.services.CloneToolService;
+import de.cranix.helper.CommonEntityManagerFactory;
 
 
 public class HwconfResourceImpl implements HwconfResource {
@@ -31,7 +31,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse add(Session session, HWConf hwconf) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).addHWConf(hwconf);
+		CrxResponse resp = new CloneToolService(session,em).addHWConf(hwconf);
 		em.close();
 		return resp;
 	}
@@ -39,7 +39,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse modifyHWConf(Session session, Long hwconfId, HWConf hwconf) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).modifyHWConf(hwconfId, hwconf);
+		CrxResponse resp = new CloneToolService(session,em).modifyHWConf(hwconfId, hwconf);
 		em.close();
 		return resp;
 	}
@@ -47,7 +47,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public HWConf getById(Session session, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		final HWConf hwconf = new CloneToolController(session,em).getById(hwconfId);
+		final HWConf hwconf = new CloneToolService(session,em).getById(hwconfId);
 		em.close();
 		if (hwconf == null) {
 			throw new WebApplicationException(404);
@@ -58,7 +58,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse addPartition(Session session, Long hwconfId, Partition partition) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).addPartitionToHWConf(hwconfId, partition);
+		CrxResponse resp = new CloneToolService(session,em).addPartitionToHWConf(hwconfId, partition);
 		em.close();
 		return resp;
 	}
@@ -66,7 +66,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse delete(Session session, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).delete(hwconfId);
+		CrxResponse resp = new CloneToolService(session,em).delete(hwconfId);
 		em.close();
 		return resp;
 	}
@@ -74,7 +74,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse deletePartition(Session session, Long hwconfId, String partitionName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).deletePartition(hwconfId,partitionName);
+		CrxResponse resp = new CloneToolService(session,em).deletePartition(hwconfId,partitionName);
 		em.close();
 		return resp;
 	}
@@ -82,7 +82,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public List<HWConf> getAllHWConf(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<HWConf> resp = new CloneToolController(session,em).getAllHWConf();
+		List<HWConf> resp = new CloneToolService(session,em).getAllHWConf();
 		em.close();
 		return resp;
 	}
@@ -90,7 +90,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse startRecover(Session session, Long hwconfId, Clone parameters) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).startCloning(hwconfId,parameters);
+		CrxResponse resp = new CloneToolService(session,em).startCloning(hwconfId,parameters);
 		em.close();
 		return resp;
 	}
@@ -98,13 +98,13 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse startRecover(Session session, Long hwconfId, int multiCast) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		return new CloneToolController(session,em).startCloning("hwconf", hwconfId, multiCast);
+		return new CloneToolService(session,em).startCloning("hwconf", hwconfId, multiCast);
 	}
 
 	@Override
 	public CrxResponse stopRecover(Session session, Long hwconfId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).stopCloning("hwconf",hwconfId);
+		CrxResponse resp = new CloneToolService(session,em).stopCloning("hwconf",hwconfId);
 		em.close();
 		return resp;
 	}
@@ -112,7 +112,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse startMulticast(Session session, Long partitionId, String networkDevice) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).startMulticast(partitionId,networkDevice);
+		CrxResponse resp = new CloneToolService(session,em).startMulticast(partitionId,networkDevice);
 		em.close();
 		return resp;
 	}
@@ -120,7 +120,7 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse modifyPartition(Session session, Long partitionId, Partition partition) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CloneToolController(session,em).modifyPartition(partitionId, partition);
+		CrxResponse resp = new CloneToolService(session,em).modifyPartition(partitionId, partition);
 		em.close();
 		return resp;
 	}
@@ -128,10 +128,10 @@ public class HwconfResourceImpl implements HwconfResource {
 	@Override
 	public CrxResponse importHWConfs(Session session, List<HWConf> hwconfs) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CloneToolController  cloneToolController = new CloneToolController(session,em);
+		CloneToolService  cloneToolService = new CloneToolService(session,em);
 		CrxResponse crxResponse = null;
 		for( HWConf hwconf : hwconfs ) {
-			crxResponse = cloneToolController.addHWConf(hwconf);
+			crxResponse = cloneToolService.addHWConf(hwconf);
 			if( crxResponse.getCode().equals("ERROR")) {
 				break;
 			}
@@ -144,17 +144,17 @@ public class HwconfResourceImpl implements HwconfResource {
 	public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
                 List<CrxResponse> responses = new ArrayList<CrxResponse>();
-		CloneToolController  cloneToolController = new CloneToolController(session,em);
+		CloneToolService  cloneToolService = new CloneToolService(session,em);
                 logger.debug(crxActionMap.toString());
                 for( Long id : crxActionMap.getObjectIds() ) {
                         switch(crxActionMap.getName().toLowerCase()) {
-                                case "delete":  responses.add(cloneToolController.delete(id));
+                                case "delete":  responses.add(cloneToolService.delete(id));
                                                 break;
-/*                                case "cleanup": responses.add(cloneToolController.cleanUp(id));
+/*                                case "cleanup": responses.add(cloneToolService.cleanUp(id));
                                                 break;*/
-                                case "startclone": responses.add(cloneToolController.startCloning("hwconf",id,0));
+                                case "startclone": responses.add(cloneToolService.startCloning("hwconf",id,0));
                                                 break;
-                                case "stopclone": responses.add(cloneToolController.stopCloning("hwconf",id));
+                                case "stopclone": responses.add(cloneToolService.stopCloning("hwconf",id));
                                                 break;
                         }
                 }

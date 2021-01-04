@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 import java.util.*;
 import java.io.IOException;
 import java.nio.file.*;
@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static de.cranix.dao.internal.CranixConstants.*;
+import static de.cranix.helper.CranixConstants.*;
 
 public class Config {
 

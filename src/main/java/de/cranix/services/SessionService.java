@@ -1,6 +1,5 @@
- /* (c)Peter Varkoly <peter@varkoly.de> - all rights reserved */
-/* (c) 2017 EXTIS GmbH - all rights reserved */
-package de.cranix.dao.controller;
+/* 2020 (C) Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
+package de.cranix.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +10,14 @@ import javax.persistence.Query;
 import de.cranix.dao.Session;
 import de.cranix.dao.SessionToken;
 import de.cranix.dao.User;
-import de.cranix.dao.controller.DeviceController;
-import de.cranix.dao.controller.UserController;
+import de.cranix.services.DeviceService;
+import de.cranix.services.UserService;
 import de.cranix.dao.Room;
 import de.cranix.dao.Device;
 import de.cranix.dao.Group;
 import de.cranix.dao.Acl;
-import de.cranix.dao.tools.*;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.*;
+import static de.cranix.helper.CranixConstants.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,15 +30,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.dropwizard.auth.AuthenticationException;
 
 @SuppressWarnings("unchecked")
-public class SessionController extends Controller {
+public class SessionService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(SessionController.class);
+	Logger logger = LoggerFactory.getLogger(SessionService.class);
 
-	public SessionController(Session session,EntityManager em) {
+	public SessionService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
-	public SessionController(EntityManager em) {
+	public SessionService(EntityManager em) {
 		super(null,em);
 	}
 
@@ -63,8 +62,8 @@ public class SessionController extends Controller {
 	}
 
 	public Session createSessionWithUser(String username, String password, String deviceType) {
-		UserController userController = new UserController(this.session,this.em);
-		DeviceController deviceController = new DeviceController(this.session,this.em);
+		UserService userService = new UserService(this.session,this.em);
+		DeviceService deviceService = new DeviceService(this.session,this.em);
 		Room room = null;
 		String[]   program = new String[5];
 		StringBuffer reply = new StringBuffer();
@@ -98,12 +97,12 @@ public class SessionController extends Controller {
 		}
 
 		//TODO what to do with deviceType
-		User user = userController.getByUid(username);
+		User user = userService.getByUid(username);
 		if( user == null ) {
 			return null;
 		}
 		String IP = this.getSession().getIp();
-		Device device = deviceController.getByIP(IP);
+		Device device = deviceService.getByIP(IP);
 		if( device != null ) {
 			room = device.getRoom();
 		}
@@ -150,8 +149,8 @@ public class SessionController extends Controller {
 		this.session.setCommonName(user.getGivenName() + " " + user.getSurName());
 		List<String> modules = this.session.getUserAcls();
 		if( !this.isSuperuser() ) {
-			RoomController  roomController = new RoomController(this.session,this.em);;
-			if( ! roomController.getAllToRegister().isEmpty() ) {
+			RoomService  roomService = new RoomService(this.session,this.em);;
+			if( ! roomService.getAllToRegister().isEmpty() ) {
 				modules.add("adhoclan.mydevices");
 			}
 		}
@@ -164,8 +163,8 @@ public class SessionController extends Controller {
 	}
 
 	public Session createInternalUserSession(String username) {
-		UserController userController = new UserController(this.session,this.em);
-		User user = userController.getByUid(username);
+		UserService userService = new UserService(this.session,this.em);
+		User user = userService.getByUid(username);
 		if( user == null ) {
 			return null;
 		}
@@ -180,8 +179,8 @@ public class SessionController extends Controller {
 		this.session.setCommonName(user.getGivenName() + " " + user.getSurName());
 		List<String> modules = session.getUserAcls();
 		if( !this.isSuperuser() ) {
-			RoomController  roomController = new RoomController(this.session,this.em);;
-			if( ! roomController.getAllToRegister().isEmpty() ) {
+			RoomService  roomService = new RoomService(this.session,this.em);;
+			if( ! roomService.getAllToRegister().isEmpty() ) {
 				modules.add("adhoclan.mydevices");
 			}
 		}

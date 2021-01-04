@@ -4,11 +4,11 @@ package de.cranix.api.resourceimpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.api.resources.UserResource;
 import de.cranix.dao.*;
-import de.cranix.dao.controller.Controller;
-import de.cranix.dao.controller.GroupController;
-import de.cranix.dao.controller.UserController;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
-import de.cranix.dao.tools.OSSShellTools;
+import de.cranix.services.Service;
+import de.cranix.services.GroupService;
+import de.cranix.services.UserService;
+import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.OSSShellTools;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static de.cranix.dao.internal.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.CranixConstants.cranixTmpDir;
 
 public class UserResourceImpl implements UserResource {
 
@@ -42,8 +42,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public User getById(Session session, Long userId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        final User user = userController.getById(userId);
+        final UserService userService = new UserService(session, em);
+        final User user = userService.getById(userId);
         em.close();
         if (user == null) {
             throw new WebApplicationException(404);
@@ -54,8 +54,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public List<User> getByRole(Session session, String role) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        final List<User> users = userController.getByRole(role);
+        final UserService userService = new UserService(session, em);
+        final List<User> users = userService.getByRole(role);
         em.close();
         if (users == null) {
             throw new WebApplicationException(404);
@@ -66,8 +66,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public List<User> getAll(Session session) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        final List<User> users = userController.getAll();
+        final UserService userService = new UserService(session, em);
+        final List<User> users = userService.getAll();
         em.close();
         if (users == null) {
             throw new WebApplicationException(404);
@@ -78,7 +78,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse insert(Session session, User user) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse crxResponse = new UserController(session, em).add(user);
+        CrxResponse crxResponse = new UserService(session, em).add(user);
         em.close();
         return crxResponse;
     }
@@ -86,7 +86,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse add(Session session, User user) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse crxResponse = new UserController(session, em).add(user);
+        CrxResponse crxResponse = new UserService(session, em).add(user);
         em.close();
         if (crxResponse.getCode().equals("OK")) {
             sync(session);
@@ -97,7 +97,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public List<CrxResponse> add(Session session, List<User> users) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        List<CrxResponse> crxResponses = new UserController(session, em).add(users);
+        List<CrxResponse> crxResponses = new UserService(session, em).add(users);
         sync(session);
         em.close();
         return crxResponses;
@@ -106,7 +106,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse delete(Session session, Long userId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse crxResponse = new UserController(session, em).delete(userId);
+        CrxResponse crxResponse = new UserService(session, em).delete(userId);
         em.close();
         return crxResponse;
     }
@@ -114,8 +114,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse modify(Session session, User user) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        CrxResponse crxResponse = userController.modify(user);
+        final UserService userService = new UserService(session, em);
+        CrxResponse crxResponse = userService.modify(user);
         em.close();
         return crxResponse;
     }
@@ -124,8 +124,8 @@ public class UserResourceImpl implements UserResource {
     public CrxResponse modify(Session session, Long userId, User user) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
         user.setId(userId);
-        final UserController userController = new UserController(session, em);
-        CrxResponse crxResponse = userController.modify(user);
+        final UserService userService = new UserService(session, em);
+        CrxResponse crxResponse = userService.modify(user);
         em.close();
         return crxResponse;
     }
@@ -133,8 +133,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public List<User> search(Session session, String search) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        final List<User> users = userController.search(search);
+        final UserService userService = new UserService(session, em);
+        final List<User> users = userService.search(search);
         em.close();
         if (users == null) {
             throw new WebApplicationException(404);
@@ -145,8 +145,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public List<Group> getAvailableGroups(Session session, Long userId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        final List<Group> groups = userController.getAvailableGroups(userId);
+        final UserService userService = new UserService(session, em);
+        final List<Group> groups = userService.getAvailableGroups(userId);
         em.close();
         if (groups == null) {
             throw new WebApplicationException(404);
@@ -157,8 +157,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public List<Group> groups(Session session, Long userId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        final List<Group> groups = userController.getGroups(userId);
+        final UserService userService = new UserService(session, em);
+        final List<Group> groups = userService.getGroups(userId);
         em.close();
         if (groups == null) {
             throw new WebApplicationException(404);
@@ -169,7 +169,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse setMembers(Session session, Long userId, List<Long> groupIds) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse crxResponse = new UserController(session, em).setGroups(userId, groupIds);
+        CrxResponse crxResponse = new UserService(session, em).setGroups(userId, groupIds);
         em.close();
         return crxResponse;
     }
@@ -177,8 +177,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse removeMember(Session session, Long groupId, Long userId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final GroupController groupController = new GroupController(session, em);
-        CrxResponse crxResponse = groupController.removeMember(groupId, userId);
+        final GroupService groupService = new GroupService(session, em);
+        CrxResponse crxResponse = groupService.removeMember(groupId, userId);
         em.close();
         return crxResponse;
     }
@@ -187,9 +187,9 @@ public class UserResourceImpl implements UserResource {
     public CrxResponse addToGroups(Session session, Long userId, List<Long> groups) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
         StringBuilder error = new StringBuilder();
-        final GroupController groupController = new GroupController(session, em);
+        final GroupService groupService = new GroupService(session, em);
         for (Long groupId : groups) {
-            CrxResponse crxResponse = groupController.addMember(groupId, userId);
+            CrxResponse crxResponse = groupService.addMember(groupId, userId);
             if (!crxResponse.getCode().equals("OK")) {
                 error.append(crxResponse.getValue()).append("<br>");
             }
@@ -204,8 +204,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse addMember(Session session, Long groupId, Long userId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final GroupController groupController = new GroupController(session, em);
-        CrxResponse crxResponse = groupController.addMember(groupId, userId);
+        final GroupService groupService = new GroupService(session, em);
+        CrxResponse crxResponse = groupService.addMember(groupId, userId);
         em.close();
         return crxResponse;
     }
@@ -213,8 +213,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse syncFsQuotas(Session session, List<List<String>> Quotas) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        CrxResponse crxResponse = userController.syncFsQuotas(Quotas);
+        final UserService userService = new UserService(session, em);
+        CrxResponse crxResponse = userService.syncFsQuotas(Quotas);
         em.close();
         return crxResponse;
     }
@@ -222,8 +222,8 @@ public class UserResourceImpl implements UserResource {
     @Override
     public List<User> getUsers(Session session, List<Long> userIds) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        List<User> users = userController.getUsers(userIds);
+        final UserService userService = new UserService(session, em);
+        List<User> users = userService.getUsers(userIds);
         em.close();
         return users;
     }
@@ -231,9 +231,9 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String getUserAttribute(Session session, String uid, String attribute) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
+        final UserService userService = new UserService(session, em);
         String resp;
-        User user = userController.getByUid(uid);
+        User user = userService.getByUid(uid);
         if (user == null) {
             return "";
         }
@@ -254,24 +254,24 @@ public class UserResourceImpl implements UserResource {
                 resp = user.getSurName();
                 break;
             case "home":
-                resp = userController.getHomeDir(user);
+                resp = userService.getHomeDir(user);
                 break;
             case "groups":
                 List<String> groups = new ArrayList<String>();
                 for (Group group : user.getGroups()) {
                     groups.add(group.getName());
                 }
-                resp = String.join(userController.getNl(), groups);
+                resp = String.join(userService.getNl(), groups);
                 break;
             default:
                 //This is a config or mconfig. We have to merge it from the groups from actual room and from the user
                 List<String> configs = new ArrayList<String>();
                 //Group configs
                 for (Group group : user.getGroups()) {
-                    if (userController.getConfig(group, attribute) != null) {
-                        configs.add(userController.getConfig(group, attribute));
+                    if (userService.getConfig(group, attribute) != null) {
+                        configs.add(userService.getConfig(group, attribute));
                     }
-                    for (String config : userController.getMConfigs(group, attribute)) {
+                    for (String config : userService.getMConfigs(group, attribute)) {
                         if (config != null) {
                             configs.add(config);
                         }
@@ -279,24 +279,24 @@ public class UserResourceImpl implements UserResource {
                 }
                 //Room configs.
                 if (session.getRoom() != null) {
-                    if (userController.getConfig(session.getRoom(), attribute) != null) {
-                        configs.add(userController.getConfig(session.getRoom(), attribute));
+                    if (userService.getConfig(session.getRoom(), attribute) != null) {
+                        configs.add(userService.getConfig(session.getRoom(), attribute));
                     }
-                    for (String config : userController.getMConfigs(session.getRoom(), attribute)) {
+                    for (String config : userService.getMConfigs(session.getRoom(), attribute)) {
                         if (config != null) {
                             configs.add(config);
                         }
                     }
                 }
-                if (userController.getConfig(user, attribute) != null) {
-                    configs.add(userController.getConfig(user, attribute));
+                if (userService.getConfig(user, attribute) != null) {
+                    configs.add(userService.getConfig(user, attribute));
                 }
-                for (String config : userController.getMConfigs(user, attribute)) {
+                for (String config : userService.getMConfigs(user, attribute)) {
                     if (config != null) {
                         configs.add(config);
                     }
                 }
-                resp = String.join(userController.getNl(), configs);
+                resp = String.join(userService.getNl(), configs);
         }
         em.close();
         return resp;
@@ -305,7 +305,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public List<Category> getGuestUsers(Session session) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        List<Category> resp = new UserController(session, em).getGuestUsers();
+        List<Category> resp = new UserService(session, em).getGuestUsers();
         em.close();
         return resp;
     }
@@ -313,7 +313,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public Category getGuestUsersCategory(Session session, Long guestUsersId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        Category resp = new UserController(session, em).getGuestUsersCategory(guestUsersId);
+        Category resp = new UserService(session, em).getGuestUsersCategory(guestUsersId);
         em.close();
         return resp;
     }
@@ -321,7 +321,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse deleteGuestUsers(Session session, Long guestUsersId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse resp = new UserController(session, em).deleteGuestUsers(guestUsersId);
+        CrxResponse resp = new UserService(session, em).deleteGuestUsers(guestUsersId);
         em.close();
         return resp;
     }
@@ -331,7 +331,7 @@ public class UserResourceImpl implements UserResource {
                                      Date validUntil) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
         GuestUsers guestUsers = new GuestUsers(name, description, count, roomId, validUntil);
-        CrxResponse resp = new UserController(session, em).addGuestUsers(guestUsers);
+        CrxResponse resp = new UserService(session, em).addGuestUsers(guestUsers);
         em.close();
         return resp;
     }
@@ -339,7 +339,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String getGroups(Session session, String userName) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        String resp = new UserController(session, em).getGroupsOfUser(userName, "workgroup");
+        String resp = new UserService(session, em).getGroupsOfUser(userName, "workgroup");
         em.close();
         return resp;
     }
@@ -347,7 +347,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String getClasses(Session session, String userName) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        String resp = new UserController(session, em).getGroupsOfUser(userName, "class");
+        String resp = new UserService(session, em).getGroupsOfUser(userName, "class");
         em.close();
         return resp;
     }
@@ -355,7 +355,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String addToGroup(Session session, String userName, String groupName) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse crxResponse = new GroupController(session, em).addMember(groupName, userName);
+        CrxResponse crxResponse = new GroupService(session, em).addMember(groupName, userName);
         String resp = crxResponse.getCode();
         if (crxResponse.getCode().equals("ERROR")) {
             resp = resp + " " + crxResponse.getValue();
@@ -368,7 +368,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String addGroupToUser(Session session, String userName, String groupName) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse crxResponse = new GroupController(session, em).setOwner(groupName, userName);
+        CrxResponse crxResponse = new GroupService(session, em).setOwner(groupName, userName);
         String resp = crxResponse.getCode();
         if (crxResponse.getCode().equals("ERROR")) {
             resp = resp + " " + crxResponse.getValue();
@@ -380,7 +380,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String addUserAlias(Session session, String userName, String alias) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        UserController uc = new UserController(session, em);
+        UserService uc = new UserService(session, em);
         String resp = "Alias not unique";
         if (uc.isUserAliasUnique(alias)) {
             User user = uc.getByUid(userName);
@@ -403,7 +403,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String addUserDefaultAlias(Session session, String userName) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        UserController uc = new UserController(session, em);
+        UserService uc = new UserService(session, em);
         User user = uc.getByUid(userName);
         CrxResponse crxResponse = uc.addDefaultAliase(user);
         String resp = crxResponse.getCode();
@@ -417,7 +417,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String removeFromGroup(Session session, String userName, String groupName) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse crxResponse = new GroupController(session, em).removeMember(groupName, userName);
+        CrxResponse crxResponse = new GroupService(session, em).removeMember(groupName, userName);
         String resp = crxResponse.getCode();
         if (crxResponse.getCode().equals("ERROR")) {
             resp = resp + " " + crxResponse.getValue();
@@ -429,7 +429,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String delete(Session session, String userName) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse crxResponse = new UserController(session, em).delete(userName);
+        CrxResponse crxResponse = new UserService(session, em).delete(userName);
         String resp = crxResponse.getCode();
         if (crxResponse.getCode().equals("ERROR")) {
             resp = resp + " " + crxResponse.getValue();
@@ -441,7 +441,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String createUid(Session session, String givenName, String surName, String birthDay) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        String resp = new UserController(session, em).createUid(givenName, surName, birthDay);
+        String resp = new UserService(session, em).createUid(givenName, surName, birthDay);
         em.close();
         return resp;
     }
@@ -489,7 +489,7 @@ public class UserResourceImpl implements UserResource {
             }
         }
         if (password != null && !password.isEmpty()) {
-            UserController uc = new UserController(session, null);
+            UserService uc = new UserService(session, null);
             Boolean checkPassword = uc.getConfigValue("CHECK_PASSWORD_QUALITY").toLowerCase().equals("yes");
             uc.setConfigValue("CHECK_PASSWORD_QUALITY", "no");
             CrxResponse passwordResponse = uc.checkPassword(password);
@@ -559,7 +559,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public List<UserImport> getImports(Session session) {
-        Controller controller = new Controller(session, null);
+        Service controller = new Service(session, null);
         StringBuilder importDir = controller.getImportDir("");
         List<UserImport> imports = new ArrayList<UserImport>();
         File importDirObject = new File(importDir.toString());
@@ -576,7 +576,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public UserImport getImport(Session session, String startTime) {
-        Controller controller = new Controller(session, null);
+        Service controller = new Service(session, null);
         String content;
         UserImport userImport;
         String importLog = controller.getImportDir(startTime).append("/import.log").toString();
@@ -603,7 +603,7 @@ public class UserResourceImpl implements UserResource {
     public CrxResponse restartImport(Session session, String startTime) {
         UserImport userImport = getImport(session, startTime);
         if (userImport != null) {
-            Controller controller = new Controller(session, null);
+            Service controller = new Service(session, null);
             StringBuilder importFile = controller.getImportDir(startTime);
             importFile.append("/userlist.txt");
             List<String> parameters = new ArrayList<String>();
@@ -660,7 +660,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public CrxResponse deleteImport(Session session, String startTime) {
-        Controller controller = new Controller(session, null);
+        Service controller = new Service(session, null);
         StringBuilder importDir = controller.getImportDir(startTime);
         if (startTime == null || startTime.isEmpty()) {
             return new CrxResponse(session, "ERROR", "Invalid import name.");
@@ -713,7 +713,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public Response getImportAsTxt(Session session, String startTime) {
-        Controller controller = new Controller(session, null);
+        Service controller = new Service(session, null);
         StringBuilder importDir = controller.getImportDir(startTime);
         String[] program = new String[2];
         program[0] = "/usr/share/cranix/tools/pack_import.sh";
@@ -731,7 +731,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse syncMsQuotas(Session session, List<List<String>> Quotas) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        CrxResponse resp = new UserController(session, em).syncMsQuotas(Quotas);
+        CrxResponse resp = new UserService(session, em).syncMsQuotas(Quotas);
         em.close();
         return resp;
     }
@@ -739,12 +739,12 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String getUidsByRole(Session session, String role) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
+        final UserService userService = new UserService(session, em);
         List<String> users = new ArrayList<String>();
-        for (User user : userController.getByRole(role)) {
+        for (User user : userService.getByRole(role)) {
             users.add(user.getUid());
         }
-        String resp = String.join(userController.getNl(), users);
+        String resp = String.join(userService.getNl(), users);
         em.close();
         return resp;
     }
@@ -752,11 +752,11 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse allTeachersInAllClasses(Session session) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final UserController userController = new UserController(session, em);
-        final GroupController groupController = new GroupController(session, em);
-        for (User user : userController.getByRole("teachers")) {
-            for (Group group : groupController.getByType("class")) {
-                groupController.addMember(group, user);
+        final UserService userService = new UserService(session, em);
+        final GroupService groupService = new GroupService(session, em);
+        for (User user : userService.getByRole("teachers")) {
+            for (Group group : groupService.getByType("class")) {
+                groupService.addMember(group, user);
             }
         }
         em.close();
@@ -766,10 +766,10 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse allClasses(Session session, Long userId) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        User user = new UserController(session, em).getById(userId);
-        final GroupController groupController = new GroupController(session, em);
-        for (Group group : groupController.getByType("class")) {
-            groupController.addMember(group, user);
+        User user = new UserService(session, em).getById(userId);
+        final GroupService groupService = new GroupService(session, em);
+        for (Group group : groupService.getByType("class")) {
+            groupService.addMember(group, user);
         }
         em.close();
         return new CrxResponse(session, "OK", "User was put into all classes.");
@@ -778,10 +778,10 @@ public class UserResourceImpl implements UserResource {
     @Override
     public String addToAllClasses(Session session, String userName) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        User user = new UserController(session, em).getByUid(userName);
-        final GroupController groupController = new GroupController(session, em);
-        for (Group group : groupController.getByType("class")) {
-            groupController.addMember(group, user);
+        User user = new UserService(session, em).getByUid(userName);
+        final GroupService groupService = new GroupService(session, em);
+        for (Group group : groupService.getByType("class")) {
+            groupService.addMember(group, user);
         }
         em.close();
         return "OK";
@@ -801,11 +801,11 @@ public class UserResourceImpl implements UserResource {
     @Override
     public CrxResponse addUsersToGroups(Session session, List<List<Long>> ids) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final GroupController groupController = new GroupController(session, em);
-        List<User> users = new UserController(session, em).getUsers(ids.get(0));
+        final GroupService groupService = new GroupService(session, em);
+        List<User> users = new UserService(session, em).getUsers(ids.get(0));
         for (Long groupId : ids.get(1)) {
-            Group group = groupController.getById(groupId);
-            groupController.addMembers(group, users);
+            Group group = groupService.getById(groupId);
+            groupService.addMembers(group, users);
         }
         em.close();
         return new CrxResponse(session, "OK", "Users was inserted in the required groups.");
@@ -815,58 +815,58 @@ public class UserResourceImpl implements UserResource {
     public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
         EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
-        UserController userController = new UserController(session, em);
+        UserService userService = new UserService(session, em);
         logger.debug(crxActionMap.toString());
         switch (crxActionMap.getName().toLowerCase()) {
             case "setpassword":
-                return userController.resetUserPassword(
+                return userService.resetUserPassword(
                         crxActionMap.getObjectIds(),
                         crxActionMap.getStringValue(),
                         crxActionMap.isBooleanValue());
             case "setfilesystemquota":
-                return userController.setFsQuota(
+                return userService.setFsQuota(
                         crxActionMap.getObjectIds(),
                         crxActionMap.getLongValue());
             case "setmailsystemquota":
-                return userController.setMsQuota(
+                return userService.setMsQuota(
                         crxActionMap.getObjectIds(),
                         crxActionMap.getLongValue());
             case "disablelogin":
-                return userController.disableLogin(
+                return userService.disableLogin(
                         crxActionMap.getObjectIds(),
                         true);
             case "enablelogin":
-                return userController.disableLogin(
+                return userService.disableLogin(
                         crxActionMap.getObjectIds(),
                         false);
             case "disableinternet":
-                return userController.disableInternet(
+                return userService.disableInternet(
                         crxActionMap.getObjectIds(),
                         true);
             case "enableinternet":
-                return userController.disableInternet(
+                return userService.disableInternet(
                         crxActionMap.getObjectIds(),
                         false);
             case "mandatoryprofile":
-                return userController.mandatoryProfile(
+                return userService.mandatoryProfile(
                         crxActionMap.getObjectIds(),
                         true);
             case "openprofile":
-                return userController.mandatoryProfile(
+                return userService.mandatoryProfile(
                         crxActionMap.getObjectIds(),
                         false);
             case "copytemplate":
-                return userController.copyTemplate(
+                return userService.copyTemplate(
                         crxActionMap.getObjectIds(),
                         crxActionMap.getStringValue());
             case "removeprofiles":
-                return userController.removeProfile(crxActionMap.getObjectIds());
+                return userService.removeProfile(crxActionMap.getObjectIds());
             case "delete":
                 for (Long userId : crxActionMap.getObjectIds()) {
-                    User user = userController.getById(userId);
+                    User user = userService.getById(userId);
                     if (user != null) {
                         logger.debug("delete user:" + user);
-                        responses.add(userController.delete(user));
+                        responses.add(userService.delete(user));
                     }
                 }
         }

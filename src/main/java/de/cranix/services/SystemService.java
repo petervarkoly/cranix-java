@@ -1,9 +1,9 @@
 /* (c) Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
-import de.cranix.dao.tools.OSSShellTools;
+import de.cranix.helper.OSSShellTools;
 import org.apache.http.client.fluent.Request;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -22,14 +22,14 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static de.cranix.dao.internal.CranixConstants.cranixBaseDir;
+import static de.cranix.helper.CranixConstants.cranixBaseDir;
 
 @SuppressWarnings("unchecked")
-public class SystemController extends Controller {
+public class SystemService extends Service {
 
-    Logger logger = LoggerFactory.getLogger(SystemController.class);
+    Logger logger = LoggerFactory.getLogger(SystemService.class);
 
-    public SystemController(Session session, EntityManager em) {
+    public SystemService(Session session, EntityManager em) {
         super(session, em);
     }
 
@@ -190,9 +190,9 @@ public class SystemController extends Controller {
         statusMapList.add(statusMap);
         systemStatus.put("rooms", statusMapList);
 
-        Integer deviceCount = new DeviceController(this.session, this.em).getAll().size();
+        Integer deviceCount = new DeviceService(this.session, this.em).getAll().size();
         statusMapList = new ArrayList<Map<String, String>>();
-        CloneToolController ctc = new CloneToolController(this.session, this.em);
+        CloneToolService ctc = new CloneToolService(this.session, this.em);
         for (HWConf hwconf : ctc.getAllHWConf()) {
             count = hwconf.getDevices().size();
             deviceCount -= count;
@@ -207,8 +207,8 @@ public class SystemController extends Controller {
         statusMapList.add(statusMap);
         systemStatus.put("devices", statusMapList);
         //Software
-        SoftwareController softwareController = new SoftwareController(this.session, this.em);
-        systemStatus.put("softwares", softwareController.statistic());
+        SoftwareService softwareService = new SoftwareService(this.session, this.em);
+        systemStatus.put("softwares", softwareService.statistic());
 
         //Disk usage
         StringBuilder data = new StringBuilder();
@@ -353,8 +353,8 @@ public class SystemController extends Controller {
         Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
         List<Map<String, String>> firewallList = new ArrayList<>();
         Map<String, String> statusMap;
-        RoomController roomController = new RoomController(this.session, this.em);
-        DeviceController deviceController = new DeviceController(this.session, this.em);
+        RoomService roomService = new RoomService(this.session, this.em);
+        DeviceService deviceService = new DeviceService(this.session, this.em);
 
         for (String outRule : fwConfig.getConfigValue("MASQ_NETS").split(" ")) {
             if (outRule.length() > 0) {
@@ -366,7 +366,7 @@ public class SystemController extends Controller {
                 String port = rule.length > 3 ? rule[3] : "all";
                 if (host.length == 1 || host[1].equals("32")) {
                     logger.debug("host " + host[0]);
-                    Device device = deviceController.getByMainIP(host[0]);
+                    Device device = deviceService.getByMainIP(host[0]);
                     if (device == null) {
                         logger.debug("not found");
                         continue;
@@ -380,7 +380,7 @@ public class SystemController extends Controller {
                         statusMap.put("name", "INTRANET");
                         statusMap.put("type", "room");
                     } else {
-                        Room room = roomController.getByIP(host[0]);
+                        Room room = roomService.getByIP(host[0]);
                         if (room == null) {
                             continue;
                         }
@@ -406,8 +406,8 @@ public class SystemController extends Controller {
             logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
         }
         Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
-        RoomController roomController = new RoomController(this.session, this.em);
-        DeviceController deviceController = new DeviceController(this.session, this.em);
+        RoomService roomService = new RoomService(this.session, this.em);
+        DeviceService deviceService = new DeviceService(this.session, this.em);
         for (Map<String, String> map : firewallList) {
             Device device = null;
             Room room = null;
@@ -416,11 +416,11 @@ public class SystemController extends Controller {
                 if (map.get("id").equals("0")) {
                     data.append(this.getConfigValue("NETWORK")).append("/").append(this.getConfigValue("NETMASK")).append(",");
                 } else {
-                    room = roomController.getById(Long.parseLong(map.get("id")));
+                    room = roomService.getById(Long.parseLong(map.get("id")));
                     data.append(room.getStartIP()).append("/").append(String.valueOf(room.getNetMask())).append(",");
                 }
             } else {
-                device = deviceController.getById(Long.parseLong(map.get("id")));
+                device = deviceService.getById(Long.parseLong(map.get("id")));
                 data.append(device.getIp()).append("/32,");
             }
             data.append(map.get("dest"));
@@ -454,14 +454,14 @@ public class SystemController extends Controller {
         Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
         List<Map<String, String>> firewallList = new ArrayList<>();
         Map<String, String> statusMap;
-        DeviceController deviceController = new DeviceController(this.session, this.em);
+        DeviceService deviceService = new DeviceService(this.session, this.em);
 
         for (String outRule : fwConfig.getConfigValue("FORWARD_MASQ").split(" ")) {
             if (outRule != null && outRule.length() > 0) {
                 statusMap = new HashMap<>();
                 String[] rule = outRule.split(",");
                 if (rule != null && rule.length >= 4) {
-                    Device device = deviceController.getByIP(rule[1]);
+                    Device device = deviceService.getByIP(rule[1]);
                     if (device != null) {
                         statusMap.put("ext", rule[3]);
                         statusMap.put("id", Long.toString(device.getId()));
@@ -482,9 +482,9 @@ public class SystemController extends Controller {
     public CrxResponse setFirewallRemoteAccessRules(List<Map<String, String>> firewallList) {
         List<String> fwForwardMasq = new ArrayList<String>();
         Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
-        DeviceController deviceController = new DeviceController(this.session, this.em);
+        DeviceService deviceService = new DeviceService(this.session, this.em);
         for (Map<String, String> map : firewallList) {
-            Device device = deviceController.getById(Long.parseLong(map.get("id")));
+            Device device = deviceService.getById(Long.parseLong(map.get("id")));
             fwForwardMasq.add("0/0," + device.getIp() + ",tcp," + map.get("ext") + "," + map.get("port"));
         }
         fwConfig.setConfigValue("FORWARD_MASQ", String.join(" ", fwForwardMasq));
@@ -698,7 +698,7 @@ public class SystemController extends Controller {
     }
 
     public List<Acl> getAclsOfGroup(Long groupId) {
-        return new GroupController(this.session, this.em).getById(groupId).getAcls();
+        return new GroupService(this.session, this.em).getById(groupId).getAcls();
     }
 
     public List<Acl> getAvailableAclsForGroup(Long groupId) {
@@ -721,7 +721,7 @@ public class SystemController extends Controller {
 
 
     public CrxResponse setAclToGroup(Long groupId, Acl acl) {
-        Group group = new GroupController(this.session, this.em).getById(groupId);
+        Group group = new GroupService(this.session, this.em).getById(groupId);
         Acl oldAcl;
         logger.debug("Group acl to set: " + acl);
         try {
@@ -757,7 +757,7 @@ public class SystemController extends Controller {
     }
 
     public List<Acl> getAclsOfUser(Long userId) {
-        User user = new UserController(this.session, this.em).getById(userId);
+        User user = new UserService(this.session, this.em).getById(userId);
         List<Acl> acls = user.getAcls();
         List<String> aclNames = new ArrayList<String>();
         for (Acl acl : user.getAcls()) {
@@ -806,7 +806,7 @@ public class SystemController extends Controller {
     }
 
     public CrxResponse setAclToUser(Long userId, Acl acl) {
-        User user = new UserController(this.session, this.em).getById(userId);
+        User user = new UserService(this.session, this.em).getById(userId);
         Acl oldAcl = null;
         logger.debug("User acl to set: " + acl);
         try {
@@ -885,7 +885,7 @@ public class SystemController extends Controller {
         String patternTypeString = "(.+?): (.+?) \\(flags";
         Pattern patternName = Pattern.compile(patternNameString);
         Pattern patternType = Pattern.compile(patternTypeString);
-        DeviceController dc = new DeviceController(this.session, this.em);
+        DeviceService dc = new DeviceService(this.session, this.em);
         for (String line : reply.toString().split(this.getNl())) {
             Matcher matcher = patternName.matcher(line);
             while (matcher.find()) {
@@ -996,7 +996,7 @@ public class SystemController extends Controller {
                 break;
             case "category":
                 name = (String) object.get("name");
-                Category category = new CategoryController(this.session, this.em).getByName(name);
+                Category category = new CategoryService(this.session, this.em).getByName(name);
                 if (category != null) {
                     objectId = category.getId();
                 }
@@ -1017,7 +1017,7 @@ public class SystemController extends Controller {
                 break;
             case "software":
                 name = (String) object.get("name");
-                Software software = new SoftwareController(this.session, this.em).getByName(name);
+                Software software = new SoftwareService(this.session, this.em).getByName(name);
                 if (software != null) {
                     objectId = software.getId();
                 }

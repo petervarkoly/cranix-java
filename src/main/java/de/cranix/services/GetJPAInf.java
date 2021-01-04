@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import de.cranix.dao.Session;
 
@@ -15,7 +15,7 @@ import java.util.Scanner;
 import javax.persistence.EntityManager;
 
 
-public class GetJPAInf extends Controller implements Runnable {
+public class GetJPAInf extends Service implements Runnable {
 	private Socket client;
 
 	public GetJPAInf(Session session,EntityManager em,Socket client) {
@@ -24,7 +24,7 @@ public class GetJPAInf extends Controller implements Runnable {
 	}
 
 	public void run(){
-		final DeviceController deviceController = new DeviceController(this.session,this.em);;
+		final DeviceService deviceService = new DeviceService(this.session,this.em);;
 		String ip;
 	//	BufferedReader in = null;
 		Scanner in = null;
@@ -43,10 +43,10 @@ public class GetJPAInf extends Controller implements Runnable {
 
 		while(true){
 				ip = in.nextLine();
-				 if( deviceController.getLoggedInUsersObject(ip).isEmpty() ) {
+				 if( deviceService.getLoggedInUsersObject(ip).isEmpty() ) {
 	                 out.println("ERR user=\"No user logged in " + ip + "\"");
 	             } else {
-	            	 User user = deviceController.getLoggedInUsersObject(ip).get(0);
+	            	 User user = deviceService.getLoggedInUsersObject(ip).get(0);
 	            	 //TODO check internetDisabled
 	                 out.println("OK user=\"" + user.getUid() + "\"");
 	             }

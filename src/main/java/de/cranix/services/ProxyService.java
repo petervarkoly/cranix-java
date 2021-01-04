@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,13 +23,13 @@ import de.cranix.dao.ProxyRule;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.CranixConstants.*;
 
 @SuppressWarnings( "unchecked" )
-public class ProxyController extends Controller {
+public class ProxyService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(ProxyController.class);
+	Logger logger = LoggerFactory.getLogger(ProxyService.class);
 
 	private Path DESCIPTION = Paths.get("/var/lib/squidGuard/db/BL/global_usage");
 	private List<Map<String,String>> lists = new ArrayList<Map<String,String>>();
@@ -37,7 +37,7 @@ public class ProxyController extends Controller {
 	private Map<String,String>   longDesc  = new HashMap<>();
 	private List<String>         configFile;
 
-	public ProxyController(Session session,EntityManager em) {
+	public ProxyService(Session session,EntityManager em) {
 		super(session,em);
 		try {
 			configFile = Files.readAllLines(this.DESCIPTION);
@@ -156,7 +156,7 @@ public class ProxyController extends Controller {
 	}
 
 	public Map<String, List<ProxyRule>> readDefaults() {
-		List<String> roles = new SystemController(this.session,this.em).getEnumerates("role");
+		List<String> roles = new SystemService(this.session,this.em).getEnumerates("role");
 		roles.add("default");
 		Map<String, List<ProxyRule>> acls = new HashMap<String, List<ProxyRule>>();
 		for (String role : roles ) {
@@ -166,7 +166,7 @@ public class ProxyController extends Controller {
 	}
 
 	public CrxResponse setDefaults(Map<String, List<ProxyRule>> acls) {
-		List<String> roles = new SystemController(this.session,this.em).getEnumerates("role");
+		List<String> roles = new SystemService(this.session,this.em).getEnumerates("role");
 		roles.add("default");
 		StringBuilder output = new StringBuilder();
 		for (String role : roles ) {
@@ -354,7 +354,7 @@ public class ProxyController extends Controller {
 
 	public List<PositiveList> getPositiveListsInRoom(Long roomId) {
 		List<PositiveList> positiveLists = new ArrayList<PositiveList>();
-		Room room  = new RoomController(this.session,this.em).getById(roomId);
+		Room room  = new RoomService(this.session,this.em).getById(roomId);
 		String[] program   = new String[3];
 		program[0] = cranixBaseDir + "tools/squidGuard.pl";
 		program[1] = "readRoom";
@@ -380,11 +380,11 @@ public class ProxyController extends Controller {
 	 */
 	public CrxResponse setAclsInRoom(Long roomId, List<Long> positiveListIds) {
 
-		DeviceController deviceController = new DeviceController(this.session,this.em);;
-		Room room         = new RoomController(this.session,this.em).getById(roomId);
+		DeviceService deviceService = new DeviceService(this.session,this.em);;
+		Room room         = new RoomService(this.session,this.em).getById(roomId);
 		StringBuilder ips = new StringBuilder();
-		for(List<Long> loggedOn : new EducationController(this.session,this.em).getRoom(roomId)) {
-			Device device = deviceController.getById(loggedOn.get(1));
+		for(List<Long> loggedOn : new EducationService(this.session,this.em).getRoom(roomId)) {
+			Device device = deviceService.getById(loggedOn.get(1));
 			if( device.getIp() != null && !device.getIp().isEmpty() ) {
 				ips.append(device.getIp()).append(this.getNl());
 			}
@@ -422,7 +422,7 @@ public class ProxyController extends Controller {
 		program[1] = "write";
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		Room room  = new RoomController(this.session,this.em).getById(roomId);
+		Room room  = new RoomService(this.session,this.em).getById(roomId);
 		String acls = room.getName() + ":remove-this-list:true\n";
 		OSSShellTools.exec(program, reply, error, acls);
 		return new CrxResponse(this.session,"OK","Positive lists was succesfully deactivated in your room.");

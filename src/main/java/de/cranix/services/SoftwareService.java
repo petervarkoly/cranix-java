@@ -1,5 +1,5 @@
  /* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
-package de.cranix.dao.controller;
+package de.cranix.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -35,18 +35,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.*;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.CranixConstants.*;
 
 
 @SuppressWarnings( "unchecked" )
-public class SoftwareController extends Controller {
+public class SoftwareService extends Service {
 
-	Logger logger           = LoggerFactory.getLogger(SoftwareController.class);
+	Logger logger           = LoggerFactory.getLogger(SoftwareService.class);
 	private static String SALT_PACKAGE_DIR = "/srv/salt/packages/";
 	private static String SALT_SOURCE_DIR  = "/srv/salt/win/repo-ng/";
 
-	public SoftwareController(Session session,EntityManager em) {
+	public SoftwareService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
@@ -731,10 +731,10 @@ public class SoftwareController extends Controller {
 	 *  @return		The result in a OssResult.
 	 */
 	public CrxResponse createInstallationCategory(Category category) {
-		CategoryController categoryController = new CategoryController(this.session,this.em);
+		CategoryService categoryService = new CategoryService(this.session,this.em);
 		category.setCategoryType("installation");
 		category.setPublicAccess(false);
-		return categoryController.add(category);
+		return categoryService.add(category);
 	}
 
 	/**
@@ -1220,8 +1220,8 @@ public class SoftwareController extends Controller {
 	 * Save the software status what shall be installed to host sls files.
 	 */
 	public CrxResponse applySoftwareStateToHosts(){
-		RoomController   roomController   = new RoomController(this.session,this.em);
-		DeviceController deviceController = new DeviceController(this.session,this.em);
+		RoomService   roomService   = new RoomService(this.session,this.em);
+		DeviceService deviceService = new DeviceService(this.session,this.em);
 		Map<String,List<String>>   softwaresToInstall     = new HashMap<>();
 		Map<String,List<Software>> softwaresToRemove      = new HashMap<>();
 		Map<String,Boolean>        softwareMustBeIncluded = new HashMap<>();
@@ -1264,7 +1264,7 @@ public class SoftwareController extends Controller {
 
 		//Evaluate device categories
 		logger.debug("Process devices");
-		for( Device device : deviceController.getAll() ) {
+		for( Device device : deviceService.getAll() ) {
 			if( device.getHwconf() == null || ! device.getHwconf().getDeviceType().equals("FatClient") ) {
 				continue;
 			}
@@ -1301,7 +1301,7 @@ public class SoftwareController extends Controller {
 
 		//Evaluate room categories
 		logger.debug("Process rooms");
-		for( Room room : roomController.getAllToUse() ) {
+		for( Room room : roomService.getAllToUse() ) {
 			toRemove  = new ArrayList<Software>();
 			toInstall = new ArrayList<String>();
 			/* Search for software to be removed */
@@ -1338,7 +1338,7 @@ public class SoftwareController extends Controller {
 
 		//Evaluate hwconf categories
 		logger.debug("Process hwconfs");
-		for( HWConf hwconf : new CloneToolController(this.session,this.em).getAllHWConf() ) {
+		for( HWConf hwconf : new CloneToolService(this.session,this.em).getAllHWConf() ) {
 			logger.debug("HWConfs: " + hwconf.getName() + " " + hwconf.getDeviceType());
 			if( !hwconf.getDeviceType().equals("FatClient")) {
 				continue;
@@ -1382,7 +1382,7 @@ public class SoftwareController extends Controller {
 
 		//Write the hosts sls files
 		logger.debug("Process collected datas:");
-		for( Device device : deviceController.getAll() ) {
+		for( Device device : deviceService.getAll() ) {
 			//We only create salt files for FatClients
 			if( device.getHwconf() == null || ! device.getHwconf().getDeviceType().equals("FatClient") ) {
 				continue;
@@ -1654,12 +1654,12 @@ public class SoftwareController extends Controller {
 	}
 
 	public CrxResponse setSoftwareStatusOnDeviceById(Long deviceId, String softwareName, String description, String version, String status) {
-		Device device = new DeviceController(this.session,this.em).getById(deviceId);
+		Device device = new DeviceService(this.session,this.em).getById(deviceId);
 		return this.setSoftwareStatusOnDevice(device, softwareName, description, version, status);
 	}
 
 	public CrxResponse setSoftwareStatusOnDeviceByName(String deviceName, String softwareName, String description, String version, String status) {
-		Device device =  new DeviceController(this.session,this.em).getByName(deviceName);
+		Device device =  new DeviceService(this.session,this.em).getByName(deviceName);
 		return this.setSoftwareStatusOnDevice(device, softwareName, description, version, status);
 	}
 
@@ -1708,24 +1708,24 @@ public class SoftwareController extends Controller {
 	}
 
 	public CrxResponse deleteSoftwareStatusFromDeviceByName(String deviceName, String softwareName, String version) {
-		Device device = new DeviceController(this.session,this.em).getByName(deviceName);
+		Device device = new DeviceService(this.session,this.em).getByName(deviceName);
 		return this.deleteSoftwareStatusFromDevice(device, softwareName, version);
 	}
 
 	public CrxResponse deleteSoftwareStatusFromDeviceById(Long deviceId, String softwareName, String version) {
-		Device device = new DeviceController(this.session,this.em).getById(deviceId);
+		Device device = new DeviceService(this.session,this.em).getById(deviceId);
 		return this.deleteSoftwareStatusFromDevice(device, softwareName, version);
 	}
 
 	public String getSoftwareStatusOnDeviceByName(String deviceName, String softwareName,
 			String version) {
-		Device device = new DeviceController(this.session,this.em).getByName(deviceName);
+		Device device = new DeviceService(this.session,this.em).getByName(deviceName);
 		Software software = this.getByName(softwareName);
 		return this.getSoftwareStatusOnDevice(device, software, version);
 	}
 
 	public String getSoftwareStatusOnDeviceById(Long deviceId, String softwareName, String version) {
-		Device device = new DeviceController(this.session,this.em).getById(deviceId);
+		Device device = new DeviceService(this.session,this.em).getById(deviceId);
 		Software software = this.getByName(softwareName);
 		return this.getSoftwareStatusOnDevice(device, software, version);
 	}
@@ -1747,7 +1747,7 @@ public class SoftwareController extends Controller {
 		return softwareStatus;
 	}
 	public List<SoftwareStatus> getAllSoftwareStatusOnDeviceById(Long deviceId) {
-		return getAllSoftwareStatusOnDevice(new DeviceController(this.session,this.em).getById(deviceId));
+		return getAllSoftwareStatusOnDevice(new DeviceService(this.session,this.em).getById(deviceId));
 	}
 	public List<SoftwareStatus> getAllSoftwareStatusOnDevice(Device device) {
 		List<SoftwareStatus> softwareStatus = new ArrayList<SoftwareStatus>();
@@ -1765,13 +1765,13 @@ public class SoftwareController extends Controller {
 	}
 
 	public List<SoftwareStatus> getSoftwareStatusOnDeviceById(Long deviceId, Long softwareId) {
-		Device  device = new DeviceController(this.session,this.em).getById(deviceId);
+		Device  device = new DeviceService(this.session,this.em).getById(deviceId);
 		return this.getSoftwareStatusOnDevice(device, softwareId);
 	}
 
 	public String getSoftwareLicencesOnDevice(String deviceName) {
 
-		Device        device    =  new DeviceController(this.session,this.em).getByName(deviceName);
+		Device        device    =  new DeviceService(this.session,this.em).getByName(deviceName);
 		if( device == null ) {
 			logger.info("getSoftwareLicencesOnDevice: Device " + deviceName + " does not exists.");
 			return "";

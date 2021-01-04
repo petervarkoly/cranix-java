@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 import org.eclipse.persistence.annotations.Cache;
 import org.eclipse.persistence.annotations.CacheType;
 
-import de.cranix.dao.tools.SslCrypto;
+import de.cranix.helper.SslCrypto;
 
 
 /**

@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import java.io.File;
 
@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.*;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.CranixConstants.*;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -27,16 +27,16 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-public class JobController extends Controller {
+public class JobService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(JobController.class);
+	Logger logger = LoggerFactory.getLogger(JobService.class);
 
     static FileAttribute<Set<PosixFilePermission>> privatDirAttribute  = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rwx------"));
     static FileAttribute<Set<PosixFilePermission>> privatFileAttribute = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rw-------"));
 
 	private static String basePath = "/home/groups/SYSADMINS/jobs/";
 
-	public JobController(Session session,EntityManager em) {
+	public JobService(Session session,EntityManager em) {
 		super(session,em);
 	}
 

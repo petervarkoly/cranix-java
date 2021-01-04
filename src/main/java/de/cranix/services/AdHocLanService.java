@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import java.util.List;
 
@@ -11,24 +11,24 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import de.cranix.dao.*;
 
-public class AdHocLanController extends Controller {
+public class AdHocLanService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(AdHocLanController.class);
+	Logger logger = LoggerFactory.getLogger(AdHocLanService.class);
 
-	public AdHocLanController(Session session,EntityManager em) {
+	public AdHocLanService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
 
 	public List<AdHocRoom> getAll() {
 		List<AdHocRoom> resp = new ArrayList<AdHocRoom>();
-		RoomController roomController = new RoomController(this.session,this.em);
-		if( roomController.isSuperuser() || this.session.getAcls().contains("adhoclan.manage")) {
-			for( Room  room : roomController.getByType("AdHocAccess") ) {
+		RoomService roomService = new RoomService(this.session,this.em);
+		if( roomService.isSuperuser() || this.session.getAcls().contains("adhoclan.manage")) {
+			for( Room  room : roomService.getByType("AdHocAccess") ) {
 				resp.add(this.roomToAdHoc(room));
 			}
 		} else {
-			for( Room  room : roomController.getAllToRegister() ) {
+			for( Room  room : roomService.getAllToRegister() ) {
 				resp.add(this.roomToAdHoc(room));
 			}
 		}
@@ -53,7 +53,7 @@ public class AdHocLanController extends Controller {
 
 	public List<Group> getGroups() {
 		ArrayList<Group> groups = new ArrayList<Group>();
-		for( Room room : new RoomController(this.session,this.em).getByType("AdHocAccess") ) {
+		for( Room room : new RoomService(this.session,this.em).getByType("AdHocAccess") ) {
 			for( Category category : room.getCategories() ) {
 				if( category.getCategoryType().equals("AdHocAccess")) {
 					groups.addAll(category.getGroups());
@@ -65,7 +65,7 @@ public class AdHocLanController extends Controller {
 
 	public List<User> getUsers() {
 		ArrayList<User> users = new ArrayList<User>();
-		for( Room room : new RoomController(this.session,this.em).getByType("AdHocAccess") ) {
+		for( Room room : new RoomService(this.session,this.em).getByType("AdHocAccess") ) {
 			for( Category category : room.getCategories() ) {
 				if( category.getCategoryType().equals("AdHocAccess")) {
 					users.addAll(category.getUsers());
@@ -91,11 +91,11 @@ public class AdHocLanController extends Controller {
 		room.setRoomControl(adHocRoom.getRoomControl());
 		//Search the BYOD HwConf
 		if( room.getHwconf() == null ) {
-			HWConf hwconf = new CloneToolController(this.session,this.em).getByName("BYOD");
+			HWConf hwconf = new CloneToolService(this.session,this.em).getByName("BYOD");
 			room.setHwconfId(hwconf.getId());
 		}
 		logger.debug("Add AdHocLan: " + room);
-		RoomController roomConrtoller = new RoomController(this.session,this.em);;
+		RoomService roomConrtoller = new RoomService(this.session,this.em);;
 		CrxResponse crxResponseRoom =  roomConrtoller.add(room);
 		logger.debug("Add AdHocLan after creating: " + room);
 		if( crxResponseRoom.getCode().equals("ERROR")) {
@@ -110,32 +110,32 @@ public class AdHocLanController extends Controller {
 		category.setPublicAccess(false);
 		category.setStudentsOnly(adHocRoom.isStudentsOnly());
 		logger.debug("Add AdHocLan category: " + category);
-		CategoryController categoryController = new CategoryController(this.session,this.em);;
-		CrxResponse crxResponseCategory = categoryController.add(category);
+		CategoryService categoryService = new CategoryService(this.session,this.em);;
+		CrxResponse crxResponseCategory = categoryService.add(category);
 		if( crxResponseCategory.getCode().equals("ERROR")) {
 			roomConrtoller.delete(crxResponseRoom.getObjectId());
 			return crxResponseCategory;
 		}
 		Long categoryId = crxResponseCategory.getObjectId();
-		crxResponseCategory = categoryController.addMember(categoryId, "Room", roomId);
+		crxResponseCategory = categoryService.addMember(categoryId, "Room", roomId);
 		logger.debug("Add room to Category:"+ categoryId + " " + roomId);
 		if( crxResponseCategory.getCode().equals("ERROR")) {
 			if( crxResponseRoom.getObjectId() != null ) {
 				roomConrtoller.delete(crxResponseRoom.getObjectId());
 			}
 			if( crxResponseCategory.getObjectId() != null ) {
-				categoryController.delete(crxResponseCategory.getObjectId());
+				categoryService.delete(crxResponseCategory.getObjectId());
 			}
 			return crxResponseCategory;
 		}
 		if( adHocRoom.getGroupIds() != null ) {
 			for( Long id : adHocRoom.getGroupIds() ) {
-				categoryController.addMember(categoryId, "Group", id);
+				categoryService.addMember(categoryId, "Group", id);
 			}
 		}
 		if( adHocRoom.getUserIds() != null ) {
 			for( Long id : adHocRoom.getUserIds() ) {
-				categoryController.addMember(categoryId, "User", id);
+				categoryService.addMember(categoryId, "User", id);
 			}
 		}
 		return crxResponseRoom;
@@ -146,7 +146,7 @@ public class AdHocLanController extends Controller {
 		if( categoryId == null ) {
 			return new CrxResponse(session,"ERROR","AdHocAccess not found");
 		}
-		return new CategoryController(this.session,this.em).addMember(categoryId, objectType, objectId);
+		return new CategoryService(this.session,this.em).addMember(categoryId, objectType, objectId);
 	}
 
 
@@ -155,7 +155,7 @@ public class AdHocLanController extends Controller {
 		if( categoryId == null ) {
 			return new CrxResponse(session,"ERROR","AdHocAccess not found");
 		}
-		return new CategoryController(this.session,this.em).deleteMember(categoryId, objectType, objectId);
+		return new CategoryService(this.session,this.em).deleteMember(categoryId, objectType, objectId);
 	}
 
 
@@ -163,9 +163,9 @@ public class AdHocLanController extends Controller {
 		try {
 			Category category = this.getAdHocCategoryOfRoom(adHocRoomId);
 			logger.debug("Delete adHocRoom:" + category);
-			RoomController roomController = new RoomController(this.session,this.em);
+			RoomService roomService = new RoomService(this.session,this.em);
 			for( Room room : category.getRooms() ) {
-				roomController.delete(room.getId());
+				roomService.delete(room.getId());
 			}
 			this.em.merge(category);
 			this.em.getTransaction().begin();
@@ -198,7 +198,7 @@ public class AdHocLanController extends Controller {
 	 * @return The result in a CrxResponse object.
 	 */
 	public CrxResponse modify(AdHocRoom room) {
-		final RoomController rc =  new RoomController(session,em);
+		final RoomService rc =  new RoomService(session,em);
 		Room oldRoom = rc.getById(room.getId());
 		if( !oldRoom.getRoomType().equals("AdHocAccess")) {
 			em.close();

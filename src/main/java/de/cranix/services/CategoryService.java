@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -14,11 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings( "unchecked" )
-public class CategoryController extends Controller {
+public class CategoryService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(CategoryController.class);
+	Logger logger = LoggerFactory.getLogger(CategoryService.class);
 
-	public CategoryController(Session session,EntityManager em) {
+	public CategoryService(Session session,EntityManager em) {
 		super(session,em);
 	}
 

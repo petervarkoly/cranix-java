@@ -13,9 +13,9 @@ import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static de.cranix.dao.internal.CranixConstants.cranixScreenShots;
-import static de.cranix.dao.internal.CranixConstants.cranixComputer;
-import de.cranix.dao.controller.*;
+import static de.cranix.helper.CranixConstants.cranixScreenShots;
+import static de.cranix.helper.CranixConstants.cranixComputer;
+import de.cranix.services.*;
 
 public class SmartRoom {
 
@@ -44,10 +44,10 @@ public class SmartRoom {
 	private Long[][]  deviceMatrix;
 
 	public SmartRoom(Session session, EntityManager em, Long roomId) {
-		DeviceController    dc = new DeviceController(session,em);
-		EducationController ec = new EducationController(session,em);
-		RoomController      rc = new RoomController(session,em);
-		UserController      uc = new UserController(session,em);
+		DeviceService    dc = new DeviceService(session,em);
+		EducationService ec = new EducationService(session,em);
+		RoomService      rc = new RoomService(session,em);
+		UserService      uc = new UserService(session,em);
 		this.loggedIns         = ec.getRoom(roomId);
 		rc.organizeRoom(roomId);
 		Room              room = rc.getById(roomId);

@@ -3,7 +3,7 @@ package de.cranix.api.resources;
 
 
 import static de.cranix.api.resources.Resource.*;
-import static de.cranix.dao.internal.CranixConstants.*;
+import static de.cranix.helper.CranixConstants.*;
 
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.*;
-import de.cranix.dao.controller.*;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
+import de.cranix.services.*;
+import de.cranix.helper.CommonEntityManagerFactory;
 
 @Path("education")
 @Api(value = "education")
@@ -48,7 +48,7 @@ public class EducationResource {
 	@RolesAllowed("education.rooms")
 	public List<Room> getMyRooms( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Room> resp = new EducationController(session,em).getMyRooms();
+		List<Room> resp = new EducationService(session,em).getMyRooms();
 		em.close();
 		return resp;
 	}
@@ -68,7 +68,7 @@ public class EducationResource {
 		@PathParam("roomId") Long roomId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<List<Long>> resp = new EducationController(session,em).getRoom(roomId);
+		List<List<Long>> resp = new EducationService(session,em).getRoom(roomId);
 		em.close();
 		return resp;
 	}
@@ -107,7 +107,7 @@ public class EducationResource {
 		@PathParam("minutes") Long minutes
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).getRoomControl(roomId,minutes);
+		CrxResponse resp = new EducationService(session,em).getRoomControl(roomId,minutes);
 		em.close();
 		return resp;
 	}
@@ -125,7 +125,7 @@ public class EducationResource {
 		@PathParam("roomId") long roomId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		AccessInRoom resp = new RoomController(session,em).getAccessStatus(roomId);
+		AccessInRoom resp = new RoomService(session,em).getAccessStatus(roomId);
 		em.close();
 		return resp;
 	}
@@ -145,7 +145,7 @@ public class EducationResource {
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		access.setAllowSessionIp(true);
-		CrxResponse resp = new RoomController(session,em).setAccessStatus(roomId, access);
+		CrxResponse resp = new RoomService(session,em).setAccessStatus(roomId, access);
 		em.close();
 		return resp;
 	}
@@ -163,7 +163,7 @@ public class EducationResource {
 		@PathParam("roomId") Long roomId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<String> resp = new EducationController(session,em).getAvailableRoomActions(roomId);
+		List<String> resp = new EducationService(session,em).getAvailableRoomActions(roomId);
 		em.close();
 		return resp;
 	}
@@ -190,7 +190,7 @@ public class EducationResource {
 			logger.error("EducationResourceImpl.manageRoom error:" + e.getMessage());
 		}
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).manageRoom(roomId,action, null);
+		CrxResponse resp = new EducationService(session,em).manageRoom(roomId,action, null);
 		em.close();
 		return resp;
 	}
@@ -211,7 +211,7 @@ public class EducationResource {
 		CrxActionMap crxActionMap
 	)  {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		RoomController roomController = new RoomController(session,em);
+		RoomService roomService = new RoomService(session,em);
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		logger.debug("crxActionMap" + crxActionMap);
 		if( crxActionMap.getName().equals("delete") ) {
@@ -219,7 +219,7 @@ public class EducationResource {
 
 		} else {
 			for( Long id: crxActionMap.getObjectIds() ) {
-				responses.add(roomController.manageRoom(id,crxActionMap.getName(),null));
+				responses.add(roomService.manageRoom(id,crxActionMap.getName(),null));
 			}
 		}
 		em.close();
@@ -243,7 +243,7 @@ public class EducationResource {
 		@FormDataParam("file")	 final FormDataContentDisposition contentDispositionHeader
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> responses = new EducationController(session,em).uploadFileToRooms(
+		List<CrxResponse> responses = new EducationService(session,em).uploadFileToRooms(
 		       roomIds,
 		       cleanUp,
 		       studentsOnly,
@@ -271,7 +271,7 @@ public class EducationResource {
 		@FormDataParam("cleanUpExport") Boolean cleanUpExport
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> responses = new EducationController(session,em).collectFileFromRooms(
+		List<CrxResponse> responses = new EducationService(session,em).collectFileFromRooms(
 		       roomIds,
 		       projectName,
 		       sortInDirs,
@@ -299,7 +299,7 @@ public class EducationResource {
 		Group group
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).createGroup(group);
+		CrxResponse resp = new EducationService(session,em).createGroup(group);
 		em.close();
 		return resp;
 	}
@@ -318,7 +318,7 @@ public class EducationResource {
 		Group group
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).modifyGroup(groupId, group);
+		CrxResponse resp = new EducationService(session,em).modifyGroup(groupId, group);
 		em.close();
 		return resp;
 	}
@@ -336,7 +336,7 @@ public class EducationResource {
 		@PathParam("groupId") Long groupId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Group resp = new GroupController(session,em).getById(groupId);
+		Group resp = new GroupService(session,em).getById(groupId);
 		em.close();
 		return resp;
 	}
@@ -354,7 +354,7 @@ public class EducationResource {
 		@PathParam("groupId") Long groupId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).deleteGroup(groupId);
+		CrxResponse resp = new EducationService(session,em).deleteGroup(groupId);
 		em.close();
 		return resp;
 	}
@@ -371,7 +371,7 @@ public class EducationResource {
 		@ApiParam(hidden = true) @Auth Session session
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Group> resp = new EducationController(session,em).getMyGroups();
+		List<Group> resp = new EducationService(session,em).getMyGroups();
 		em.close();
 		return resp;
 	}
@@ -398,7 +398,7 @@ public class EducationResource {
 		CrxActionMap crxActionMap
 	) {
 		EntityManager       em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).groupsApplyAction(crxActionMap);
+		List<CrxResponse> resp = new EducationService(session,em).groupsApplyAction(crxActionMap);
 		em.close();
 		return resp;
 	}
@@ -416,7 +416,7 @@ public class EducationResource {
 		@PathParam("groupId") long groupId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<User> resp = new EducationController(session,em).getAvailableMembers(groupId);
+		List<User> resp = new EducationService(session,em).getAvailableMembers(groupId);
 		em.close();
 		return resp;
 	}
@@ -435,7 +435,7 @@ public class EducationResource {
 		@PathParam("groupId") long groupId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<User> resp = new EducationController(session,em).getMembers(groupId);
+		List<User> resp = new EducationService(session,em).getMembers(groupId);
 		em.close();
 		return resp;
 	}
@@ -454,7 +454,7 @@ public class EducationResource {
 		List<Long> users
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new GroupController(session,em).setMembers(groupId,users);
+		CrxResponse resp = new GroupService(session,em).setMembers(groupId,users);
 		em.close();
 		return resp;
 	}
@@ -472,7 +472,7 @@ public class EducationResource {
 		@PathParam("userId") long userId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new GroupController(session,em).removeMember(groupId, userId);
+		CrxResponse resp = new GroupService(session,em).removeMember(groupId, userId);
 		em.close();
 		return resp;
 	}
@@ -491,7 +491,7 @@ public class EducationResource {
 		@PathParam("userId") long userId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new GroupController(session,em).addMember(groupId, userId);
+		CrxResponse resp = new GroupService(session,em).addMember(groupId, userId);
 		em.close();
 		return resp;
 	}
@@ -513,7 +513,7 @@ public class EducationResource {
 		@FormDataParam("file")	 final FormDataContentDisposition contentDispositionHeader
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> responses = new EducationController(session,em).uploadFileToDevices(
+		List<CrxResponse> responses = new EducationService(session,em).uploadFileToDevices(
 			objectIds,
 			cleanUp,
 			studentsOnly,
@@ -539,7 +539,7 @@ public class EducationResource {
 		@FormDataParam("studentsOnly") Boolean studentsOnly
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).collectFileFromGroups(
+		List<CrxResponse> resp = new EducationService(session,em).collectFileFromGroups(
 				objectIds,
 				projectName,
 				sortInDirs,
@@ -563,7 +563,7 @@ public class EducationResource {
 	public List<Student> getUsers( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<Student> resp = new ArrayList<Student>();
-		for( User user : new UserController(session,em).getByRole(roleStudent) ) {
+		for( User user : new UserService(session,em).getByRole(roleStudent) ) {
 			for( Group group : user.getGroups() ) {
 				if( !group.getGroupType().equals("primary") ) {
 					Student student = new Student(user);
@@ -590,7 +590,7 @@ public class EducationResource {
 		@PathParam("userId") Long userId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		User resp = new UserController(session,em).getById(userId);
+		User resp = new UserService(session,em).getById(userId);
 		em.close();
 		return resp;
 	}
@@ -609,7 +609,7 @@ public class EducationResource {
 		@PathParam("deviceId") Long deviceId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new DeviceController(session,em).removeLoggedInUser(deviceId, userId);
+		CrxResponse resp = new DeviceService(session,em).removeLoggedInUser(deviceId, userId);
 		em.close();
 		return resp;
 	}
@@ -628,7 +628,7 @@ public class EducationResource {
 		@PathParam("deviceId") Long deviceId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new DeviceController(session,em).addLoggedInUser(deviceId, userId);
+		CrxResponse resp = new DeviceService(session,em).addLoggedInUser(deviceId, userId);
 		em.close();
 		return resp;
 	}
@@ -646,7 +646,7 @@ public class EducationResource {
 		@PathParam("userId") Long userId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<String> resp = new EducationController(session,em).getAvailableUserActions(userId);
+		List<String> resp = new EducationService(session,em).getAvailableUserActions(userId);
 		em.close();
 		return resp;
 	}
@@ -667,7 +667,7 @@ public class EducationResource {
 		@FormDataParam("file")      final FormDataContentDisposition contentDispositionHeader
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).uploadFileToUsers(userIds,cleanUp,fileInputStream,contentDispositionHeader);
+		List<CrxResponse> resp = new EducationService(session,em).uploadFileToUsers(userIds,cleanUp,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
 	}
@@ -688,7 +688,7 @@ public class EducationResource {
 		@FormDataParam("cleanUpExport") Boolean cleanUpExport
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> responses = new EducationController(session,em).collectFileFromUsers(
+		List<CrxResponse> responses = new EducationService(session,em).collectFileFromUsers(
 			userIds,
 			projectName,
 			sortInDirs,
@@ -719,7 +719,7 @@ public class EducationResource {
 		CrxActionMap crxActionMap
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).applyAction(crxActionMap);
+		List<CrxResponse> resp = new EducationService(session,em).applyAction(crxActionMap);
 		em.close();
 		return resp;
 	}
@@ -741,7 +741,7 @@ public class EducationResource {
 		List<Long> deviceIds
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Device> resp = new DeviceController(session,em).getDevices(deviceIds);
+		List<Device> resp = new DeviceService(session,em).getDevices(deviceIds);
 		em.close();
 		return resp;
 	}
@@ -760,7 +760,7 @@ public class EducationResource {
 		Device device
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new EducationController(session,em).modifyDevice(deviceId, device);
+		CrxResponse resp = new EducationService(session,em).modifyDevice(deviceId, device);
 		em.close();
 		return resp;
 	}
@@ -784,10 +784,10 @@ public class EducationResource {
 		Device device
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Room room = new RoomController(session,em).getById(roomId);
+		Room room = new RoomService(session,em).getById(roomId);
 		CrxResponse resp = null;
 		if( (room.getCategories() != null) && (room.getCategories().size() > 0 ) && room.getCategories().get(0).getCategoryType().equals("smartRoom") ) {
-			DeviceController deviceConrtoller = new DeviceController(session,em);
+			DeviceService deviceConrtoller = new DeviceService(session,em);
 			Device oldDevice = deviceConrtoller.getById(deviceId);
 			resp = deviceConrtoller.setConfig(oldDevice, "smartRoom-" + roomId + "-coordinates", String.format("%d,%d", device.getRow(),device.getPlace()));
 		} else {
@@ -810,7 +810,7 @@ public class EducationResource {
 		@PathParam("deviceId") Long deviceId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Device resp = new DeviceController(session,em).getById(deviceId);
+		Device resp = new DeviceService(session,em).getById(deviceId);
 		em.close();
 		return resp;
 	}
@@ -828,7 +828,7 @@ public class EducationResource {
 		@PathParam("deviceId") Long deviceId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<String> resp = new EducationController(session,em).getAvailableDeviceActions(deviceId);
+		List<String> resp = new EducationService(session,em).getAvailableDeviceActions(deviceId);
 		em.close();
 		return resp;
 	}
@@ -851,7 +851,7 @@ public class EducationResource {
 		@PathParam("action") String action
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new DeviceController(session,em).manageDevice(deviceId,action,null);
+		CrxResponse resp = new DeviceService(session,em).manageDevice(deviceId,action,null);
 		em.close();
 		return resp;
 	}
@@ -872,7 +872,7 @@ public class EducationResource {
 		CrxActionMap crxActionMap
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).manageDevices(crxActionMap);
+		List<CrxResponse> resp = new EducationService(session,em).manageDevices(crxActionMap);
 		em.close();
 		return resp;
 	}
@@ -894,7 +894,7 @@ public class EducationResource {
 		@FormDataParam("file") final   FormDataContentDisposition contentDispositionHeader
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).uploadFileToDevices(
+		List<CrxResponse> resp = new EducationService(session,em).uploadFileToDevices(
 			deviceIds,
 			cleanUp,
 			studentsOnly,
@@ -920,7 +920,7 @@ public class EducationResource {
 		@FormDataParam("studentsOnly") Boolean studentsOnly
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<CrxResponse> resp = new EducationController(session,em).collectFileFromDevices(
+		List<CrxResponse> resp = new EducationService(session,em).collectFileFromDevices(
 			deviceIds,
 			projectName,
 			sortInDirs,
@@ -944,7 +944,7 @@ public class EducationResource {
 		@PathParam("roomId") Long roomId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Printer resp = new RoomController(session,em).getById(roomId).getDefaultPrinter();
+		Printer resp = new RoomService(session,em).getById(roomId).getDefaultPrinter();
 		em.close();
 		return resp;
 	}
@@ -962,7 +962,7 @@ public class EducationResource {
 		@PathParam("roomId") Long roomId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Printer> resp = new RoomController(session,em).getById(roomId).getAvailablePrinters();
+		List<Printer> resp = new RoomService(session,em).getById(roomId).getAvailablePrinters();
 		em.close();
 		return resp;
 	}
@@ -981,7 +981,7 @@ public class EducationResource {
 	@RolesAllowed("education.proxy")
 	public List<PositiveList> getPositiveLists( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<PositiveList> resp = new ProxyController(session,em).getAllPositiveLists();
+		List<PositiveList> resp = new ProxyService(session,em).getAllPositiveLists();
 		em.close();
 		return resp;
 	}
@@ -1014,7 +1014,7 @@ public class EducationResource {
 		PositiveList positiveList
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new ProxyController(session,em).editPositiveList(positiveList);
+		CrxResponse resp = new ProxyService(session,em).editPositiveList(positiveList);
 		em.close();
 		return resp;
 	}
@@ -1032,7 +1032,7 @@ public class EducationResource {
 		@PathParam("positiveListId") Long positiveListId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		PositiveList resp = new ProxyController(session,em).getPositiveList(positiveListId);
+		PositiveList resp = new ProxyService(session,em).getPositiveList(positiveListId);
 		em.close();
 		return resp;
 	}
@@ -1050,7 +1050,7 @@ public class EducationResource {
 		@PathParam("positiveListId") Long positiveListId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new ProxyController(session,em).deletePositiveList(positiveListId);
+		CrxResponse resp = new ProxyService(session,em).deletePositiveList(positiveListId);
 		em.close();
 		return resp;
 	}
@@ -1070,7 +1070,7 @@ public class EducationResource {
 		List<Long> positiveListIds
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new ProxyController(session,em).setAclsInRoom(roomId, positiveListIds);
+		CrxResponse resp = new ProxyService(session,em).setAclsInRoom(roomId, positiveListIds);
 		em.close();
 		return resp;
 	}
@@ -1088,7 +1088,7 @@ public class EducationResource {
 		@PathParam("roomId") Long roomId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new ProxyController(session,em).deleteAclsInRoom(roomId);
+		CrxResponse resp = new ProxyService(session,em).deleteAclsInRoom(roomId);
 		em.close();
 		return resp;
 	}
@@ -1106,7 +1106,7 @@ public class EducationResource {
 		@PathParam("roomId") Long roomId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<PositiveList> resp = new ProxyController(session,em).getPositiveListsInRoom(roomId);
+		List<PositiveList> resp = new ProxyService(session,em).getPositiveListsInRoom(roomId);
 		em.close();
 		return resp;
 	}
@@ -1132,7 +1132,7 @@ public class EducationResource {
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		GuestUsers guestUsers = new GuestUsers(name,description,count,roomId,validUntil);
-		CrxResponse resp = new UserController(session,em).addGuestUsers(guestUsers);
+		CrxResponse resp = new UserService(session,em).addGuestUsers(guestUsers);
 		em.close();
 		return resp;
 	}
@@ -1149,7 +1149,7 @@ public class EducationResource {
 		GuestUsers guestUsers
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new UserController(session,em).addGuestUsers(guestUsers);
+		CrxResponse resp = new UserService(session,em).addGuestUsers(guestUsers);
 		em.close();
 		return resp;
 	}
@@ -1166,7 +1166,7 @@ public class EducationResource {
 		@ApiParam(hidden = true) @Auth Session session
 	) {
 	       EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-	       List<Category> resp = new UserController(session,em).getGuestUsers();
+	       List<Category> resp = new UserService(session,em).getGuestUsers();
 	       em.close();
 	       return resp;
 	}
@@ -1184,7 +1184,7 @@ public class EducationResource {
 		@PathParam("guestUsersId")     Long    guestUsersId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Category resp = new UserController(session,em).getGuestUsersCategory(guestUsersId);
+		Category resp = new UserService(session,em).getGuestUsersCategory(guestUsersId);
 		em.close();
 		return resp;
 	}
@@ -1202,7 +1202,7 @@ public class EducationResource {
 		@PathParam("guestUsersId")     Long    guestUsersId
 	) {
 	       EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-	       CrxResponse resp = new UserController(session,em).deleteGuestUsers(guestUsersId);
+	       CrxResponse resp = new UserService(session,em).deleteGuestUsers(guestUsersId);
 	       em.close();
 	       return resp;
 	}
@@ -1217,7 +1217,7 @@ public class EducationResource {
 	@RolesAllowed("education.guestusers")
 	public List<Room> getGuestRooms( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Room> resp = new RoomController(session,em).getAllWithTeacherControl();
+		List<Room> resp = new RoomService(session,em).getAllWithTeacherControl();
 		em.close();
 		return resp;
 	}

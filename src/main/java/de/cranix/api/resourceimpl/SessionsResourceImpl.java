@@ -3,8 +3,8 @@
 package de.cranix.api.resourceimpl;
 import de.cranix.api.resources.SessionsResource;
 import de.cranix.dao.Session;
-import de.cranix.dao.controller.SessionController;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
+import de.cranix.services.SessionService;
+import de.cranix.helper.CommonEntityManagerFactory;
 import de.cranix.dao.Group;
 import de.cranix.dao.Printer;
 import de.cranix.dao.Acl;
@@ -46,8 +46,8 @@ public class SessionsResourceImpl implements SessionsResource {
 
 		Session session =  new Session(username);
 		session.setIp(req.getRemoteAddr());
-		SessionController sessionController = new SessionController(session,em);
-		session = sessionController.createSessionWithUser(username, password, device);
+		SessionService sessionService = new SessionService(session,em);
+		session = sessionService.createSessionWithUser(username, password, device);
 		em.close();
 		if( session != null ) {
 			logger.debug(session.toString());
@@ -74,13 +74,13 @@ public class SessionsResourceImpl implements SessionsResource {
 	@Override
 	public void deleteSession(Session session, String token) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		final SessionController sessionController = new SessionController(session,em);
+		final SessionService sessionService = new SessionService(session,em);
 		if( session == null || ! session.getToken().equals(token) ) {
 			em.close();
 			logger.info("deletion of session denied " + token);
 			throw new WebApplicationException(401);
 		}
-		sessionController.deleteSession(session);
+		sessionService.deleteSession(session);
 		em.close();
 		logger.debug("deleted session " + token);
 	}
@@ -101,7 +101,7 @@ public class SessionsResourceImpl implements SessionsResource {
 		Printer defaultPrinter  = null;
 		List<Printer> availablePrinters = null;
 		List<String> data = new ArrayList<String>();
-		final SessionController sessionController = new SessionController(session,em);
+		final SessionService sessionService = new SessionService(session,em);
 		String resp = "";
 		switch(key.toLowerCase()) {
 		case "defaultprinter":
@@ -135,7 +135,7 @@ public class SessionsResourceImpl implements SessionsResource {
 			}
 			break;
 		case "domainname":
-			resp = sessionController.getConfigValue("DOMAIN");
+			resp = sessionService.getConfigValue("DOMAIN");
 		}
 		em.close();
 		return resp;
@@ -167,7 +167,7 @@ public class SessionsResourceImpl implements SessionsResource {
 	@Override
 	public String logonScript(Session session, String OS) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		String resp = new SessionController(session,em).logonScript(OS);
+		String resp = new SessionService(session,em).logonScript(OS);
 		em.close();
 		return resp;
 	}

@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,16 +18,16 @@ import de.cranix.dao.Device;
 import de.cranix.dao.Session;
 import de.cranix.dao.HWConf;
 import de.cranix.dao.CrxResponse;
-import de.cranix.dao.tools.*;
+import de.cranix.helper.*;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import static de.cranix.dao.internal.CranixConstants.*;
+import static de.cranix.helper.CranixConstants.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings( "unchecked" )
-public class DHCPConfig extends Controller {
+public class DHCPConfig extends Service {
 	private static Logger LOG = LoggerFactory.getLogger(DHCPConfig.class);
 	private String LOCK        = "/run/crx-dhcpd.lock";
 	private String TMPCONF     = "/run/crx-dhcpd.conf";

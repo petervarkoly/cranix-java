@@ -1,5 +1,5 @@
 /* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,17 +29,17 @@ import de.cranix.dao.Group;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.tools.StaticHelpers.*;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.StaticHelpers.*;
+import static de.cranix.helper.CranixConstants.*;
 
 @SuppressWarnings( "unchecked" )
-public class GroupController extends Controller {
+public class GroupService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(GroupController.class);
+	Logger logger = LoggerFactory.getLogger(GroupService.class);
 	private List<String> parameters;
 
-	public GroupController(Session session,EntityManager em) {
+	public GroupService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
@@ -263,7 +263,7 @@ public class GroupController extends Controller {
 			this.deletAllConfigs(group);
 			this.em.remove(group);
 			this.em.getTransaction().commit();
-			SessionController.removeAllSessionsFromCache();
+			SessionService.removeAllSessionsFromCache();
 			//em.getEntityManagerFactory().getCache().evictAll();
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
@@ -468,7 +468,7 @@ public class GroupController extends Controller {
 
 	public CrxResponse addMember(String groupName, String uid) {
 		Group group = this.getByName(groupName);
-		User  user  = new UserController(this.session,this.em).getByUid(uid);
+		User  user  = new UserService(this.session,this.em).getByUid(uid);
 		if( group == null ) {
 			return new CrxResponse(this.getSession(),"ERROR","Group %s was not found.",null,groupName);
 		}
@@ -482,7 +482,7 @@ public class GroupController extends Controller {
 
 	public CrxResponse removeMember(String groupName, String uid) {
 		Long groupId = this.getByName(groupName).getId();
-		Long userId  = new UserController(this.session,this.em).getByUid(uid).getId();
+		Long userId  = new UserService(this.session,this.em).getByUid(uid).getId();
 		return this.removeMember(groupId, userId);
 	}
 
@@ -526,7 +526,7 @@ public class GroupController extends Controller {
 
 	public CrxResponse setOwner(String groupName, String userName) {
 		Long groupId = this.getByName(groupName).getId();
-		User user    = new UserController(this.session,this.em).getByUid(userName);
+		User user    = new UserService(this.session,this.em).getByUid(userName);
 		Group group = this.em.find(Group.class, groupId);
 		group.setOwner(user);
 		user.getOwnedGroups().add(group);
@@ -585,7 +585,7 @@ public class GroupController extends Controller {
 		category.setPublicAccess(publicAccess);
 		category.setGroupIds(new ArrayList<Long>());
 		category.getGroupIds().add(group.getId());
-		return new CategoryController(this.session,this.em).add(category);
+		return new CategoryService(this.session,this.em).add(category);
 	}
 
 	public CrxResponse createSmartRoomForGroup(Long groupId, boolean studentsOnly, boolean publicAccess) {
@@ -607,7 +607,7 @@ public class GroupController extends Controller {
 		category.setPublicAccess(publicAccess);
 		category.setGroupIds(new ArrayList<Long>());
 		category.getGroupIds().add(group.getId());
-		return new EducationController(this.session,this.em).createSmartRoom(category);
+		return new EducationService(this.session,this.em).createSmartRoom(category);
 	}
 
 	public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {

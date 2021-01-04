@@ -1,8 +1,8 @@
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
-import de.cranix.dao.tools.OSSShellTools;
+import de.cranix.helper.OSSShellTools;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
@@ -25,14 +25,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static de.cranix.dao.internal.CranixConstants.cranixBaseDir;
-import static de.cranix.dao.internal.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.CranixConstants.cranixBaseDir;
+import static de.cranix.helper.CranixConstants.cranixTmpDir;
 
-public class PrinterController extends Controller {
+public class PrinterService extends Service {
     private final Path DRIVERS = Paths.get(cranixBaseDir + "templates/drivers.txt");
     final String[] encodings = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"};
 
-    public PrinterController(Session session, EntityManager em) {
+    public PrinterService(Session session, EntityManager em) {
         super(session, em);
     }
 
@@ -179,7 +179,7 @@ public class PrinterController extends Controller {
             this.em.merge(printerDevice);
             this.em.getTransaction().commit();
             if (printerDevice.getPrinterQueue().isEmpty()) {
-                crxResponse = new DeviceController(this.session, this.em).delete(printerDevice, true);
+                crxResponse = new DeviceService(this.session, this.em).delete(printerDevice, true);
             }
             this.systemctl("reload", "samba-printserver");
         } catch (Exception e) {
@@ -249,8 +249,8 @@ public class PrinterController extends Controller {
             return new CrxResponse(session, "ERROR", "The session password of the administrator is expiered. Please login into the web interface again.");
         }
         //First we create a device object
-        RoomController roomController = new RoomController(this.session, this.em);
-		HWConf hwconf = new CloneToolController(this.session, this.em).getByName("Printer");
+        RoomService roomService = new RoomService(this.session, this.em);
+		HWConf hwconf = new CloneToolService(this.session, this.em).getByName("Printer");
         Device device = new Device();
         device.setMac(mac.trim());
         device.setName(name);
@@ -260,7 +260,7 @@ public class PrinterController extends Controller {
         List<Device> devices = new ArrayList<Device>();
         devices.add(device);
         //Persist the device object
-        CrxResponse crxResponse = roomController.addDevices(roomId, devices).get(0);
+        CrxResponse crxResponse = roomService.addDevices(roomId, devices).get(0);
         if (crxResponse.getCode().equals("ERROR")) {
             return crxResponse;
         }

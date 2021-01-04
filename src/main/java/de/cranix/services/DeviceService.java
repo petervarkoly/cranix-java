@@ -1,10 +1,10 @@
 /* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import de.cranix.dao.*;
-import de.cranix.dao.tools.IPv4;
-import de.cranix.dao.tools.IPv4Net;
-import de.cranix.dao.tools.OSSShellTools;
+import de.cranix.helper.IPv4;
+import de.cranix.helper.IPv4Net;
+import de.cranix.helper.OSSShellTools;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +22,18 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
-import static de.cranix.dao.internal.CranixConstants.cranixTmpDir;
-import static de.cranix.dao.tools.StaticHelpers.startPlugin;
+import static de.cranix.helper.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.StaticHelpers.startPlugin;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
 
 @SuppressWarnings("unchecked")
-public class DeviceController extends Controller {
+public class DeviceService extends Service {
 
-    Logger logger = LoggerFactory.getLogger(DeviceController.class);
+    Logger logger = LoggerFactory.getLogger(DeviceService.class);
     private List<String> parameters;
 
-    public DeviceController(Session session, EntityManager em) {
+    public DeviceService(Session session, EntityManager em) {
         super(session, em);
     }
 
@@ -95,7 +95,7 @@ public class DeviceController extends Controller {
             }
             new DHCPConfig(session, em).Create();
             if (needReloadSalt) {
-                new SoftwareController(this.session, this.em).applySoftwareStateToHosts();
+                new SoftwareService(this.session, this.em).applySoftwareStateToHosts();
             }
             return new CrxResponse(this.getSession(), "OK", "Devices were deleted succesfully.");
         } catch (Exception e) {
@@ -208,13 +208,13 @@ public class DeviceController extends Controller {
             if (atomic) {
                 new DHCPConfig(session, em).Create();
                 if (needReloadSalt) {
-                    new SoftwareController(this.session, this.em).applySoftwareStateToHosts();
+                    new SoftwareService(this.session, this.em).applySoftwareStateToHosts();
                 }
             }
-            UserController userController = new UserController(this.session, this.em);
-            user = userController.getByUid(device.getName());
+            UserService userService = new UserService(this.session, this.em);
+            user = userService.getByUid(device.getName());
             if (user != null) {
-                userController.delete(user);
+                userService.delete(user);
             }
             return new CrxResponse(this.getSession(), "OK", "%s was deleted succesfully.", null, name);
         } catch (Exception e) {
@@ -526,12 +526,12 @@ public class DeviceController extends Controller {
             responses.add(new CrxResponse(this.getSession(), "ERROR", e.getMessage()));
             return responses;
         }
-        RoomController roomController = new RoomController(this.session, this.em);
-        CloneToolController cloneToolController = new CloneToolController(this.session, this.em);
-        UserController userController = new UserController(this.session, this.em);
+        RoomService roomService = new RoomService(this.session, this.em);
+        CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
+        UserService userService = new UserService(this.session, this.em);
 
         //Initialize the the hash for the rooms
-        for (Room r : roomController.getAllToUse()) {
+        for (Room r : roomService.getAllToUse()) {
             devicesToImport.put(r.getId(), new ArrayList<Device>());
         }
         String headerLine = importFile.get(0);
@@ -554,7 +554,7 @@ public class DeviceController extends Controller {
                 i++;
             }
             logger.debug("values" + values);
-            Room room = roomController.getByName(values.get("room"));
+            Room room = roomService.getByName(values.get("room"));
             if (room == null) {
                 logger.debug("Can Not find the Room" + values.get("room"));
                 parameters.add(values.get("room"));
@@ -596,13 +596,13 @@ public class DeviceController extends Controller {
                 device.setSerial(values.get("serial"));
             }
             if (values.containsKey("owner") && !values.get("owner").isEmpty()) {
-                User user = userController.getByUid(values.get("owner"));
+                User user = userService.getByUid(values.get("owner"));
                 if (user != null) {
                     device.setOwner(user);
                 }
             }
             if (values.containsKey("hwconf") && !values.get("hwconf").isEmpty()) {
-                HWConf hwconf = cloneToolController.getByName(values.get("hwconf"));
+                HWConf hwconf = cloneToolService.getByName(values.get("hwconf"));
                 if (hwconf != null) {
                     device.setHwconf(hwconf);
                 }
@@ -612,9 +612,9 @@ public class DeviceController extends Controller {
             devicesToImport.get(room.getId()).add(device);
         }
 
-        for (Room r : roomController.getAllToUse()) {
+        for (Room r : roomService.getAllToUse()) {
             if (!devicesToImport.get(r.getId()).isEmpty()) {
-                responses.addAll(roomController.addDevices(r.getId(), devicesToImport.get(r.getId())));
+                responses.addAll(roomService.addDevices(r.getId(), devicesToImport.get(r.getId())));
             }
         }
         return responses;
@@ -715,7 +715,7 @@ public class DeviceController extends Controller {
         if (device == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with MAC: %s", null, MAC);
         }
-        User user = new UserController(this.session, this.em).getByUid(userName);
+        User user = new UserService(this.session, this.em).getByUid(userName);
         if (user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, userName);
         }
@@ -727,7 +727,7 @@ public class DeviceController extends Controller {
         if (device == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with IP: %s", null, IP);
         }
-        User user = new UserController(this.session, this.em).getByUid(userName);
+        User user = new UserService(this.session, this.em).getByUid(userName);
         if (user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, userName);
         }
@@ -739,7 +739,7 @@ public class DeviceController extends Controller {
         if (device == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with ID: %s", null, String.valueOf(deviceId));
         }
-        User user = new UserController(this.session, this.em).getById(userId);
+        User user = new UserService(this.session, this.em).getById(userId);
         if (user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, String.valueOf(userId));
         }
@@ -773,7 +773,7 @@ public class DeviceController extends Controller {
 
     public CrxResponse removeLoggedInUserByMac(String MAC, String userName) {
         Device device = this.getByMAC(MAC);
-        User user = new UserController(this.session, this.em).getByUid(userName);
+        User user = new UserService(this.session, this.em).getByUid(userName);
         if (device == null || user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Can not find user or device");
         }
@@ -782,7 +782,7 @@ public class DeviceController extends Controller {
 
     public CrxResponse removeLoggedInUser(String IP, String userName) {
         Device device = this.getByIP(IP);
-        User user = new UserController(this.session, this.em).getByUid(userName);
+        User user = new UserService(this.session, this.em).getByUid(userName);
         if (device == null || user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Can not find user or device");
         }
@@ -791,7 +791,7 @@ public class DeviceController extends Controller {
 
     public CrxResponse removeLoggedInUser(Long deviceId, Long userId) {
         Device device = this.getById(deviceId);
-        User user = new UserController(this.session, this.em).getById(userId);
+        User user = new UserService(this.session, this.em).getById(userId);
         if (device == null || user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Can not find user or device");
         }
@@ -895,7 +895,7 @@ public class DeviceController extends Controller {
             }
             if (oldDevice.getWlanMac().isEmpty()) {
                 //There was no WLAN-Mac before we need a new IP-Address
-                RoomController rc = new RoomController(this.session, this.em);
+                RoomService rc = new RoomService(this.session, this.em);
                 List<String> wlanIps = rc.getAvailableIPAddresses(oldDevice.getRoom().getId());
                 if (wlanIps.isEmpty()) {
                     error.add("The are no more IP addesses in room");
@@ -956,7 +956,7 @@ public class DeviceController extends Controller {
     }
 
     public List<Device> getByHWConf(Long id) {
-        HWConf hwconf = new CloneToolController(this.session, this.em).getById(id);
+        HWConf hwconf = new CloneToolService(this.session, this.em).getById(id);
         List<Device> devices = hwconf.getDevices();
         devices.sort(Comparator.comparing(Device::getName));
         return devices;
@@ -983,7 +983,7 @@ public class DeviceController extends Controller {
             return new CrxResponse(this.getSession(), "ERROR", "Do not control the own client.");
         }
         logger.debug("manageDevice: " + device.getName() + " " + action);
-        CloneToolController cloneToolController = new CloneToolController(this.session, this.em);
+        CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
         StringBuilder FQHN = new StringBuilder();
         FQHN.append(device.getName()).append(".").append(this.getConfigValue("DOMAIN"));
         File file;
@@ -1065,11 +1065,11 @@ public class DeviceController extends Controller {
                 program[2] = device.getIp();
                 break;
             case "startclone":
-                return cloneToolController.startCloning("device", device.getId(), 0);
+                return cloneToolService.startCloning("device", device.getId(), 0);
             case "startmulticastclone":
-                return cloneToolController.startCloning("device", device.getId(), 1);
+                return cloneToolService.startCloning("device", device.getId(), 1);
             case "stopclone":
-                return cloneToolController.stopCloning("device", device.getId());
+                return cloneToolService.stopCloning("device", device.getId());
             case "controlproxy":
                 //TODO
                 break;
@@ -1123,7 +1123,7 @@ public class DeviceController extends Controller {
                 }
 		return new CrxResponse(this.getSession(), "OK", "Logged in users was cleaned up on '%s'.", null, FQHN.toString());
             case "download":
-                UserController uc = new UserController(this.session, this.em);
+                UserService uc = new UserService(this.session, this.em);
 		boolean cleanUpExport = true;
                 boolean sortInDirs = true;
                 String projectName = this.nowString();
@@ -1214,7 +1214,7 @@ public class DeviceController extends Controller {
         if (device == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with MAC: %s", null, MAC);
         }
-        User user = new UserController(this.session, this.em).getByUid(userName);
+        User user = new UserService(this.session, this.em).getByUid(userName);
         if (user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, userName);
         }
@@ -1226,7 +1226,7 @@ public class DeviceController extends Controller {
         if (device == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with IP: %s", null, IP);
         }
-        User user = new UserController(this.session, this.em).getByUid(userName);
+        User user = new UserService(this.session, this.em).getByUid(userName);
         if (user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, userName);
         }
@@ -1238,7 +1238,7 @@ public class DeviceController extends Controller {
         if (device == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with ID: %s", null, String.valueOf(deviceId));
         }
-        User user = new UserController(this.session, this.em).getById(userId);
+        User user = new UserService(this.session, this.em).getById(userId);
         if (user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, String.valueOf(userId));
         }

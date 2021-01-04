@@ -32,14 +32,14 @@ import de.cranix.dao.ProxyRule;
 import de.cranix.dao.Session;
 import de.cranix.dao.Translation;
 import de.cranix.dao.User;
-import de.cranix.dao.controller.SystemController;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
-import static de.cranix.dao.internal.CranixConstants.*;
-import de.cranix.dao.tools.OSSShellTools;
-import de.cranix.dao.controller.ProxyController;
-import de.cranix.dao.controller.SessionController;
-import de.cranix.dao.controller.Controller;
-import de.cranix.dao.controller.JobController;
+import de.cranix.services.SystemService;
+import de.cranix.helper.CommonEntityManagerFactory;
+import static de.cranix.helper.CranixConstants.*;
+import de.cranix.helper.OSSShellTools;
+import de.cranix.services.ProxyService;
+import de.cranix.services.SessionService;
+import de.cranix.services.Service;
+import de.cranix.services.JobService;
 
 public class SystemResourceImpl implements SystemResource {
 
@@ -51,8 +51,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public Object getStatus(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		Object resp = systemController.getStatus();
+		SystemService systemService = new SystemService(session,em);
+		Object resp = systemService.getStatus();
 		em.close();
 		return resp;
 	}
@@ -83,8 +83,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<String> getEnumerates(Session session, String type) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		List<String> resp = systemController.getEnumerates(type);
+		SystemService systemService = new SystemService(session,em);
+		List<String> resp = systemService.getEnumerates(type);
 		em.close();
 		return resp;
 	}
@@ -92,8 +92,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse addEnumerate(Session session, String type, String value) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		CrxResponse resp = systemController.addEnumerate(type, value);
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.addEnumerate(type, value);
 		em.close();
 		return resp;
 	}
@@ -101,8 +101,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse deleteEnumerate(Session session, String type, String value) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		CrxResponse resp = systemController.deleteEnumerate(type, value);
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.deleteEnumerate(type, value);
 		em.close();
 		return resp;
 	}
@@ -110,8 +110,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Map<String, String>> getConfig(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		List<Map<String, String>> resp = systemController.getConfig();
+		SystemService systemService = new SystemService(session,em);
+		List<Map<String, String>> resp = systemService.getConfig();
 		em.close();
 		return resp;
 	}
@@ -119,8 +119,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public String getConfig(Session session, String key) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		String resp = systemController.getConfigValue(key);
+		SystemService systemService = new SystemService(session,em);
+		String resp = systemService.getConfigValue(key);
 		em.close();
 		return resp;
 	}
@@ -128,8 +128,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setConfig(Session session, String key, String value) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		if( systemController.setConfigValue(key, value) ) {
+		SystemService systemService = new SystemService(session,em);
+		if( systemService.setConfigValue(key, value) ) {
 			em.close();
 			return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
 		} else {
@@ -141,9 +141,9 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setConfig(Session session, Map<String, String> config) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
+		SystemService systemService = new SystemService(session,em);
 		try {
-			if( systemController.setConfigValue(config.get("key"), config.get("value")) ) {
+			if( systemService.setConfigValue(config.get("key"), config.get("value")) ) {
 				return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
 			} else {
 				return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
@@ -158,8 +158,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public Map<String, String> getFirewallIncomingRules(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		Map<String, String> resp = systemController.getFirewallIncomingRules();
+		SystemService systemService = new SystemService(session,em);
+		Map<String, String> resp = systemService.getFirewallIncomingRules();
 		em.close();
 		return resp;
 	}
@@ -167,8 +167,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setFirewallIncomingRules(Session session, Map<String, String> incommingRules) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		CrxResponse resp = systemController.setFirewallIncomingRules(incommingRules);
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.setFirewallIncomingRules(incommingRules);
 		em.close();
 		return resp;
 	}
@@ -176,8 +176,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Map<String, String>> getFirewallOutgoingRules(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		List<Map<String, String>> resp = systemController.getFirewallOutgoingRules();
+		SystemService systemService = new SystemService(session,em);
+		List<Map<String, String>> resp = systemService.getFirewallOutgoingRules();
 		em.close();
 		return resp;
 	}
@@ -185,8 +185,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setFirewallOutgoingRules(Session session, List<Map<String, String>> outgoingRules) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		CrxResponse resp = systemController.setFirewallOutgoingRules(outgoingRules);
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.setFirewallOutgoingRules(outgoingRules);
 		em.close();
 		return resp;
 	}
@@ -194,8 +194,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Map<String, String>> getFirewallRemoteAccessRules(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		List<Map<String, String>> resp =  systemController.getFirewallRemoteAccessRules();
+		SystemService systemService = new SystemService(session,em);
+		List<Map<String, String>> resp =  systemService.getFirewallRemoteAccessRules();
 		em.close();
 		return resp;
 	}
@@ -203,8 +203,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setFirewallRemoteAccessRules(Session session, List<Map<String, String>> remoteAccessRules) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		SystemController systemController = new SystemController(session,em);
-		CrxResponse resp = systemController.setFirewallRemoteAccessRules(remoteAccessRules);
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.setFirewallRemoteAccessRules(remoteAccessRules);
 		em.close();
 		return resp;
 	}
@@ -212,7 +212,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public String translate(Session session, Translation translation) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		String resp = new SystemController(session,em).translate(translation.getLang(), translation.getString());
+		String resp = new SystemService(session,em).translate(translation.getLang(), translation.getString());
 		em.close();
 		return resp;
 	}
@@ -220,7 +220,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse addTranslation(Session session, Translation translation) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).addTranslation(translation);
+		CrxResponse resp = new SystemService(session,em).addTranslation(translation);
 		em.close();
 		return resp;
 	}
@@ -228,7 +228,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Translation> getMissedTranslations(Session session, String lang) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Translation> resp = new SystemController(session,em).getMissedTranslations(lang);
+		List<Translation> resp = new SystemService(session,em).getMissedTranslations(lang);
 		em.close();
 		return resp;
 	}
@@ -236,7 +236,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse register(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).registerSystem();
+		CrxResponse resp = new SystemService(session,em).registerSystem();
 		em.close();
 		return resp;
 	}
@@ -244,7 +244,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Map<String, String>> searchPackages(Session session, String filter) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Map<String, String>> resp = new SystemController(session,em).searchPackages(filter);
+		List<Map<String, String>> resp = new SystemService(session,em).searchPackages(filter);
 		em.close();
 		return resp;
 	}
@@ -252,7 +252,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse installPackages(Session session, List<String> packages) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).installPackages(packages);
+		CrxResponse resp = new SystemService(session,em).installPackages(packages);
 		em.close();
 		return resp;
 	}
@@ -260,7 +260,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse updatePackages(Session session, List<String> packages) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).updatePackages(packages);
+		CrxResponse resp = new SystemService(session,em).updatePackages(packages);
 		em.close();
 		return resp;
 	}
@@ -268,7 +268,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse updateSyste(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).updateSystem();
+		CrxResponse resp = new SystemService(session,em).updateSystem();
 		em.close();
 		return resp;
 	}
@@ -276,14 +276,14 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public  List<ProxyRule> getProxyDefault(Session session, String role) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<ProxyRule> resp = new ProxyController(session,em).readDefaults(role);
+		List<ProxyRule> resp = new ProxyService(session,em).readDefaults(role);
 		em.close();
 		return resp;
 	}
 
 	@Override
 	public List<Map<String,String>>  getProxyLists(Session session) {
-		return new ProxyController(session,null).getLists();
+		return new ProxyService(session,null).getLists();
 	}
 
 	@Override
@@ -322,7 +322,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setProxyDefault(Session session, String role, List<ProxyRule> acl) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new ProxyController(session,em).setDefaults(role, acl);
+		CrxResponse resp = new ProxyService(session,em).setDefaults(role, acl);
 		em.close();
 		return resp;
 	}
@@ -330,7 +330,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public Map<String, List<ProxyRule>> getProxyDefaults(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Map<String, List<ProxyRule>> resp = new ProxyController(session,em).readDefaults();
+		Map<String, List<ProxyRule>> resp = new ProxyService(session,em).readDefaults();
 		em.close();
 		return resp;
 	}
@@ -338,7 +338,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setProxyDefaults(Session session, String role, Map<String, List<ProxyRule>> acls) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new ProxyController(session,em).setDefaults(acls);
+		CrxResponse resp = new ProxyService(session,em).setDefaults(acls);
 		em.close();
 		return resp;
 	}
@@ -367,7 +367,7 @@ public class SystemResourceImpl implements SystemResource {
 			program[3] = "-C";
 			program[4] = "custom/" +list + "/domains";
 			OSSShellTools.exec(program, reply, error, null);
-			new Controller(session,null).systemctl("try-restart", "squid");
+			new Service(session,null).systemctl("try-restart", "squid");
 			return new CrxResponse(session,"OK","Custom list was written successfully");
 		} catch( IOException e ) {
 			e.printStackTrace();
@@ -378,25 +378,25 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse createJob(Session session, Job job) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		return new JobController(session,em).createJob(job);
+		return new JobService(session,em).createJob(job);
 	}
 
 	@Override
 	public List<Job> searchJob(Session session, Job job ) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		return new JobController(session,em).searchJobs(job.getDescription(), job.getStartTime(), job.getEndTime());
+		return new JobService(session,em).searchJobs(job.getDescription(), job.getStartTime(), job.getEndTime());
 	}
 
 	@Override
 	public Job getJob(Session session, Long jobId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		return new JobController(session,em).getById(jobId);
+		return new JobService(session,em).getById(jobId);
 	}
 
 	@Override
 	public CrxResponse setJobExitValue(Session session, Long jobId, Integer exitValue) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new JobController(session,em).setExitCode(jobId, exitValue);
+		CrxResponse resp = new JobService(session,em).setExitCode(jobId, exitValue);
 		em.close();
 		return resp;
 	}
@@ -404,7 +404,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse restartJob(Session session, Long jobId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new JobController(session,em).restartJob(jobId);
+		CrxResponse resp = new JobService(session,em).restartJob(jobId);
 		em.close();
 		return resp;
 	}
@@ -416,7 +416,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Acl> getAcls(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Acl> resp = new SystemController(session,em).getAvailableAcls();
+		List<Acl> resp = new SystemService(session,em).getAvailableAcls();
 		em.close();
 		return resp;
 	}
@@ -424,7 +424,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Acl> getAclsOfGroup(Session session, Long groupId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Acl> resp = new SystemController(session,em).getAclsOfGroup(groupId);
+		List<Acl> resp = new SystemService(session,em).getAclsOfGroup(groupId);
 		em.close();
 		return resp;
 	}
@@ -432,7 +432,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setAclOfGroup(Session session, Long groupId, Acl acl) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).setAclToGroup(groupId,acl);
+		CrxResponse resp = new SystemService(session,em).setAclToGroup(groupId,acl);
 		em.close();
 		return resp;
 	}
@@ -440,7 +440,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Acl> getAvailableAclsForGroup(Session session, Long groupId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Acl> resp = new SystemController(session,em).getAvailableAclsForGroup(groupId);
+		List<Acl> resp = new SystemService(session,em).getAvailableAclsForGroup(groupId);
 		em.close();
 		return resp;
 	}
@@ -467,7 +467,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Acl> getAclsOfUser(Session session, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Acl> resp = new SystemController(session,em).getAclsOfUser(userId);
+		List<Acl> resp = new SystemService(session,em).getAclsOfUser(userId);
 		em.close();
 		return resp;
 	}
@@ -475,7 +475,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse setAclOfUser(Session session, Long userId, Acl acl) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).setAclToUser(userId,acl);
+		CrxResponse resp = new SystemService(session,em).setAclToUser(userId,acl);
 		em.close();
 		return resp;
 	}
@@ -483,7 +483,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Acl> getAvailableAclsForUser(Session session, Long userId) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Acl> resp = new SystemController(session,em).getAvailableAclsForUser(userId);
+		List<Acl> resp = new SystemService(session,em).getAvailableAclsForUser(userId);
 		em.close();
 		return resp;
 	}
@@ -510,8 +510,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public String getName(UriInfo ui, HttpServletRequest req) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Session session  = new SessionController(em).getLocalhostSession();
-		String resp = new SystemController(session,em).getConfigValue("NAME");
+		Session session  = new SessionService(em).getLocalhostSession();
+		String resp = new SystemService(session,em).getConfigValue("NAME");
 		em.close();
 		return resp;
 	}
@@ -519,8 +519,8 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public String getType(UriInfo ui, HttpServletRequest req) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Session session  = new SessionController(em).getLocalhostSession();
-		String resp = new SystemController(session,em).getConfigValue("TYPE");
+		Session session  = new SessionService(em).getLocalhostSession();
+		String resp = new SystemService(session,em).getConfigValue("TYPE");
 		em.close();
 		return resp;
 	}
@@ -528,7 +528,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Job> getRunningJobs(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Job> resp = new JobController(session,em).getRunningJobs();
+		List<Job> resp = new JobService(session,em).getRunningJobs();
 		em.close();
 		return resp;
 	}
@@ -536,7 +536,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Job> getFailedJobs(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Job> resp = new JobController(session,em).getFailedJobs();
+		List<Job> resp = new JobService(session,em).getFailedJobs();
 		em.close();
 		return resp;
 	}
@@ -544,7 +544,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public List<Job> getSucceededJobs(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Job> resp = new JobController(session,em).getSucceededJobs();
+		List<Job> resp = new JobService(session,em).getSucceededJobs();
 		em.close();
 		return resp;
 	}
@@ -552,7 +552,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public String[] getDnsDomains(Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		String[] resp = new SystemController(session,em).getDnsDomains();
+		String[] resp = new SystemService(session,em).getDnsDomains();
 		em.close();
 		return resp;
 	}
@@ -560,7 +560,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse addDnsDomain(Session session, String domainName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).addDnsDomain(domainName);
+		CrxResponse resp = new SystemService(session,em).addDnsDomain(domainName);
 		em.close();
 		return resp;
 	}
@@ -568,14 +568,14 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse deleteDnsDomain(Session session, String domainName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).deleteDnsDomain(domainName);
+		CrxResponse resp = new SystemService(session,em).deleteDnsDomain(domainName);
 		em.close();
 		return resp;
 	}
 	@Override
 	public List<DnsRecord> getRecords(Session session, String domainName) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<DnsRecord> resp = new SystemController(session,em).getRecords(domainName);
+		List<DnsRecord> resp = new SystemService(session,em).getRecords(domainName);
 		em.close();
 		return resp;
 	}
@@ -583,7 +583,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse addDnsRecord(Session session, DnsRecord dnsRecord) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).addDnsRecord(dnsRecord);
+		CrxResponse resp = new SystemService(session,em).addDnsRecord(dnsRecord);
 		em.close();
 		return resp;
 	}
@@ -591,7 +591,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse deleteDnsRecord(Session session, DnsRecord dnsRecord) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).deleteDnsRecord(dnsRecord);
+		CrxResponse resp = new SystemService(session,em).deleteDnsRecord(dnsRecord);
 		em.close();
 		return resp;
 	}
@@ -599,7 +599,7 @@ public class SystemResourceImpl implements SystemResource {
 	@Override
 	public CrxResponse findObject(Session session, String objectType, LinkedHashMap<String,Object> object) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new SystemController(session,em).findObject(objectType, object);
+		CrxResponse resp = new SystemService(session,em).findObject(objectType, object);
 		em.close();
 		return resp;
 	}

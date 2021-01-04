@@ -1,7 +1,7 @@
-package de.cranix.dao.tools;
+package de.cranix.helper;
 
 import java.util.Locale;
-import static de.cranix.dao.internal.CranixConstants.*;
+import static de.cranix.helper.CranixConstants.*;
 
 public class SslCrypto {
 	

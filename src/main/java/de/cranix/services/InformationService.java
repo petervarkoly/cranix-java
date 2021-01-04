@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -21,12 +21,12 @@ import de.cranix.dao.User;
  * @author varkoly
  *
  */
-public class InformationController extends Controller {
+public class InformationService extends Service {
 
 	/**
 	 * @param session
 	 */
-	public InformationController(Session session,EntityManager em) {
+	public InformationService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
@@ -542,17 +542,17 @@ public class InformationController extends Controller {
 	 * @return The list of the found categories.
 	 */
 	public List<Category> getInfoCategories() {
-		CategoryController categoryController = new CategoryController(this.session,this.em);
+		CategoryService categoryService = new CategoryService(this.session,this.em);
 		boolean isSuperuser = this.isSuperuser();
 		List<Category> categories = new ArrayList<Category>();
-		for(Category category : categoryController.getByType("informations") ) {
+		for(Category category : categoryService.getByType("informations") ) {
 			if(isSuperuser ||  category.isPublicAccess() || this.session.getUser().equals(category.getOwner())) {
 				if( !categories.contains(category) ) {
 					categories.add(category);
 				}
 			}
 		}
-		for(Category category : categoryController.getByType("smartRoom") ) {
+		for(Category category : categoryService.getByType("smartRoom") ) {
 			logger.debug("getInfoCategories smartRoom:" + category );
 			if( isSuperuser ||  category.isPublicAccess() || this.session.getUser().equals(category.getOwner())) {
 				if( !categories.contains(category) ) {

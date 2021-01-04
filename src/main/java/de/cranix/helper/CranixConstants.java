@@ -1,4 +1,4 @@
-package de.cranix.dao.internal;
+package de.cranix.helper;
 
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;

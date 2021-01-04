@@ -1,7 +1,7 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
-import static de.cranix.dao.internal.CranixConstants.roleStudent;
+import static de.cranix.helper.CranixConstants.roleStudent;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,15 +35,15 @@ import de.cranix.dao.Printer;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
-import de.cranix.dao.tools.IPv4Net;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.tools.StaticHelpers.*;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.IPv4Net;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.StaticHelpers.*;
+import static de.cranix.helper.CranixConstants.*;
 
 @SuppressWarnings( "unchecked" )
-public class RoomController extends Controller {
+public class RoomService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(RoomController.class);
+	Logger logger = LoggerFactory.getLogger(RoomService.class);
 
 	@SuppressWarnings("serial")
 	static Map<Integer, Integer> nmToRowsPlaces = new HashMap<Integer, Integer>() {{
@@ -62,7 +62,7 @@ public class RoomController extends Controller {
 		put(19,91);
 	}};
 
-	public RoomController(Session session,EntityManager em) {
+	public RoomService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
@@ -338,11 +338,11 @@ public class RoomController extends Controller {
 
 	public CrxResponse add(Room room){
 		if( room.getRoomType().equals("smartRoom") ) {
-			return new CrxResponse(this.getSession(),"ERROR", "Smart Rooms can only be created by Education Controller.");
+			return new CrxResponse(this.getSession(),"ERROR", "Smart Rooms can only be created by Education Service.");
 		}
 		HWConf hwconf = new HWConf();
-		CloneToolController cloneToolController = new CloneToolController(this.session,this.em);
-		HWConf firstFatClient = cloneToolController.getByType("FatClient").get(0);
+		CloneToolService cloneToolService = new CloneToolService(this.session,this.em);
+		HWConf firstFatClient = cloneToolService.getByType("FatClient").get(0);
 		logger.debug("First HWConf:" +  firstFatClient.toString());
 
 		//Check parameters
@@ -387,7 +387,7 @@ public class RoomController extends Controller {
 			room.setRoomControl("inRoom");
 		}
 		// Check HWConf
-		hwconf = cloneToolController.getById(room.getHwconfId());
+		hwconf = cloneToolService.getById(room.getHwconfId());
 		if( hwconf == null ) {
 			if( room.getHwconf() != null){
 				hwconf = room.getHwconf();
@@ -425,7 +425,7 @@ public class RoomController extends Controller {
 		if( !this.mayModify(room) ) {
 			return new CrxResponse(this.getSession(),"ERROR","You must not delete this room.");
 		}
-		DeviceController devController = new DeviceController(this.session,this.em);
+		DeviceService devService = new DeviceService(this.session,this.em);
 		if( this.isProtected(room) ) {
 			return new CrxResponse(this.getSession(),"ERROR","This room must not be deleted.");
 		}
@@ -435,13 +435,13 @@ public class RoomController extends Controller {
 		}
 		for( Device device : toDelete ) {
 			logger.debug("Deleting " + device.getName());
-			devController.delete(device, false);
+			devService.delete(device, false);
 		}
 		//The categories connected to a room must handled too
 		List<Category> categoriesToModify = new ArrayList<Category>();
 		for( Category category : room.getCategories() ) {
 			if( category.getCategoryType().equals("smartRoom") ) {
-				new CategoryController(this.session,this.em).delete(category);
+				new CategoryService(this.session,this.em).delete(category);
 			} else {
 				categoriesToModify.add(category);
 			}
@@ -476,7 +476,7 @@ public class RoomController extends Controller {
 		}
 		DHCPConfig dhcpconfig = new DHCPConfig(session,em);
 		dhcpconfig.Create();
-		new SoftwareController(this.session,this.em).applySoftwareStateToHosts();
+		new SoftwareService(this.session,this.em).applySoftwareStateToHosts();
 		startPlugin("delete_room", room);
 		return new CrxResponse(this.getSession(),"OK", "Room was removed successfully.");
 	}
@@ -665,7 +665,7 @@ public class RoomController extends Controller {
 		StringBuffer error = new StringBuffer();
 
 		if(access.getAccessType().equals("ACT") ) {
-			DeviceController dc = new DeviceController(this.session,this.em);
+			DeviceService dc = new DeviceService(this.session,this.em);
 			for(Device device : room.getDevices() ) {
 				dc.manageDevice(device, access.getAction(), null);
 			}
@@ -881,9 +881,9 @@ public class RoomController extends Controller {
 	public List<CrxResponse> addDevices(long roomId,List<Device> devices){
 		Room room = this.getById(roomId);
 		HWConf hwconf = new HWConf();
-		DeviceController deviceController = new DeviceController(this.session,this.em);
-		CloneToolController cloneToolController = new CloneToolController(this.session,this.em);
-		HWConf firstFatClient = cloneToolController.getByType("FatClient").get(0);
+		DeviceService deviceService = new DeviceService(this.session,this.em);
+		CloneToolService cloneToolService = new CloneToolService(this.session,this.em);
+		HWConf firstFatClient = cloneToolService.getByType("FatClient").get(0);
 		List<String> ipAddress;
 		List<Device> newDevices = new ArrayList<Device>();
 		List<String> parameters  = new ArrayList<String>();
@@ -919,7 +919,7 @@ public class RoomController extends Controller {
 					}
 					device.setWlanIp(ipAddress.get(1).split(" ")[0]);
 				}
-				hwconf = cloneToolController.getById(device.getHwconfId());
+				hwconf = cloneToolService.getById(device.getHwconfId());
 				if( hwconf == null ) {
 					if( room.getHwconf() != null ){
 						hwconf = room.getHwconf();
@@ -928,7 +928,7 @@ public class RoomController extends Controller {
 					}
 				}
 				device.setHwconf(hwconf);
-				CrxResponse crxResponse = deviceController.check(device, room);
+				CrxResponse crxResponse = deviceService.check(device, room);
 				responses.add(crxResponse);
 				if( crxResponse.getCode().equals("ERROR") ) {
 					logger.error("addDevices addDevice:" +crxResponse);
@@ -960,7 +960,7 @@ public class RoomController extends Controller {
 				this.em.getTransaction().rollback();
 			}
 		}
-		UserController userController = new UserController(this.session,this.em);
+		UserService userService = new UserService(this.session,this.em);
 		boolean needWriteSalt = false;
 		for(Device device : newDevices) {
 			startPlugin("add_device", device);
@@ -977,7 +977,7 @@ public class RoomController extends Controller {
 				user.setSurName("Workstation-User");
 				user.setRole("workstations");
 				user.setRole("workstations");
-				CrxResponse answer = userController.add(user);
+				CrxResponse answer = userService.add(user);
 				responses.add(answer);
 				logger.debug(answer.getValue());
 				needWriteSalt = true;
@@ -985,7 +985,7 @@ public class RoomController extends Controller {
 		}
 		new DHCPConfig(session,em).Create();
 		if( needWriteSalt ) {
-			new SoftwareController(this.session,this.em).applySoftwareStateToHosts();
+			new SoftwareService(this.session,this.em).applySoftwareStateToHosts();
 		}
 		return responses;
 	}
@@ -995,7 +995,7 @@ public class RoomController extends Controller {
 	 */
 	public CrxResponse deleteDevices(long roomId,List<Long> deviceIDs){
 		Room room = this.em.find(Room.class, roomId);
-		DeviceController deviceController = new DeviceController(this.session,this.em);
+		DeviceService deviceService = new DeviceService(this.session,this.em);
 		boolean needWriteSalt = false;
 		try {
 			for(Long deviceId : deviceIDs) {
@@ -1004,7 +1004,7 @@ public class RoomController extends Controller {
 					if( device.getHwconf().getDeviceType().equals("FatClient")) {
 						needWriteSalt = true;
 					}
-					deviceController.delete(device, false);
+					deviceService.delete(device, false);
 				}
 			}
 			this.em.getEntityManagerFactory().getCache().evictAll();
@@ -1015,7 +1015,7 @@ public class RoomController extends Controller {
 		}
 		new DHCPConfig(session,em).Create();
 		if( needWriteSalt ) {
-			new SoftwareController(this.session,this.em).applySoftwareStateToHosts();
+			new SoftwareService(this.session,this.em).applySoftwareStateToHosts();
 		}
 		return new CrxResponse(this.getSession(),"OK ", "Devices were deleted succesfully.");
 	}
@@ -1068,9 +1068,9 @@ public class RoomController extends Controller {
 			logger.debug("Sysadmin register:" + device.getMac() +"#" +device.getIp() +"#" +device.getName());
 		}
 		//Check if the Device settings are OK
-		DeviceController deviceController = new DeviceController(this.session,this.em);
+		DeviceService deviceService = new DeviceService(this.session,this.em);
 		logger.debug("DEVICE " + device);
-		CrxResponse crxResponse = deviceController.check(device, room);
+		CrxResponse crxResponse = deviceService.check(device, room);
 		if( crxResponse.getCode().equals("ERROR") ) {
 			return crxResponse;
 		}
@@ -1134,7 +1134,7 @@ public class RoomController extends Controller {
 
 	public CrxResponse modify(Room room){
 		Room oldRoom = this.getById(room.getId());
-		HWConf hwconf = new CloneToolController(this.session,this.em).getById(room.getHwconfId());
+		HWConf hwconf = new CloneToolService(this.session,this.em).getById(room.getHwconfId());
 		oldRoom.setDescription(room.getDescription());
 		oldRoom.setHwconf(hwconf);
 		oldRoom.setHwconfId(room.getHwconfId());
@@ -1193,13 +1193,13 @@ public class RoomController extends Controller {
 
 	public CrxResponse setDefaultPrinter(Long roomId, Long deviceId) {
 		Room room = this.getById(roomId);
-		Printer printer = new PrinterController(this.session,this.em).getById(deviceId);
+		Printer printer = new PrinterService(this.session,this.em).getById(deviceId);
 		return this.setDefaultPrinter(room, printer);
 	}
 
 	public CrxResponse setDefaultPrinter(String roomName, String printerName) {
 		Room room = this.getByName(roomName);
-		Printer printer = new PrinterController(this.session,this.em).getByName(printerName);
+		Printer printer = new PrinterService(this.session,this.em).getByName(printerName);
 		return this.setDefaultPrinter(room, printer);
 	}
 
@@ -1224,12 +1224,12 @@ public class RoomController extends Controller {
 
 	public CrxResponse setAvailablePrinters(long roomId, List<Long> printerIds) {
 		Room room = this.getById(roomId);
-		PrinterController printerController = new PrinterController(this.session,this.em);;
+		PrinterService printerService = new PrinterService(this.session,this.em);;
 		room.setAvailablePrinters(new ArrayList<Printer>());
 		try {
 			this.em.getTransaction().begin();
 			for( Long printerId : printerIds) {
-				Printer printer = printerController.getById(printerId);
+				Printer printer = printerService.getById(printerId);
 				if( ! room.getAvailablePrinters().contains(printer) ) {
 					printer.getAvailableInRooms().add(room);
 					room.getAvailablePrinters().add(printer);
@@ -1326,7 +1326,7 @@ public class RoomController extends Controller {
 	public CrxResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
 		CrxResponse crxResponse = null;
 		List<String> errors = new ArrayList<String>();
-		DeviceController dc = new DeviceController(this.session,this.em);
+		DeviceService dc = new DeviceService(this.session,this.em);
 		for( Device device : this.getById(roomId).getDevices() ) {
 			//Do not control the own workstation
 			if( this.session.getDevice() != null && this.session.getDevice().getId().equals(device.getId())) {
@@ -1508,7 +1508,7 @@ public class RoomController extends Controller {
 			logger.error("File error:" + e.getMessage(), e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		}
-		CloneToolController   cloneToolController = new CloneToolController(this.session,this.em);
+		CloneToolService   cloneToolService = new CloneToolService(this.session,this.em);
 		Map<String,Integer> header                = new HashMap<>();
 		CrxResponse crxResponse;
 		String headerLine = importFile.get(0);
@@ -1571,7 +1571,7 @@ public class RoomController extends Controller {
 				room.setStartIP(values[header.get("startip")]);
 			}
 			if(header.containsKey("hwconf") && !values[header.get("hwconf")].isEmpty() ) {
-				HWConf hwconf = cloneToolController.getByName(values[header.get("hwconf")]);
+				HWConf hwconf = cloneToolService.getByName(values[header.get("hwconf")]);
 				if( hwconf == null ) {
 					room.setHwconfId(4l);
 				} else {

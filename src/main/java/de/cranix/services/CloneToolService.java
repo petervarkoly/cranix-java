@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.controller;
+package de.cranix.services;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -22,22 +22,22 @@ import de.cranix.dao.Room;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.SoftwareStatus;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.tools.StaticHelpers.*;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.StaticHelpers.*;
+import static de.cranix.helper.CranixConstants.*;
 
 
 @SuppressWarnings( "unchecked" )
-public class CloneToolController extends Controller {
+public class CloneToolService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(CloneToolController.class);
+	Logger logger = LoggerFactory.getLogger(CloneToolService.class);
 	private List<String> parameters = new ArrayList<String>();
 
 	protected Path PXE_BOOT = Paths.get( cranixBaseDir + "templates/pxeboot");
 	protected Path EFI_BOOT = Paths.get( cranixBaseDir + "templates/efiboot");
 	protected String images = "/srv/itool/images/";
 
-	public CloneToolController(Session session,EntityManager em) {
+	public CloneToolService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
@@ -446,13 +446,13 @@ public class CloneToolController extends Controller {
 		List<Device> devices = new ArrayList<Device>();
 		switch(type) {
 			case "device":
-				devices.add(new DeviceController(this.session,this.em).getById(id));
+				devices.add(new DeviceService(this.session,this.em).getById(id));
 				break;
 			case "hwconf":
-				devices = new DeviceController(this.session,this.em).getByHWConf(id);
+				devices = new DeviceService(this.session,this.em).getByHWConf(id);
 				break;
 			case "room":
-				devices = new RoomController(this.session,this.em).getById(id).getDevices();
+				devices = new RoomService(this.session,this.em).getById(id).getDevices();
 
 		}
 
@@ -516,7 +516,7 @@ public class CloneToolController extends Controller {
 			}
 			efiBoot.set(i, temp);
 		}
-		DeviceController dc = new DeviceController(this.session,this.em);
+		DeviceService dc = new DeviceService(this.session,this.em);
 		for( Long deviceId : parameters.getDeviceIds() ) {
 			Device device   = dc.getById(deviceId);
 			String pathPxe  = String.format("/srv/tftp/pxelinux.cfg/01-%s", device.getMac().toLowerCase().replace(":", "-"));
@@ -542,13 +542,13 @@ public class CloneToolController extends Controller {
 		List<String> deviceNames = new ArrayList<String>();
 		switch(type) {
 			case "device":
-				devices.add(new DeviceController(this.session,this.em).getById(id));
+				devices.add(new DeviceService(this.session,this.em).getById(id));
 				break;
 			case "hwconf":
-				devices = new DeviceController(this.session,this.em).getByHWConf(id);
+				devices = new DeviceService(this.session,this.em).getByHWConf(id);
 				break;
 			case "room":
-				devices = new RoomController(this.session,this.em).getById(id).getDevices();
+				devices = new RoomService(this.session,this.em).getById(id).getDevices();
 		}
 		for( Device device : devices ) {
 			deviceNames.add(device.getName());

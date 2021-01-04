@@ -22,16 +22,16 @@ import de.cranix.dao.Group;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
-import de.cranix.dao.controller.DHCPConfig;
-import de.cranix.dao.controller.Config;
-import de.cranix.dao.controller.DeviceController;
-import de.cranix.dao.controller.RoomController;
-import de.cranix.dao.controller.SessionController;
-import de.cranix.dao.controller.UserController;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.tools.StaticHelpers.*;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.services.DHCPConfig;
+import de.cranix.services.Config;
+import de.cranix.services.DeviceService;
+import de.cranix.services.RoomService;
+import de.cranix.services.SessionService;
+import de.cranix.services.UserService;
+import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.StaticHelpers.*;
+import static de.cranix.helper.CranixConstants.*;
 
 public class SelfManagementResourceImpl implements SelfManagementResource {
 
@@ -49,19 +49,19 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 	@Override
 	public CrxResponse modifyMySelf(Session session, User user) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		UserController userController = new UserController(session,em);
+		UserService userService = new UserService(session,em);
 		User oldUser = session.getUser();
 		CrxResponse  crxResponse = null;
 		logger.debug("modifyMySelf" + user);
 		if( user.getPassword() != null && !user.getPassword().isEmpty() ) {
-			crxResponse = userController.checkPassword(user.getPassword());
+			crxResponse = userService.checkPassword(user.getPassword());
 			logger.debug("Check-Password:" + crxResponse );
 			if( crxResponse != null  && crxResponse.getCode().equals("ERROR")) {
 				return crxResponse;
 			}
 			oldUser.setPassword(user.getPassword());
 		}
-		if( userController.isAllowed("myself.manage") ) {
+		if( userService.isAllowed("myself.manage") ) {
 			oldUser.setGivenName(user.getGivenName());
 			oldUser.setSurName(user.getSurName());
 			oldUser.setBirthDay(user.getBirthDay());
@@ -171,20 +171,20 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		}
 		EntityManager em     = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		Session session      = new Session();
-		SessionController sc = new SessionController(session,em);
+		SessionService sc = new SessionService(session,em);
 		String  resp         = "";
 		try {
 			session.setIp(req.getRemoteAddr());
 			session = sc.createInternalUserSession(userName);
-			final DeviceController deviceController = new DeviceController(session,em);
-			if( deviceController.getByMAC(MAC) != null ) {
+			final DeviceService deviceService = new DeviceService(session,em);
+			if( deviceService.getByMAC(MAC) != null ) {
 				resp = "ALREADY-REGISTERED";
 			} else {
-				final RoomController roomController = new RoomController(session,em);
-				List<Room> rooms = roomController.getRoomToRegisterForUser(session.getUser());
+				final RoomService roomService = new RoomService(session,em);
+				List<Room> rooms = roomService.getRoomToRegisterForUser(session.getUser());
 				if( rooms != null && rooms.size() > 0 ) {
 					String devName = MAC.substring(8).replaceAll(":", "");
-					CrxResponse crxResponse = roomController.addDevice(rooms.get(0).getId(), MAC, devName);
+					CrxResponse crxResponse = roomService.addDevice(rooms.get(0).getId(), MAC, devName);
 					resp =  crxResponse.getCode() + " " + crxResponse.getValue() + " " + crxResponse.getParameters();
 				} else  {
 					resp = "You can not register devices.";
@@ -204,8 +204,8 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
         @Override
         public List<Room> getMyRooms(Session session) {
                 EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                RoomController roomController = new RoomController(session,em);
-                List<Room> resp= roomController.getAllToRegister();
+                RoomService roomService = new RoomService(session,em);
+                List<Room> resp= roomService.getAllToRegister();
                 em.close();
                 return resp;
         }
@@ -218,14 +218,14 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
         @Override
         public CrxResponse deleteDevice(Session session, Long deviceId) {
                 EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                DeviceController deviceController = new DeviceController(session,em);
+                DeviceService deviceService = new DeviceService(session,em);
                 CrxResponse resp;
-                if( deviceController.isSuperuser() ) {
-                        resp = deviceController.delete(deviceId, true);
+                if( deviceService.isSuperuser() ) {
+                        resp = deviceService.delete(deviceId, true);
                 } else {
-                        Device device = deviceController.getById(deviceId);
-                        if( deviceController.mayModify(device) ) {
-                                resp = deviceController.delete(deviceId, true);
+                        Device device = deviceService.getById(deviceId);
+                        if( deviceService.mayModify(device) ) {
+                                resp = deviceService.delete(deviceId, true);
                         } else {
                                 resp = new CrxResponse(session,"ERROR", "This is not your device.");
                         }
@@ -237,7 +237,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
         @Override
         public CrxResponse modifyDevice(Session session, Long deviceId, Device device) {
                 EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                DeviceController deviceController = new DeviceController(session,em);
+                DeviceService deviceService = new DeviceService(session,em);
                 try {
                         Device oldDevice = em.find(Device.class, deviceId);
                         if( oldDevice == null ) {
@@ -246,7 +246,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
                         if( deviceId != device.getId() ) {
                                 return new CrxResponse(session,"ERROR","Device ID mismatch.");
                         }
-                        if( ! deviceController.mayModify(device) ) {
+                        if( ! deviceService.mayModify(device) ) {
                                 return new CrxResponse(session,"ERROR", "This is not your device.");
                         }
                         em.getTransaction().begin();
@@ -266,7 +266,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
         @Override
         public CrxResponse addDevice(Session session, Device device) {
                 EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-                CrxResponse resp = new RoomController(session,em).addDevice(device.getRoomId(), device.getMac(), device.getName());
+                CrxResponse resp = new RoomService(session,em).addDevice(device.getRoomId(), device.getMac(), device.getName());
                 em.close();
                 return resp;
         }

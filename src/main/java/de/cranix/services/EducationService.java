@@ -1,10 +1,10 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import java.io.File;
 
 
-import static de.cranix.dao.internal.CranixConstants.*;
+import static de.cranix.helper.CranixConstants.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -21,14 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.*;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.CranixConstants.*;
 
-public class EducationController extends UserController {
+public class EducationService extends UserService {
 
-	Logger logger = LoggerFactory.getLogger(EducationController.class);
+	Logger logger = LoggerFactory.getLogger(EducationService.class);
 
-	public EducationController(Session session,EntityManager em) {
+	public EducationService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
@@ -54,7 +54,7 @@ public class EducationController extends UserController {
 
 	public List<Room> getMySmartRooms() {
 		List<Room> smartRooms = new ArrayList<Room>();
-		for( Category category  : new CategoryController(this.session,this.em).getByType("smartRoom") ) {
+		for( Category category  : new CategoryService(this.session,this.em).getByType("smartRoom") ) {
 			if( category.getOwner() != null && category.getOwner().equals(session.getUser())
 					) {
 				logger.debug("getMySamrtRooms" + category);
@@ -78,7 +78,7 @@ public class EducationController extends UserController {
 	public List<Room> getMyRooms() {
 		List<Room> rooms = new ArrayList<Room>();
 		if( this.session.getRoom() == null || this.session.getRoom().getRoomControl().equals("no")){
-			for( Room room : new RoomController(this.session,this.em).getAllToUse() ) {
+			for( Room room : new RoomService(this.session,this.em).getAllToUse() ) {
 				switch(room.getRoomControl()) {
 				case "no":
 				case "inRoom":
@@ -159,9 +159,9 @@ public class EducationController extends UserController {
 			/*
 			 * Add groups to the smart room
 			 */
-			GroupController groupController = new GroupController(this.session,this.em);
+			GroupService groupService = new GroupService(this.session,this.em);
 			for( Long id : smartRoom.getGroupIds()) {
-				Group group = groupController.getById(id);
+				Group group = groupService.getById(id);
 				smartRoom.getGroups().add(group);
 				group.getCategories().add(smartRoom);
 				this.em.merge(room);
@@ -183,9 +183,9 @@ public class EducationController extends UserController {
 			/*
 			 * Add devices to the smart room
 			 */
-			DeviceController deviceController = new DeviceController(this.session,this.em);
+			DeviceService deviceService = new DeviceService(this.session,this.em);
 			for( Long id: smartRoom.getDeviceIds()) {
-				Device device = deviceController.getById(Long.valueOf(id));
+				Device device = deviceService.getById(Long.valueOf(id));
 				smartRoom.getDevices().add(device);
 				device.getCategories().add(smartRoom);
 				this.em.merge(device);
@@ -248,8 +248,8 @@ public class EducationController extends UserController {
 	public List<List<Long>> getRoom(long roomId) {
 		List<List<Long>> loggedOns = new ArrayList<List<Long>>();
 		List<Long> loggedOn;
-		RoomController roomController = new RoomController(this.session,this.em);
-		Room room = roomController.getById(roomId);
+		RoomService roomService = new RoomService(this.session,this.em);
+		Room room = roomService.getById(roomId);
 		User me   = this.session.getUser();
 		if( room.getRoomType().equals("smartRoom")) {
 			Category category = room.getCategories().get(0);
@@ -444,7 +444,7 @@ public class EducationController extends UserController {
 			}
 			break;
 		case "group":
-			Group group = new GroupController(this.session,this.em).getById(objectId);
+			Group group = new GroupService(this.session,this.em).getById(objectId);
 			if( group != null ) {
 				for( User myUser : group.getUsers() ) {
 					if( !this.session.getUser().equals(myUser) &&
@@ -457,7 +457,7 @@ public class EducationController extends UserController {
 			}
 			break;
 		case "device":
-			Device device = new DeviceController(this.session,this.em).getById(objectId);
+			Device device = new DeviceService(this.session,this.em).getById(objectId);
 			if( device != null ) {
 				for( User myUser : device.getLoggedIn() ) {
 					responses.add(this.saveFileToUserImport(myUser, file, fileName, cleanUp));
@@ -467,12 +467,12 @@ public class EducationController extends UserController {
 			}
 			break;
 		case "room":
-			DeviceController deviceController = new DeviceController(this.session,this.em);
+			DeviceService deviceService = new DeviceService(this.session,this.em);
 			for( List<Long> loggedOn : this.getRoom(objectId) ) {
 				User myUser = this.getById(loggedOn.get(0));
 				if( myUser == null ) {
 					//no user logged in we try the workstation user
-					Device dev = deviceController.getById(loggedOn.get(1));
+					Device dev = deviceService.getById(loggedOn.get(1));
 					if( dev != null ){
 						myUser=this.getByUid(dev.getName());
 					}
@@ -561,36 +561,36 @@ public class EducationController extends UserController {
 
 
 	public CrxResponse createGroup(Group group) {
-		GroupController groupController = new GroupController(this.session,this.em);
+		GroupService groupService = new GroupService(this.session,this.em);
 		group.setGroupType("workgroup");
 		group.setOwner(session.getUser());
-		return groupController.add(group);
+		return groupService.add(group);
 	}
 
 	public CrxResponse modifyGroup(long groupId, Group group) {
-		GroupController groupController = new GroupController(this.session,this.em);
-		Group emGroup = groupController.getById(groupId);
+		GroupService groupService = new GroupService(this.session,this.em);
+		Group emGroup = groupService.getById(groupId);
 		if( this.session.getUser().equals(emGroup.getOwner())) {
-			return groupController.modify(group);
+			return groupService.modify(group);
 		} else {
 			return new CrxResponse(this.getSession(),"ERROR", "You are not the owner of this group.");
 		}
 	}
 
 	public CrxResponse deleteGroup(long groupId) {
-		GroupController groupController = new GroupController(this.session,this.em);
-		Group emGroup = groupController.getById(groupId);
+		GroupService groupService = new GroupService(this.session,this.em);
+		Group emGroup = groupService.getById(groupId);
 		if( this.session.getUser().equals(emGroup.getOwner())) {
-			return groupController.delete(groupId);
+			return groupService.delete(groupId);
 		} else {
 			return new CrxResponse(this.getSession(),"ERROR", "You are not the owner of this group.");
 		}
 	}
 
 	public List<String> getAvailableRoomActions(long roomId) {
-		Room room = new RoomController(this.session,this.em).getById(roomId);
+		Room room = new RoomService(this.session,this.em).getById(roomId);
 		List<String> actions = new ArrayList<String>();
-		for( String action : this.getProperty("de.cranix.dao.EducationController.RoomActions").split(",") ) {
+		for( String action : this.getProperty("de.cranix.dao.EducationService.RoomActions").split(",") ) {
 			if(! this.checkMConfig(room, "disabledActions", action )) {
 				actions.add(action);
 			}
@@ -601,7 +601,7 @@ public class EducationController extends UserController {
 	public List<String> getAvailableUserActions(long userId) {
 		User user = this.getById(userId);
 		List<String> actions = new ArrayList<String>();
-		for( String action : this.getProperty("de.cranix.dao.EducationController.UserActions").split(",") ) {
+		for( String action : this.getProperty("de.cranix.dao.EducationService.UserActions").split(",") ) {
 			if(! this.checkMConfig(user, "disabledActions", action )) {
 				actions.add(action);
 			}
@@ -610,9 +610,9 @@ public class EducationController extends UserController {
 	}
 
 	public List<String> getAvailableDeviceActions(long deviceId) {
-		Device device = new DeviceController(this.session,this.em).getById(deviceId);
+		Device device = new DeviceService(this.session,this.em).getById(deviceId);
 		List<String> actions = new ArrayList<String>();
-		for( String action : this.getProperty("de.cranix.dao.EducationController.DeviceActions").split(",") ) {
+		for( String action : this.getProperty("de.cranix.dao.EducationService.DeviceActions").split(",") ) {
 			if(! this.checkMConfig(device, "disabledActions", action )) {
 				actions.add(action);
 			}
@@ -624,16 +624,16 @@ public class EducationController extends UserController {
 	public CrxResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
 		CrxResponse crxResponse = null;
 		List<String> errors = new ArrayList<String>();
-		DeviceController dc = new DeviceController(this.session,this.em);
+		DeviceService dc = new DeviceService(this.session,this.em);
 
 		/*
 		* This is a very special action
 		*/
 		if( action.startsWith("organize")) {
-			return new RoomController(this.session,this.em).organizeRoom(roomId);
+			return new RoomService(this.session,this.em).organizeRoom(roomId);
 		}
 
-		Room room = new RoomController(this.session,this.em).getById(roomId);
+		Room room = new RoomService(this.session,this.em).getById(roomId);
 		if( action.equals("setPassword" ) ) {
 			StringBuffer reply = new StringBuffer();
 			StringBuffer error = new StringBuffer();
@@ -693,7 +693,7 @@ public class EducationController extends UserController {
 	}
 
 	public List<CrxResponse> manageDevices(CrxActionMap actionMap) {
-		DeviceController deviceController = new DeviceController(this.session,this.em);
+		DeviceService deviceService = new DeviceService(this.session,this.em);
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		logger.debug("actionMap" + actionMap);
 		if( actionMap.getName().equals("delete") ) {
@@ -701,13 +701,13 @@ public class EducationController extends UserController {
 
 		} else {
 			for( Long id: actionMap.getObjectIds() ) {
-				responses.add(deviceController.manageDevice(id,actionMap.getName(),null));
+				responses.add(deviceService.manageDevice(id,actionMap.getName(),null));
 			}
 		}
 		return responses;
 	}
 
-	public Long getRoomActualController(long roomId) {
+	public Long getRoomActualService(long roomId) {
 		try {
 			Query query = this.em.createNamedQuery("SmartControl.getAllActiveInRoom");
 			query.setParameter("roomId", roomId);
@@ -740,7 +740,7 @@ public class EducationController extends UserController {
 		}
 
 		// Get the list of the devices
-		DeviceController dc = new DeviceController(this.session,this.em);
+		DeviceService dc = new DeviceService(this.session,this.em);
 		List<String>  devices = new ArrayList<String>();
 		String domain	 = "." + this.getConfigValue("DOMAIN");
 		for( List<Long> loggedOn : this.getRoom(roomId) ) {
@@ -779,11 +779,11 @@ public class EducationController extends UserController {
 			Boolean sortInDirs,
 			Boolean cleanUpExport) {
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
-		UserController userController = new UserController(this.session,this.em);
+		UserService userService = new UserService(this.session,this.em);
 		for( String id : userIds.split(",")) {
-			User user = userController.getById(Long.valueOf(id));
+			User user = userService.getById(Long.valueOf(id));
 			if( user != null ) {
-				responses.add(userController.collectFileFromUser(user, projectName,  sortInDirs, cleanUpExport));
+				responses.add(userService.collectFileFromUser(user, projectName,  sortInDirs, cleanUpExport));
 			}
 		}
 		return responses;
@@ -797,18 +797,18 @@ public class EducationController extends UserController {
 			Boolean studentsOnly
 		       ) {
 		List<CrxResponse> responses	= new ArrayList<CrxResponse>();
-		UserController    userController   = new UserController(this.session,this.em);
-		DeviceController  deviceController = new DeviceController(this.session,this.em);
+		UserService    userService   = new UserService(this.session,this.em);
+		DeviceService  deviceService = new DeviceService(this.session,this.em);
 		for(String sDeviceId : deviceIds.split(",")) {
 			Long deviceId = Long.valueOf(sDeviceId);
-			Device device = deviceController.getById(deviceId);
+			Device device = deviceService.getById(deviceId);
 			if( device.getLoggedIn() == null || device.getLoggedIn().isEmpty() ) {
-				User     user = userController.getByUid(device.getName());
-				responses.add(userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
+				User     user = userService.getByUid(device.getName());
+				responses.add(userService.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
 			} else {
 				for( User user : device.getLoggedIn() ) {
 					if( !studentsOnly || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) || user.getRole().equals(roleWorkstation) ) {
-						responses.add(userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
+						responses.add(userService.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport));
 					}
 				}
 			}
@@ -823,16 +823,16 @@ public class EducationController extends UserController {
 		       Boolean cleanUpExport,
 		       Boolean studentsOnly
 		       ) {
-		UserController      userController   = new UserController(this.session,this.em);
-		DeviceController    deviceController = new DeviceController(this.session,this.em);
+		UserService      userService   = new UserService(this.session,this.em);
+		DeviceService    deviceService = new DeviceService(this.session,this.em);
 		List<CrxResponse> responses	  = new ArrayList<CrxResponse>();
 		for(String sRoomId : roomIds.split(",")) {
 			Long roomId = Long.valueOf(sRoomId);
 			for( List<Long> logged : this.getRoom(roomId) ) {
-				User   user   = userController.getById(logged.get(0));
-				Device device =  deviceController.getById(logged.get(1));
+				User   user   = userService.getById(logged.get(0));
+				Device device =  deviceService.getById(logged.get(1));
 				if( user == null ) {
-					user = userController.getByUid(device.getName());
+					user = userService.getByUid(device.getName());
 				}
 				if( user != null ) {
 					if( !studentsOnly || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest) || user.getRole().equals(roleWorkstation) ) {
@@ -840,7 +840,7 @@ public class EducationController extends UserController {
 						logger.debug("projectName" + projectName);
 						logger.debug("sortInDirs" + sortInDirs);
 						logger.debug("cleanUpExport" + cleanUpExport);
-						CrxResponse resp = userController.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport);
+						CrxResponse resp = userService.collectFileFromUser(user,projectName,sortInDirs,cleanUpExport);
 						logger.debug("response" + resp);
 						responses.add(resp);
 					}
@@ -857,18 +857,18 @@ public class EducationController extends UserController {
 			Boolean cleanUpExport,
 			Boolean studentsOnly
 			) {
-		UserController  userController  = new UserController(this.session,this.em);
-		GroupController groupController = new GroupController(this.session,this.em);
+		UserService  userService  = new UserService(this.session,this.em);
+		GroupService groupService = new GroupService(this.session,this.em);
 		List<CrxResponse> responses     = new ArrayList<CrxResponse>();
 		for(String sGroupId : groupIds.split(",")) {
 			Long groupId = Long.valueOf(sGroupId);
-			Group   group = new GroupController(this.session,this.em).getById(groupId);
+			Group   group = new GroupService(this.session,this.em).getById(groupId);
 			for( User user : group.getUsers() ) {
 				if( !studentsOnly ||  user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest)) {
 					if( user.getRole().equals(roleTeacher) ) {
-						responses.add(userController.collectFileFromUser(user, projectName, sortInDirs, false));
+						responses.add(userService.collectFileFromUser(user, projectName, sortInDirs, false));
 					} else {
-						responses.add(userController.collectFileFromUser(user, projectName, sortInDirs, cleanUpExport));
+						responses.add(userService.collectFileFromUser(user, projectName, sortInDirs, cleanUpExport));
 					}
 				}
 			}
@@ -888,7 +888,7 @@ public class EducationController extends UserController {
 				groups.add(group);
 			}
 		}
-		for( Group group : new GroupController(this.session,this.em).getByType("class") ) {
+		for( Group group : new GroupService(this.session,this.em).getByType("class") ) {
 			if( !groups.contains(group)) {
 				groups.add(group);
 			}
@@ -900,7 +900,7 @@ public class EducationController extends UserController {
 		List<User> users = new ArrayList<User>();
 		Group      group = em.find(Group.class, groupId);
 		if( group != null ) {
-			UserController uc = new UserController(this.session,this.em);
+			UserService uc = new UserService(this.session,this.em);
 			users = uc.getByRole(roleStudent);
 			users.addAll(uc.getByRole(roleTeacher));
 			users.removeAll(group.getUsers());
@@ -924,52 +924,52 @@ public class EducationController extends UserController {
 
 	public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {
 		List<CrxResponse>   responses = new ArrayList<CrxResponse>();
-		UserController userController = new UserController(this.session,this.em);
+		UserService userService = new UserService(this.session,this.em);
 		logger.debug(crxActionMap.toString());
 		switch(crxActionMap.getName()) {
 		case "setPassword":
-			return  userController.resetUserPassword(
+			return  userService.resetUserPassword(
 					crxActionMap.getObjectIds(),
 					crxActionMap.getStringValue(),
 					crxActionMap.isBooleanValue());
 		case "setFilesystemQuota":
-			return  userController.setFsQuota(
+			return  userService.setFsQuota(
 					crxActionMap.getObjectIds(),
 					crxActionMap.getLongValue());
 		case "setMailsystemQuota":
-			return  userController.setMsQuota(
+			return  userService.setMsQuota(
 					crxActionMap.getObjectIds(),
 					crxActionMap.getLongValue());
 		case "disableLogin":
-			return  userController.disableLogin(
+			return  userService.disableLogin(
 					crxActionMap.getObjectIds(),
 					true);
 		case "enableLogin":
-			return  userController.disableLogin(
+			return  userService.disableLogin(
 					crxActionMap.getObjectIds(),
 					false);
 		case "disableInternet":
-			return  userController.disableInternet(
+			return  userService.disableInternet(
 					crxActionMap.getObjectIds(),
 					true);
 		case "enableInternet":
-			return  userController.disableInternet(
+			return  userService.disableInternet(
 					crxActionMap.getObjectIds(),
 					false);
 		case "mandatoryProfile":
-			return  userController.mandatoryProfile(
+			return  userService.mandatoryProfile(
 					crxActionMap.getObjectIds(),
 					crxActionMap.isBooleanValue());
 		case "copyTemplate":
-			return  userController.copyTemplate(
+			return  userService.copyTemplate(
 					crxActionMap.getObjectIds(),
 					crxActionMap.getStringValue());
 		case "removeProfiles":
-			return  userController.removeProfile(crxActionMap.getObjectIds());
+			return  userService.removeProfile(crxActionMap.getObjectIds());
 		case "deleteUser":
-			SessionController sessionController = new SessionController(this.session,this.em);
-			if( sessionController.authorize(this.session,"user.delete") || sessionController.authorize(this.session,"student.delete") ) {
-				return  userController.deleteStudents(crxActionMap.getObjectIds());
+			SessionService sessionService = new SessionService(this.session,this.em);
+			if( sessionService.authorize(this.session,"user.delete") || sessionService.authorize(this.session,"student.delete") ) {
+				return  userService.deleteStudents(crxActionMap.getObjectIds());
 			} else {
 				responses.add(new CrxResponse(session,"ERROR","You have no right to execute this action."));
 				return responses;
@@ -981,7 +981,7 @@ public class EducationController extends UserController {
 
 	public List<CrxResponse> groupsApplyAction(CrxActionMap crxActionMap) {
 		List<Long> userIds = new ArrayList<Long>();
-		GroupController gc = new GroupController(this.session,this.em);
+		GroupService gc = new GroupService(this.session,this.em);
 		for( Long id: crxActionMap.getObjectIds() ) {
 			Group g = gc.getById(id);
 			for( User u: g.getUsers() ) {
@@ -995,7 +995,7 @@ public class EducationController extends UserController {
 	}
 
 	public CrxResponse modifyDevice(Long deviceId, Device device) {
-		DeviceController deviceConrtoller = new DeviceController(this.session,this.em);
+		DeviceService deviceConrtoller = new DeviceService(this.session,this.em);
 		Device oldDevice = deviceConrtoller.getById(deviceId);
 		oldDevice.setRow(device.getRow());
 		oldDevice.setPlace(device.getPlace());

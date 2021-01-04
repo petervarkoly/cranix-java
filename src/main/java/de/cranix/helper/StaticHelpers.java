@@ -1,4 +1,4 @@
-package de.cranix.dao.tools;
+package de.cranix.helper;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import de.cranix.dao.Group;
 import de.cranix.dao.HWConf;
 import de.cranix.dao.Room;
 import de.cranix.dao.User;
-import static de.cranix.dao.internal.CranixConstants.*;
+import static de.cranix.helper.CranixConstants.*;
 
 public class StaticHelpers {
 

@@ -1,6 +1,5 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved
- * (c) 2017 EXTIS GmbH - www.extis.de - all rights reserved */
-package de.cranix.dao.controller;
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+package de.cranix.services;
 
 import javax.persistence.EntityManager;
 
@@ -13,10 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.*;
 import de.cranix.dao.*;
-import de.cranix.dao.controller.Config;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.services.Config;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.CranixConstants.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,16 +27,16 @@ import java.util.Properties;
 import java.util.ArrayList;
 
 @SuppressWarnings( "unchecked" )
-public class Controller extends Config {
+public class Service extends Config {
 
-    Logger logger = LoggerFactory.getLogger(Controller.class);
+    Logger logger = LoggerFactory.getLogger(Service.class);
 
 	protected Session session ;
 	protected EntityManager em;
 	private Map<String, String> properties;
 	private static List<String> systemNames;
 
-	public Controller(Session session,EntityManager em) {
+	public Service(Session session,EntityManager em) {
 		super();
 		this.session=session;
 		this.em     = em;
@@ -77,15 +75,6 @@ public class Controller extends Config {
 			e.printStackTrace();
 		}
 	}
-	public EntityManager getEntityManager() {
-		if( session != null) {
-			return CommonEntityManagerFactory.instance(session.getSchoolId()).getEntityManagerFactory().createEntityManager();
-		}
-		else {
-			return CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		}
-	}
-
 	public Session getSession() {
 		return this.session;
 	}

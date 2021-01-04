@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.dao.tools;
+package de.cranix.helper;
 
 import java.util.ArrayList;
 

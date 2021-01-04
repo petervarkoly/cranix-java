@@ -20,10 +20,10 @@ import de.cranix.api.resources.SupportResource;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.SupportRequest;
-import de.cranix.dao.controller.SystemController;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.services.SystemService;
+import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.CranixConstants.*;
 
 public class SupportResourceImpl implements SupportResource {
 	Logger logger = LoggerFactory.getLogger(SupportResourceImpl.class);
@@ -37,7 +37,7 @@ public class SupportResourceImpl implements SupportResource {
 		isLinux = !((os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0));
 	}
 
-	private void loadConf(Session session, SystemController sc) {
+	private void loadConf(Session session, SystemService sc) {
 		supportUrl = sc.getConfigValue("SUPPORT_URL");
 		if (supportUrl != null) {
 			supportUrl = supportUrl.trim();
@@ -64,7 +64,7 @@ public class SupportResourceImpl implements SupportResource {
 
 	@Override
 	public CrxResponse create(Session session, SupportRequest supportRequest) {
-		SystemController sc = new SystemController(session,null);
+		SystemService sc = new SystemService(session,null);
 		loadConf(session,sc);
 		//Add default values if not given in support request
 		if( supportRequest.getRegcode() == null || supportRequest.getRegcode().isEmpty() )  {

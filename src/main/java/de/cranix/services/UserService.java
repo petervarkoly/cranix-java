@@ -1,5 +1,5 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
-package de.cranix.dao.controller;
+package de.cranix.services;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,17 +21,17 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
-import de.cranix.dao.tools.OSSShellTools;
-import static de.cranix.dao.tools.StaticHelpers.*;
-import static de.cranix.dao.internal.CranixConstants.*;
+import de.cranix.helper.OSSShellTools;
+import static de.cranix.helper.StaticHelpers.*;
+import static de.cranix.helper.CranixConstants.*;
 
 @SuppressWarnings("unchecked")
-public class UserController extends Controller {
+public class UserService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(UserController.class);
+	Logger logger = LoggerFactory.getLogger(UserService.class);
 
 
-	public UserController(Session session,EntityManager em) {
+	public UserService(Session session,EntityManager em) {
 		super(session,em);
 	}
 
@@ -286,10 +286,10 @@ public class UserController extends Controller {
 		} finally {
 		}
 		startPlugin("add_user", user);
-		GroupController groupController = new GroupController(this.session,this.em);
-		Group group = new GroupController(this.session,this.em).getByName(user.getRole());
+		GroupService groupService = new GroupService(this.session,this.em);
+		Group group = new GroupService(this.session,this.em).getByName(user.getRole());
 		if (group != null) {
-			groupController.addMember(group, user);
+			groupService.addMember(group, user);
 		}
 		List<String> parameters = new ArrayList<String>();
 		parameters.add(user.getUid());
@@ -398,7 +398,7 @@ public class UserController extends Controller {
 		//TODO make it configurable
 		//Remove the devices before doing anything else
 		if( !user.getOwnedDevices().isEmpty() ) {
-			DeviceController dc = new DeviceController(this.session,this.em);
+			DeviceService dc = new DeviceService(this.session,this.em);
 			List<Device> devices = user.getOwnedDevices();
 			for( Device device : devices ) {
 				dc.delete(device,false);
@@ -821,12 +821,12 @@ public class UserController extends Controller {
 	 * @return The list of the guest users categories
 	 */
 	public List<Category> getGuestUsers() {
-		final CategoryController categoryController = new CategoryController(this.session,this.em);
-		if (categoryController.isSuperuser()) {
-			return categoryController.getByType("guestUsers");
+		final CategoryService categoryService = new CategoryService(this.session,this.em);
+		if (categoryService.isSuperuser()) {
+			return categoryService.getByType("guestUsers");
 		}
 		List<Category> categories = new ArrayList<Category>();
-		for (Category category : categoryController.getByType("guestUsers")) {
+		for (Category category : categoryService.getByType("guestUsers")) {
 			if (category.getOwner().equals(session.getUser())) {
 				categories.add(category);
 			}
@@ -840,7 +840,7 @@ public class UserController extends Controller {
 	 * @return The list of the guest users.
 	 */
 	public Category getGuestUsersCategory(Long guestUsersId) {
-		return new CategoryController(this.session,this.em).getById(guestUsersId);
+		return new CategoryService(this.session,this.em).getById(guestUsersId);
 	}
 
 	/**
@@ -849,9 +849,9 @@ public class UserController extends Controller {
 	 * @return The result as an CrxResponse
 	 */
 	public CrxResponse deleteGuestUsers(Long guestUsersId) {
-		final CategoryController categoryController = new CategoryController(this.session,this.em);
-		final GroupController groupController = new GroupController(this.session,this.em);
-		Category category = categoryController.getById(guestUsersId);
+		final CategoryService categoryService = new CategoryService(this.session,this.em);
+		final GroupService groupService = new GroupService(this.session,this.em);
+		Category category = categoryService.getById(guestUsersId);
 		for (User user : category.getUsers()) {
 			if (user.getRole().equals(roleGuest)) {
 				this.delete(user);
@@ -860,18 +860,18 @@ public class UserController extends Controller {
 		category.setUsers(new ArrayList<User>());
 		for (Group group : category.getGroups()) {
 			if (group.getGroupType().equals(roleGuest)) {
-				groupController.delete(group);
+				groupService.delete(group);
 			}
 		}
 		category.setGroups(new ArrayList<Group>());
-		return categoryController.delete(category);
+		return categoryService.delete(category);
 	}
 
 	public CrxResponse addGuestUsers(GuestUsers guestUsers) {
 		//String name, String description, Long roomId, Long count, Date validUntil)
-		final CategoryController categoryController = new CategoryController(this.session,this.em);
-		final GroupController groupController       = new GroupController(this.session,this.em);
-		final RoomController  roomController	= new RoomController(this.session,this.em);
+		final CategoryService categoryService = new CategoryService(this.session,this.em);
+		final GroupService groupService       = new GroupService(this.session,this.em);
+		final RoomService  roomService	= new RoomService(this.session,this.em);
 		Room room = null;
 		//TODO make it confiugrable
 		if( guestUsers.getCount() > 255 ) {
@@ -902,11 +902,11 @@ public class UserController extends Controller {
 			room.setRoomControl("allTeachers");
 			room.setHwconfId(3L);
 			room.setRoomType("adHocRoom");
-			crxResponse = roomController.add(room);
+			crxResponse = roomService.add(room);
 			if( crxResponse.getCode().equals("ERROR")) {
 				return crxResponse;
 			} else {
-				room = roomController.getById(crxResponse.getObjectId());
+				room = roomService.getById(crxResponse.getObjectId());
 			}
 		}
 
@@ -914,24 +914,24 @@ public class UserController extends Controller {
 		category.setCategoryType("guestUsers");
 		category.setName(guestUsers.getName());
 		category.setDescription(guestUsers.getDescription());
-		category.setValidFrom(categoryController.now());
+		category.setValidFrom(categoryService.now());
 		category.setValidUntil(guestUsers.getValidUntil());
-		crxResponse = categoryController.add(category);
+		crxResponse = categoryService.add(category);
 		if (crxResponse.getCode().equals("ERROR")) {
 			return crxResponse;
 		}
-		category = categoryController.getById(crxResponse.getObjectId());
+		category = categoryService.getById(crxResponse.getObjectId());
 		Group group = new Group();
 		group.setGroupType(roleGuest);
 		group.setName(guestUsers.getName());
 		group.setDescription(guestUsers.getDescription());
-		crxResponse = groupController.add(group);
+		crxResponse = groupService.add(group);
 		if (crxResponse.getCode().equals("ERROR")) {
-			categoryController.delete(category.getId());
+			categoryService.delete(category.getId());
 			return crxResponse;
 		}
 
-		group = groupController.getById(crxResponse.getObjectId());
+		group = groupService.getById(crxResponse.getObjectId());
 		try {
 			this.em.getTransaction().begin();
 			category.setGroups(new ArrayList<Group>());
@@ -967,9 +967,9 @@ public class UserController extends Controller {
 			crxResponse = this.add(user);
 			logger.debug("Create user crxResponse:" + crxResponse);
 			user = this.getById(crxResponse.getObjectId());
-			crxResponse = groupController.addMember(group, user);
+			crxResponse = groupService.addMember(group, user);
 			logger.debug("Create user " + crxResponse);
-			categoryController.addMember(category.getId(), "user", user.getId());
+			categoryService.addMember(category.getId(), "user", user.getId());
 		}
 		crxResponse.setObjectId(category.getId());
 		crxResponse.setValue("Guest Users were created succesfully");

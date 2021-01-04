@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.*;
-import de.cranix.dao.controller.*;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
+import de.cranix.services.*;
+import de.cranix.helper.CommonEntityManagerFactory;
 
 @Path("adhocrooms")
 @Api(value = "adhocrooms")
@@ -53,7 +53,7 @@ public class AdHocLanResource {
 	@PermitAll
 	public List<AdHocRoom> getAll( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<AdHocRoom> resp = new AdHocLanController(session,em).getAll();
+		List<AdHocRoom> resp = new AdHocLanService(session,em).getAll();
 		em.close();
 		return resp;
 	}
@@ -71,7 +71,7 @@ public class AdHocLanResource {
 		AdHocRoom room
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new AdHocLanController(session,em).add(room);
+		CrxResponse resp = new AdHocLanService(session,em).add(room);
 		em.close();
 		return resp;
 	}
@@ -95,7 +95,7 @@ public class AdHocLanResource {
 		@PathParam("id")		Long id
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new RoomController(session,em).delete(id);
+		CrxResponse resp = new RoomService(session,em).delete(id);
 		em.close();
 		return resp;
 	}
@@ -113,12 +113,12 @@ public class AdHocLanResource {
 		@PathParam("id")		Long id
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		final RoomController roomController = new RoomController(session,em);
-		Room room = roomController.getById(id);
+		final RoomService roomService = new RoomService(session,em);
+		Room room = roomService.getById(id);
 		if( room != null && !room.getRoomType().equals("AdHocAccess")) {
 			return null;
 		}
-		AdHocRoom adhocRoom = new AdHocLanController(session,em).roomToAdHoc(room);
+		AdHocRoom adhocRoom = new AdHocLanService(session,em).roomToAdHoc(room);
 		em.close();
 		return adhocRoom;
 	}
@@ -137,7 +137,7 @@ public class AdHocLanResource {
 		AdHocRoom room
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new AdHocLanController(session,em).modify(room);
+		CrxResponse resp = new AdHocLanService(session,em).modify(room);
 		em.close();
 		return resp;
 	}
@@ -155,7 +155,7 @@ public class AdHocLanResource {
 		@PathParam("id")	 Long id
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Room room  = new RoomController(session,em).getById(id);
+		Room room  = new RoomService(session,em).getById(id);
 		em.close();
 		if( room != null ) {
 			for( Category category : room.getCategories() ) {
@@ -180,7 +180,7 @@ public class AdHocLanResource {
 		@PathParam("id")	 Long id
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Room	room = new RoomController(session,em).getById(id);
+		Room	room = new RoomService(session,em).getById(id);
 		em.close();
 		if( room != null ) {
 			for( Category category : room.getCategories() ) {
@@ -206,10 +206,10 @@ public class AdHocLanResource {
 	) {
 		EntityManager em  = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<User> users  = new ArrayList<User>();
-		Category category = new AdHocLanController(session,em).getAdHocCategoryOfRoom(id);
+		Category category = new AdHocLanService(session,em).getAdHocCategoryOfRoom(id);
 		if( category != null ) {
 			logger.debug("getAvailableUser Category " + category);
-			for( User user : new UserController(session,em).getAll() ) {
+			for( User user : new UserService(session,em).getAll() ) {
 				if( !category.getUsers().contains(user) ) {
 					users.add(user);
 				}
@@ -233,10 +233,10 @@ public class AdHocLanResource {
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		List<Group> groups = new ArrayList<Group>();
-		Category category = new AdHocLanController(session,em).getAdHocCategoryOfRoom(id);
+		Category category = new AdHocLanService(session,em).getAdHocCategoryOfRoom(id);
 		if( category != null ) {
 			logger.debug("getAvailableGroups Category " + category);
-			for( Group group : new GroupController(session,em).getAll() ) {
+			for( Group group : new GroupService(session,em).getAll() ) {
 				if( !category.getGroups().contains(group) ) {
 					groups.add(group);
 				}
@@ -261,7 +261,7 @@ public class AdHocLanResource {
 		@PathParam("objectId")		Long objectId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new AdHocLanController(session,em).putObjectIntoRoom(id,objectType,objectId);
+		CrxResponse resp = new AdHocLanService(session,em).putObjectIntoRoom(id,objectType,objectId);
 		em.close();
 		return resp;
 	}
@@ -281,7 +281,7 @@ public class AdHocLanResource {
 		@PathParam("objectId")		Long objectId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new AdHocLanController(session,em).deleteObjectInRoom(id,objectType,objectId);
+		CrxResponse resp = new AdHocLanService(session,em).deleteObjectInRoom(id,objectType,objectId);
 		em.close();
 		return resp;
 	}
@@ -340,10 +340,10 @@ public class AdHocLanResource {
 	@PermitAll
 	public List<AdHocRoom> getMyRooms( @ApiParam(hidden = true) @Auth Session session ) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		RoomController roomController = new RoomController(session,em);
+		RoomService roomService = new RoomService(session,em);
 		List<AdHocRoom> resp= new ArrayList<AdHocRoom>();
-		AdHocLanController adHocLan   = new AdHocLanController(session,em);
-		for( Room  room : roomController.getAllToRegister() ) {
+		AdHocLanService adHocLan   = new AdHocLanService(session,em);
+		for( Room  room : roomService.getAllToRegister() ) {
 			resp.add(adHocLan.roomToAdHoc(room));
 		}
 		em.close();
@@ -383,7 +383,7 @@ public class AdHocLanResource {
 		@PathParam("deviceId")		 Long	deviceId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new DeviceController(session,em).delete(deviceId, true);
+		CrxResponse resp = new DeviceService(session,em).delete(deviceId, true);
 		em.close();
 		return resp;
 	}
@@ -403,7 +403,7 @@ public class AdHocLanResource {
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
 		device.setId(deviceId);
-		CrxResponse resp = new DeviceController(session,em).modify(device);
+		CrxResponse resp = new DeviceService(session,em).modify(device);
 		em.close();
 		return resp;
 	}
@@ -424,7 +424,7 @@ public class AdHocLanResource {
 			@PathParam("name")	String name
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new RoomController(session,em).addDevice(id, macAddress, name);
+		CrxResponse resp = new RoomService(session,em).addDevice(id, macAddress, name);
 		em.close();
 		return resp;
 	}

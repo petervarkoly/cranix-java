@@ -27,8 +27,8 @@ import io.swagger.annotations.ApiResponses;
 import de.cranix.dao.Category;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
-import de.cranix.dao.controller.CategoryController;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
+import de.cranix.services.CategoryService;
+import de.cranix.helper.CommonEntityManagerFactory;
 
 import java.util.List;
 
@@ -52,7 +52,7 @@ public class CategoryResource {
 	@PermitAll
 	public List<Category> getAll( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Category> resp = new CategoryController(session,em).getAll();
+		List<Category> resp = new CategoryService(session,em).getAll();
 		em.close();
 		return resp;
 	}
@@ -73,7 +73,7 @@ public class CategoryResource {
 		@PathParam("categoryId") long categoryId
 	)  {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		Category resp = new CategoryController(session,em).getById(categoryId);
+		Category resp = new CategoryService(session,em).getById(categoryId);
 		em.close();
 		return resp;
 	}
@@ -95,7 +95,7 @@ public class CategoryResource {
 		@PathParam("memberType") String memberType
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Long> resp = new CategoryController(session,em).getMembers(categoryId,memberType);
+		List<Long> resp = new CategoryService(session,em).getMembers(categoryId,memberType);
 		em.close();
 		return resp;
 	}
@@ -117,7 +117,7 @@ public class CategoryResource {
 		@PathParam("memberType") String memberType
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		List<Long> resp = new CategoryController(session,em).getAvailableMembers(categoryId,memberType);
+		List<Long> resp = new CategoryService(session,em).getAvailableMembers(categoryId,memberType);
 		em.close();
 		return resp;
 	}
@@ -138,7 +138,7 @@ public class CategoryResource {
 		Category category
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CategoryController(session,em).add(category);
+		CrxResponse resp = new CategoryService(session,em).add(category);
 		em.close();
 		return resp;
 	}
@@ -159,7 +159,7 @@ public class CategoryResource {
 		Category category
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CategoryController(session,em).modify(category);
+		CrxResponse resp = new CategoryService(session,em).modify(category);
 		em.close();
 		return resp;
 	}
@@ -182,7 +182,7 @@ public class CategoryResource {
 		@PathParam("memberId")   long memberId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CategoryController(session,em).addMember(categoryId, memberType, memberId);
+		CrxResponse resp = new CategoryService(session,em).addMember(categoryId, memberType, memberId);
 		em.close();
 		return resp;
 	}
@@ -203,7 +203,7 @@ public class CategoryResource {
 		@PathParam("categoryId") long categoryId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CategoryController(session,em).delete(categoryId);
+		CrxResponse resp = new CategoryService(session,em).delete(categoryId);
 		em.close();
 		return resp;
 	}
@@ -226,7 +226,7 @@ public class CategoryResource {
 		@PathParam("memberId") long memberId
 	) {
 		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-		CrxResponse resp = new CategoryController(session,em).deleteMember(categoryId, memberType, memberId);
+		CrxResponse resp = new CategoryService(session,em).deleteMember(categoryId, memberType, memberId);
 		em.close();
 		return resp;
 	}
