@@ -79,7 +79,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final UserResource usersResource = new UserResourceImpl();
 		environment.jersey().register(usersResource);
 
-		final GroupResource groupsResource = new GroupResourceImpl();
+		final GroupResource groupsResource = new GroupResource();
 		environment.jersey().register(groupsResource);
 
 		final DeviceResource devicesResource = new DeviceResource();

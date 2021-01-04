@@ -1,5 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved
- * (c) 2017 EXTIS GmbH www.extis.de - all rights reserved */
+/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao.controller;
 
 import java.io.File;
@@ -22,14 +21,15 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
-import de.cranix.dao.User;
-import de.cranix.dao.tools.OSSShellTools;
 import de.cranix.dao.Category;
+import de.cranix.dao.CrxActionMap;
+import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Enumerate;
 import de.cranix.dao.Group;
-import de.cranix.dao.Session;
-import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Room;
+import de.cranix.dao.Session;
+import de.cranix.dao.User;
+import de.cranix.dao.tools.OSSShellTools;
 import static de.cranix.dao.tools.StaticHelpers.*;
 import static de.cranix.dao.internal.CranixConstants.*;
 
@@ -609,4 +609,19 @@ public class GroupController extends Controller {
 		category.getGroupIds().add(group.getId());
 		return new EducationController(this.session,this.em).createSmartRoom(category);
 	}
+
+	public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {
+                List<CrxResponse> responses = new ArrayList<CrxResponse>();
+                logger.debug(crxActionMap.toString());
+                for( Long id : crxActionMap.getObjectIds() ) {
+                        Group group = this.getById(id);
+                        switch(crxActionMap.getName().toLowerCase()) {
+                                case "delete":  responses.add(this.delete(group));
+                                                break;
+                                case "cleanup": responses.add(this.cleanGrupDirectory(group));
+                                                break;
+                        }
+                }
+		return responses;
+        }
 }
