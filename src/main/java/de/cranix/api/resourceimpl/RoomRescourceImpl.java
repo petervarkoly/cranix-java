@@ -14,7 +14,7 @@ import de.cranix.services.DHCPConfig;
 import de.cranix.services.EducationService;
 import de.cranix.services.RoomService;
 import de.cranix.services.SoftwareService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.api.resources.RoomResource;
 
 import javax.persistence.EntityManager;
@@ -38,7 +38,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public Room getById(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Room room = new RoomService(session,em).getById(roomId);
 		em.close();
 		if (room == null) {
@@ -49,7 +49,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<Room> getAll(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		final List<Room> rooms = roomService.getAll();
 		em.close();
@@ -58,7 +58,7 @@ public class RoomRescourceImpl implements RoomResource {
 	
 	@Override
 	public String getAllNames(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		StringBuilder rooms = new StringBuilder();
 		for( Room room : roomService.getAllToUse() ) {
@@ -70,7 +70,7 @@ public class RoomRescourceImpl implements RoomResource {
 	
 	@Override
 	public List<Room> allWithControl(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		final List<Room> rooms = roomService.getAllWithControl();
 		em.close();
@@ -79,7 +79,7 @@ public class RoomRescourceImpl implements RoomResource {
 	
 	@Override
 	public List<Room> allWithFirewallControl(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		final List<Room> rooms = roomService.getAllWithFirewallControl();
 		em.close();
@@ -88,7 +88,7 @@ public class RoomRescourceImpl implements RoomResource {
 	
 	@Override
 	public CrxResponse delete(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		CrxResponse resp = roomService.delete(roomId);
 		em.close();
@@ -97,7 +97,7 @@ public class RoomRescourceImpl implements RoomResource {
 	
 	@Override
 	public CrxResponse add(Session session, Room room) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		CrxResponse resp = roomService.add(room);
 		em.close();
@@ -106,7 +106,7 @@ public class RoomRescourceImpl implements RoomResource {
 	
 	@Override
 	public List<String> getAvailableIPAddresses(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		final List<String> ips = roomService.getAvailableIPAddresses(roomId);
 		em.close();
@@ -118,7 +118,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<String> getAvailableIPAddresses(Session session, Long roomId, Long count) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		final List<String> ips = roomService.getAvailableIPAddresses(roomId,count);
 		em.close();
@@ -130,7 +130,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public String getNextRoomIP(Session session, String network, int netMask) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		String[] l = network.split("\\.");
 		network = l[0] + "." + l[1] + "." +l[2] + "."  + l[3] + "/" + l[4];
@@ -145,7 +145,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<Map<String, String>> getLoggedInUsers(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		final List<Map<String, String>> users = roomService.getLoggedInUsers(roomId);
 		em.close();
@@ -157,7 +157,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<AccessInRoom> getAccessList(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<AccessInRoom> accesses = null;
 		try {
                         Query query = em.createNamedQuery("AccessInRoom.findAll");
@@ -172,7 +172,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<AccessInRoom> getAccessList(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		final List<AccessInRoom> accesses = roomService.getAccessList(roomId);
 		em.close();
@@ -184,7 +184,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse addAccessList(Session session, Long roomId, AccessInRoom accessList) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).addAccessList(roomId,accessList);
 		em.close();
 		return resp;
@@ -192,7 +192,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse deleteAccessList(Session session, Long accessInRoomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).deleteAccessList(accessInRoomId);
 		em.close();
 		return resp;
@@ -200,7 +200,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse setScheduledAccess(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		CrxResponse resp = roomService.setScheduledAccess();
 		em.close();
@@ -209,7 +209,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse setDefaultAccess(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		CrxResponse resp = roomService.setDefaultAccess();
 		em.close();
@@ -218,7 +218,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<AccessInRoom> getAccessStatus(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		final List<AccessInRoom> accesses = roomService.getAccessStatus();
 		em.close();
@@ -227,7 +227,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public AccessInRoom getAccessStatus(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		AccessInRoom resp = new RoomService(session,em).getAccessStatus(roomId);
 		em.close();
 		return resp;
@@ -235,7 +235,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse setAccessStatus(Session session, Long roomId, AccessInRoom access) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).setAccessStatus(roomId, access);
 		em.close();
 		return resp;
@@ -243,7 +243,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<CrxResponse> addDevices(Session session, Long roomId, List<Device> devices) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		List<CrxResponse> crxResponse = roomService.addDevices(roomId,devices);
 		em.close();
@@ -252,7 +252,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse addDevice(Session session, Long roomId, String macAddress, String name) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		CrxResponse resp = roomService.addDevice(roomId,macAddress,name);
 		em.close();
@@ -261,7 +261,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse deleteDevices(Session session, Long roomId, List<Long> deviceIds) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		CrxResponse resp = roomService.deleteDevices(roomId,deviceIds);
 		em.close();
@@ -270,7 +270,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse deleteDevice(Session session, Long roomId, Long deviceId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		List<Long> deviceIds = new ArrayList<Long>();
 		deviceIds.add(deviceId);
@@ -279,7 +279,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<Device> getDevices(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		List<Device> resp = roomService.getDevices(roomId);
 		em.close();
@@ -288,7 +288,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public HWConf getHwConf(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		HWConf resp = roomService.getHWConf(roomId);
 		em.close();
@@ -297,7 +297,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse setHwConf(Session session, Long roomId, Long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		CrxResponse resp = roomService.setHWConf(roomId,hwconfId);
 		em.close();
@@ -306,7 +306,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<Room> search(Session session, String search) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		List<Room> resp = roomService.search(search);
 		em.close();
@@ -315,7 +315,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<Room> getRoomsToRegister(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		List<Room> resp = roomService.getAllToRegister();
 		em.close();
@@ -324,7 +324,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<Room> getRooms(Session session, List<Long> roomIds) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final RoomService roomService = new RoomService(session,em);
 		List<Room> resp = roomService.getRooms(roomIds);
 		em.close();
@@ -333,7 +333,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse modify(Session session, Room room) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).modify(room);
 		em.close();
 		return resp;
@@ -341,7 +341,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse modify(Session session, Long roomId, Room room) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		room.setId(roomId);
 		CrxResponse resp = new RoomService(session,em).modify(room);
 		em.close();
@@ -350,7 +350,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse setDefaultPrinter(Session session, Long roomId, Long printerIds) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).setDefaultPrinter(roomId, printerIds);
 		em.close();
 		return resp;
@@ -358,7 +358,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse setDefaultPrinter(Session session, String roomName, String printerName) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).setDefaultPrinter(roomName, printerName);
 		em.close();
 		return resp;
@@ -366,7 +366,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse deleteDefaultPrinter(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).deleteDefaultPrinter(roomId);
 		em.close();
 		return resp;
@@ -374,7 +374,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public Printer getDefaultPrinter(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Printer resp = new RoomService(session,em).getById(roomId).getDefaultPrinter();
 		em.close();
 		return resp;
@@ -382,7 +382,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse setAvailablePrinters(Session session, Long roomId, List<Long> printerIds) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).setAvailablePrinters(roomId, printerIds);
 		em.close();
 		return resp;
@@ -390,7 +390,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse addAvailablePrinters(Session session, Long roomId, Long printerId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).addAvailablePrinter(roomId, printerId);
 		em.close();
 		return resp;
@@ -398,7 +398,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse deleteAvailablePrinters(Session session, Long roomId, Long printerId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).deleteAvailablePrinter(roomId, printerId);
 		em.close();
 		return resp;
@@ -406,7 +406,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<Printer> getAvailablePrinters(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Printer> resp = new RoomService(session,em).getById(roomId).getAvailablePrinters();
 		em.close();
 		return resp;
@@ -414,7 +414,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<String> getAvailableRoomActions(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<String> resp = new EducationService(session,em).getAvailableRoomActions(roomId);
 		em.close();
 		return resp;
@@ -422,7 +422,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse manageRoom(Session session, Long roomId, String action) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new EducationService(session,em).manageRoom(roomId,action, null);
 		em.close();
 		return resp;
@@ -430,7 +430,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse manageRoom(Session session, Long roomId, String action, Map<String, String> actionContent) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new EducationService(session,em).manageRoom(roomId,action, actionContent);
 		em.close();
 		return resp;
@@ -439,7 +439,7 @@ public class RoomRescourceImpl implements RoomResource {
 	@Override
 	public CrxResponse importRooms(Session session, InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new RoomService(session,em).importRooms(fileInputStream, contentDispositionHeader);
 		em.close();
 		return resp;
@@ -447,7 +447,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<CrxMConfig> getDHCP(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<CrxMConfig> dhcpParameters = new ArrayList<CrxMConfig>();
 		RoomService roomService = new RoomService(session,em);
 		Room room = roomService.getById(roomId);
@@ -466,7 +466,7 @@ public class RoomRescourceImpl implements RoomResource {
 		if( !dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions") ) {
 			return new CrxResponse(session,"ERROR","Bad DHCP parameter.");
 		}
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		RoomService roomService = new RoomService(session,em);
 		Room room = roomService.getById(roomId);
 		CrxResponse crxResponse = roomService.addMConfig(room, dhcpParameter.getKeyword(), dhcpParameter.getValue());
@@ -486,7 +486,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse deleteDHCP(Session session, Long roomId, Long parameterId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		RoomService roomService = new RoomService(session,em);
 		Room room = roomService.getById(roomId);
 		CrxResponse resp = roomService.deleteMConfig(room,parameterId);
@@ -496,7 +496,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public CrxResponse setPrinters(Session session, Long roomId, Map<String, List<Long>> printers) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		RoomService roomService = new RoomService(session,em);
 		CrxResponse resp = roomService.setPrinters(roomId, printers);
 		em.close();
@@ -505,7 +505,7 @@ public class RoomRescourceImpl implements RoomResource {
 
 	@Override
 	public List<CrxResponse> applyAction(Session session, CrxActionMap actionMap) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		RoomService roomService = new RoomService(session,em);
                 List<CrxResponse> responses = new ArrayList<CrxResponse>();
                 for( Long id: actionMap.getObjectIds() ) {

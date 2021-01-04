@@ -26,7 +26,7 @@ import de.cranix.dao.Printer;
 import de.cranix.dao.PrintersOfManufacturer;
 import de.cranix.dao.Session;
 import de.cranix.services.*;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.OSSShellTools;
 import static de.cranix.helper.CranixConstants.*;
 
@@ -41,7 +41,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public List<Printer> getPrinters(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Printer> resp = new PrinterService(session,em).getPrinters();
 		em.close();
 		return resp;
@@ -49,7 +49,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public CrxResponse deletePrinter(Session session, Long printerId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new PrinterService(session,em).deletePrinter(printerId);
 		em.close();
 		return resp;
@@ -57,7 +57,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public CrxResponse deletePrinter(Session session, String printerName) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		PrinterService pc = new PrinterService(session,em);
 		Printer printer = pc.getByName(printerName);
 		if( printer == null ) {
@@ -71,7 +71,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public CrxResponse resetPrinter(Session session, Long printerId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Printer printer = new PrinterService(session,em).getById(printerId);
 		if( printer == null ) {
 			em.close();
@@ -98,7 +98,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public CrxResponse enablePrinter(Session session, Long printerId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		PrinterService pc = new PrinterService(session,em);
 		Printer printer = pc.getById(printerId);
 		if( printer == null ) {
@@ -118,7 +118,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public CrxResponse disablePrinter(Session session, Long printerId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		PrinterService pc = new PrinterService(session,em);
 		Printer printer = pc.getById(printerId);
 		if( printer == null ) {
@@ -136,7 +136,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public CrxResponse activateWindowsDriver(Session session, Long printerId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Printer printer = new PrinterService(session,em).getById(printerId);
 		em.close();
 		if( printer == null ) {
@@ -147,7 +147,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public CrxResponse activateWindowsDriver(Session session, String printerName) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new PrinterService(session,em).activateWindowsDriver(printerName);
 		em.close();
 		return resp;
@@ -163,7 +163,7 @@ public class PrinterResourceImpl implements PrinterResource {
 			boolean windowsDriver,
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new PrinterService(session,em).addPrinter(name.toLowerCase().trim(),mac,roomId,ip,model,windowsDriver,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
@@ -213,7 +213,7 @@ public class PrinterResourceImpl implements PrinterResource {
 		FormDataContentDisposition contentDispositionHeader)
 	{
 
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		PrinterService pc = new PrinterService(session,em);
 		CrxResponse resp = pc.setDriver(printerId,model,fileInputStream,contentDispositionHeader);
 		em.close();
@@ -223,7 +223,7 @@ public class PrinterResourceImpl implements PrinterResource {
 	@Override
 	public CrxResponse addPrinterQueue(Session session, String name, Long deviceId, String model, boolean windowsDriver,
 			InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new PrinterService(session,em).addPrinterQueue(session,name.toLowerCase().trim(),deviceId,model,windowsDriver,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
@@ -231,7 +231,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public List<Device> getPrinterDevices(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Device> resp = new CloneToolService(session,em).getByName("Printer").getDevices();
 		em.close();
 		return resp;
@@ -239,7 +239,7 @@ public class PrinterResourceImpl implements PrinterResource {
 
 	@Override
 	public Printer getPrinterById(Session session, Long printerId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Printer resp = new PrinterService(session,em).getById(printerId);
 		em.close();
 		return resp;

@@ -4,7 +4,7 @@ package de.cranix.api.resourceimpl;
 import de.cranix.api.resources.SessionsResource;
 import de.cranix.dao.Session;
 import de.cranix.services.SessionService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.dao.Group;
 import de.cranix.dao.Printer;
 import de.cranix.dao.Acl;
@@ -29,7 +29,7 @@ public class SessionsResourceImpl implements SessionsResource {
 
 	@Override
 	public Session createSession(UriInfo ui, String username, String password, String device, HttpServletRequest req) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 
 		logger.debug("user:" + username + " password:" + password);
 		if(username == null || password == null ) {
@@ -73,7 +73,7 @@ public class SessionsResourceImpl implements SessionsResource {
 
 	@Override
 	public void deleteSession(Session session, String token) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final SessionService sessionService = new SessionService(session,em);
 		if( session == null || ! session.getToken().equals(token) ) {
 			em.close();
@@ -97,7 +97,7 @@ public class SessionsResourceImpl implements SessionsResource {
 
 	@Override
 	public String getSessionValue(Session session,String key){
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Printer defaultPrinter  = null;
 		List<Printer> availablePrinters = null;
 		List<String> data = new ArrayList<String>();
@@ -166,7 +166,7 @@ public class SessionsResourceImpl implements SessionsResource {
 
 	@Override
 	public String logonScript(Session session, String OS) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		String resp = new SessionService(session,em).logonScript(OS);
 		em.close();
 		return resp;

@@ -42,7 +42,7 @@ import de.cranix.services.Config;
 import de.cranix.services.RoomService;
 import de.cranix.services.SessionService;
 import de.cranix.services.DeviceService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 @Path("clonetool")
 @Api(value = "clonetool")
@@ -65,7 +65,7 @@ public class CloneToolResource {
 		@Context UriInfo ui,
 		@Context HttpServletRequest req
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session  = new SessionService(em).getLocalhostSession();
 		Device device = new DeviceService(session,em).getByIP(req.getRemoteAddr());
 		em.close();
@@ -86,7 +86,7 @@ public class CloneToolResource {
 		@Context UriInfo ui,
 		@Context HttpServletRequest req
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session  = new SessionService(em).getLocalhostSession();
 		Device device    = new DeviceService(session,em).getByIP(req.getRemoteAddr());
 		String resp      = "";
@@ -109,7 +109,7 @@ public class CloneToolResource {
 		@Context UriInfo ui,
 		@Context HttpServletRequest req
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session  = new SessionService(em).getLocalhostSession();
 		Device device = new DeviceService(session,em).getByIP(req.getRemoteAddr());
 		em.close();
@@ -132,7 +132,7 @@ public class CloneToolResource {
 		@Context UriInfo ui,
 		@Context HttpServletRequest req
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session  = new SessionService(em).getLocalhostSession();
 		DeviceService deviceService = new DeviceService(session,em);
 		Device device = deviceService.getByIP(req.getRemoteAddr());
@@ -171,7 +171,7 @@ public class CloneToolResource {
 		@Context HttpServletRequest req,
 		@PathParam("hwconfId") Long hwconfId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session  = new SessionService(em).getLocalhostSession();
 		String resp = new CloneToolService(session,em).getPartitions(hwconfId);
 		em.close();
@@ -193,7 +193,7 @@ public class CloneToolResource {
 		@PathParam("partitionName") String partitionName,
 		@PathParam("key") String key
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session  = new SessionService(em).getLocalhostSession();
 		String resp = new CloneToolService(session,em).getConfigurationValue(hwconfId,partitionName,key);
 		em.close();
@@ -209,7 +209,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceIP") String deviceIP
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Device device = new DeviceService(session,em).getByIP(deviceIP);
 		CrxResponse resp = new CloneToolService(session,em).stopCloning("device",device.getId());
 		em.close();
@@ -230,7 +230,7 @@ public class CloneToolResource {
 	public List<HWConf> getAllHWConf(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<HWConf> resp = new CloneToolService(session,em).getAllHWConf();
 		em.close();
 		return resp;
@@ -248,7 +248,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("hwconfId") Long hwconfId
 	)  {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final HWConf hwconf = new CloneToolService(session,em).getById(hwconfId);
 		em.close();
 		if (hwconf == null) {
@@ -269,7 +269,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("MAC") String mac
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Device device = new DeviceService(session,em).getByMAC(mac);
 		em.close();
 		if( device != null && device.getHwconf() != null ) {
@@ -290,7 +290,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("hwconfId") Long hwconfId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		String resp = new CloneToolService(session,em).getDescription(hwconfId);
 		em.close();
 		return resp;
@@ -308,7 +308,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("hwconfId") Long hwconfId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		String resp = new CloneToolService(session,em).getDeviceType(hwconfId);
 		em.close();
 		return resp;
@@ -327,7 +327,7 @@ public class CloneToolResource {
 		@PathParam("hwconfId") Long hwconfId,
 		@PathParam("partitionName") String partitionName
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Partition resp = new CloneToolService(session,em).getPartition(hwconfId, partitionName);
 		em.close();
 		return resp;
@@ -345,7 +345,7 @@ public class CloneToolResource {
 	public String getRoomsToRegister(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		StringBuilder roomList = new StringBuilder();
 		for( Room room : new RoomService(session,em).getAllToRegister() ) {
 			roomList.append(room.getId()).append("##").append(room.getName()).append(" ");
@@ -367,7 +367,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") long roomId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		StringBuilder roomList = new StringBuilder();
 		for( String name : new RoomService(session,em).getAvailableIPAddresses(roomId, 0) ) {
 			roomList.append(name.replaceFirst(" ","/")).append(" ").append(name.split(" ")[1]).append(" ");
@@ -391,7 +391,7 @@ public class CloneToolResource {
 		@PathParam("IP") String IP,
 		@PathParam("name") String name
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		RoomService rc = new RoomService(session,em);
 		Room room = rc.getById(roomId);
 		Device device = new Device();
@@ -422,7 +422,7 @@ public class CloneToolResource {
 		@PathParam("hwconfId") Long hwconfId,
 		@PathParam("partitionName") String partitionName
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).addPartitionToHWConf(hwconfId, partitionName );
 		em.close();
 		return resp;
@@ -444,7 +444,7 @@ public class CloneToolResource {
 		@PathParam("key") String key,
 		@PathParam("value") String value
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).setConfigurationValue(hwconfId,partitionName,key,value);
 		em.close();
 		return resp;
@@ -465,7 +465,7 @@ public class CloneToolResource {
 		@PathParam("partitionName") String partitionName,
 		@PathParam("key") String key
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).deleteConfigurationValue(hwconfId,partitionName,key);
 		em.close();
 		return resp;
@@ -488,7 +488,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		HWConf hwconf
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).addHWConf(hwconf);
 		em.close();
 		return resp;
@@ -507,7 +507,7 @@ public class CloneToolResource {
 		@PathParam("hwconfId") Long hwconfId,
 		    HWConf hwconf
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).modifyHWConf(hwconfId, hwconf);
 		em.close();
 		return resp;
@@ -529,7 +529,7 @@ public class CloneToolResource {
 		@PathParam("hwconfId") Long hwconfId,
 		Partition partition
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).addPartitionToHWConf(hwconfId, partition);
 		em.close();
 		return resp;
@@ -553,7 +553,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("hwconfId") Long hwconfId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).delete(hwconfId);
 		em.close();
 		return resp;
@@ -572,7 +572,7 @@ public class CloneToolResource {
 		@PathParam("hwconfId") Long hwconfId,
 		@PathParam("partitionName") String partitionName
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).deletePartition(hwconfId,partitionName);
 		em.close();
 		return resp;
@@ -593,7 +593,7 @@ public class CloneToolResource {
 		@PathParam("hwconfId") Long hwconfId,
 		Clone parameters
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).startCloning(hwconfId,parameters);
 		em.close();
 		return resp;
@@ -611,7 +611,7 @@ public class CloneToolResource {
 		@PathParam("hwconfId")  Long hwconfId,
 		@PathParam("multiCast") int multiCast
 	)  {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		return new CloneToolService(session,em).startCloning("hwconf", hwconfId, multiCast);
 	}
 
@@ -627,7 +627,7 @@ public class CloneToolResource {
 		@PathParam("roomId") Long roomId,
 		@PathParam("multiCast") int multiCast
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).startCloning("room", roomId, multiCast);
 		em.close();
 		return resp;
@@ -642,7 +642,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).startCloning("device", deviceId, 0);
 		em.close();
 		return resp;
@@ -657,7 +657,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("hwconfId") Long hwconfId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).stopCloning("hwconf",hwconfId);
 		em.close();
 		return resp;
@@ -672,7 +672,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).stopCloning("room",roomId);
 		em.close();
 		return resp;
@@ -687,7 +687,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).stopCloning("device",deviceId);
 		em.close();
 		return resp;
@@ -723,7 +723,7 @@ public class CloneToolResource {
 		@PathParam("partitionId") Long partitionId,
 		@PathParam("networkDevice") String networkDevice
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).startMulticast(partitionId,networkDevice);
 		em.close();
 		return resp;
@@ -746,7 +746,7 @@ public class CloneToolResource {
 		@PathParam("partitionId") Long partitionId,
 		Partition partition
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).modifyPartition(partitionId, partition);
 		em.close();
 		return resp;
@@ -764,7 +764,7 @@ public class CloneToolResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		String resp = new CloneToolService(session,em).resetMinion(deviceId);
 		em.close();
 		return resp;

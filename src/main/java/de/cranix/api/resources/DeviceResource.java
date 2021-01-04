@@ -33,7 +33,7 @@ import de.cranix.services.DeviceService;
 import de.cranix.services.EducationService;
 import de.cranix.services.SessionService;
 import de.cranix.services.SoftwareService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 import static de.cranix.api.resources.Resource.*;
 
@@ -57,7 +57,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final Device device = new DeviceService(session,em).getById(deviceId);
 		em.close();
 		if (device == null) {
@@ -77,7 +77,7 @@ public class DeviceResource {
 	public List<Device> getAll(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final List<Device> devices = new DeviceService(session,em).getAll();
 		em.close();
 		if (devices == null) {
@@ -98,7 +98,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("hwconfId") Long id
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Device> resp = new DeviceService(session,em).getByHWConf(id);
 		em.close();
 		return resp;
@@ -116,7 +116,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("IP") String IP
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final Device device = new DeviceService(session,em).getByIP(IP);
 		em.close();
 		if (device == null) {
@@ -137,7 +137,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("MAC") String MAC
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final Device device = new DeviceService(session,em).getByMAC(MAC);
 		em.close();
 		if (device == null) {
@@ -158,7 +158,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("Name") String Name
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final Device device = new DeviceService(session,em).getByName(Name);
 		em.close();
 		if (device == null) {
@@ -239,7 +239,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final Printer resp = new DeviceService(session,em).getDefaultPrinter(deviceId);
 		em.close();
 		return resp;
@@ -257,7 +257,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("IP") String IP
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final DeviceService deviceService = new DeviceService(session,em);
 		final Device device =  deviceService.getByIP(IP);
 		if( device == null ) {
@@ -290,7 +290,7 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		Map<String, List<Long>> printers
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new DeviceService(session,em).setPrinters(deviceId,printers);
 		em.close();
 		return resp;
@@ -308,7 +308,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final DeviceService deviceService = new DeviceService(session,em);
 		List<Printer> resp = deviceService.getAvailablePrinters(deviceId);
 		em.close();
@@ -327,7 +327,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("IP") String IP
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		DeviceService deviceService = new DeviceService(session,em);
 		Device device = deviceService.getByIP(IP);
 		if( device == null ) {
@@ -358,7 +358,7 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		@PathParam("printerId") Long printerId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final DeviceService deviceService = new DeviceService(session,em);
 		CrxResponse resp = deviceService.setDefaultPrinter(deviceId,printerId);
 		em.close();
@@ -380,7 +380,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new DeviceService(session,em).deleteDefaultPrinter(deviceId);
 		em.close();
 		return resp;
@@ -402,7 +402,7 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		@PathParam("printerId") Long printerId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new DeviceService(session,em).addAvailablePrinter(deviceId, printerId);
 		em.close();
 		return resp;
@@ -424,7 +424,7 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		@PathParam("printerId") Long printerId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new DeviceService(session,em).deleteAvailablePrinter(deviceId, printerId);
 		em.close();
 		return resp;
@@ -442,7 +442,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("IP") String IP
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<String> resp = new DeviceService(session,em).getLoggedInUsers(IP);
 		em.close();
 		return resp;
@@ -460,7 +460,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final List<String> resp = new DeviceService(session,em).getLoggedInUsers(deviceId);
 		em.close();
 		return resp;
@@ -474,7 +474,7 @@ public class DeviceResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	public String getFirstLoggedInUser( @PathParam("IP") String IP) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final Session session  = new SessionService(em).getLocalhostSession();
 		final DeviceService deviceService = new DeviceService(session,em);
 		final Device device = deviceService.getByIP(IP);
@@ -501,7 +501,7 @@ public class DeviceResource {
 		@PathParam("IP") String IP,
 		@PathParam("userName") String userName
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final DeviceService deviceService = new DeviceService(session,em);
 		CrxResponse resp = deviceService.setLoggedInUsers(IP, userName);
 		em.close();
@@ -524,7 +524,7 @@ public class DeviceResource {
 		if( !req.getRemoteAddr().equals("127.0.0.1")) {
 			return "ERROR Connection is allowed only from local host.";
 		}
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session  = new SessionService(em).getLocalhostSession();
 		CrxResponse resp = new DeviceService(session,em).setLoggedInUserByMac(MAC, userName);
 		em.close();
@@ -544,7 +544,7 @@ public class DeviceResource {
 		@PathParam("IP") String IP,
 		@PathParam("userName") String userName
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final DeviceService deviceService = new DeviceService(session,em);
 		CrxResponse resp =  deviceService.removeLoggedInUser(IP, userName);
 		em.close();
@@ -568,7 +568,7 @@ public class DeviceResource {
 		if( !req.getRemoteAddr().equals("127.0.0.1")) {
 			return "ERROR Connection is allowed only from local host.";
 		}
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session  = new SessionService(em).getLocalhostSession();
 		final DeviceService deviceService = new DeviceService(session,em);
 		CrxResponse resp =  deviceService.removeLoggedInUserByMac(MAC, userName);
@@ -590,7 +590,7 @@ public class DeviceResource {
 	public void refreshConfig(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		new DHCPConfig(session,em).Create();
 		em.close();
 	}
@@ -608,7 +608,7 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		Device device
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		device.setId(deviceId);
 		CrxResponse resp =  new DeviceService(session,em).modify(device);
 		em.close();
@@ -627,7 +627,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		Device device
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp =  new DeviceService(session,em).forceModify(device);
 		em.close();
 		return resp;
@@ -645,7 +645,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final DeviceService deviceService = new DeviceService(session,em);
 		CrxResponse resp = deviceService.delete(deviceId,true);
 		em.close();
@@ -671,7 +671,7 @@ public class DeviceResource {
 		@FormDataParam("file") final InputStream fileInputStream,
 		@FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<CrxResponse> resp = new DeviceService(session,em).importDevices(fileInputStream, contentDispositionHeader);
 		em.close();
 		return resp;
@@ -689,7 +689,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<String> resp = new EducationService(session,em).getAvailableDeviceActions(deviceId);
 		em.close();
 		return resp;
@@ -713,7 +713,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		CrxActionMap actionMap
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		DeviceService deviceService = new DeviceService(session,em);
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		logger.debug("actionMap" + actionMap);
@@ -745,7 +745,7 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		@PathParam("action") String action
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new DeviceService(session,em).manageDevice(deviceId,action,null);
 		em.close();
 		return resp;
@@ -764,7 +764,7 @@ public class DeviceResource {
 		@PathParam("deviceName") String deviceName,
 		@PathParam("action") String action
 	)  {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new DeviceService(session,em).manageDevice(deviceName,action,null);
 		em.close();
 		return resp;
@@ -790,7 +790,7 @@ public class DeviceResource {
 		@PathParam("action") String action,
 		Map<String, String> actionContent
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new DeviceService(session,em).manageDevice(deviceId,action,actionContent);
 		em.close();
 		return resp;
@@ -807,7 +807,7 @@ public class DeviceResource {
 	public CrxResponse cleanUpLoggedIn(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new DeviceService(session,em).cleanUpLoggedIn();
 		em.close();
 		return resp;
@@ -842,7 +842,7 @@ public class DeviceResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<CrxMConfig> dhcpParameters = new ArrayList<CrxMConfig>();
 		final DeviceService deviceService = new DeviceService(session,em);
 		final Device device = deviceService.getById(deviceId);
@@ -873,7 +873,7 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		CrxMConfig dhcpParameter
 	)  {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final CrxResponse crxResponse = new DeviceService(session,em).addDHCP(deviceId,dhcpParameter);
 		return new CrxResponse(session,"OK","DHCP Parameter was added succesfully");
 	}
@@ -891,7 +891,7 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId,
 		@PathParam("parameterId") Long parameterId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final DeviceService deviceService = new DeviceService(session,em);
 		Device    device = deviceService.getById(deviceId);
 		CrxResponse resp = deviceService.deleteMConfig(device,parameterId);

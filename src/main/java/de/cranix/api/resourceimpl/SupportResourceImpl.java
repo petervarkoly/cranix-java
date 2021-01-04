@@ -21,7 +21,7 @@ import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.SupportRequest;
 import de.cranix.services.SystemService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.OSSShellTools;
 import static de.cranix.helper.CranixConstants.*;
 

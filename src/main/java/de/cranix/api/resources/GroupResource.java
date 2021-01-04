@@ -19,7 +19,7 @@ import de.cranix.dao.Group;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
 import de.cranix.services.GroupService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		Group group
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new GroupService(session,em).add(group);
 		em.close();
 		return resp;
@@ -69,7 +69,7 @@ public class GroupResource {
 		@PathParam("groupId") Long groupId,
 		Group group
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		group.setId(groupId);
 		CrxResponse resp = new GroupService(session,em).modify(group);
 		em.close();
@@ -88,7 +88,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupId") Long groupId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new GroupService(session,em).delete(groupId);
 		em.close();
 		return resp;
@@ -103,7 +103,7 @@ public class GroupResource {
 	})
 	@PermitAll
 	public List<Group> getAll( @ApiParam(hidden = true) @Auth Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Group> resp = new GroupService(session,em).getAll();
 		em.close();
 		return resp;
@@ -121,7 +121,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupId") Long groupId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Group group =  new GroupService(session,em).getById(groupId);
 		em.close();
 		return group;
@@ -139,7 +139,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupId") Long groupId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<User> resp = new GroupService(session,em).getMembers(groupId);
 		em.close();
 		return resp;
@@ -157,7 +157,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupName") String groupName
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<String> member = new ArrayList<String>();
 		final GroupService gc = new GroupService(session,em);
 		Group group = gc.getByName(groupName);
@@ -181,7 +181,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupId") Long groupId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<User> users = new GroupService(session,em).getAvailableMember(groupId);
 		em.close();
 		return users;
@@ -199,7 +199,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("type") String type
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Group> resp = new GroupService(session,em).getByType(type);
 		em.close();
 		return resp;
@@ -217,7 +217,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("type") String type
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<String> groups = new ArrayList<String>();
 		final GroupService gc = new GroupService(session,em);
 		for( Group group : gc.getByType(type)) {
@@ -240,7 +240,7 @@ public class GroupResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupName") String groupName
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		String resp = new GroupService(session,em).delete(groupName).getCode();
 		em.close();
 		return resp;
@@ -266,7 +266,7 @@ public class GroupResource {
 		@FormDataParam("file") final InputStream fileInputStream,
 		@FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new GroupService(session,em).importGroups(fileInputStream, contentDispositionHeader);
 		em.close();
 		return resp;
@@ -285,7 +285,7 @@ public class GroupResource {
 		@PathParam("groupId") Long groupId,
 		List<Long> users
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new GroupService(session,em).setMembers(groupId,users);
 		em.close();
 		return resp;
@@ -303,7 +303,7 @@ public class GroupResource {
 		@PathParam("groupId") Long groupId,
 		@PathParam("userId") Long userId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 CrxResponse resp = new GroupService(session,em).removeMember(groupId,userId);
                 em.close();
                 return resp;
@@ -322,7 +322,7 @@ public class GroupResource {
 		@PathParam("groupId") Long groupId,
 		@PathParam("userId") Long userId
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 CrxResponse resp = new GroupService(session,em).addMember(groupId,userId);
                 em.close();
                 return resp;
@@ -345,7 +345,7 @@ public class GroupResource {
 			@ApiParam(hidden = true) @Auth Session session,
 			CrxActionMap actionMap
 	) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 List<CrxResponse> resp = new GroupService(session,em).applyAction(actionMap);
                 em.close();
                 return resp;

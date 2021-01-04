@@ -18,7 +18,7 @@ import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Partition;
 import de.cranix.dao.Session;
 import de.cranix.services.CloneToolService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 
 public class HwconfResourceImpl implements HwconfResource {
@@ -30,7 +30,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse add(Session session, HWConf hwconf) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).addHWConf(hwconf);
 		em.close();
 		return resp;
@@ -38,7 +38,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse modifyHWConf(Session session, Long hwconfId, HWConf hwconf) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).modifyHWConf(hwconfId, hwconf);
 		em.close();
 		return resp;
@@ -46,7 +46,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public HWConf getById(Session session, Long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final HWConf hwconf = new CloneToolService(session,em).getById(hwconfId);
 		em.close();
 		if (hwconf == null) {
@@ -57,7 +57,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse addPartition(Session session, Long hwconfId, Partition partition) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).addPartitionToHWConf(hwconfId, partition);
 		em.close();
 		return resp;
@@ -65,7 +65,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse delete(Session session, Long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).delete(hwconfId);
 		em.close();
 		return resp;
@@ -73,7 +73,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse deletePartition(Session session, Long hwconfId, String partitionName) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).deletePartition(hwconfId,partitionName);
 		em.close();
 		return resp;
@@ -81,7 +81,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public List<HWConf> getAllHWConf(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<HWConf> resp = new CloneToolService(session,em).getAllHWConf();
 		em.close();
 		return resp;
@@ -89,7 +89,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse startRecover(Session session, Long hwconfId, Clone parameters) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).startCloning(hwconfId,parameters);
 		em.close();
 		return resp;
@@ -97,13 +97,13 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse startRecover(Session session, Long hwconfId, int multiCast) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		return new CloneToolService(session,em).startCloning("hwconf", hwconfId, multiCast);
 	}
 
 	@Override
 	public CrxResponse stopRecover(Session session, Long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).stopCloning("hwconf",hwconfId);
 		em.close();
 		return resp;
@@ -111,7 +111,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse startMulticast(Session session, Long partitionId, String networkDevice) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).startMulticast(partitionId,networkDevice);
 		em.close();
 		return resp;
@@ -119,7 +119,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse modifyPartition(Session session, Long partitionId, Partition partition) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).modifyPartition(partitionId, partition);
 		em.close();
 		return resp;
@@ -127,7 +127,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public CrxResponse importHWConfs(Session session, List<HWConf> hwconfs) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CloneToolService  cloneToolService = new CloneToolService(session,em);
 		CrxResponse crxResponse = null;
 		for( HWConf hwconf : hwconfs ) {
@@ -142,7 +142,7 @@ public class HwconfResourceImpl implements HwconfResource {
 
 	@Override
 	public List<CrxResponse> applyAction(Session session, CrxActionMap crxActionMap) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		CloneToolService  cloneToolService = new CloneToolService(session,em);
                 logger.debug(crxActionMap.toString());

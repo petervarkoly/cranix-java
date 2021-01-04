@@ -28,7 +28,7 @@ import de.cranix.dao.Category;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.services.CategoryService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class CategoryResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
 	public List<Category> getAll( @ApiParam(hidden = true) @Auth Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Category> resp = new CategoryService(session,em).getAll();
 		em.close();
 		return resp;
@@ -72,7 +72,7 @@ public class CategoryResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("categoryId") long categoryId
 	)  {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Category resp = new CategoryService(session,em).getById(categoryId);
 		em.close();
 		return resp;
@@ -94,7 +94,7 @@ public class CategoryResource {
 		@PathParam("categoryId") long categoryId,
 		@PathParam("memberType") String memberType
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Long> resp = new CategoryService(session,em).getMembers(categoryId,memberType);
 		em.close();
 		return resp;
@@ -116,7 +116,7 @@ public class CategoryResource {
 		@PathParam("categoryId") long categoryId,
 		@PathParam("memberType") String memberType
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Long> resp = new CategoryService(session,em).getAvailableMembers(categoryId,memberType);
 		em.close();
 		return resp;
@@ -137,7 +137,7 @@ public class CategoryResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		Category category
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CategoryService(session,em).add(category);
 		em.close();
 		return resp;
@@ -158,7 +158,7 @@ public class CategoryResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		Category category
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CategoryService(session,em).modify(category);
 		em.close();
 		return resp;
@@ -181,7 +181,7 @@ public class CategoryResource {
 		@PathParam("memberType") String memberType,
 		@PathParam("memberId")   long memberId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CategoryService(session,em).addMember(categoryId, memberType, memberId);
 		em.close();
 		return resp;
@@ -202,7 +202,7 @@ public class CategoryResource {
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("categoryId") long categoryId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CategoryService(session,em).delete(categoryId);
 		em.close();
 		return resp;
@@ -225,7 +225,7 @@ public class CategoryResource {
 		@PathParam("memberType") String memberType,
 		@PathParam("memberId") long memberId
 	) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CategoryService(session,em).deleteMember(categoryId, memberType, memberId);
 		em.close();
 		return resp;

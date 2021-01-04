@@ -14,7 +14,7 @@ import de.cranix.dao.FAQ;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.services.InformationService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 public class InformationResourceImpl implements InformationResource {
 
@@ -23,7 +23,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse addAnnouncement(Session session, Announcement announcement) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		CrxResponse resp = infoService.addAnnouncement(announcement);
 		em.close();
@@ -32,7 +32,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse addContact(Session session, Contact contact) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		CrxResponse resp = infoService.addContact(contact);
 		em.close();
@@ -41,7 +41,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse addFAQ(Session session, FAQ faq) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		CrxResponse resp = infoService.addFAQ(faq);
 		em.close();
@@ -50,7 +50,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public List<Announcement> getAnnouncements(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		List<Announcement> resp = infoService.getAnnouncements();
 		em.close();
@@ -59,7 +59,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public List<Announcement> getNewAnnouncements(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Announcement> resp = new InformationService(session,em).getNewAnnouncements();
 		em.close();
 		return resp;
@@ -67,7 +67,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse setAnnouncementHaveSeen(Session session, Long announcementId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new InformationService(session,em).setAnnouncementHaveSeen(announcementId);
 		em.close();
 		return resp;
@@ -75,7 +75,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public List<Contact> getContacts(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		List<Contact> resp = infoService.getContacts();
 		em.close();
@@ -84,7 +84,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public List<FAQ> getFAQs(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		List<FAQ> resp = infoService.getFAQs();
 		em.close();
@@ -93,7 +93,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse deleteAnnouncement(Session session, Long announcementId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		CrxResponse resp = infoService.deleteAnnouncement(announcementId);
 		em.close();
@@ -102,7 +102,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse deleteContact(Session session, Long contactId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		CrxResponse resp = infoService.deleteContact(contactId);
 		em.close();
@@ -111,7 +111,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse deleteFAQ(Session session, Long faqId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		CrxResponse resp = infoService.deleteFAQ(faqId);
 		em.close();
@@ -120,7 +120,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse modifyAnnouncement(Session session, Long announcementId, Announcement announcement) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		announcement.setId(announcementId);
 		CrxResponse resp = infoService.modifyAnnouncement(announcement);
@@ -130,7 +130,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse modifyContact(Session session, Long contactId, Contact contact) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		contact.setId(contactId);
 		CrxResponse resp = infoService.modifyContact(contact);
@@ -140,7 +140,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public CrxResponse modifyFAQ(Session session, Long faqId, FAQ faq) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		InformationService infoService = new InformationService(session,em);
 		faq.setId(faqId);
 		CrxResponse resp = infoService.modifyFAQ(faq);
@@ -175,7 +175,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public List<Category> getInformationCategories(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Category> resp = new InformationService(session,em).getInfoCategories();
 		em.close();
 		return resp;
@@ -183,7 +183,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public Announcement getAnnouncement(Session session, Long announcementId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Announcement resp = new InformationService(session,em).getAnnouncementById(announcementId);
 		em.close();
 		return resp;
@@ -191,7 +191,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public Contact getContact(Session session, Long contactId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Contact resp = new InformationService(session,em).getContactById(contactId);
 		em.close();
 		return resp;
@@ -199,7 +199,7 @@ public class InformationResourceImpl implements InformationResource {
 
 	@Override
 	public FAQ getFAQ(Session session, Long faqId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		FAQ resp = new InformationService(session,em).getFAQById(faqId);
 		em.close();
 		return resp;

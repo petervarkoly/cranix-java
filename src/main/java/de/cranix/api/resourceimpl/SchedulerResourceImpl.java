@@ -11,7 +11,7 @@ import de.cranix.dao.Category;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.services.UserService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 @SuppressWarnings( "unchecked" )
 public class SchedulerResourceImpl implements SchedulerResource {
@@ -22,7 +22,7 @@ public class SchedulerResourceImpl implements SchedulerResource {
 
 	@Override
 	public CrxResponse deleteExpieredGuestUser(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		UserService uc = new UserService(session,em);
 		Query query = em.createNamedQuery("Category.expiredByType").setParameter("type", "guestUser");
 		Integer counter = 0;

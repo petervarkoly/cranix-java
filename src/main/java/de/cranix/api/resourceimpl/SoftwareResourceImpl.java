@@ -28,7 +28,7 @@ import de.cranix.dao.SoftwareLicense;
 import de.cranix.dao.SoftwareStatus;
 import de.cranix.dao.SoftwareVersion;
 import de.cranix.services.SoftwareService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.services.CategoryService;
 import de.cranix.services.CloneToolService;
 import de.cranix.services.DeviceService;
@@ -42,7 +42,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<Software> getAll(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Software> resp = new SoftwareService(session,em).getAll();
 		em.close();
 		return resp;
@@ -50,7 +50,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<Software> getAllInstallable(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Software> resp = new SoftwareService(session,em).getAllInstallable();
 		em.close();
 		return resp;
@@ -58,7 +58,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public Software getById(Session session, long softwareId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Software resp = new SoftwareService(session,em).getById(softwareId);
 		em.close();
 		return resp;
@@ -66,7 +66,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<Software> search(Session session, String search) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Software> resp = new SoftwareService(session,em).search(search);
 		em.close();
 		return resp;
@@ -74,7 +74,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse add(Session session, Software software) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).add(software,true);
 		em.close();
 		return resp;
@@ -82,7 +82,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse modify(Session session, Software software) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).modify(software);
 		em.close();
 		return resp;
@@ -90,7 +90,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse delete(Session session, long softwareId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).delete(softwareId);
 		em.close();
 		return resp;
@@ -98,7 +98,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse apply(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).applySoftwareStateToHosts();
 		em.close();
 		return resp;
@@ -106,7 +106,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse createInstallation(Session session, Category category) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService sc = new SoftwareService(session,em);
 		CategoryService cc = new CategoryService(session,em);
 		Category deepCopy = (Category) SerializationUtils.clone(category);
@@ -148,7 +148,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse modifyInstallation(Session session, Long installationId, Category category) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService sc = new SoftwareService(session,em);
 		CategoryService cc = new CategoryService(session,em);
 		Category oldCategory  = cc.getById(installationId);
@@ -230,7 +230,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse addSoftwareToInstalation(Session session, long installationId, long softwareId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).addSoftwareToCategory(softwareId,installationId);
 		em.close();
 		return resp;
@@ -238,7 +238,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse addDeviceToInstalation(Session session, long installationId, long deviceId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CategoryService categoryService = new CategoryService(session,em);
 		CrxResponse resp = categoryService.addMember(installationId, "Device", deviceId);
 		em.close();
@@ -247,7 +247,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse addRoomToInstalation(Session session, long installationId, long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CategoryService categoryService = new CategoryService(session,em);
 		CrxResponse resp = categoryService.addMember(installationId, "Room", roomId);
 		em.close();
@@ -256,7 +256,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse addHWConfToInstalation(Session session, long installationId, long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CategoryService categoryService = new CategoryService(session,em);
 		CrxResponse resp = categoryService.addMember(installationId, "HWConf", hwconfId);
 		em.close();
@@ -265,7 +265,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse deleteInstalation(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CategoryService categoryService = new CategoryService(session,em);
 		CrxResponse crxResponse = categoryService.delete(installationId);
 		if( crxResponse.getCode().equals("OK") ) {
@@ -277,7 +277,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse deleteSoftwareFromInstalation(Session session, long installationId, long softwareId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService softwareService = new SoftwareService(session,em);
 		CrxResponse resp = softwareService.deleteSoftwareFromCategory(softwareId,installationId);
 		em.close();
@@ -286,7 +286,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse deleteDeviceFromInstalation(Session session, long installationId, long deviceId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CategoryService categoryService = new CategoryService(session,em);
 		CrxResponse resp = categoryService.deleteMember(installationId, "Device", deviceId);
 		em.close();
@@ -295,7 +295,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse deleteRoomFromInstalation(Session session, long installationId, long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CategoryService categoryService = new CategoryService(session,em);
 		CrxResponse resp = categoryService.deleteMember(installationId, "Room", roomId);
 		em.close();
@@ -304,7 +304,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse deleteHWConfFromInstalation(Session session, long installationId, long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CategoryService categoryService = new CategoryService(session,em);
 		CrxResponse resp = categoryService.deleteMember(installationId, "HWConf", hwconfId);
 		em.close();
@@ -313,7 +313,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<CrxBaseObject> getSoftwares(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Category category = new CategoryService(session,em).getById(installationId);
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		for( Software object : category.getSoftwares() ) {
@@ -325,7 +325,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<CrxBaseObject> getDevices(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Category category = new CategoryService(session,em).getById(installationId);
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		for( Device object : category.getDevices() ) {
@@ -337,7 +337,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<CrxBaseObject> getRooms(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Category category = new CategoryService(session,em).getById(installationId);
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		for( Room object : category.getRooms() ) {
@@ -349,7 +349,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<CrxBaseObject> getHwconfs(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Category category = new CategoryService(session,em).getById(installationId);
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		for( HWConf object : category.getHwconfs() ) {
@@ -361,7 +361,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<Map<String, String>> getAvailable(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService softwareService = new SoftwareService(session,em);
 		List<Map<String, String>> resp = softwareService.getAvailableSoftware();
 		em.close();
@@ -370,7 +370,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse download(Session session, List<String> softwares) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService softwareService = new SoftwareService(session,em);
 		CrxResponse resp = softwareService.downloadSoftwares(softwares);
 		em.close();
@@ -378,7 +378,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	}
 	@Override
 	public CrxResponse downloadOne(Session session, String softwareName) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<String> softwares = new ArrayList<String>();
 		softwares.add(softwareName);
 		SoftwareService softwareService = new SoftwareService(session,em);
@@ -389,7 +389,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<Map<String, String>> listDownloadedSoftware(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Map<String, String>> resp = new SoftwareService(session,em).listDownloadedSoftware();
 		em.close();
 		return resp;
@@ -398,7 +398,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 	@Override
 	public CrxResponse setSoftwareInstalledOnDevice(Session session, String deviceName, String softwareName,
 			String version) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).setSoftwareStatusOnDeviceByName(deviceName, softwareName, softwareName, version, "I");
 		em.close();
 		return resp;
@@ -406,7 +406,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse setSoftwareInstalledOnDevice(Session session, String deviceName, Map<String, String> software) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).setSoftwareStatusOnDeviceByName(
 				deviceName,
 				software.get("name"),
@@ -419,7 +419,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public String getSoftwareLicencesOnDevice(Session session, String deviceName) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService softwareService = new SoftwareService(session,em);
 		String resp = softwareService.getSoftwareLicencesOnDevice(deviceName);
 		em.close();
@@ -428,7 +428,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<Category> getInstallations(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Category> resp = new CategoryService(session,em).getByType("installation");
 		em.close();
 		return resp;
@@ -436,7 +436,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<Software> getSoftwares(Session session, List<Long> softwareIds) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Software> resp = new SoftwareService(session,em).getSoftwareStatusById(softwareIds);
 		em.close();
 		return resp;
@@ -452,7 +452,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader) {
 
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareLicense softwareLicense = new SoftwareLicense();
 		softwareLicense.setValue(value);
 		softwareLicense.setCount(count);
@@ -476,7 +476,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 			InputStream fileInputStream,
 			FormDataContentDisposition contentDispositionHeader
 		) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService  softwareService = new SoftwareService(session,em);
 		SoftwareLicense softwareLicense = softwareService.getSoftwareLicenseById(licenseId);
 		softwareLicense.setCount(count);
@@ -490,7 +490,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse deleteLicense(Session session, long licenseId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).deleteLicence(licenseId);
 		em.close();
 		return resp;
@@ -499,7 +499,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<SoftwareStatus> softwareStatus(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<SoftwareStatus> resp = new SoftwareService(session,em).getAllStatus();
 		em.close();
 		return resp;
@@ -510,7 +510,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 		if( softwareId == null) {
 			return this.getAllSoftwareStatusOnDevice(session, deviceId);
 		}
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<SoftwareStatus> resp = new SoftwareService(session,em).getSoftwareStatusOnDeviceById(deviceId, softwareId);
 		em.close();
 		return resp;
@@ -518,7 +518,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<SoftwareStatus> getAllSoftwareStatusOnDevice(Session session, Long deviceId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<SoftwareStatus> resp = new SoftwareService(session,em).getAllSoftwareStatusOnDeviceById(deviceId);
 		em.close();
 		return resp;
@@ -526,7 +526,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<SoftwareStatus> getSoftwareStatus(Session session, Long softwareId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService softwareService = new SoftwareService(session,em);
 		List<SoftwareStatus> softwareStatus = new ArrayList<SoftwareStatus>();
 		Software software = softwareService.getById(softwareId);
@@ -545,7 +545,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<SoftwareLicense> getSoftwareLicenses(Session session, long softwareId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<SoftwareLicense> licenses = new ArrayList<SoftwareLicense>();
 		for( SoftwareLicense license : new SoftwareService(session,em).getById(softwareId).getSoftwareLicenses() ) {
 			license.setUsed(license.getDevices().size());
@@ -557,7 +557,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse addRequirements(Session session, List<String> requirement) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).addRequirements(requirement);
 		em.close();
 		return resp;
@@ -565,7 +565,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse addRequirements(Session session, long softwareId, long requirementId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).addRequirements(softwareId,requirementId);
 		em.close();
 		return resp;
@@ -573,7 +573,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse deleteRequirements(Session session, long softwareId, long requirementId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).deleteRequirements(softwareId,requirementId);
 		em.close();
 		return resp;
@@ -590,7 +590,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<SoftwareStatus> getRoomsStatus(Session session, Long roomId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<SoftwareStatus> ss = new ArrayList<SoftwareStatus>();
 		Room room = new RoomService(session,em).getById(roomId);
 		SoftwareService sc = new SoftwareService(session,em);
@@ -603,7 +603,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<SoftwareStatus> getHWConsStatus(Session session, Long hwconfId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<SoftwareStatus> ss = new ArrayList<SoftwareStatus>();
 		SoftwareService sc = new SoftwareService(session,em);
 		HWConf hwconf = new CloneToolService(session,em).getById(hwconfId);
@@ -616,7 +616,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse applyState(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		DeviceService deviceService = new DeviceService(session,em);
 		for( Device device : deviceService.getAll() ) {
 			deviceService.manageDevice(device, "applyState", null);
@@ -627,7 +627,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public Category getInstallation(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Category resp = new CategoryService(session,em).getById(installationId);
 		em.close();
 		return resp;
@@ -635,7 +635,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<Map<String, String>> listUpdatesForSoftwarePackages(Session session) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Map<String, String>> resp = new SoftwareService(session,em).listUpdatesForSoftwarePackages();
 		em.close();
 		return resp;
@@ -643,7 +643,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse updatesSoftwares(Session session, List<String> softwares) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).updateSoftwares(softwares);
 		em.close();
 		return resp;
@@ -651,7 +651,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public CrxResponse deleteDownloadedSoftwares(Session session, List<String> softwares) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SoftwareService(session,em).deleteDownloadedSoftwares(softwares);
 		em.close();
 		return resp;
@@ -659,7 +659,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<CrxBaseObject> getAvailableSoftwares(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SoftwareService sc = new SoftwareService(session,em);
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		Category installationSet = new CategoryService(session,em).getById(installationId);
@@ -674,7 +674,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<CrxBaseObject> getAvailableDevices(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		DeviceService dc = new DeviceService(session,em);
 		for( Long deviceId : new CategoryService(session,em).getAvailableMembers(installationId, "Device") ) {
@@ -689,7 +689,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<CrxBaseObject> getAvailableRooms(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		RoomService rc = new RoomService(session,em);
 		for( Long roomId : new CategoryService(session,em).getAvailableMembers(installationId, "Room") ) {
@@ -704,7 +704,7 @@ public class SoftwareResourceImpl implements SoftwareResource {
 
 	@Override
 	public List<CrxBaseObject> getAvailableHWConfs(Session session, long installationId) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<CrxBaseObject> objects = new ArrayList<CrxBaseObject>();
 		CloneToolService cc = new CloneToolService(session,em);
 		for( Long hwconfId : new CategoryService(session,em).getAvailableMembers(installationId, "HWConf") ) {

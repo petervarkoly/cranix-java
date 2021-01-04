@@ -1,5 +1,4 @@
 /* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-/* (c) 2016 EXTIS GmbH - all rights reserved */
 
 package de.cranix.helper;
 
@@ -17,40 +16,26 @@ import java.util.Properties;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import static de.cranix.helper.CranixConstants.*;
 
-public class CommonEntityManagerFactory {
+public class CrxEntityManagerFactory {
 
-    private static HashMap<String, CommonEntityManagerFactory> commonEmf = new HashMap<String, CommonEntityManagerFactory>();
+    private static Map<String, Object> properties;
+    private static EntityManagerFactory semf;
 
-    private Map<String, Object> properties;
-    private EntityManagerFactory emf;
-
-    private CommonEntityManagerFactory() {
-
+    private CrxEntityManagerFactory() {
     }
 
-    public Map<String, Object> getProperties() {
+    public static Map<String, Object> getProperties() {
         if (properties == null) {
             properties = new HashMap<String, Object>();
             properties.put(PersistenceUnitProperties.TARGET_DATABASE, "MySql");
         //    properties.put(PersistenceUnitProperties.JDBC_DRIVER, "com.mysql.jdbc.Driver");
-
-
-
-            properties.put(PersistenceUnitProperties.CLASSLOADER, CommonEntityManagerFactory.class.getClassLoader());
+            properties.put(PersistenceUnitProperties.CLASSLOADER, CrxEntityManagerFactory.class.getClassLoader());
 
             properties.put("eclipselink.logging.level", "WARNING");
             properties.put("eclipselink.logging.timestamp", "true");
             properties.put("eclipselink.logging.session", "true");
             properties.put("eclipselink.logging.thread", "true");
             properties.put("eclipselink.logging.exceptions", "true");
-            /*
-             * <property name="eclipselink.logging.level.sql" value="FINE"/>
-             * <property name="eclipselink.logging.parameters" value="true"/>
-             * <property name="eclipselink.logging.logger"
-             * value="ServerLogger"/>
-             * <property name="eclipselink.logging.logger"
-             * value="DefaultLogger"/>
-             */
 	    try {
 			File file = new File(cranixPropFile);
 			FileInputStream fileInput = new FileInputStream(file);
@@ -73,30 +58,13 @@ public class CommonEntityManagerFactory {
         return properties;
     }
 
-    public EntityManagerFactory getEntityManagerFactory() {
-        if (emf == null) {
-            Map<String, Object> props = getProperties();
-
-            emf = Persistence.createEntityManagerFactory("CRX", props);
-
-            if (emf == null) {
-            	System.err.println("getEntityManagerFactory : EntityManagerFactory still null."); //TODO
-            }
+    public static EntityManagerFactory instance() {
+        if (semf == null ) {
+		semf = Persistence.createEntityManagerFactory("CRX",  getProperties());
         }
-        return emf;
-    }
-
-    public static CommonEntityManagerFactory instance(String key) {
-        if (!commonEmf.containsKey(key)) {
-            commonEmf.put(key, new CommonEntityManagerFactory());
+	if (semf == null) {
+        	System.err.println("getEntityManagerFactory : EntityManagerFactory still null."); //TODO
         }
-        return commonEmf.get(key);
-    }
-
-    public  CommonEntityManagerFactory instanceI(String key) {
-        if (!commonEmf.containsKey(key)) {
-            commonEmf.put(key, new CommonEntityManagerFactory());
-        }
-        return commonEmf.get(key);
+        return semf;
     }
 }

@@ -28,7 +28,7 @@ import de.cranix.services.DeviceService;
 import de.cranix.services.RoomService;
 import de.cranix.services.SessionService;
 import de.cranix.services.UserService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.OSSShellTools;
 import static de.cranix.helper.StaticHelpers.*;
 import static de.cranix.helper.CranixConstants.*;
@@ -48,7 +48,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 
 	@Override
 	public CrxResponse modifyMySelf(Session session, User user) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		UserService userService = new UserService(session,em);
 		User oldUser = session.getUser();
 		CrxResponse  crxResponse = null;
@@ -169,7 +169,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		if( !req.getRemoteAddr().equals("127.0.0.1")) {
 			return "ERROR Connection is allowed only from local host.";
 		}
-		EntityManager em     = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em     = CrxEntityManagerFactory.instance().createEntityManager();
 		Session session      = new Session();
 		SessionService sc = new SessionService(session,em);
 		String  resp         = "";
@@ -203,7 +203,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 
         @Override
         public List<Room> getMyRooms(Session session) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 RoomService roomService = new RoomService(session,em);
                 List<Room> resp= roomService.getAllToRegister();
                 em.close();
@@ -217,7 +217,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 
         @Override
         public CrxResponse deleteDevice(Session session, Long deviceId) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 DeviceService deviceService = new DeviceService(session,em);
                 CrxResponse resp;
                 if( deviceService.isSuperuser() ) {
@@ -236,7 +236,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 
         @Override
         public CrxResponse modifyDevice(Session session, Long deviceId, Device device) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 DeviceService deviceService = new DeviceService(session,em);
                 try {
                         Device oldDevice = em.find(Device.class, deviceId);
@@ -265,7 +265,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 
         @Override
         public CrxResponse addDevice(Session session, Device device) {
-                EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 CrxResponse resp = new RoomService(session,em).addDevice(device.getRoomId(), device.getMac(), device.getName());
                 em.close();
                 return resp;

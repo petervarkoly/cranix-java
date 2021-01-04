@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.Session;
 import de.cranix.services.SessionService;
-import de.cranix.helper.CommonEntityManagerFactory;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 public class CrxAuthorizer implements Authorizer<Session> {
 
@@ -20,7 +20,7 @@ public class CrxAuthorizer implements Authorizer<Session> {
 
 	@Override
 	public boolean authorize(Session session, String requiredRole) {
-		EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		logger.debug("authorize() Person: " + session.getUser().getUid() + ", required role category: " + requiredRole);
 		final SessionService sessionService = new SessionService(em);
 		boolean result = sessionService.authorize(session, requiredRole);
