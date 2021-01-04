@@ -892,7 +892,6 @@ public class RoomController extends Controller {
 		try {
 			for(Device device : devices) {
 				//Remove trailing and ending spaces.
-				this.em.getTransaction().begin();
 				device.setName(device.getName().trim());
 				logger.debug("addDevices device" + device);
 				ipAddress = this.getAvailableIPAddresses(roomId, 2);
@@ -944,12 +943,9 @@ public class RoomController extends Controller {
 						device.setRow(coordinates.get(1));
 					}
 				}
-				device.setRoomId(room.getId());
-				this.em.persist(device);
-				hwconf.getDevices().add(device);
-				room.addDevice(device);
-				this.em.merge(hwconf);
+				this.em.getTransaction().begin();
 				this.em.merge(room);
+				this.em.merge(hwconf);
 				newDevices.add(device);
 				logger.debug(device.toString());
 				this.em.getTransaction().commit();

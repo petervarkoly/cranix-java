@@ -1122,7 +1122,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	CrxResponse addGuestUsers(
+	public CrxResponse addGuestUsers(
 		@ApiParam(hidden = true) @Auth Session session,
 		@FormDataParam("name")	  String  name,
 		@FormDataParam("description")   String  description,
@@ -1144,7 +1144,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	CrxResponse createGuestUsers(
+	public CrxResponse createGuestUsers(
 		@ApiParam(hidden = true) @Auth Session session,
 		GuestUsers guestUsers
 	) {

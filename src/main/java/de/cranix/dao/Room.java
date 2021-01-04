@@ -113,7 +113,7 @@ public class Room implements Serializable {
 	private List<AccessInRoom> accessInRooms = new ArrayList<AccessInRoom>();
 
 	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="room")
+	@OneToMany(mappedBy="room", cascade=CascadeType.ALL )
 	@JsonIgnore
 	private List<Device> devices = new ArrayList<Device>();
 

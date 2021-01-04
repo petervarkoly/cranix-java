@@ -341,6 +341,10 @@ public class Device implements Serializable {
 
 	public void setRoom(Room room) {
 		this.room = room;
+		this.roomId = room.getId();
+		if( ! room.getDevices().contains(this) ) {
+			room.getDevices().add(this);
+		}
 	}
 
 	public User getOwner() {
