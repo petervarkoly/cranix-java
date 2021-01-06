@@ -53,12 +53,12 @@ public class HWConf implements Serializable {
 	@OneToMany(mappedBy="hwconf")
 	@JsonIgnore
 	private List<Room> rooms;
-	
+
 	//bi-directional many-to-many association to Category
 	@ManyToMany(mappedBy="hwconfs")
 	@JsonIgnore
 	private List<Category> categories;
-	
+
     //bi-directional many-to-one association to User
 	@ManyToOne
 	@JsonIgnore
@@ -72,7 +72,7 @@ public class HWConf implements Serializable {
 			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
 		}
 	}
-	
+
 
 	@Override
 	public int hashCode() {
@@ -177,7 +177,7 @@ public class HWConf implements Serializable {
 
 		return partition;
 	}
-	
+
 	public List<Room> getRooms() {
 		return this.rooms;
 	}
@@ -198,13 +198,13 @@ public class HWConf implements Serializable {
 		return room;
 	}
 
-    public List<Category> getCategories() {
-        return this.categories;
-    }
+	public List<Category> getCategories() {
+	    return this.categories;
+	}
 
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
-    }
+	public void setCategories(List<Category> categories) {
+	    this.categories = categories;
+	}
 
 	public User getCreator() {
 		return creator;
@@ -214,4 +214,12 @@ public class HWConf implements Serializable {
 		this.creator = creator;
 	}
 
+	public boolean isDomainjoin() {
+		for( Partition partition : this.partitions ) {
+			if( partition.getJoinType() != null && ( partition.getJoinType().equals("Domain") || partition.getJoinType().equals("Simple")) ) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

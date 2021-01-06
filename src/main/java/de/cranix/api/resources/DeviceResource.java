@@ -722,7 +722,7 @@ public class DeviceResource {
 		}
 		if( actionMap.getName().equals("delete") ) {
 			new DHCPConfig(session,em).Create();
-			new SoftwareService(session,em).applySoftwareStateToHosts();
+			new SoftwareService(session,em).rewriteTopSls();
 
 		}
 		em.close();

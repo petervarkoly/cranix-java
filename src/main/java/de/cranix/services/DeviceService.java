@@ -95,7 +95,7 @@ public class DeviceService extends Service {
             }
             new DHCPConfig(session, em).Create();
             if (needReloadSalt) {
-                new SoftwareService(this.session, this.em).applySoftwareStateToHosts();
+                new SoftwareService(this.session, this.em).rewriteTopSls();
             }
             return new CrxResponse(this.getSession(), "OK", "Devices were deleted succesfully.");
         } catch (Exception e) {
@@ -108,7 +108,7 @@ public class DeviceService extends Service {
     /**
      * Deletes a device given by the device id.
      *
-     * @param device The technical id of the device to be deleted
+     * @param device The device to be deleted
      * @param atomic If it is true means no other devices will be deleted. DHCP and salt should be reloaded.
      * @return
      */
@@ -208,7 +208,7 @@ public class DeviceService extends Service {
             if (atomic) {
                 new DHCPConfig(session, em).Create();
                 if (needReloadSalt) {
-                    new SoftwareService(this.session, this.em).applySoftwareStateToHosts();
+                    new SoftwareService(this.session, this.em).rewriteTopSls();
                 }
             }
             UserService userService = new UserService(this.session, this.em);
@@ -216,7 +216,7 @@ public class DeviceService extends Service {
             if (user != null) {
                 userService.delete(user);
             }
-            return new CrxResponse(this.getSession(), "OK", "%s was deleted succesfully.", null, name);
+            return new CrxResponse(this.getSession(), "OK", "%s was deleted successfully.", null, name);
         } catch (Exception e) {
             logger.error("device: " + device.getName() + " " + e.getMessage(), e);
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());

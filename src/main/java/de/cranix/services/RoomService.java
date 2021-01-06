@@ -476,7 +476,7 @@ public class RoomService extends Service {
 		}
 		DHCPConfig dhcpconfig = new DHCPConfig(session,em);
 		dhcpconfig.Create();
-		new SoftwareService(this.session,this.em).applySoftwareStateToHosts();
+		new SoftwareService(this.session,this.em).rewriteTopSls();
 		startPlugin("delete_room", room);
 		return new CrxResponse(this.getSession(),"OK", "Room was removed successfully.");
 	}
@@ -944,11 +944,12 @@ public class RoomService extends Service {
 					}
 				}
 				this.em.getTransaction().begin();
+				this.em.persist(device);
 				this.em.merge(room);
 				this.em.merge(hwconf);
-				newDevices.add(device);
-				logger.debug(device.toString());
 				this.em.getTransaction().commit();
+				newDevices.add(device);
+				logger.debug("Created device" + device.toString());
 				responses.add(new CrxResponse(this.getSession(),"OK","%s was created succesfully.",null,device.getName()));
 			}
 		} catch (Exception e) {
@@ -985,7 +986,7 @@ public class RoomService extends Service {
 		}
 		new DHCPConfig(session,em).Create();
 		if( needWriteSalt ) {
-			new SoftwareService(this.session,this.em).applySoftwareStateToHosts();
+			new SoftwareService(this.session,this.em).applySoftwareStateToHosts(newDevices);
 		}
 		return responses;
 	}
@@ -1015,7 +1016,7 @@ public class RoomService extends Service {
 		}
 		new DHCPConfig(session,em).Create();
 		if( needWriteSalt ) {
-			new SoftwareService(this.session,this.em).applySoftwareStateToHosts();
+			new SoftwareService(this.session,this.em).rewriteTopSls();
 		}
 		return new CrxResponse(this.getSession(),"OK ", "Devices were deleted succesfully.");
 	}

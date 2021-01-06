@@ -275,9 +275,10 @@ public class UserService extends Service {
 			}
 		}
 		try {
+			Group group = new GroupService(this.session,this.em).getByName(user.getRole());
 			this.em.getTransaction().begin();
 			this.em.persist(user);
-			this.em.merge(user);
+			group.addUser(user);
 			this.em.getTransaction().commit();
 			logger.debug("Created user" + user);
 		} catch (Exception e) {
@@ -286,11 +287,6 @@ public class UserService extends Service {
 		} finally {
 		}
 		startPlugin("add_user", user);
-		GroupService groupService = new GroupService(this.session,this.em);
-		Group group = new GroupService(this.session,this.em).getByName(user.getRole());
-		if (group != null) {
-			groupService.addMember(group, user);
-		}
 		List<String> parameters = new ArrayList<String>();
 		parameters.add(user.getUid());
 		parameters.add(user.getGivenName());
