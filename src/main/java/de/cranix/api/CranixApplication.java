@@ -21,6 +21,8 @@ import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
+import static de.cranix.helper.CranixConstants.cranixMdmConfig;
+
 public class CranixApplication extends Application<ServerConfiguration> {
 
 	public static void main(String[] args) throws Exception {
@@ -108,6 +110,13 @@ public class CranixApplication extends Application<ServerConfiguration> {
 
 		final SupportResource supportResource = new SupportResourceImpl();
 		environment.jersey().register(supportResource);
+
+		//Start mdm api only if it is configured.
+		File mdm_config = new File(cranixMdmConfig);
+		if( mdm_config.exists() ) {
+			final MdmResource mdmResource = new MdmResource();
+			environment.jersey().register(mdmResource);
+		}
 
 		final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
 		environment.healthChecks().register("template", healthCheck);

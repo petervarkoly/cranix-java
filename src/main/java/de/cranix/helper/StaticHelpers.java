@@ -1,12 +1,8 @@
 package de.cranix.helper;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.regex.Pattern;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,4 +218,13 @@ public class StaticHelpers {
 		return new ObjectMapper().convertValue(object, Map.class);
 	}
 
+	static public String convertJavaTime(Long times) {
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+		return fmt.format(new Date(times));
+	}
+
+	static public String convertJavaDate(Long times) {
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+		return fmt.format(new Date(times));
+	}
 }

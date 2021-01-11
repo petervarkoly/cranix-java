@@ -31,6 +31,11 @@ public class Config {
 		this.InitConfig();
 	}
 
+	public void setConfig(String configPath, String prefix) {
+		this.OSS_CONFIG = Paths.get(configPath);
+		this.prefix = prefix;
+		this.InitConfig();
+	}
 	public void InitConfig() {
 		config     = new HashMap<>();
 		readOnly   = new HashMap<>();
