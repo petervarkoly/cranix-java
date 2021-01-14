@@ -93,7 +93,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final CloneToolResource cloneToolResource = new CloneToolResource();
 		environment.jersey().register(cloneToolResource);
 
-		final HwconfResource hwconfResource = new HwconfResourceImpl();
+		final HwconfResource hwconfResource = new HwconfResource();
 		environment.jersey().register(hwconfResource);
 
 		final CategoryResource categoryResource = new CategoryResource();
