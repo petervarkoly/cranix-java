@@ -75,8 +75,8 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final SelfManagementResource selfManagementResource = new SelfManagementResourceImpl();
 		environment.jersey().register(selfManagementResource);
 
-		final RoomResource roomsResource = new RoomRescourceImpl();
-		environment.jersey().register(roomsResource);
+		final RoomResource roomResource = new RoomResource();
+		environment.jersey().register(roomResource);
 
 		final UserResource usersResource = new UserResourceImpl();
 		environment.jersey().register(usersResource);
@@ -87,7 +87,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final DeviceResource devicesResource = new DeviceResource();
 		environment.jersey().register(devicesResource);
 
-		final PrinterResource printerResource = new PrinterResourceImpl();
+		final PrinterResource printerResource = new PrinterResource();
 		environment.jersey().register(printerResource);
 
 		final CloneToolResource cloneToolResource = new CloneToolResource();

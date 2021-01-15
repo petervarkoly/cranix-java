@@ -1,4 +1,4 @@
-/* (c) 2020 Peter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api.resources;
 
 
@@ -8,160 +8,72 @@ import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import de.cranix.dao.Room;
 import de.cranix.dao.AccessInRoom;
-import de.cranix.dao.Device;
-import de.cranix.dao.HWConf;
 import de.cranix.dao.CrxMConfig;
 import de.cranix.dao.CrxActionMap;
 import de.cranix.dao.CrxResponse;
+import de.cranix.dao.Device;
+import de.cranix.dao.HWConf;
 import de.cranix.dao.Printer;
+import de.cranix.dao.Room;
 import de.cranix.dao.Session;
+import de.cranix.helper.CrxEntityManagerFactory;
+import de.cranix.services.RoomService;
+import de.cranix.services.EducationService;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Path("rooms")
 @Api(value = "rooms")
-public interface RoomResource {
+public class RoomResource {
 
-	/*
-	 * GET rooms/<roomId>
-	 */
-	@GET
-	@Path("{roomId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get a room by id")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Room not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.search")
-	Room getById(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public RoomResource() {}
 
-	/**
-	 * GET rooms/all
-	 */
-	@GET
-	@Path("all")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get all rooms")
-	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@PermitAll
-	List<Room> getAll(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/**
-	 * GET rooms/all
-	 */
-	@GET
-	@Path("allNames")
-	@Produces(TEXT)
-	@ApiOperation(value = "Get all rooms")
-	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("room.search")
-	String getAllNames(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/**
-	 * GET rooms/allWithControl
-	 */
-	@GET
-	@Path("allWithControl")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get all rooms which can be controlled")
-	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("room.search")
-	List<Room> allWithControl(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/**
-	 * GET rooms/allWithFirewallControl
-	 */
-	@GET
-	@Path("allWithFirewallControl")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get all rooms which can be controlled")
-	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("room.search")
-	List<Room> allWithFirewallControl(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/*
-	 * GET rooms/toRegister
-	 */
-	@GET
-	@Path("toRegister")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get all rooms where devices can be registered")
-	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@PermitAll
-	List<Room> getRoomsToRegister(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/*
-	 * GET rooms/search/{search}
-	 */
-	@GET
-	@Path("search/{search}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Search for room by name and descripton and type with substring.")
-	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one user was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	//@PermitAll
-	@RolesAllowed("room.search")
-	List<Room> search(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("search") String search
-	);
-
-	/*
-	 * POST rooms/add { hash }
-	 */
 	@POST
 	@Path("add")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create new room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	CrxResponse add(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        Room room
-	);
+	public CrxResponse add(
+		@ApiParam(hidden = true) @Auth Session session,
+		Room room
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).add(room);
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("{roomId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Delete room by id")
+	@ApiResponses(value = {
+	    @ApiResponse(code = 404, message = "Room not found"),
+	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("room.delete")
+	public CrxResponse delete(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).delete(roomId);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("import")
@@ -174,129 +86,184 @@ public interface RoomResource {
 		"* The fields name and hwconf are mandatory.<br>" +
 		"* Allowed fields are: description, count, control, network, type, places, rows.<br>")
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	CrxResponse importRooms(
+	public CrxResponse importRooms(
 	@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-	);
+		@FormDataParam("file") final InputStream fileInputStream,
+		@FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).importRooms(fileInputStream, contentDispositionHeader);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST rooms/add { hash }
-	 */
+	@POST
+	@Path("{roomId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Modify a room")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("room.add")
+	public CrxResponse modify(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		Room room
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		room.setId(roomId);
+		CrxResponse resp = new RoomService(session,em).modify(room);
+		em.close();
+		return resp;
+	}
+
 	@POST
 	@Path("modify")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	CrxResponse modify(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        Room room
-	);
+	public CrxResponse modify(
+		@ApiParam(hidden = true) @Auth Session session,
+		Room room
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).modify(room);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 *
-	 * @param session
-	 * @param roomId
-	 * @param room
-	 * @return
-	 */
-	@POST
-	@Path("{roomId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Modify a room")
-	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("room.add")
-	CrxResponse modify(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        Room room
-	);
-
-
-	/**
-	 * Deletes a room by id with all devices with in.
-	 * @param session
-	 * @param roomId
-	 * @return
-	 */
-	@DELETE
-	@Path("{roomId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delete room by id")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Room not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.delete")
-	CrxResponse delete(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
-
-	/*
-	 * GET rooms/{roomId}/hwConf
-	 */
 	@GET
-	@Path("{roomId}/hwConf")
+	@Path("{roomId}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get hardware configuration of the room")
-	    @ApiResponses(value = {
-	   @ApiResponse(code = 404, message = "There is no more IP address in this room."),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@ApiOperation(value = "Get a room by id")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "Room not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("room.search")
+	public Room getById(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Room room = new RoomService(session,em).getById(roomId);
+		em.close();
+		if (room == null) {
+			throw new WebApplicationException(404);
+		}
+		return room;
+	}
+
+	@GET
+	@Path("all")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get all rooms")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public List<Room> getAll( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Room> rooms = new RoomService(session,em).getAll();
+		em.close();
+		return rooms;
+	}
+
+	@GET
+	@Path("allWithControl")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get all rooms which can be controlled")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.search")
-	HWConf getHwConf(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public List<Room> allWithControl( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Room> rooms = new RoomService(session,em).getAllWithControl();
+		em.close();
+		return rooms;
+	}
 
-	/*
-	 * SET rooms/{roomId}/{hwconfId}
-	 */
+	@GET
+	@Path("allWithFirewallControl")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get all rooms which can be controlled")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("room.search")
+	public List<Room> allWithFirewallControl( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Room> rooms = new RoomService(session,em).getAllWithFirewallControl();
+		em.close();
+		return rooms;
+	}
+
+	@GET
+	@Path("toRegister")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get all rooms where devices can be registered")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public List<Room> getRoomsToRegister( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final RoomService roomService = new RoomService(session,em);
+		List<Room> resp = roomService.getAllToRegister();
+		em.close();
+		return resp;
+	}
+
+
 	@PUT
 	@Path("{roomId}/{hwconfId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set hardware configuration of the room")
 	    @ApiResponses(value = {
 	   @ApiResponse(code = 404, message = "There is no more IP address in this room."),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.modify")
-	CrxResponse setHwConf(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId")   Long roomId,
-	        @PathParam("hwconfId") Long hwconfId
-	);
+	public CrxResponse setHwConf(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId")   Long roomId,
+		@PathParam("hwconfId") Long hwconfId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).setHWConf(roomId,hwconfId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET rooms/{roomId}/availableIPAddresses
-	 */
 	@GET
 	@Path("{roomId}/availableIPAddresses")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "get all available ip-adresses of the room")
 	    @ApiResponses(value = {
 	   @ApiResponse(code = 404, message = "There is no more IP address in this room."),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.add")
-	List<String> getAvailableIPAddresses(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public List<String> getAvailableIPAddresses(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final List<String> ips = new RoomService(session,em).getAvailableIPAddresses(roomId);
+		em.close();
+		if ( ips == null) {
+			throw new WebApplicationException(404);
+		}
+		return ips;
+	}
 
-	/*
-	 * GET rooms/{roomId}/getAvailableIPAddresses
-	 */
+
 	@GET
 	@Path("{roomId}/availableIPAddresses/{count}")
 	@Produces(JSON_UTF8)
@@ -306,99 +273,102 @@ public interface RoomResource {
 	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.add")
-	List<String> getAvailableIPAddresses(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("count") Long count
-	);
+	public List<String> getAvailableIPAddresses(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		@PathParam("count") Long count
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final List<String> ips = new RoomService(session,em).getAvailableIPAddresses(roomId,count);
+		em.close();
+		if ( ips == null) {
+		    throw new WebApplicationException(404);
+		}
+		return ips;
+	}
 
-	/*
-	 * GET rooms/getNextRoomIP/ { netMask : 26, netWork : "10.12.0.0.16" }
-	 */
 	@GET
 	@Path("getNextRoomIP/{network}/{netmask}")
 	@Produces(TEXT)
 	@ApiOperation(value = "Delivers the next free ip address for a room.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	String getNextRoomIP(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("network") String network,
-	        @PathParam("netmask") int netmask
-	);
+	public String getNextRoomIP(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("network") String network,
+		@PathParam("netmask") int netmask
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final RoomService roomService = new RoomService(session,em);
+		String[] l = network.split("\\.");
+		network = l[0] + "." + l[1] + "." +l[2] + "."  + l[3] + "/" + l[4];
+		final String nextIP = roomService.getNextRoomIP(network, netmask);
+		em.close();
+		if ( nextIP == null) {
+			throw new WebApplicationException(404);
+		}
+		return nextIP;
+	}
 
-	/*
-	 * GET rooms/{roomId}/loggedInUsers
-	 */
 	@GET
 	@Path("{roomId}/loggedInUsers")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the list of the users which are logged in in a room.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	List<Map<String, String>> getLoggedInUsers(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public List<Map<String, String>> getLoggedInUsers(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final List<Map<String, String>> users = new RoomService(session,em).getLoggedInUsers(roomId);
+		em.close();
+		if ( users == null) {
+			throw new WebApplicationException(404);
+		}
+		return users;
+	}
 
-	/*
-	* POST room/getRooms
-	*/
-	@POST
-	@Path("getRooms")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets a list of room objects to the list of roomIds.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Group not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.search")
-	List<Room> getRooms(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        List<Long> roomIds
-	);
-
-	/*
-	 * GET rooms/accessList
-	 */
 	@GET
 	@Path("accessList")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the access scheduler in all rooms")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	List<AccessInRoom> getAccessList(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<AccessInRoom> getAccessList( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final List<AccessInRoom> accesses = new RoomService(session,em).getAccessList();
+		em.close();
+		return accesses;
+	}
 
-	/*
-	 * GET rooms/{roomId}/accessList
-	 */
 	@GET
 	@Path("{roomId}/accessList")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the access scheduler in a room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	List<AccessInRoom> getAccessList(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public List<AccessInRoom> getAccessList(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final List<AccessInRoom> accesses = new RoomService(session,em).getAccessList(roomId);
+		em.close();
+		if ( accesses == null) {
+			throw new WebApplicationException(404);
+		}
+		return accesses;
+	}
 
-	/*
-	 * POST rooms/{roomId}/accessList { List<Hash> }
-	 */
 	@POST
 	@Path("{roomId}/accessList")
 	@Produces(JSON_UTF8)
@@ -409,190 +379,177 @@ public interface RoomResource {
 	    + "If accessType is FW portal printing proxy direct can be set.<br>"
 	    + "If accessType is ACT action can be shutdown,reboot,logout,close,open,wol<br>"	)
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	CrxResponse addAccessList(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        AccessInRoom   accessList
-	);
+	public CrxResponse addAccessList(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		AccessInRoom   accessList
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).addAccessList(roomId,accessList);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * DELETE rooms/accessList/{accessInRoomId}
-	 */
 	@DELETE
 	@Path("accessList/{accessInRoomId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets an access list in a room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.add")
-	CrxResponse deleteAccessList(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("accessInRoomId") Long accessInRoomId
-	);
+	public CrxResponse deleteAccessList(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("accessInRoomId") Long accessInRoomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).deleteAccessList(accessInRoomId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * PUT rooms/scheduledAccess
-	 */
 	@PUT
 	@Path("setScheduledAccess")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets access in all rooms corresponding to the access lists and the actual time.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	CrxResponse setScheduledAccess(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public CrxResponse setScheduledAccess( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).setDefaultAccess();
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * PUT rooms/setDefaultAccess
-	 */
 	@PUT
 	@Path("setDefaultAccess")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets default access in all rooms.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	CrxResponse setDefaultAccess(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public CrxResponse setDefaultAccess( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).setDefaultAccess();
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET rooms/accessStatus
-	 */
 	@GET
 	@Path("accessStatus")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the actual access status in all rooms. This can take a very long time. Do not use it!")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	List<AccessInRoom> getAccessStatus(
-	   @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<AccessInRoom> getAccessStatus( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final List<AccessInRoom> accesses = new RoomService(session,em).getAccessStatus();
+		em.close();
+		return accesses;
+	}
 
-	/*
-	 * GET rooms/{roomId}/accessStatus
-	 */
 	@GET
 	@Path("{roomId}/accessStatus")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the actual access in a room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	AccessInRoom getAccessStatus(
+	public AccessInRoom getAccessStatus(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId
-	);
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		AccessInRoom resp = new RoomService(session,em).getAccessStatus(roomId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST rooms/{roomId}/accessStatus
-	 */
 	@POST
 	@Path("{roomId}/accessStatus")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the actual access in a room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	CrxResponse setAccessStatus(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        AccessInRoom access
-	);
+	public CrxResponse setAccessStatus(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		AccessInRoom access
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).setAccessStatus(roomId, access);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST rooms/{roomId}/devices { hash }
-	 */
 	@POST
 	@Path("{roomId}/devices")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create new devices")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.add")
-	List<CrxResponse> addDevices(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        List<Device> devices
-	);
+	public List<CrxResponse> addDevices(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		List<Device> devices
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> crxResponse = new RoomService(session,em).addDevices(roomId,devices);
+		em.close();
+		return crxResponse;
+	}
 
-	/*
-	 * PUT rooms/{roomId}/device/{macAddress}/{name}
-	 */
 	@PUT
 	@Path("{roomId}/device/{macAddress}/{name}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	CrxResponse addDevice(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("macAddress") String macAddress,
-	        @PathParam("name") String name
-	);
+	public CrxResponse addDevice(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		@PathParam("macAddress") String macAddress,
+		@PathParam("name") String name
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).addDevice(roomId,macAddress,name);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET rooms/{roomId}/getDevices
-	 */
 	@GET
 	@Path("{roomId}/devices")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a list of the devices in room.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.search")
-	List<Device> getDevices(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public List<Device> getDevices(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Device> resp = new RoomService(session,em).getDevices(roomId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST  rooms/{roomId}/deleteDevices [ deviceId, deviceId]
-	 */
-	@POST
-	@Path("{roomId}/deleteDevices")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "delete devices by id")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Device not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("device.delete")
-	CrxResponse deleteDevices(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        List<Long> deviceId
-	);
-
-	/*
-	 * DELETE {roomId}/deleteDevice/{deviceId}
-	 */
 	@DELETE
 	@Path("{roomId}/device/{deviceId}")
 	@Produces(JSON_UTF8)
@@ -601,11 +558,18 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("device.delete")
-	CrxResponse deleteDevice(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("deviceId") Long deviceId
-	);
+	public CrxResponse deleteDevice(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		@PathParam("deviceId") Long deviceId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Long> deviceIds = new ArrayList<Long>();
+		deviceIds.add(deviceId);
+		CrxResponse resp = new RoomService(session,em).deleteDevices(roomId,deviceIds);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Printer control
@@ -620,14 +584,20 @@ public interface RoomResource {
 					+ "  availablePrinters: [ id1, id2 ]"
 					+ "}")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("device.modify")
-	CrxResponse setPrinters(
-	@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("roomId") Long roomId,
-			Map<String, List<Long>> printers
-	);
+	public CrxResponse setPrinters(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		Map<String, List<Long>> printers
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		RoomService roomService = new RoomService(session,em);
+		CrxResponse resp = roomService.setPrinters(roomId, printers);
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("{roomId}/defaultPrinter/{deviceId}")
@@ -637,25 +607,16 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	CrxResponse setDefaultPrinter(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("deviceId") Long deviceId
-	);
-
-	@PUT
-	@Path("text/{roomName}/defaultPrinter/{printerName}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets the default printer in a room.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Device not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.manage")
-	CrxResponse setDefaultPrinter(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomName") String roomName,
-	        @PathParam("printerName") String printerName
-	);
+	public CrxResponse setDefaultPrinter(
+		@ApiParam(hidden = true) @Auth  Session session,
+		@PathParam("roomId")		Long roomId,
+		@PathParam("deviceId")		Long printerId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).setDefaultPrinter(roomId, printerId);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("{roomId}/defaultPrinter")
@@ -665,10 +626,15 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	CrxResponse deleteDefaultPrinter(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public CrxResponse deleteDefaultPrinter(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).deleteDefaultPrinter(roomId);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("{roomId}/defaultPrinter")
@@ -678,10 +644,15 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	Printer getDefaultPrinter(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public Printer getDefaultPrinter(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Printer resp = new RoomService(session,em).getById(roomId).getDefaultPrinter();
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("{roomId}/availablePrinters")
@@ -691,11 +662,16 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	CrxResponse setAvailablePrinters(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        List<Long> printerIds
-	);
+	public CrxResponse setAvailablePrinters(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		List<Long> printerIds
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).setAvailablePrinters(roomId, printerIds);
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("{roomId}/availablePrinters/{prinerId}")
@@ -705,11 +681,16 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	CrxResponse addAvailablePrinters(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("prinerId") Long prinerId
-	);
+	public CrxResponse addAvailablePrinters(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId")   Long roomId,
+		@PathParam("prinerId") Long printerId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).addAvailablePrinter(roomId, printerId);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("{roomId}/availablePrinters/{prinerId}")
@@ -719,11 +700,16 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.manage")
-	CrxResponse deleteAvailablePrinters(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId")   Long roomId,
-	        @PathParam("prinerId") Long prinerId
-	);
+	public CrxResponse deleteAvailablePrinters(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId")   Long roomId,
+		@PathParam("prinerId") Long printerId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).deleteAvailablePrinter(roomId, printerId);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("{roomId}/availablePrinters")
@@ -733,49 +719,92 @@ public interface RoomResource {
 	    @ApiResponse(code = 404, message = "Device not found"),
 	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("room.search")
-	List<Printer> getAvailablePrinters(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public List<Printer> getAvailablePrinters(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId")     Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Printer> resp = new RoomService(session,em).getById(roomId).getAvailablePrinters();
+		em.close();
+		return resp;
+	}
 
 	/*
-	* GET rooms/{roomId}/actions
-	*/
+	 * may be deprecated
+	 */
+	@PUT
+	@Path("text/{roomName}/defaultPrinter/{printerName}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Sets the default printer in a room.")
+	@ApiResponses(value = {
+	    @ApiResponse(code = 404, message = "Device not found"),
+	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("room.manage")
+	public CrxResponse setDefaultPrinter(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomName") String roomName,
+		@PathParam("printerName") String printerName
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).setDefaultPrinter(roomName, printerName);
+		em.close();
+		return resp;
+	}
+
+	@POST
+	@Path("applyAction")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Apply actions on selected rooms.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("room.manage")
+	public List<CrxResponse> applyAction(
+		@ApiParam(hidden = true) @Auth Session session,
+		CrxActionMap actionMap
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> resp = new RoomService(session,em).applyAction(actionMap);
+		em.close();
+		return resp;
+	}
+
 	@GET
 	@Path("{roomId}/actions")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a device.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	List<String> getAvailableRoomActions(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public List<String> getAvailableRoomActions(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<String> resp = new EducationService(session,em).getAvailableRoomActions(roomId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 *   rooms/{roomId}/actions/{action}
-	 */
 	@PUT
 	@Path("{roomId}/actions/{action}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, openProxy, closeProxy, organizeRoom.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	CrxResponse manageRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("action") String action
-	);
+	public CrxResponse manageRoom(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		@PathParam("action") String action
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new EducationService(session,em).manageRoom(roomId,action, null);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST rooms/{roomId}/actionWithMap/{action}
-	 */
 	@POST
 	@Path("{roomId}/actionWithMap/{action}")
 	@Produces(JSON_UTF8)
@@ -784,16 +813,20 @@ public interface RoomResource {
 	     + "graceTime : seconds to wait befor execute action."
 	     + "message : the message to shown befor/during execute the action.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	CrxResponse manageRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("action") String action,
-	        Map<String, String> actionContent
-	);
+	public CrxResponse manageRoom(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		@PathParam("action") String action,
+		Map<String, String> actionContent
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new EducationService(session,em).manageRoom(roomId,action, actionContent);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * DHCP-Management
@@ -816,14 +849,18 @@ public interface RoomResource {
 			+ "value: the value of the dhcpOption or dhcpStatement."
 			)
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	List<CrxMConfig> getDHCP(
-			@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
+	public List<CrxMConfig> getDHCP(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxMConfig> resp = new RoomService(session,em).getDHCP(roomId);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("{roomId}/dhcp")
@@ -834,45 +871,37 @@ public interface RoomResource {
 					+ "value: the value of the dhcpOption or dhcpStatement.<br>"
 					+ "Other parameter can be ignored.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	CrxResponse addDHCP(
-			@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        CrxMConfig dhcpParameter
-	        );
+	public CrxResponse addDHCP(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		CrxMConfig dhcpParameter
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).addDHCP(roomId,dhcpParameter);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("{roomId}/dhcp/{parameterId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "ADeletes dhcp parameter to a room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.dhcp")
-	CrxResponse deleteDHCP(
-			@ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("parameterId") Long parameterId
-	        );
-	/**
-	 * Apply actions on a list of rooms.
-	 * @param session
-	 * @return The result in an CrxResponse object
-	 * @see CrxResponse
-	 */
-	@POST
-	@Path("applyAction")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Apply actions on selected rooms.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.manage")
-	List<CrxResponse> applyAction(
-			@ApiParam(hidden = true) @Auth Session session,
-			CrxActionMap actionMap
-			);
+	public CrxResponse deleteDHCP(
+		@ApiParam(hidden = true)  @Auth Session session,
+		@PathParam("roomId")      Long roomId,
+		@PathParam("parameterId") Long parameterId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).deleteMConfig(roomId,parameterId);
+		em.close();
+		return resp;
+	}
+
 }
