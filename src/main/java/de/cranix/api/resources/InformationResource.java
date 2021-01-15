@@ -49,7 +49,7 @@ public class InformationResource {
 	@RolesAllowed("information.add")
 	public CrxResponse addAnnouncement(
 		@ApiParam(hidden = true) @Auth Session session,
-		Announcement annoncement
+		Announcement announcement
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new InformationService(session,em).addAnnouncement(announcement);
