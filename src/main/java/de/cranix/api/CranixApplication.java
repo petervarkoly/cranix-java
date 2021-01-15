@@ -105,7 +105,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final EducationResource educationResource = new EducationResource();
 		environment.jersey().register(educationResource);
 
-		final InformationResource infoResource = new InformationResourceImpl();
+		final InformationResource infoResource = new InformationResource();
 		environment.jersey().register(infoResource);
 
 		final SupportResource supportResource = new SupportResourceImpl();
