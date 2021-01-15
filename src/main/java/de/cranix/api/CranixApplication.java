@@ -60,7 +60,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 
 		environment.jersey().register(MultiPartFeature.class);
 
-		final SchedulerResource schedulerResource = new SchedulerResourceImpl();
+		final SchedulerResource schedulerResource = new SchedulerResource();
 		environment.jersey().register(schedulerResource);
 
 		final SystemResource systemResource = new SystemResourceImpl();
