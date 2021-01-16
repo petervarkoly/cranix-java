@@ -1,74 +1,103 @@
-/* (c) 2020 Peter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api.resources;
 
+import static de.cranix.helper.CranixConstants.*;
 import static de.cranix.api.resources.Resource.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.cranix.dao.Acl;
-import de.cranix.dao.DnsRecord;
-import de.cranix.dao.Job;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.ProxyRule;
-import de.cranix.dao.Session;
-import de.cranix.dao.Translation;
+import de.cranix.dao.*;
+import de.cranix.helper.CrxEntityManagerFactory;
+import de.cranix.helper.OSSShellTools;
+import de.cranix.services.JobService;
+import de.cranix.services.ProxyService;
+import de.cranix.services.SessionService;
+import de.cranix.services.Service;
+import de.cranix.services.SystemService;
 
 @Path("system")
 @Api(value = "system")
-public interface SystemResource {
+public class SystemResource {
+
+	public SystemResource() {}
 
 	@GET
 	@Path("name")
 	@Produces(TEXT)
 	@ApiOperation(value = "Gets the name of the institute.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 401, message = "No regcode was found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 401, message = "No regcode was found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	String getName(
-	        @Context UriInfo ui,
-	        @Context HttpServletRequest req
-	);
+	public String getName(
+		@Context UriInfo ui,
+		@Context HttpServletRequest req
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Session session  = new SessionService(em).getLocalhostSession();
+		String resp = new SystemService(session,em).getConfigValue("NAME");
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("type")
 	@Produces(TEXT)
 	@ApiOperation(value = "Gets the type of the institute.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	String getType(
-	        @Context UriInfo ui,
-	        @Context HttpServletRequest req
-	);
+	public String getType(
+		@Context UriInfo ui,
+		@Context HttpServletRequest req
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Session session  = new SessionService(em).getLocalhostSession();
+		String resp = new SystemService(session,em).getConfigValue("TYPE");
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("status")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the system status.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.status")
-	Object getStatus(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public Object getStatus( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		Object resp = systemService.getStatus();
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("diskStatus")
@@ -79,28 +108,38 @@ public interface SystemResource {
 			"{\"Device Name\":{\"size\":Size in MB,\"used\":Used amount in MB,\"mount\":\"Mount point\"},"
 		)
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.status")
-	Object getDiskStatus(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public Object getDiskStatus( @ApiParam(hidden = true) @Auth Session session) {
+		String[] program	= new String[1];
+		StringBuffer reply  = new StringBuffer();
+		StringBuffer stderr = new StringBuffer();
+		program[0] = cranixBaseDir + "tools/check_partitions.sh";
+		OSSShellTools.exec(program, reply, stderr, null);
+		return reply.toString();
+	}
 
 	@GET
 	@Path("services")
 	@Produces(JSON_UTF8)
 	@ApiOperation(
-			value = "Gets the status of the monitored services.",
-			notes = "The for mat of the response:<br>" +
-				"[{\"service\":\"amavis\",\"enabled\":\"false\",\"active\":\"false\"},"
-			)
+		value = "Gets the status of the monitored services.",
+		notes = "The for mat of the response:<br>" +
+			"[{\"service\":\"amavis\",\"enabled\":\"false\",\"active\":\"false\"},"
+	)
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.status")
-	Object getServicesStatus(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public Object getServicesStatus( @ApiParam(hidden = true) @Auth Session session) {
+		String[] program	= new String[1];
+		StringBuffer reply  = new StringBuffer();
+		StringBuffer stderr = new StringBuffer();
+		program[0] = cranixBaseDir + "tools/check_services.sh";
+		OSSShellTools.exec(program, reply, stderr, null);
+		return reply.toString();
+	}
 
 	@PUT
 	@Path("services/{name}/{what}/{value}")
@@ -112,130 +151,215 @@ public interface SystemResource {
 			"* value can be: true or false. By what = active restart is allowed if the original state was true."
 	)
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.status")
-	CrxResponse setServicesStatus(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("name")  String name,
-	    @PathParam("what")  String what,
-	    @PathParam("value") String value
-	);
+	public CrxResponse setServicesStatus(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("name")  String name,
+		@PathParam("what")  String what,
+		@PathParam("value") String value
+	) {
+		String[] program	= new String[3];
+		StringBuffer reply  = new StringBuffer();
+		StringBuffer stderr = new StringBuffer();
+		program[0] = "/usr/bin/systemctl";
+		program[2] = name;
+		if( what.equals("enabled") ) {
+			if( value.toLowerCase().equals("true")) {
+				program[1] = "enable";
+			} else {
+				program[1] = "disable";
+			}
+		} else {
+			if( value.toLowerCase().equals("true")) {
+				program[1] = "start";
+			} else if(value.toLowerCase().equals("false") ) {
+				program[1] = "stop";
+			} else {
+				program[1] = "restart";
+			}
+		}
+		if( OSSShellTools.exec(program, reply, stderr, null) == 0 ) {
+			return new CrxResponse(session,"OK","Service state was set successfully.");
+		} else {
+			return new CrxResponse(session,"ERROR",stderr.toString());
+		}
+	}
 
-	//Customize the lookout of the start side
 	@POST
 	@Path("customize")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Upload picture for crx logon site.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator") }
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator") }
 	)
 	@RolesAllowed("system.customize")
-	CrxResponse customize(@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-	);
-	//Handling of enumerates
+	public CrxResponse customize(@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("file") final InputStream fileInputStream,
+		@FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+	) {
+		String fileName = contentDispositionHeader.getFileName();
+		File file = new File("/srv/www/admin/assets/" + fileName );
+		try {
+			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			return new CrxResponse(session,"ERROR", e.getMessage());
+		}
+		return new CrxResponse(session,"OK", "File was saved succesfully.");
+	}
 
 	@GET
 	@Path("enumerates/{type}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "get session status")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	List<String> getEnumerates(
-	    @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("type") String type
-	);
+	public List<String> getEnumerates(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("type") String type
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		List<String> resp = systemService.getEnumerates(type);
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("enumerates/{type}/{value}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new enumerate")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.enumerates")
-	CrxResponse addEnumerate(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("type") String type,
-	    @PathParam("value") String value
-	);
+	public CrxResponse addEnumerate(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("type") String type,
+		@PathParam("value") String value
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.addEnumerate(type, value);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("enumerates/{type}/{value}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes an enumerate")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.enumerates")
-	CrxResponse deleteEnumerate(
-	    @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("type") String type,
-	        @PathParam("value") String value
-	);
+	public CrxResponse deleteEnumerate(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("type") String type,
+		@PathParam("value") String value
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.deleteEnumerate(type, value);
+		em.close();
+		return resp;
+	}
 
 	// Global Configuration
-
 	@GET
 	@Path("configuration")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the whole system configuration in a list of maps.",
 		notes =  "* A map has folloing format:<br>" +
-		         "* {\"path\":\"Basic\",\"readOnly\":\"yes\",\"type\":\"string\",\"value\":\"DE\",\"key\":\"CCODE\"}")
+			 "* {\"path\":\"Basic\",\"readOnly\":\"yes\",\"type\":\"string\",\"value\":\"DE\",\"key\":\"CCODE\"}")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.configuration")
-	List<Map<String, String>>  getConfig(
-	    @ApiParam(hidden = true) @Auth Session session
-	    );
+	public List<Map<String, String>>  getConfig( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		List<Map<String, String>> resp = systemService.getConfig();
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("configuration/{key}")
 	@Produces(TEXT)
 	@ApiOperation(value = "Gets a system configuration value.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	String getConfig(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("key") String key
-	    );
+	public String getConfig(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("key") String key
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		String resp = systemService.getConfigValue(key);
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("configuration/{key}/{value}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets a system configuration.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.configuration")
-	CrxResponse setConfig(
-	    @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("key") String key,
-	        @PathParam("value") String value
-	);
+	public CrxResponse setConfig(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("key") String key,
+		@PathParam("value") String value
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		if( systemService.setConfigValue(key, value) ) {
+			em.close();
+			return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
+		} else {
+			em.close();
+			return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+		}
+	}
 
 	@POST
 	@Path("configuration")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets a system configuration in a map."
-	+ "* The map must have following format:"
-	+ "* {key:<key>,value:<value>}")
+	@ApiOperation(value = "Sets a system configuration in a map.<br>"
+			+ "* The map must have following format:<br>"
+			+ "* {key:<key>,value:<value>}")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.configuration")
-	CrxResponse setConfig(
-	    @ApiParam(hidden = true) @Auth Session session,
-	   Map<String, String> config
-	);
+	public CrxResponse setConfig(
+		@ApiParam(hidden = true) @Auth Session session,
+		Map<String, String> config
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		try {
+			if( systemService.setConfigValue(config.get("key"), config.get("value")) ) {
+				return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
+			} else {
+				return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+			}
+		} catch(Exception e) {
+			return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+		} finally {
+			em.close();
+		}
+	}
 
 	// Firewall configuration
 	@GET
@@ -243,117 +367,108 @@ public interface SystemResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the incoming firewall rules.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	Map<String, String>  getFirewallIncomingRules(
-	    @ApiParam(hidden = true) @Auth Session session
-	    );
+	public Map<String, String>  getFirewallIncomingRules( @ApiParam(hidden = true) @Auth Session session)
+	   	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		Map<String, String> resp = systemService.getFirewallIncomingRules();
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("firewall/incomingRules")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the incoming firewall rules.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	CrxResponse  setFirewallIncomingRules(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    Map<String, String> incomingRules
-	    );
+	public CrxResponse  setFirewallIncomingRules(
+		@ApiParam(hidden = true) @Auth Session session,
+		Map<String, String> incommingRules
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.setFirewallIncomingRules(incommingRules);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("firewall/outgoingRules")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the outgoing firewall rules.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	List<Map<String, String>>  getFirewallOutgoingRules(
-	    @ApiParam(hidden = true) @Auth Session session
-	    );
+	public List<Map<String, String>>  getFirewallOutgoingRules( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		List<Map<String, String>> resp = systemService.getFirewallOutgoingRules();
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("firewall/outgoingRules")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the outgoing firewall rules.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	CrxResponse  setFirewallOutgoingRules(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    List<Map<String, String>> incomingRules
-	    );
+	public CrxResponse  setFirewallOutgoingRules(
+		@ApiParam(hidden = true) @Auth Session session,
+		List<Map<String, String>> outgoingRules
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.setFirewallOutgoingRules(outgoingRules);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("firewall/remoteAccessRules")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the remote access firewall rules.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	List<Map<String, String>>  getFirewallRemoteAccessRules(
-	    @ApiParam(hidden = true) @Auth Session session
-	    );
+	public List<Map<String, String>>  getFirewallRemoteAccessRules( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		List<Map<String, String>> resp =  systemService.getFirewallRemoteAccessRules();
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("firewall/remoteAccessRules")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the remote access firewall rules.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	CrxResponse  setFirewallRemoteAccessRules(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    List<Map<String, String>> incomingRules
-        );
-
-	/*
-	 * Translations stuff
-	 */
-	@POST
-	@Path("translate")
-	@Produces(TEXT)
-	@ApiOperation(value = "Translate a text into a given language")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@PermitAll
-	String translate(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    Translation translation
-	);
-
-	@POST
-	@Path("translations")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Add or updates a translation.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("system.translation")
-	CrxResponse addTranslation(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    Translation    translation
-	);
-
-	@GET
-	@Path("missedTranslations/{lang}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get the list of the missed translations to a language")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("system.translation")
-	List<Translation> getMissedTranslations(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("lang") String lang
-	);
+	public CrxResponse  setFirewallRemoteAccessRules(
+		@ApiParam(hidden = true) @Auth Session session,
+		List<Map<String, String>> remoteAccessRules
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.setFirewallRemoteAccessRules(remoteAccessRules);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Registration
@@ -363,12 +478,16 @@ public interface SystemResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Register the server againts the update server.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.register")
-	CrxResponse register(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public CrxResponse register( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).registerSystem();
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Package handling
@@ -379,10 +498,15 @@ public interface SystemResource {
 	@ApiOperation(value = "Searches packages.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.packages")
-	List<Map<String,String>> searchPackages(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("filter") String filter
-	    );
+	public List<Map<String,String>> searchPackages(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("filter") String filter
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Map<String, String>> resp = new SystemService(session,em).searchPackages(filter);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("packages")
@@ -390,10 +514,15 @@ public interface SystemResource {
 	@ApiOperation(value = "Install packages.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.packages")
-	CrxResponse installPackages(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    List<String> packages
-	    );
+	public CrxResponse installPackages(
+		@ApiParam(hidden = true) @Auth Session session,
+		List<String> packages
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).installPackages(packages);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("packages/update")
@@ -401,11 +530,15 @@ public interface SystemResource {
 	@ApiOperation(value = "Update packages.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.packages")
-	CrxResponse updatePackages(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    List<String> packages
-	    );
-
+	public CrxResponse updatePackages(
+		@ApiParam(hidden = true) @Auth Session session,
+		List<String> packages
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).updatePackages(packages);
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("update")
@@ -413,9 +546,13 @@ public interface SystemResource {
 	@ApiOperation(value = "Install all updates on the system.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.update")
-	CrxResponse updateSyste(
-	    @ApiParam(hidden = true) @Auth Session session
-	    );
+	public CrxResponse updateSystem( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).updateSystem();
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Proxy default handling
@@ -426,10 +563,15 @@ public interface SystemResource {
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	List<ProxyRule> getProxyDefault(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("role") String role
-	    );
+	public List<ProxyRule> getProxyDefault(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("role") String role
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<ProxyRule> resp = new ProxyService(session,em).readDefaults(role);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("proxy/default/{role}")
@@ -437,77 +579,76 @@ public interface SystemResource {
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	CrxResponse setProxyDefault(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("role") String role,
-	    List<ProxyRule> acl
-	    );
+	public CrxResponse setProxyDefault(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("role") String role,
+		List<ProxyRule> acl
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new ProxyService(session,em).setDefaults(role, acl);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * Get the proxy lists
-	*/
-	@GET
-	@Path("proxy/lists")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers the proxy lists.")
-	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	@RolesAllowed("system.proxy")
-	List<Map<String,String>> getProxyLists(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/*
-	 * Get the proxy lists
-	*/
-	@PUT
-	@Path("unbound")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Resets the unbound server reading the new configuration.")
-	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	@RolesAllowed("system.unbound")
-	CrxResponse resetUnbound(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/*
-	 * Proxy default handling
-	*/
 	@GET
 	@Path("proxy/basic")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	Object getProxyBasic(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public Object getProxyBasic( @ApiParam(hidden = true) @Auth Session session)
+	{
+		String[] program   = new String[2];
+		program[0] = cranixBaseDir + "tools/squidGuard.pl";
+		program[1] = "readJson";
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		OSSShellTools.exec(program, reply, error, "");
+		return reply.toString();
+	}
 
-	/*
-	 * Proxy default handling
-	*/
 	@POST
 	@Path("proxy/basic")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Writes the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	CrxResponse setProxyBasic(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    String acls
-	);
+	public CrxResponse setProxyBasic(
+		@ApiParam(hidden = true) @Auth Session session,
+		String acls
+	) {
+		String[] program   = new String[2];
+		program[0] = cranixBaseDir + "tools/squidGuard.pl";
+		program[1] = "writeJson";
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		OSSShellTools.exec(program, reply, error, acls);
+		//TODO check error
+		return new CrxResponse(session,"OK","Proxy basic configuration was written succesfully.");
+	}
 
-	/*
-	 * Proxy default handling
-	*/
+	@GET
+	@Path("proxy/lists")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Delivers the proxy lists.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.proxy")
+	public List<Map<String,String>> getProxyLists( @ApiParam(hidden = true) @Auth Session session) {
+		return new ProxyService(session,null).getLists();
+	}
+
 	@GET
 	@Path("proxy/defaults")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	Map<String,List<ProxyRule>> getProxyDefaults(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public Map<String,List<ProxyRule>> getProxyDefaults( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Map<String, List<ProxyRule>> resp = new ProxyService(session,em).readDefaults();
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("proxy/defaults")
@@ -515,11 +656,16 @@ public interface SystemResource {
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	CrxResponse setProxyDefaults(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("role") String role,
-	    Map<String,List<ProxyRule>> acls
-	    );
+	public CrxResponse setProxyDefaults(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("role") String role,
+		Map<String,List<ProxyRule>> acls
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new ProxyService(session,em).setDefaults(acls);
+		em.close();
+		return resp;
+	}
 
 
 	@GET
@@ -528,10 +674,18 @@ public interface SystemResource {
 	@ApiOperation(value = "Delivers the custom lists of the proxy: good or bad.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	List<String> getTheCustomList(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("list") String list
-	    );
+	public List<String> getTheCustomList(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("list") String list
+	) {
+		try {
+			return  Files.readAllLines(Paths.get("/var/lib/squidGuard/db/custom/" +list + "/domains"));
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	@POST
 	@Path("proxy/custom/{list}")
@@ -539,11 +693,46 @@ public interface SystemResource {
 	@ApiOperation(value = "Sets the custom lists of the proxy: good or bad.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
-	CrxResponse setTheCustomList(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("list")        String list,
-	    List<String> domains
-	    );
+	public CrxResponse setTheCustomList(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("list")	String list,
+		List<String> domains
+	) {
+		try {
+			Files.write(Paths.get("/var/lib/squidGuard/db/custom/" +list + "/domains"),domains);
+			String[] program   = new String[5];
+			StringBuffer reply = new StringBuffer();
+			StringBuffer error = new StringBuffer();
+			program[0] = "/usr/sbin/squidGuard";
+			program[1] = "-c";
+			program[2] = "/etc/squid/squidguard.conf";
+			program[3] = "-C";
+			program[4] = "custom/" +list + "/domains";
+			OSSShellTools.exec(program, reply, error, null);
+			new Service(session,null).systemctl("try-restart", "squid");
+			return new CrxResponse(session,"OK","Custom list was written successfully");
+		} catch( IOException e ) {
+			e.printStackTrace();
+		}
+		return new CrxResponse(session,"ERROR","Could not write custom list.");
+	}
+
+	@PUT
+	@Path("unbound")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Resets the unbound server reading the new configuration.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.unbound")
+	public CrxResponse resetUnbound( @ApiParam(hidden = true) @Auth Session session)
+	{
+		String[] program   = new String[1];
+		program[0] = cranixBaseDir + "tools/unbound/create_unbound_redirects.sh";
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		OSSShellTools.exec(program, reply, error, "");
+		//TODO check error
+		return new CrxResponse(session,"OK","DNS server configuration was written succesfully.");
+	}
 
 	/*
 	 * Job management
@@ -554,10 +743,15 @@ public interface SystemResource {
 	@ApiOperation(value = "Creates a new job")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
-	CrxResponse createJob(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    Job job
-	);
+	public CrxResponse createJob(
+		@ApiParam(hidden = true) @Auth Session session,
+		Job job
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new JobService(session,em).createJob(job);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("jobs/search")
@@ -565,10 +759,15 @@ public interface SystemResource {
 	@ApiOperation(value = "Searching for jobs by description and time.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
-	List<Job> searchJob(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    Job job
-	);
+	public List<Job> searchJob(
+		@ApiParam(hidden = true) @Auth Session session,
+		Job job
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Job>   resp = new JobService(session,em).searchJobs(job.getDescription(), job.getStartTime(), job.getEndTime());
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("jobs/{jobId}")
@@ -576,10 +775,15 @@ public interface SystemResource {
 	@ApiOperation(value = "Gets the job with all parameters inclusive log.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
-	Job getJob(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("jobId") Long jobId
-	);
+	public Job getJob(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("jobId") Long jobId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Job	 resp = new JobService(session,em).getById(jobId);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("jobs/running")
@@ -587,9 +791,12 @@ public interface SystemResource {
 	@ApiOperation(value = "Gets the job with all parameters inclusive log.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
-	List<Job> getRunningJobs(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<Job> getRunningJobs( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Job> resp = new JobService(session,em).getRunningJobs();
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("jobs/failed")
@@ -597,9 +804,12 @@ public interface SystemResource {
 	@ApiOperation(value = "Gets the job with all parameters inclusive log.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
-	List<Job> getFailedJobs(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<Job> getFailedJobs( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Job> resp = new JobService(session,em).getFailedJobs();
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("jobs/succeeded")
@@ -607,36 +817,49 @@ public interface SystemResource {
 	@ApiOperation(value = "Gets the job with all parameters inclusive log.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
-	List<Job> getSucceededJobs(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<Job> getSucceededJobs( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Job> resp = new JobService(session,em).getSucceededJobs();
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("jobs/{jobId}/exit/{exitValue}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set the exit value of a job.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.jobs")
-	CrxResponse setJobExitValue(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("jobId") Long jobId,
-	    @PathParam("exitValue") Integer exitValue
-	);
+	public CrxResponse setJobExitValue(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("jobId") Long jobId,
+		@PathParam("exitValue") Integer exitValue
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new JobService(session,em).setExitCode(jobId, exitValue);
+		em.close();
+		return resp;
+	}
 
 	@PUT
 	@Path("jobs/{jobId}/restart")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set the exit value of a job.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.jobs")
-	CrxResponse restartJob(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("jobId") Long jobId
-	);
+	public CrxResponse restartJob(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("jobId") Long jobId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new JobService(session,em).restartJob(jobId);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * Acl Management
@@ -646,239 +869,291 @@ public interface SystemResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get all existing acls.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	List<Acl> getAcls(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<Acl> getAcls( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Acl> resp = new SystemService(session,em).getAvailableAcls();
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("acls/groups/{groupId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the acls of a group.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	List<Acl> getAclsOfGroup(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("groupId") Long groupId
-	);
+	public List<Acl> getAclsOfGroup(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") Long groupId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Acl> resp = new SystemService(session,em).getAclsOfGroup(groupId);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("acls/groups/{groupId}/available")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the available acls for a group.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	List<Acl> getAvailableAclsForGroup(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("groupId") Long groupId
-	);
+	public List<Acl> getAvailableAclsForGroup(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") Long groupId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Acl> resp = new SystemService(session,em).getAvailableAclsForGroup(groupId);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("acls/groups/{groupId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set an ACL of a group. This can be an existing or a new acl.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	CrxResponse setAclOfGroup(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("groupId") Long groupId,
-	    Acl acl
-	);
+	public CrxResponse setAclOfGroup(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") Long groupId,
+		Acl acl
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).setAclToGroup(groupId,acl);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("acls/groups/{groupId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes all ACLs of a group.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	CrxResponse deleteAclsOfGroup(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("groupId") Long groupId
-	);
-
-	@GET
-	@Path("acls/users/{userId}/available")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get the available acls for a user.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("system.acls")
-	List<Acl> getAvailableAclsForUser(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("userId") Long userId
-	);
+	public CrxResponse deleteAclsOfGroup(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") Long groupId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Group group = em.find(Group.class, groupId);
+		CrxResponse resp = new CrxResponse(session,"OK","Acls was deleted succesfully.");
+		if( group != null ) {
+			em.getTransaction().begin();
+			for(Acl acl : group.getAcls() ) {
+				em.remove(acl);
+			}
+			group.setAcls(new ArrayList<Acl>());
+			em.merge(group);
+			em.getTransaction().commit();
+		} else {
+			resp = new CrxResponse(session,"ERROR","Group can not be find.");
+		}
+		return resp;
+	}
 
 	@GET
 	@Path("acls/users/{userId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the acls of a user.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	List<Acl> getAclsOfUser(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("userId") Long userId
-	);
+	public List<Acl> getAclsOfUser(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("userId") Long userId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Acl>   resp = new SystemService(session,em).getAclsOfUser(userId);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("acls/users/{userId}/available")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get the available acls for a user.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("system.acls")
+	public List<Acl> getAvailableAclsForUser(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("userId") Long userId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Acl> resp = new SystemService(session,em).getAvailableAclsForUser(userId);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("acls/users/{userId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set an ACL of a user. This can be an existing or a new acl.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	CrxResponse setAclOfUser(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("userId") Long userId,
-	    Acl acl
-	);
+	public CrxResponse setAclOfUser(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("userId") Long userId,
+		Acl acl
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).setAclToUser(userId,acl);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("acls/user/{userId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes all ACLs of a user.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.acls")
-	CrxResponse deleteAclsOfUser(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("userId") Long userId
-	);
+	public CrxResponse deleteAclsOfUser(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("userId") Long userId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		User user = em.find(User.class, userId);
+		CrxResponse resp = new CrxResponse(session,"OK","Acls was deleted succesfully.");
+		if( user != null ) {
+			em.getTransaction().begin();
+			for(Acl acl : user.getAcls() ) {
+				em.remove(acl);
+			}
+			user.setAcls(new ArrayList<Acl>());
+			em.merge(user);
+			em.getTransaction().commit();
+		} else {
+			resp = new CrxResponse(session,"ERROR","Group can not be find.");
+		}
+		return resp;
+	}
 
-	/**
-	 * Delivers the list of the DNS-Domains the server is responsible for these.
-	 * @param session
-	 * @return The list of the domains.
-	 */
 	@GET
 	@Path("dns/domains")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the list of the DNS-Domains the server is responsible for these.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	String[] getDnsDomains(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public String[] getDnsDomains( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		String[] resp = new SystemService(session,em).getDnsDomains();
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Creates a new DNS domain
-	 * @param session
-	 * @param domainName The DNS domain name.
-	 * @return The result in OssReponse object.
-	 */
 	@POST
 	@Path("dns/domains")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Creates a new DNS domain.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	CrxResponse addDnsDomain(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @FormDataParam("domainName")   String  domainName
-	);
+	public CrxResponse addDnsDomain(
+		@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("domainName")   String  domainName
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).addDnsDomain(domainName);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Creates a new DNS domain
-	 * @param session
-	 * @param domainName The DNS domain name.
-	 * @return The result in OssReponse object.
-	 */
 	@POST
 	@Path("dns/domains/delete")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Deleets an existing DNS domain.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	CrxResponse deleteDnsDomain(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @FormDataParam("domainName")   String  domainName
-	);
+	public CrxResponse deleteDnsDomain(
+		@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("domainName")   String  domainName
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).deleteDnsDomain(domainName);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Delivers the list of the dns records in a domain
-	 * @param session
-	 * @param domainName The DNS domain name.
-	 * @return The result in OssReponse object.
-	 */
 	@POST
 	@Path("dns/domains/records")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Delivers the list of the dns records in a domain.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	List<DnsRecord> getRecords(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @FormDataParam("domainName")   String  domainName
-	);
+	public List<DnsRecord> getRecords(
+		@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("domainName")   String  domainName
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<DnsRecord> resp = new SystemService(session,em).getRecords(domainName);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Creates a new DNS record in a domain.
-	 * @param session
-	 * @param domainName The DNS domain name.
-	 * @param recordType A|AAAA|PTR|CNAME|NS|MX|SRV|TXT
-	 * @param recordName
-	 * @param recordData
-	 * @return
-	 */
 	@POST
 	@Path("dns/domains/addRecord")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new DNS record. The following Record types are allowed: A|AAAA|PTR|CNAME|NS|MX|SRV|TXT")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	CrxResponse addDnsRecord(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    DnsRecord dnsRecord
-	);
+	public CrxResponse addDnsRecord(
+		@ApiParam(hidden = true) @Auth Session session,
+		DnsRecord dnsRecord
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).addDnsRecord(dnsRecord);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Deletes an existing DNS record in a domain.
-	 * @param session
-	 * @param domainName The DNS domain name.
-	 * @param recordType A|AAAA|PTR|CNAME|NS|MX|SRV|TXT
-	 * @param recordName
-	 * @param recordData
-	 * @return
-	 */
 	@POST
 	@Path("dns/domains/deleteRecord")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets an existing DNS record.")
 	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.dns")
-	CrxResponse deleteDnsRecord(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    DnsRecord dnsRecord
-	);
+	public CrxResponse deleteDnsRecord(
+		@ApiParam(hidden = true) @Auth Session session,
+		DnsRecord dnsRecord
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).deleteDnsRecord(dnsRecord);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("find/{objectType}")
@@ -888,11 +1163,16 @@ public interface SystemResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.configuration")
-	CrxResponse findObject(
+	public CrxResponse findObject(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("objectType") String objectType,
 		LinkedHashMap<String,Object> object
-	);
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).findObject(objectType, object);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("file")
@@ -903,10 +1183,15 @@ public interface SystemResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.superuser")
-	Response getFile(
+	public Response getFile(
 		@ApiParam(hidden = true) @Auth Session session,
 		@FormDataParam("path")   String  path
-	);
+	) {
+		File file = new File(path);
+		ResponseBuilder response = Response.ok((Object) file);
+		response.header("Content-Disposition","attachment; filename=\""+ file.getName() + "\"");
+		return response.build();
+	}
 
 	@GET
 	@Path("addon")
@@ -916,9 +1201,19 @@ public interface SystemResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
 	@RolesAllowed("system.addons")
-	List<String> getAddOns(
-			@ApiParam(hidden = true) @Auth Session session
-	);
+	public List<String> getAddOns( @ApiParam(hidden = true) @Auth Session session) {
+		List<String> res = new ArrayList<String>();
+		File addonsDir = new File( cranixBaseDir + "addons" );
+		if( addonsDir != null && addonsDir.exists() ) {
+			for( String addon : addonsDir.list() ) {
+				File tmp = new File(cranixBaseDir + "addons/" + addon);
+				if( tmp.isDirectory() ) {
+					res.add(addon);
+				}
+			}
+		}
+		return res;
+	}
 
 	@PUT
 	@Path("addon/{name}/{action}")
@@ -928,11 +1223,22 @@ public interface SystemResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
 	@RolesAllowed("system.addons")
-	CrxResponse applyActionForAddon(
+	public CrxResponse applyActionForAddon(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("name")	String name,
 			@PathParam("action")	String action
-	);
+	) {
+		String[] program	= new String[2];
+		StringBuffer reply  = new StringBuffer();
+		StringBuffer stderr = new StringBuffer();
+		program[0] = cranixBaseDir + "addons/" + name + "/action.sh";
+		program[1] =  action;
+		if( OSSShellTools.exec(program, reply, stderr, null) == 0 ) {
+			return new CrxResponse(session,"OK","Service state was set successfully.");
+		} else {
+			return new CrxResponse(session,"ERROR",stderr.toString());
+		}
+	}
 
 	@GET
 	@Path("addon/{name}/{key}")
@@ -942,20 +1248,17 @@ public interface SystemResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
 	@RolesAllowed("system.addons")
-	String[] getDataFromAddon(
+	public String[] getDataFromAddon(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("name")	String name,
 			@PathParam("key")	String key
-	);
-
-/*	@POST
-	@Path("support")
-        @Produces(JSON_UTF8)
-        @ApiOperation(value = "Create a support request ")
-        @ApiResponses(value = {
-		@ApiResponse(code = 400, message = "Missing data for request"),
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-        @RolesAllowed("system.support")
-        CrxResponse createSupportRequest(@ApiParam(hidden = true) @Auth Session session, SupportRequest supportRequest);*/
+	) {
+		String[] program	= new String[2];
+		StringBuffer reply  = new StringBuffer();
+		StringBuffer stderr = new StringBuffer();
+		program[0] = cranixBaseDir + "addons/" + name + "/getvalue.sh";
+		program[1] = key;
+		OSSShellTools.exec(program, reply, stderr, null);
+		return reply.toString().split("\\s");
+	}
 }
