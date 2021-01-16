@@ -49,67 +49,66 @@ public class CranixApplication extends Application<ServerConfiguration> {
 
 		@SuppressWarnings("rawtypes")
 		AuthFilter tokenAuthorizer = new OAuthCredentialAuthFilter.Builder<Session>()
-		.setAuthenticator(new CrxTokenAuthenticator())
-		.setAuthorizer(new CrxAuthorizer())
-		.setPrefix("Bearer")
-		.buildAuthFilter();
+			.setAuthenticator(new CrxTokenAuthenticator())
+			.setAuthorizer(new CrxAuthorizer())
+			.setPrefix("Bearer")
+			.buildAuthFilter();
 
 		environment.jersey().register(new AuthDynamicFeature(tokenAuthorizer));
 		environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Session.class));
 		environment.jersey().register(RolesAllowedDynamicFeature.class);
-
 		environment.jersey().register(MultiPartFeature.class);
-
-		final SchedulerResource schedulerResource = new SchedulerResource();
-		environment.jersey().register(schedulerResource);
-
-		final SystemResource systemResource = new SystemResourceImpl();
-		environment.jersey().register(systemResource);
 
 		final AdHocLanResource adHocLanResource = new AdHocLanResource();
 		environment.jersey().register(adHocLanResource);
 
-		final SessionsResource sessionsResource = new SessionsResource();
-		environment.jersey().register(sessionsResource);
-
-		final SelfManagementResource selfManagementResource = new SelfManagementResource();
-		environment.jersey().register(selfManagementResource);
-
-		final RoomResource roomResource = new RoomResource();
-		environment.jersey().register(roomResource);
-
-		final UserResource usersResource = new UserResourceImpl();
-		environment.jersey().register(usersResource);
-
-		final GroupResource groupsResource = new GroupResource();
-		environment.jersey().register(groupsResource);
-
-		final DeviceResource devicesResource = new DeviceResource();
-		environment.jersey().register(devicesResource);
-
-		final PrinterResource printerResource = new PrinterResource();
-		environment.jersey().register(printerResource);
+		final CategoryResource categoryResource = new CategoryResource();
+		environment.jersey().register(categoryResource);
 
 		final CloneToolResource cloneToolResource = new CloneToolResource();
 		environment.jersey().register(cloneToolResource);
 
-		final HwconfResource hwconfResource = new HwconfResource();
-		environment.jersey().register(hwconfResource);
-
-		final CategoryResource categoryResource = new CategoryResource();
-		environment.jersey().register(categoryResource);
-
-		final SoftwareResource softwareResource = new SoftwareResourceImpl();
-		environment.jersey().register(softwareResource);
+		final DeviceResource devicesResource = new DeviceResource();
+		environment.jersey().register(devicesResource);
 
 		final EducationResource educationResource = new EducationResource();
 		environment.jersey().register(educationResource);
 
+		final GroupResource groupsResource = new GroupResource();
+		environment.jersey().register(groupsResource);
+
+		final HwconfResource hwconfResource = new HwconfResource();
+		environment.jersey().register(hwconfResource);
+
 		final InformationResource infoResource = new InformationResource();
 		environment.jersey().register(infoResource);
 
-		final SupportResource supportResource = new SupportResourceImpl();
+		final PrinterResource printerResource = new PrinterResource();
+		environment.jersey().register(printerResource);
+
+		final RoomResource roomResource = new RoomResource();
+		environment.jersey().register(roomResource);
+
+		final SchedulerResource schedulerResource = new SchedulerResource();
+		environment.jersey().register(schedulerResource);
+
+		final SelfManagementResource selfManagementResource = new SelfManagementResource();
+		environment.jersey().register(selfManagementResource);
+
+		final SessionsResource sessionsResource = new SessionsResource();
+		environment.jersey().register(sessionsResource);
+
+		final SoftwareResource softwareResource = new SoftwareResourceImpl();
+		environment.jersey().register(softwareResource);
+
+		final SupportResource supportResource = new SupportResource();
 		environment.jersey().register(supportResource);
+
+		final SystemResource systemResource = new SystemResourceImpl();
+		environment.jersey().register(systemResource);
+
+		final UserResource usersResource = new UserResourceImpl();
+		environment.jersey().register(usersResource);
 
 		//Start mdm api only if it is configured.
 		File mdm_config = new File(cranixMdmConfig);

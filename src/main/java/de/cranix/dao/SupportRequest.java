@@ -9,23 +9,22 @@ public class SupportRequest {
 		Error, FeatureRequest, Feedback, ProductOrder, OfferInq, SalesInq
 	};
 
-	private String email;
-	private String subject;
-	private String description;
-	private String regcode;
+	private String email		= "";
+	private String subject		= "";
+	private String description	= "";
+	private String regcode		= "";
 
-	private String product; // CRANIX, CrxClient, CEPHALIX
-	private String firstname;
-	private String lastname;
-	private String company;
-	private SUPPORT_TYPE supporttype = SUPPORT_TYPE.Error; // Error, FeatureRequest, Feedback, ProductOrder, OfferInq, SalesInq
+	private String product		= "CRANIX";
+	private String firstname	= "";
+	private String lastname		= "";
+	private String company		= "";
+	private SUPPORT_TYPE supporttype = SUPPORT_TYPE.Error; 
 
-	// response fields
-	private String regcodeValidUntil;
-	private String status;
-	private String requestDate;
-	private String ticketno;
-	private String ticketResponseInfo;
+	private String regcodeValidUntil	= "";
+	private String status			= "";
+	private String requestDate		= "";
+	private String ticketno			= "";
+	private String ticketResponseInfo	= "";
 
 	@Override
 	public String toString() {

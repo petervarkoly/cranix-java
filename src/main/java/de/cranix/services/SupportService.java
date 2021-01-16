@@ -1,5 +1,5 @@
-/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
-package de.cranix.api.resourceimpl;
+/* (c) 2021 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+package de.cranix.services;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.cranix.api.resources.SupportResource;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.SupportRequest;
@@ -25,56 +24,49 @@ import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.OSSShellTools;
 import static de.cranix.helper.CranixConstants.*;
 
-public class SupportResourceImpl implements SupportResource {
-	Logger logger = LoggerFactory.getLogger(SupportResourceImpl.class);
+public class SupportService extends Service {
+	Logger logger = LoggerFactory.getLogger(SupportService.class);
 
 	private String supportUrl;
-	private String supportEmail;
-	private String supportEmailFrom;
-	private boolean isLinux = true;
-	public SupportResourceImpl() {
-		String os = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-		isLinux = !((os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0));
+        private String supportEmail;
+        private String supportEmailFrom;
+
+	public SupportService(Session session, EntityManager em) {
+		super(session, em);
 	}
 
-	private void loadConf(Session session, SystemService sc) {
-		supportUrl = sc.getConfigValue("SUPPORT_URL");
-		if (supportUrl != null) {
-			supportUrl = supportUrl.trim();
-		}
-		if (supportUrl != null && supportUrl.equalsIgnoreCase("MAIL")) {
-			supportEmail = sc.getConfigValue("SUPPORT_MAIL_ADDRESS");
-			supportEmailFrom = sc.getConfigValue("SUPPORT_MAIL_FROM");
-			if (supportEmailFrom!=null) {
-				supportEmailFrom = supportEmailFrom.trim();
-				if (supportEmailFrom.length()==0) {
-					supportEmailFrom = null;
-				}
-			}
-			supportUrl = null;
-		} else if (supportUrl != null && supportUrl.length() > 0) {
-			supportEmail = null;
-			supportEmailFrom = null;
-		} else {
-			supportUrl = "https://repo.cephalix.eu/api/tickets/add";
-			supportEmail = null;
-			supportEmailFrom = null;
-		}
-	}
-
-	@Override
-	public CrxResponse create(Session session, SupportRequest supportRequest) {
-		SystemService sc = new SystemService(session,null);
-		loadConf(session,sc);
-		//Add default values if not given in support request
+	public CrxResponse create(SupportRequest supportRequest) {
+		supportUrl = this.getConfigValue("SUPPORT_URL");
+                if(supportUrl != null) {
+                        supportUrl = supportUrl.trim();
+                }
+		if(supportUrl != null && supportUrl.equalsIgnoreCase("MAIL")) {
+                        supportEmail     = this.getConfigValue("SUPPORT_MAIL_ADDRESS");
+                        supportEmailFrom = supportRequest.getEmail(); 
+                        if(supportEmailFrom.isEmpty()) {
+				this.getConfigValue("SUPPORT_MAIL_FROM");
+                                supportEmailFrom = supportEmailFrom.trim();
+                                if (supportEmailFrom.length()==0) {
+                                        supportEmailFrom = null;
+                                }
+                        }
+                        supportUrl = null;
+                } else if (supportUrl != null && supportUrl.length() > 0) {
+                        supportEmail = null;
+                        supportEmailFrom = null;
+                } else {
+                        supportUrl = cranixSupportUrl;
+                        supportEmail = null;
+                        supportEmailFrom = null;
+                }
 		if( supportRequest.getRegcode() == null || supportRequest.getRegcode().isEmpty() )  {
-			supportRequest.setRegcode(sc.getConfigValue("REG_CODE"));
+			supportRequest.setRegcode(this.getConfigValue("REG_CODE"));
 		}
 		if( supportRequest.getProduct() == null || supportRequest.getProduct().isEmpty() )  {
 			supportRequest.setProduct("CRANIX");
 		}
 		if( supportRequest.getCompany() == null || supportRequest.getCompany().isEmpty() )  {
-			supportRequest.setCompany(sc.getConfigValue("NAME"));
+			supportRequest.setCompany(this.getConfigValue("NAME"));
 		}
 		List<String> parameters  = new ArrayList<String>();
 		logger.debug("URL: " + supportUrl);
@@ -89,7 +81,7 @@ public class SupportResourceImpl implements SupportResource {
 			logger.error(e.getMessage(), e);
 			return new CrxResponse(session,"ERROR", e.getMessage());
 		}
-		if (supportUrl != null && supportUrl.length() > 0) {
+		if(supportUrl != null && supportUrl.length() > 0) {
 			String[] program    = new String[12];
 			StringBuffer reply  = new StringBuffer();
 			StringBuffer stderr = new StringBuffer();
@@ -125,39 +117,28 @@ public class SupportResourceImpl implements SupportResource {
 				}
 			} catch (Exception e) {
 				logger.error("GETObject :" + e.getMessage());
-				return new CrxResponse(session,"ERROR","Can not sent supprt request");
+				return new CrxResponse(session,"ERROR","Can not send support request");
 			}
 		} else {
-			// use classic email
+			// Support via email
 			StringBuilder request = new StringBuilder();
-			request.append(supportRequest.getDescription()).append("\n\nRegcode: ").append(supportRequest.getRegcode());
-			request.append("\nProduct: ").append(supportRequest.getProduct());
+			//Header
+			//Subject:
+			request.append("Subject: ").append(supportRequest.getSubject()).append("\n");
+			//From:
+			request.append("From: ").append(supportRequest.getFirstname()).append(" ").append(supportRequest.getLastname()).append(" <").append(supportEmailFrom).append(">");
+			request.append("\n");
+			//Start body
+			request.append(supportRequest.getDescription());
+			request.append("\n\nRegcode: ").append(supportRequest.getRegcode());
+			request.append("\nSupporttype: ").append(supportRequest.getSupporttype());
+			request.append("\n.");
 
-			request.append("\nVon: ").append(supportRequest.getFirstname()).append(" ")
-					.append(supportRequest.getLastname());
-			if (supportRequest.getCompany() != null && supportRequest.getCompany().trim().length() > 0) {
-				request.append(" ").append(supportRequest.getCompany());
-			}
-			request.append(" ").append(supportEmail);
-			request.append("\nArt: ").append(supportRequest.getSupporttype());
-			request.append("\n."); // Important: end of message
-
-			int args = 4 + (isLinux?1:0) + (supportEmailFrom!=null?(isLinux?1:0):0);
-			String[] program = new String[args];
+			String[] program   = new String[2];
 			StringBuffer reply = new StringBuffer();
 			StringBuffer error = new StringBuffer();
-			int i = 0;
-			program[i++] = "/usr/bin/mail";
-			if (isLinux) {
-				program[i++] = "-R " + supportRequest.getEmail();
-			}
-			program[i++] = "-s " + supportRequest.getSubject();
-			if (isLinux && supportEmailFrom != null) {
-				program[i++] = "-r " + supportEmailFrom;
-			}
-			program[i++] = "-c " + supportRequest.getEmail();// cc address
-
-			program[i++] = supportEmail;
+			program[0] = "/usr/sbin/sendmail";
+			program[1] = supportEmail;
 
 			int result = OSSShellTools.exec(program, reply, error, request.toString());
 			if (result == 0) {
