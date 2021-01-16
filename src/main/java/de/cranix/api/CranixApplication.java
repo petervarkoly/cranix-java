@@ -69,7 +69,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final AdHocLanResource adHocLanResource = new AdHocLanResource();
 		environment.jersey().register(adHocLanResource);
 
-		final SessionsResource sessionsResource = new SessionsResourceImpl();
+		final SessionsResource sessionsResource = new SessionsResource();
 		environment.jersey().register(sessionsResource);
 
 		final SelfManagementResource selfManagementResource = new SelfManagementResource();

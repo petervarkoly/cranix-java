@@ -1,4 +1,4 @@
- /* (c) 2020 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
+/* (c) 2021 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.*;
