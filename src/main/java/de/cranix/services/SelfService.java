@@ -1,5 +1,5 @@
-/* (c) 2020 Peter Varkoly <peter@varkoly.de> all rights reserved*/
-package de.cranix.api.resourceimpl;
+/* (c) 2021 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
+package de.cranix.services;
 
 import java.io.File;
 import java.util.List;
@@ -33,22 +33,15 @@ import de.cranix.helper.OSSShellTools;
 import static de.cranix.helper.StaticHelpers.*;
 import static de.cranix.helper.CranixConstants.*;
 
-public class SelfManagementResourceImpl implements SelfManagementResource {
+public class SelfService extends Service {
 
-	Logger logger = LoggerFactory.getLogger(SelfManagementResource.class);
+	Logger logger = LoggerFactory.getLogger(SelfService.class);
 
-	public SelfManagementResourceImpl() {
-		super();
+	public SelfService(Session session, EntityManager em) {
+	    super(session, em);
 	}
 
-	@Override
-	public User getBySession(Session session) {
-		return session.getUser();
-	}
-
-	@Override
-	public CrxResponse modifyMySelf(Session session, User user) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+	public CrxResponse modifyMySelf(User user) {
 		UserService userService = new UserService(session,em);
 		User oldUser = session.getUser();
 		CrxResponse  crxResponse = null;
@@ -75,14 +68,11 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 			startPlugin("modify_user", oldUser);
 		} catch (Exception e) {
 			return new CrxResponse(session,"ERROR","Could not modify user parameter.");
-		} finally {
-			em.close();
 		}
 		return new CrxResponse(session,"OK","User parameters were modified successfully.");
 	}
 
-	@Override
-	public Boolean haveVpn(Session session) {
+	public Boolean haveVpn() {
 		File vpn = new File(cranixBaseDir + "tools/vpn");
 		if( vpn == null || !vpn.exists() ) {
 			return false;
@@ -95,9 +85,8 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		return false;
 	}
 
-	@Override
-	public Response getConfig(Session session, String OS) {
-		if( ! haveVpn(session)) {
+	public Response getConfig(String OS) {
+		if( ! this.haveVpn()) {
 			throw new WebApplicationException(401);
 		}
 		Config config   = new Config("/etc/sysconfig/cranix-vpn","");
@@ -129,9 +118,8 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		return response.build();
 	}
 
-	@Override
-	public Response getInstaller(Session session, String OS) {
-		if( ! haveVpn(session)) {
+	public Response getInstaller(String OS) {
+		if( ! this.haveVpn()) {
 			throw new WebApplicationException(401);
 		}
 		File configFile = null;
@@ -153,34 +141,25 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 		return response.build();
 	}
 
-	@Override
-	public String[] vpnOS(Session session) {
-		String[] osList = { "Win7","Win10","Mac","Linux" };
-		return osList;
-	}
-
-	@Override
-	public String addDeviceToUser
-	(
+	public String addDeviceToUser(
 			UriInfo ui,
 			HttpServletRequest req,
 			String MAC,
-			String userName) {
+			String userName)
+       	{
 		if( !req.getRemoteAddr().equals("127.0.0.1")) {
 			return "ERROR Connection is allowed only from local host.";
 		}
-		EntityManager em     = CrxEntityManagerFactory.instance().createEntityManager();
-		Session session      = new Session();
-		SessionService sc = new SessionService(session,em);
+		SessionService sc    = new SessionService(session,em);
 		String  resp         = "";
 		try {
 			session.setIp(req.getRemoteAddr());
 			session = sc.createInternalUserSession(userName);
-			final DeviceService deviceService = new DeviceService(session,em);
+			DeviceService deviceService = new DeviceService(session,em);
 			if( deviceService.getByMAC(MAC) != null ) {
 				resp = "ALREADY-REGISTERED";
 			} else {
-				final RoomService roomService = new RoomService(session,em);
+				RoomService roomService = new RoomService(session,em);
 				List<Room> rooms = roomService.getRoomToRegisterForUser(session.getUser());
 				if( rooms != null && rooms.size() > 0 ) {
 					String devName = MAC.substring(8).replaceAll(":", "");
@@ -196,28 +175,11 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
 			if( session != null ) {
 				sc.deleteSession(session);
 			}
-			em.close();
 		}
 		return resp;
 	}
 
-        @Override
-        public List<Room> getMyRooms(Session session) {
-                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-                RoomService roomService = new RoomService(session,em);
-                List<Room> resp= roomService.getAllToRegister();
-                em.close();
-                return resp;
-        }
-
-        @Override
-        public List<Device> getDevices(Session session) {
-                return session.getUser().getOwnedDevices();
-        }
-
-        @Override
-        public CrxResponse deleteDevice(Session session, Long deviceId) {
-                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        public CrxResponse deleteDevice(Long deviceId) {
                 DeviceService deviceService = new DeviceService(session,em);
                 CrxResponse resp;
                 if( deviceService.isSuperuser() ) {
@@ -230,14 +192,10 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
                                 resp = new CrxResponse(session,"ERROR", "This is not your device.");
                         }
                 }
-                em.close();
                 return resp;
         }
 
-        @Override
-        public CrxResponse modifyDevice(Session session, Long deviceId, Device device) {
-                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-                DeviceService deviceService = new DeviceService(session,em);
+        public CrxResponse modifyDevice(Long deviceId, Device device) {
                 try {
                         Device oldDevice = em.find(Device.class, deviceId);
                         if( oldDevice == null ) {
@@ -246,7 +204,7 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
                         if( deviceId != device.getId() ) {
                                 return new CrxResponse(session,"ERROR","Device ID mismatch.");
                         }
-                        if( ! deviceService.mayModify(device) ) {
+                        if( ! this.mayModify(device) ) {
                                 return new CrxResponse(session,"ERROR", "This is not your device.");
                         }
                         em.getTransaction().begin();
@@ -257,18 +215,8 @@ public class SelfManagementResourceImpl implements SelfManagementResource {
                 }  catch (Exception e) {
                         logger.error(e.getMessage());
                         return new CrxResponse(session,"ERROR", e.getMessage());
-                } finally {
-                        em.close();
                 }
                 return new CrxResponse(session,"OK", "Device was modified successfully");
-        }
-
-        @Override
-        public CrxResponse addDevice(Session session, Device device) {
-                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-                CrxResponse resp = new RoomService(session,em).addDevice(device.getRoomId(), device.getMac(), device.getName());
-                em.close();
-                return resp;
         }
 
 }

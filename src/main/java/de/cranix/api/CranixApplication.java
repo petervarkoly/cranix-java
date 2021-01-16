@@ -1,4 +1,4 @@
-/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api;
 
 import de.cranix.api.config.*;
@@ -72,7 +72,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final SessionsResource sessionsResource = new SessionsResourceImpl();
 		environment.jersey().register(sessionsResource);
 
-		final SelfManagementResource selfManagementResource = new SelfManagementResourceImpl();
+		final SelfManagementResource selfManagementResource = new SelfManagementResource();
 		environment.jersey().register(selfManagementResource);
 
 		final RoomResource roomResource = new RoomResource();

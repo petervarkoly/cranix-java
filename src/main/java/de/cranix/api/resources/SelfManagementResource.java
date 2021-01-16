@@ -1,4 +1,4 @@
-/* (c) 2020 Peter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
@@ -6,6 +6,7 @@ import static de.cranix.api.resources.Resource.TEXT;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,6 +25,11 @@ import de.cranix.dao.Device;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
+import de.cranix.helper.CrxEntityManagerFactory;
+import de.cranix.services.RoomService;
+import de.cranix.services.SelfService;
+import static de.cranix.helper.CranixConstants.*;
+
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,40 +39,39 @@ import io.swagger.annotations.ApiResponses;
 
 @Path("selfmanagement")
 @Api(value = "selfmanagement")
-public interface SelfManagementResource {
+public class SelfManagementResource {
 
+	public SelfManagementResource() {}
 
-	/*
-	 * GET selfmanagement/me
-	 */
 	@GET
 	@Path("me")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get my own datas")
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "User not found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("myself.search")
-	User getBySession(
-			@ApiParam(hidden = true) @Auth Session session
-	);
+	public User getBySession( @ApiParam(hidden = true) @Auth Session session) {
+		return session.getUser();
+	}
 
-	/*
-	 * POST users/modify { hash }
-	 */
 	@POST
 	@Path("modify")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify my own datas")
 	@ApiResponses(value = {
-			// TODO so oder anders? @ApiResponse(code = 404, message = "At least one user was not found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	CrxResponse modifyMySelf(
-			@ApiParam(hidden = true) @Auth Session session,
-			User user
-	);
+	public CrxResponse modifyMySelf(
+		@ApiParam(hidden = true) @Auth Session session,
+		User user
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SelfService(session,em).modifyMySelf(user);
+		em.close();
+		return resp;
+	}
 
 	/*
 	 * VPN Management
@@ -82,12 +87,15 @@ public interface SelfManagementResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Checks if a user is allowed to use vpn connection to the school")
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "User not found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("myself.search")
-	Boolean haveVpn(
-			@ApiParam(hidden = true) @Auth Session session
-	);
+	public Boolean haveVpn( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Boolean resp = new SelfService(session,em).haveVpn();
+		em.close();
+		return resp;
+	}
 
 
 	/**
@@ -100,12 +108,12 @@ public interface SelfManagementResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the list of supported clients OS for the VPN.")
 	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "User not found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("myself.search")
-	String[] vpnOS(
-			@ApiParam(hidden = true) @Auth Session session
-	);
+	public String[] vpnOS( @ApiParam(hidden = true) @Auth Session session) {
+		return vpnOsList;
+	}
 
 	/**
 	 * Delivers the configuration for a given operating system.
@@ -116,17 +124,22 @@ public interface SelfManagementResource {
 	@Path("vpn/config/{OS}")
 	@Produces("application/x-dosexec")
 	@ApiOperation(value = "Delivers the configuration for a given operating system.",
-	notes = "OS The operating system: the list of the supported os will be delivered by GET selfmanagement/vpn/OS")
+		      notes = "OS The operating system: the list of the supported os will be delivered by GET selfmanagement/vpn/OS")
 	@ApiResponses(value = {
-	@ApiResponse(code = 401, message = "You are not allowed to use VPN."),
-			@ApiResponse(code = 404, message = "User not found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator."),
-			@ApiResponse(code = 501, message = "Can not create your configuration. Please contact adminstrator.")})
+		@ApiResponse(code = 401, message = "You are not allowed to use VPN."),
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator."),
+		@ApiResponse(code = 501, message = "Can not create your configuration. Please contact adminstrator.")})
 	@RolesAllowed("myself.search")
-	Response getConfig(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("OS") String OS
-	);
+	public Response getConfig(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("OS") String OS
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Response resp = new SelfService(session,em).getConfig(OS);
+		em.close();
+		return resp;
+	}
 
 	/**
 	 * Delivers the configuration for a given operating system.
@@ -137,16 +150,21 @@ public interface SelfManagementResource {
 	@Path("vpn/installer/{OS}")
 	@Produces("application/x-dosexec")
 	@ApiOperation(value = "Delivers the installer for a given operating system.",
-	notes = "OS The operating system: the list of the supported os will be delivered by GET selfmanagement/vpn/OS")
+		      notes = "OS The operating system: the list of the supported os will be delivered by GET selfmanagement/vpn/OS")
 	@ApiResponses(value = {
-	@ApiResponse(code = 401, message = "You are not allowed to use VPN."),
+		@ApiResponse(code = 401, message = "You are not allowed to use VPN."),
 		@ApiResponse(code = 404, message = "User not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("myself.search")
-	Response getInstaller(
+	public Response getInstaller(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("OS") String OS
-	);
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Response resp = new SelfService(session,em).getInstaller(OS);
+		em.close();
+		return resp;
+	}
 
 	/**
 	 * This function is for the radius plugin to automatic registration of BYOD devices.
@@ -164,12 +182,18 @@ public interface SelfManagementResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Cant be called only from localhost."),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	String addDeviceToUser(
-		@Context UriInfo ui,
-		@Context HttpServletRequest req,
-		@PathParam("MAC") String mac,
-		@PathParam("userName") String uid
-	);
+	public String addDeviceToUser(
+		@Context		UriInfo ui,
+		@Context		HttpServletRequest req,
+		@PathParam("MAC")	String mac,
+		@PathParam("userName")	String uid
+	) {
+		Session session  = new Session();
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		String      resp = new SelfService(session,em).addDeviceToUser(ui,req,mac,uid);
+		em.close();
+		return resp;
+	}
 
 	/**
 	 * getRooms Delivers a list of all AdHocRooms
@@ -184,9 +208,12 @@ public interface SelfManagementResource {
 		@ApiResponse(code = 404, message = "No room was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
-	List<Room> getMyRooms(
-			@ApiParam(hidden = true) @Auth Session session
-			);
+	public List<Room> getMyRooms( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Room> resp= new RoomService(session,em).getAllToRegister();
+		em.close();
+		return resp;
+	}
 
 	/**
 	 * getDevices Delivers a list of the owned devices
@@ -201,13 +228,10 @@ public interface SelfManagementResource {
 		@ApiResponse(code = 404, message = "No category was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
-	List<Device> getDevices(
-		@ApiParam(hidden = true) @Auth Session session
-	);
+	public List<Device> getDevices( @ApiParam(hidden = true) @Auth Session session) {
+		return session.getUser().getOwnedDevices();
+	}
 
-	/*
-	 *
-	 */
 	@DELETE
 	@Path("devices/{deviceId}")
 	@Produces(JSON_UTF8)
@@ -216,10 +240,15 @@ public interface SelfManagementResource {
 		@ApiResponse(code = 404, message = "No category was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
-	CrxResponse deleteDevice(
+	public CrxResponse deleteDevice(
 		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("deviceId")		   Long   deviceId
-	);
+		@PathParam("deviceId")   Long	  deviceId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SelfService(session,em).deleteDevice(deviceId);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("devices/{deviceId}")
@@ -229,24 +258,33 @@ public interface SelfManagementResource {
 		@ApiResponse(code = 404, message = "No category was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
-	CrxResponse modifyDevice(
+	public CrxResponse modifyDevice(
 		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("deviceId")		   Long   deviceId,
+		@PathParam("deviceId")	 Long	  deviceId,
 		Device device
-	);
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SelfService(session,em).modifyDevice(deviceId,device);
+		em.close();
+		return resp;
+	}
 
 	@POST
-        @Path("devices/add")
-        @Produces(JSON_UTF8)
-        @ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
-        @ApiResponses(value = {
-                        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
-                        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-        })
-        @PermitAll
-        CrxResponse addDevice(
-                        @ApiParam(hidden = true) @Auth Session session,
-			Device device
-        );
+	@Path("devices/add")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public CrxResponse addDevice(
+		@ApiParam(hidden = true) @Auth Session session,
+		Device device
+	) {
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+                CrxResponse resp = new RoomService(session,em).addDevice(device.getRoomId(), device.getMac(), device.getName());
+                em.close();
+                return resp;
+        }
 
 }
