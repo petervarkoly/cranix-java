@@ -98,7 +98,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final SessionsResource sessionsResource = new SessionsResource();
 		environment.jersey().register(sessionsResource);
 
-		final SoftwareResource softwareResource = new SoftwareResourceImpl();
+		final SoftwareResource softwareResource = new SoftwareResource();
 		environment.jersey().register(softwareResource);
 
 		final SupportResource supportResource = new SupportResource();
