@@ -4,8 +4,11 @@ package de.cranix.api.resources;
 import de.cranix.dao.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.SerializationUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
@@ -43,6 +46,8 @@ import static de.cranix.api.resources.Resource.TEXT;
 @Path("softwares")
 @Api(value = "softwares")
 public class SoftwareResource {
+
+	Logger logger = LoggerFactory.getLogger(SoftwareResource.class);
 
 	public SoftwareResource() {}
 
@@ -106,7 +111,7 @@ public class SoftwareResource {
 	@RolesAllowed("software.add")
 	public CrxResponse add(
 		@ApiParam(hidden = true) @Auth Session session,
-		Software Software
+		Software software
 	) {
                 EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
                 CrxResponse resp = new SoftwareService(session,em).add(software,true);

@@ -5,7 +5,6 @@ import de.cranix.api.config.*;
 import de.cranix.api.auth.CrxAuthorizer;
 import de.cranix.api.auth.CrxTokenAuthenticator;
 import de.cranix.api.health.TemplateHealthCheck;
-import de.cranix.api.resourceimpl.*;
 import de.cranix.api.resources.*;
 import de.cranix.dao.Session;
 import io.dropwizard.Application;
@@ -107,7 +106,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final SystemResource systemResource = new SystemResource();
 		environment.jersey().register(systemResource);
 
-		final UserResource usersResource = new UserResourceImpl();
+		final UserResource usersResource = new UserResource();
 		environment.jersey().register(usersResource);
 
 		//Start mdm api only if it is configured.
