@@ -1281,6 +1281,9 @@
          List<HWConf> hwconfs = new ArrayList<HWConf>();
          List<Room> rooms = new ArrayList<Room>();
          for (Device device : devices) {
+	     if( device == null || device.getHwconf() == null || device.getRoom() == null ) {
+		     continue;
+	     }
              if (!hwconfs.contains(device.getHwconf())) {
                  hwconfs.add(device.getHwconf());
              }
@@ -1381,6 +1384,9 @@
          //Evaluate hwconf categories
          logger.debug("Process hwconfs");
          for (HWConf hwconf : hwconfs) {
+	     if( hwconf == null ) {
+		     continue;
+	     }
              logger.debug("HWConfs: " + hwconf.getName() + " " + hwconf.getDeviceType());
              if (!hwconf.getDeviceType().equals("FatClient")) {
                  continue;
