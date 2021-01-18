@@ -470,6 +470,7 @@ CREATE TABLE IF NOT EXISTS Categories (
         FOREIGN KEY(owner_id)  REFERENCES Users(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX categories on Categories(name,categoryType);
 
 CREATE TABLE IF NOT EXISTS DeviceInCategories (
         device_id          BIGINT UNSIGNED NOT NULL,
