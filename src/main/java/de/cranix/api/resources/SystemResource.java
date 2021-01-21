@@ -1019,7 +1019,7 @@ public class SystemResource {
 	}
 
 	@DELETE
-	@Path("acls/user/{userId}")
+	@Path("acls/users/{userId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes all ACLs of a user.")
 	@ApiResponses(value = {
