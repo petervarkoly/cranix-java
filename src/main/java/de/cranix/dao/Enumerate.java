@@ -9,14 +9,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The persistent class for the Enumerates database table.
- * 
+ *
  */
 @Entity
 @Table(name="Enumerates")
 @NamedQueries({
 	@NamedQuery(name="Enumerate.findAll", query="SELECT e FROM Enumerate e"),
-	@NamedQuery(name="Enumerate.getByType", query="SELECT e FROM Enumerate e WHERE e.name = :type"),
-	@NamedQuery(name="Enumerate.get", query="SELECT e FROM Enumerate e WHERE e.name = :type AND e.value = :value" )
+	@NamedQuery(name="Enumerate.getByName", query="SELECT e FROM Enumerate e WHERE e.name = :name"),
+	@NamedQuery(name="Enumerate.get", query="SELECT e FROM Enumerate e WHERE e.name = :name AND e.value = :value" )
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class Enumerate implements Serializable {
@@ -40,7 +40,10 @@ public class Enumerate implements Serializable {
 			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
 		}
 	}
-	
+
+	@ManyToOne
+	@JsonIgnore
+	private User creator;
 
 	@Override
 	public int hashCode() {
@@ -69,10 +72,11 @@ public class Enumerate implements Serializable {
 
 	public Enumerate() {
 	}
-	
-	public Enumerate(String type, String value) {
+
+	public Enumerate(String type, String value, User user) {
 		this.name	= type;
 		this.value	= value;
+		this.creator	= user;
 	}
 
 	public Long getId() {
@@ -99,4 +103,11 @@ public class Enumerate implements Serializable {
 		this.value = value;
 	}
 
+	public User getCreator() {
+		return this.creator;
+	}
+
+	public void setCreator(User creator) {
+		this.creator = creator;
+	}
 }

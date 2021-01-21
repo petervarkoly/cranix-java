@@ -720,10 +720,10 @@ public class Service extends Config {
 	 * @return Boolean True if the enumerate value is allowed.
 	 *         False if the enumerate is not allowed and in case of error.
 	 */
-	public boolean checkEnumerate(String type, String value) {
+	public boolean checkEnumerate(String name, String value) {
 		Query query      = this.em.createNamedQuery("Enumerate.get");
 		try {
-			query.setParameter("type",type).setParameter("value",value);
+			query.setParameter("name",name).setParameter("value",value);
 			return  !query.getResultList().isEmpty() ;
 		}	catch  (Exception e) {
 			logger.error("checkEnumerate: " + e.getMessage());
@@ -735,13 +735,13 @@ public class Service extends Config {
 	/**
 	 * Returns the list of the member of an enumerate.
 	 *
-	 * @param	type	Name of the enumerates: roomType, groupType, deviceType ...
+	 * @param	name	Name of the enumerates: roomType, groupType, deviceType ...
 	 * @return	The list of the member of the enumerate
 	 * @see		addEnumerate
 	 */
-	public List<String> getEnumerates(String type ) {
+	public List<String> getEnumerates(String name ) {
 		try {
-			Query query = this.em.createNamedQuery("Enumerate.getByType").setParameter("type", type);
+			Query query = this.em.createNamedQuery("Enumerate.getByName").setParameter("name", name);
 			List<String> results = new ArrayList<String>();
 			for( Enumerate e :  (List<Enumerate>) query.getResultList() ) {
 				results.add(e.getValue());

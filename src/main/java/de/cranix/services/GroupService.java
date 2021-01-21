@@ -156,7 +156,7 @@ public class GroupService extends Service {
 		try {
 			this.em.getTransaction().begin();
 			if( group.getGroupType().equals("primary")) {
-				Enumerate enumerate = new Enumerate("role",group.getName());
+				Enumerate enumerate = new Enumerate("role",group.getName(),this.session.getUser());
 				this.em.persist(enumerate);
 			}
 			this.em.persist(group);

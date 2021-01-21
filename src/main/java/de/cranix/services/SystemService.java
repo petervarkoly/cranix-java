@@ -241,17 +241,17 @@ public class SystemService extends Service {
     /**
      * Add a new enumerate
      *
-     * @param        type    Name of the enumerates: roomType, groupType, deviceType ...
+     * @param        name    Name of the enumerates: roomType, groupType, deviceType ...
      * @param        value    The new value
      * @see                    getEnumerates
      * @see                    deleteEnumerate
      */
-    public CrxResponse addEnumerate(String type, String value) {
-        Query query = this.em.createNamedQuery("Enumerate.get").setParameter("name", value).setParameter("value", value);
+    public CrxResponse addEnumerate(String name, String value) {
+        Query query = this.em.createNamedQuery("Enumerate.get").setParameter("name", name).setParameter("value", value);
         if (!query.getResultList().isEmpty()) {
             return new CrxResponse(this.getSession(), "ERROR", "Entry alread does exists");
         }
-        Enumerate en = new Enumerate(type, value);
+        Enumerate en = new Enumerate(name, value, this.session.getUser());
         try {
             this.em.getTransaction().begin();
             this.em.persist(en);
@@ -272,8 +272,8 @@ public class SystemService extends Service {
      * @see                    getEnumerates
      * @see                    addEnumerate
      */
-    public CrxResponse deleteEnumerate(String type, String value) {
-        Query query = this.em.createNamedQuery("Enumerate.getByType").setParameter("type", type).setParameter("value", value);
+    public CrxResponse deleteEnumerate(String name, String value) {
+        Query query = this.em.createNamedQuery("Enumerate.getByName").setParameter("name", name).setParameter("value", value);
         try {
             Enumerate en = (Enumerate) query.getSingleResult();
             this.em.getTransaction().begin();
