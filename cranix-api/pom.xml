@@ -17,7 +17,7 @@
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>11</maven.compiler.target><!-- TODO: check tags -->
 	<maven.compiler.source>11</maven.compiler.source>
-	<jackson.version>2.8.4</jackson.version>
+	<jackson.version>2.12.1</jackson.version>
 	<io.dropwizard.version>1.0.6</io.dropwizard.version>
 	<jersey.version>2.23.2</jersey.version>
 	<swagger.version>1.5.12</swagger.version>
