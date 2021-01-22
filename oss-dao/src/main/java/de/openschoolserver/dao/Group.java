@@ -182,6 +182,16 @@ public class Group implements Serializable {
 		acl.setGroup(null);
 	}
 
+	public void addUser(User user) {
+		this.users.add(user);
+		user.getGroups().add(this);
+	}
+
+	public void removeUser(User user) {
+		this.users.remove(user);
+		user.getGroups().remove(user);
+	}
+
 	public List<Category> getCategories() {
 		return this.categories;
 	}

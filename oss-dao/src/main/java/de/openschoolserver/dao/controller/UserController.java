@@ -247,9 +247,10 @@ public class UserController extends Controller {
 			}
 		}
 		try {
+			Group group = new GroupController(this.session,this.em).getByName(user.getRole());
 			this.em.getTransaction().begin();
 			this.em.persist(user);
-			this.em.merge(user);
+			group.addUser(user);
 			this.em.getTransaction().commit();
 			logger.debug("Created user" + user);
 		} catch (Exception e) {
@@ -258,11 +259,6 @@ public class UserController extends Controller {
 		} finally {
 		}
 		startPlugin("add_user", user);
-		GroupController groupController = new GroupController(this.session,this.em);
-		Group group = new GroupController(this.session,this.em).getByName(user.getRole());
-		if (group != null) {
-			groupController.addMember(group, user);
-		}
 		List<String> parameters = new ArrayList<String>();
 		parameters.add(user.getUid());
 		parameters.add(user.getGivenName());
