@@ -333,6 +333,7 @@ CREATE TABLE IF NOT EXISTS Softwares (
 	FOREIGN KEY(creator_id)  REFERENCES Users(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX softwares_name on Softwares(name);
 
 CREATE TABLE IF NOT EXISTS SoftwareRequirements (
         software_id		    BIGINT UNSIGNED,
