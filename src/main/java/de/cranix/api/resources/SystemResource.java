@@ -33,7 +33,7 @@ import java.util.Map;
 
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import de.cranix.services.JobService;
 import de.cranix.services.ProxyService;
 import de.cranix.services.SessionService;
@@ -116,7 +116,7 @@ public class SystemResource {
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		program[0] = cranixBaseDir + "tools/check_partitions.sh";
-		OSSShellTools.exec(program, reply, stderr, null);
+		CrxSystemCmd.exec(program, reply, stderr, null);
 		return reply.toString();
 	}
 
@@ -137,7 +137,7 @@ public class SystemResource {
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		program[0] = cranixBaseDir + "tools/check_services.sh";
-		OSSShellTools.exec(program, reply, stderr, null);
+		CrxSystemCmd.exec(program, reply, stderr, null);
 		return reply.toString();
 	}
 
@@ -180,7 +180,7 @@ public class SystemResource {
 				program[1] = "restart";
 			}
 		}
-		if( OSSShellTools.exec(program, reply, stderr, null) == 0 ) {
+		if( CrxSystemCmd.exec(program, reply, stderr, null) == 0 ) {
 			return new CrxResponse(session,"OK","Service state was set successfully.");
 		} else {
 			return new CrxResponse(session,"ERROR",stderr.toString());
@@ -603,7 +603,7 @@ public class SystemResource {
 		program[1] = "readJson";
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, "");
+		CrxSystemCmd.exec(program, reply, error, "");
 		return reply.toString();
 	}
 
@@ -622,7 +622,7 @@ public class SystemResource {
 		program[1] = "writeJson";
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, acls);
+		CrxSystemCmd.exec(program, reply, error, acls);
 		//TODO check error
 		return new CrxResponse(session,"OK","Proxy basic configuration was written succesfully.");
 	}
@@ -708,7 +708,7 @@ public class SystemResource {
 			program[2] = "/etc/squid/squidguard.conf";
 			program[3] = "-C";
 			program[4] = "custom/" +list + "/domains";
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 			new Service(session,null).systemctl("try-restart", "squid");
 			return new CrxResponse(session,"OK","Custom list was written successfully");
 		} catch( IOException e ) {
@@ -729,7 +729,7 @@ public class SystemResource {
 		program[0] = cranixBaseDir + "tools/unbound/create_unbound_redirects.sh";
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, "");
+		CrxSystemCmd.exec(program, reply, error, "");
 		//TODO check error
 		return new CrxResponse(session,"OK","DNS server configuration was written succesfully.");
 	}
@@ -1233,7 +1233,7 @@ public class SystemResource {
 		StringBuffer stderr = new StringBuffer();
 		program[0] = cranixBaseDir + "addons/" + name + "/action.sh";
 		program[1] =  action;
-		if( OSSShellTools.exec(program, reply, stderr, null) == 0 ) {
+		if( CrxSystemCmd.exec(program, reply, stderr, null) == 0 ) {
 			return new CrxResponse(session,"OK","Service state was set successfully.");
 		} else {
 			return new CrxResponse(session,"ERROR",stderr.toString());
@@ -1258,7 +1258,7 @@ public class SystemResource {
 		StringBuffer stderr = new StringBuffer();
 		program[0] = cranixBaseDir + "addons/" + name + "/getvalue.sh";
 		program[1] = key;
-		OSSShellTools.exec(program, reply, stderr, null);
+		CrxSystemCmd.exec(program, reply, stderr, null);
 		return reply.toString().split("\\s");
 	}
 }

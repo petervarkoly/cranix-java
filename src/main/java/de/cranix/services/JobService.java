@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.*;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.CranixConstants.*;
 
 import java.sql.Timestamp;
@@ -125,7 +125,7 @@ public class JobService extends Service {
 		program[1] = "-f";
 		program[2] = path.toString();
 		program[3] = scheduledTime;
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		logger.debug("create job  : " + path.toString() + " : " + job.getCommand());
 		return new CrxResponse(this.getSession(),"OK","Job was created successfully",job.getId());
 	}
@@ -165,7 +165,7 @@ public class JobService extends Service {
 		program[1] = "-f";
 		program[2] = basePath + String.valueOf(jobId);
 		program[3] = "now" ;
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		return new CrxResponse(this.getSession(),"OK","Job was restarted successfully",jobId);
 	}
 

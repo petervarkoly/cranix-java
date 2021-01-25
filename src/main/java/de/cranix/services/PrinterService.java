@@ -2,7 +2,7 @@ package de.cranix.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
@@ -120,7 +120,7 @@ public class PrinterService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         program[0] = cranixBaseDir + "tools/get_printer_list.py";
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         logger.debug(stderr.toString());
         try {
             printers = (List<JsonObject>) Json.createReader(
@@ -181,7 +181,7 @@ public class PrinterService extends Service {
             program[0] = "/usr/sbin/lpadmin";
             program[1] = "-x";
             program[2] = printer.getName();
-            OSSShellTools.exec(program, reply, stderr, null);
+            CrxSystemCmd.exec(program, reply, stderr, null);
             logger.debug("deletePrinter reply:" + reply.toString() + " err:" + stderr.toString());
             this.em.getTransaction().begin();
             printerDevice.getPrinterQueue().remove(printer);
@@ -227,7 +227,7 @@ public class PrinterService extends Service {
         program[4] = "-U";
         program[5] = "Administrator%" + session.getPassword();
         program[6] = printerName;
-        int success = OSSShellTools.exec(program, reply, stderr, null);
+        int success = CrxSystemCmd.exec(program, reply, stderr, null);
         try {
             logger.debug(new ObjectMapper().writeValueAsString(program));
         } catch (Exception e) {
@@ -245,7 +245,7 @@ public class PrinterService extends Service {
         program[4] = "-c";
         program[5] = "setdriver " + printerName + " " + printerName;
         logger.debug("activateWindowsDriver rpcclient: " + reply.toString());
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         logger.debug("activateWindowsDriver error" + stderr.toString());
         logger.debug("activateWindowsDriver reply" + reply.toString());
         return new CrxResponse(session, "OK", "Windows driver was activated.");
@@ -353,7 +353,7 @@ public class PrinterService extends Service {
         program[9] = "-v";
         program[10] = "socket://" + deviceHostName;
 
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         logger.debug(stderr.toString());
         logger.debug(reply.toString());
         this.systemctl("try-restart", "samba-printserver");
@@ -374,7 +374,7 @@ public class PrinterService extends Service {
             }
             reply = new StringBuffer();
             stderr = new StringBuffer();
-            OSSShellTools.exec(program, reply, stderr, null);
+            CrxSystemCmd.exec(program, reply, stderr, null);
             logger.debug("activateWindowsDriver error" + stderr.toString());
         } while (!stderr.toString().isEmpty() && tries > -1);
 
@@ -407,10 +407,10 @@ public class PrinterService extends Service {
         StringBuffer stderr = new StringBuffer();
         program[0] = "/usr/sbin/cupsenable";
         program[1] = printerName;
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         program[0] = "/usr/sbin/cupsaccept";
         program[1] = printerName;
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         return new CrxResponse(session, "OK", "Printer was enabled succesfully.");
     }
 
@@ -428,10 +428,10 @@ public class PrinterService extends Service {
         StringBuffer stderr = new StringBuffer();
         program[0] = "/usr/sbin/cupsdisable";
         program[1] = printerName;
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         program[0] = "/usr/sbin/cupsreject";
         program[1] = printerName;
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         return new CrxResponse(session, "OK", "Printer was disabled succesfully.");
     }
 
@@ -483,7 +483,7 @@ public class PrinterService extends Service {
         program[6] = "printer-error-policy=abort-job";
         program[7] = "-o";
         program[8] = "PageSize=A4";
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         logger.debug("setDriver error" + stderr.toString());
         logger.debug("setDriver reply" + reply.toString());
         //TODO check output
@@ -506,7 +506,7 @@ public class PrinterService extends Service {
                 program[1] = "-P";
                 program[2] = printerName;
                 program[3] = "-";
-                OSSShellTools.exec(program, reply, stderr, null);
+                CrxSystemCmd.exec(program, reply, stderr, null);
                 this.enablePrinter(printerName);
                 return new CrxResponse(session,"OK","Printer was reseted succesfully.");
     }

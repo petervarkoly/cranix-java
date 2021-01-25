@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.StaticHelpers.*;
 import static de.cranix.helper.CranixConstants.*;
 
@@ -613,7 +613,7 @@ public class UserService extends Service {
 					continue;
 				}
 				program[1] = user.getUid();
-				OSSShellTools.exec(program, reply, error, null);
+				CrxSystemCmd.exec(program, reply, error, null);
 				responses.add(new CrxResponse(this.getSession(), "OK", "The template for '%s' was copied.",null,user.getUid()));
 			}
 		}
@@ -634,7 +634,7 @@ public class UserService extends Service {
 					continue;
 				}
 				program[1] = user.getUid();
-				OSSShellTools.exec(program, reply, error, null);
+				CrxSystemCmd.exec(program, reply, error, null);
 				responses.add(new CrxResponse(this.getSession(), "OK", "The windows profile of '%s' was removed.",null,user.getUid()));
 			}
 		}
@@ -659,7 +659,7 @@ public class UserService extends Service {
 					continue;
 				}
 				program[1] = user.getUid();
-				OSSShellTools.exec(program, reply, error, null);
+				CrxSystemCmd.exec(program, reply, error, null);
 				responses.add(new CrxResponse(this.getSession(), "OK", "The windows profile of '%s' was froozen.",null,user.getUid()));
 			}
 		}
@@ -686,7 +686,7 @@ public class UserService extends Service {
 					continue;
 				}
 				program[3] = user.getUid();
-				OSSShellTools.exec(program, reply, error, null);
+				CrxSystemCmd.exec(program, reply, error, null);
 				if( disable ) {
 					responses.add(new CrxResponse(this.getSession(), "OK", "The '%s' was disabled.",null,user.getUid()));
 				} else {
@@ -717,7 +717,7 @@ public class UserService extends Service {
 				this.em.getTransaction().begin();
 				this.em.merge(user);
 				this.em.getTransaction().commit();
-				OSSShellTools.exec(program, reply, error, null);
+				CrxSystemCmd.exec(program, reply, error, null);
 				responses.add(new CrxResponse(this.getSession(), "OK", "The file system quota for '%s' was set.",null,user.getUid()));
 			}
 		}
@@ -744,7 +744,7 @@ public class UserService extends Service {
 				this.em.getTransaction().begin();
 				this.em.merge(user);
 				this.em.getTransaction().commit();
-				OSSShellTools.exec(program, reply, error, null);
+				CrxSystemCmd.exec(program, reply, error, null);
 				responses.add(new CrxResponse(this.getSession(), "OK", "The mail system quota for '%s' was set.",null,user.getUid()));
 			}
 		}
@@ -774,7 +774,7 @@ public class UserService extends Service {
 		} else {
 			program[10] = "n";
 		}
-		OSSShellTools.exec(program, reply, stderr, null);
+		CrxSystemCmd.exec(program, reply, stderr, null);
 		if (stderr.toString().isEmpty()) {
 			if(logger.isDebugEnabled()) {
 				StringBuilder st = new StringBuilder();
@@ -1183,6 +1183,18 @@ public class UserService extends Service {
 				return new CrxResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
 			}
 		}
+	}
+
+	public List<Device> getUserDevicesInRoomClassRoom(String uid,String className){
+		User user = this.getByUid(uid);
+		String roomName = className + "-adhoc";
+		List<Device> devices = new ArrayList<Device>();
+		for( Device device: user.getOwnedDevices() ) {
+			if( device.getRoom().getName().equals(roomName))  {
+				devices.add(device);
+			}
+		}
+		return devices;
 	}
 
 

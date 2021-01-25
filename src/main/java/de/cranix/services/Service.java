@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.regex.*;
 import de.cranix.dao.*;
 import de.cranix.services.Config;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.CranixConstants.*;
 import java.io.File;
 import java.io.FileInputStream;
@@ -133,7 +133,7 @@ public class Service extends Config {
 		StringBuffer reply  = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		program[0] = cranixBaseDir + "tools/check_password_complexity.sh";
-		OSSShellTools.exec(program, reply, stderr, password);
+		CrxSystemCmd.exec(program, reply, stderr, password);
 		if( ! reply.toString().isEmpty() ) {
 			List<String> parameters = new ArrayList<String>();
 			String[] error = reply.toString().split("##");
@@ -646,7 +646,7 @@ public class Service extends Config {
 		program[2] = service;
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		return  error.length() == 0;
 	}
 

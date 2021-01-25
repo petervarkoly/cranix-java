@@ -23,7 +23,7 @@ import de.cranix.dao.ProxyRule;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.CranixConstants.*;
 
 @SuppressWarnings( "unchecked" )
@@ -133,7 +133,7 @@ public class ProxyService extends Service {
 		program[1] = "read";
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, "");
+		CrxSystemCmd.exec(program, reply, error, "");
 		for( String line : reply.toString().split("\\n") ) {
 			String[] values = line.split(" ");
 			if( role.equals(values[0])) {
@@ -191,7 +191,7 @@ public class ProxyService extends Service {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		logger.debug(output.toString());
-		OSSShellTools.exec(program, reply, error, output.toString());
+		CrxSystemCmd.exec(program, reply, error, output.toString());
 		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully.");
 	}
 	/*
@@ -219,7 +219,7 @@ public class ProxyService extends Service {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		logger.debug(output.toString());
-		OSSShellTools.exec(program, reply, error, output.toString());
+		CrxSystemCmd.exec(program, reply, error, output.toString());
 		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully.");
 	}
 
@@ -277,7 +277,7 @@ public class ProxyService extends Service {
 			program[2] = positiveList.getName();
 			StringBuffer reply = new StringBuffer();
 			StringBuffer error = new StringBuffer();
-			OSSShellTools.exec(program, reply, error, positiveList.getDomains());
+			CrxSystemCmd.exec(program, reply, error, positiveList.getDomains());
 			return new CrxResponse(this.getSession(),"OK", "Postive list was created/modified succesfully.",positiveList.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
@@ -299,7 +299,7 @@ public class ProxyService extends Service {
 			StringBuffer reply = new StringBuffer();
 			StringBuffer error = new StringBuffer();
 			String acls = "dummy:" + positiveList.getName() + ":delete\n";
-			OSSShellTools.exec(program, reply, error, acls);
+			CrxSystemCmd.exec(program, reply, error, acls);
 		}  catch (Exception e) {
 			logger.error("delete " + e.getMessage(),e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
@@ -362,7 +362,7 @@ public class ProxyService extends Service {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		StringBuilder acls = new StringBuilder();
-		OSSShellTools.exec(program, reply, error, acls.toString());
+		CrxSystemCmd.exec(program, reply, error, acls.toString());
 		for( String roomName : reply.toString().split(" ") ) {
 			roomName = roomName.trim();
 			PositiveList positiveList = this.getPositiveListByName(roomName);
@@ -398,7 +398,7 @@ public class ProxyService extends Service {
 		program[2] = room.getName();
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, ips.toString());
+		CrxSystemCmd.exec(program, reply, error, ips.toString());
 		StringBuilder acls = new StringBuilder();
 		for( Long id : positiveListIds ) {
 			PositiveList positiveList = this.getPositiveList(id);
@@ -408,7 +408,7 @@ public class ProxyService extends Service {
 		program  = new String[2];
 		program[0] = cranixBaseDir + "tools/squidGuard.pl";
 		program[1] = "write";
-		OSSShellTools.exec(program, reply, error, acls.toString());
+		CrxSystemCmd.exec(program, reply, error, acls.toString());
 		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully in your room.");
 	}
 
@@ -424,7 +424,7 @@ public class ProxyService extends Service {
 		StringBuffer error = new StringBuffer();
 		Room room  = new RoomService(this.session,this.em).getById(roomId);
 		String acls = room.getName() + ":remove-this-list:true\n";
-		OSSShellTools.exec(program, reply, error, acls);
+		CrxSystemCmd.exec(program, reply, error, acls);
 		return new CrxResponse(this.session,"OK","Positive lists was succesfully deactivated in your room.");
 	}
 }

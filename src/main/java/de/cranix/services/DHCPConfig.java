@@ -71,7 +71,7 @@ public class DHCPConfig extends Service {
 		program[1] = "-t";
 		program[2] = "-cf";
 		program[3] = TMPCONF;
-		int result = OSSShellTools.exec(program, reply, stderr, null);
+		int result = CrxSystemCmd.exec(program, reply, stderr, null);
 		try {
 			Files.deleteIfExists(Paths.get(TMPCONF));
 		} catch (IOException e) {

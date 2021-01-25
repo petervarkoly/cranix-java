@@ -29,7 +29,7 @@ import de.cranix.services.RoomService;
 import de.cranix.services.SessionService;
 import de.cranix.services.UserService;
 import de.cranix.helper.CrxEntityManagerFactory;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.StaticHelpers.*;
 import static de.cranix.helper.CranixConstants.*;
 
@@ -111,7 +111,7 @@ public class SelfService extends Service {
 			String[]   program = new String[2];
 			program[0] = cranixBaseDir + "tools/vpn/create-config.sh";
 			program[1] = uid;
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 		}
 		ResponseBuilder response = Response.ok((Object) configFile);
 		response = response.header("Content-Disposition","attachment; filename="+ configFile.getName());

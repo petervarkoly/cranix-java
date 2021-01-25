@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.helper;
 
 import java.io.IOException;
@@ -8,10 +8,10 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OSSShellTools {
+public class CrxSystemCmd {
 
-		static Logger logger = LoggerFactory.getLogger(OSSShellTools.class);
-		public static int exec(String program[], StringBuffer reply, StringBuffer error, String request, boolean log) {
+	static Logger logger = LoggerFactory.getLogger(CrxSystemCmd.class);
+	public static int exec(String program[], StringBuffer reply, StringBuffer error, String request, boolean log) {
 
 		int procResult = -10000;
 		try {
@@ -49,7 +49,6 @@ public class OSSShellTools {
 
 						if (readCtrReply > 0) {
 							String tmp = new String(buffer, 0, readCtrReply, "UTF-8");
-							// log.debug("replyStream data: " + tmp);
 							reply.append(tmp);
 
 						}
@@ -68,10 +67,6 @@ public class OSSShellTools {
 
 		} catch (IOException e) {
 			error.append(e.getMessage());
-		}
-		if( log ) {
-			String uuId = UUID.randomUUID().toString();
-			//TODO we have to implement this
 		}
 		return procResult;
 	}

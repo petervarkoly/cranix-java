@@ -80,7 +80,7 @@ public class SessionService extends Service {
 			credentials.add("domain=" + this.getConfigValue("WORKGROUP"));
 			Files.write(file.toPath(), credentials);
 			program[4] = file.getAbsolutePath();
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 			if( ! logger.isDebugEnabled() ) {
 				Files.delete(file.toPath());
 			}
@@ -135,7 +135,7 @@ public class SessionService extends Service {
 				program[0] = "/sbin/arp";
 				program[1] = "-n";
 				program[2] = IP;
-				OSSShellTools.exec(program, reply, error, null);
+				CrxSystemCmd.exec(program, reply, error, null);
 				String[] lines = reply.toString().split("\\n");
 				if( lines.length >1 ) {
 					String[] fields = lines[1].split("\\s+");
@@ -390,7 +390,7 @@ public class SessionService extends Service {
 			program[4] = "dummy";
 		}
 		program[5] = this.getConfigValue("DOMAIN");
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		File file = new File("/var/lib/samba/sysvol/" + this.getConfigValue("DOMAIN") + "/scripts/" +  this.session.getUser().getUid() + ".bat");
 		if( file.exists() ) {
 			try {

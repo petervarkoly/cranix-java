@@ -4,7 +4,7 @@ package de.cranix.services;
 import de.cranix.dao.*;
 import de.cranix.helper.IPv4;
 import de.cranix.helper.IPv4Net;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1145,7 +1145,7 @@ public class DeviceService extends Service {
             default:
                 return new CrxResponse(this.getSession(), "ERROR", "Unknonw action.");
         }
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         return new CrxResponse(this.getSession(), "OK", "Device control was applied on '%s'.", null, FQHN.toString());
     }
 

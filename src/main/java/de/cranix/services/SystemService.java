@@ -3,7 +3,7 @@ package de.cranix.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import org.apache.http.client.fluent.Request;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -216,7 +216,7 @@ public class SystemService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         program[0] = "/usr/bin/df";
-        int ret = OSSShellTools.exec(program, reply, error, "");
+        int ret = CrxSystemCmd.exec(program, reply, error, "");
         String[] lines = reply.toString().split("\\n");
         for(String line: reply.toString().split("\\n")) {
             String[] fields = line.split("\\s+");
@@ -525,7 +525,7 @@ public class SystemService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         program[0] = cranixBaseDir + "tools/register.sh";
-        OSSShellTools.exec(program, reply, error, null);
+        CrxSystemCmd.exec(program, reply, error, null);
         if (error.toString().isEmpty()) {
             return new CrxResponse(this.getSession(), "OK", "System was registered succesfully.");
         } else {
@@ -542,7 +542,7 @@ public class SystemService extends Service {
         program[0] = "zypper";
         program[1] = "-x";
         program[2] = filter;
-        OSSShellTools.exec(program, reply, error, null);
+        CrxSystemCmd.exec(program, reply, error, null);
         try {
             Document doc = new SAXBuilder().build(reply.toString());
             Element rootNode = doc.getRootElement();
@@ -578,7 +578,7 @@ public class SystemService extends Service {
             program[i] = prog;
             i++;
         }
-        if (OSSShellTools.exec(program, reply, error, null) == 0) {
+        if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
             return new CrxResponse(this.getSession(), "OK", "Packages were installed succesfully.");
         } else {
             return new CrxResponse(this.getSession(), "ERROR", error.toString());
@@ -605,7 +605,7 @@ public class SystemService extends Service {
         } else {
             program[4] = "OSS";
         }
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
         try {
             Document doc = new SAXBuilder().build(new StringReader(reply.toString()));
             logger.debug(reply.toString());
@@ -650,7 +650,7 @@ public class SystemService extends Service {
             program[i] = prog;
             i++;
         }
-        if (OSSShellTools.exec(program, reply, error, null) == 0) {
+        if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
             return new CrxResponse(this.getSession(), "OK", "Packages were updated succesfully.");
         } else {
             return new CrxResponse(this.getSession(), "ERROR", error.toString());
@@ -667,7 +667,7 @@ public class SystemService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         program[0] = "/usr/sbin/crx_update.sh";
-        if (OSSShellTools.exec(program, reply, error, null) == 0) {
+        if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
             return new CrxResponse(this.getSession(), "OK", "System was updated succesfully.");
         } else {
             return new CrxResponse(this.getSession(), "ERROR", error.toString());
@@ -849,7 +849,7 @@ public class SystemService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         program[0] = "/usr/sbin/crx_get_dns_domains.sh";
-        OSSShellTools.exec(program, reply, error, null);
+        CrxSystemCmd.exec(program, reply, error, null);
         return reply.toString().split("\\n");
     }
 
@@ -864,7 +864,7 @@ public class SystemService extends Service {
         program[4] = domainName;
         program[5] = "-U";
         program[6] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
-        OSSShellTools.exec(program, reply, error, null);
+        CrxSystemCmd.exec(program, reply, error, null);
         //TODO evaluate error
         return new CrxResponse(session, "OK", "DNS Zone was created succesfully.");
     }
@@ -876,7 +876,7 @@ public class SystemService extends Service {
         StringBuffer error = new StringBuffer();
         program[0] = "/usr/sbin/crx_dump_dns_domain.sh";
         program[1] = domainName;
-        OSSShellTools.exec(program, reply, error, null);
+        CrxSystemCmd.exec(program, reply, error, null);
 
         String name = null;
         String type = null;
@@ -924,7 +924,7 @@ public class SystemService extends Service {
         program[7] = dnsRecord.getRecordData();
         program[8] = "-U";
         program[9] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
-        OSSShellTools.exec(program, reply, error, null);
+        CrxSystemCmd.exec(program, reply, error, null);
         //TODO evaluate error
         logger.debug("addDnsRecord reply" + reply.toString());
         logger.debug("addDnsRecord error" + error.toString());
@@ -949,7 +949,7 @@ public class SystemService extends Service {
         program[7] = dnsRecord.getRecordData();
         program[8] = "-U";
         program[9] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
-        OSSShellTools.exec(program, reply, error, null);
+        CrxSystemCmd.exec(program, reply, error, null);
         logger.debug("deleteDnsRecord reply" + reply.toString());
         logger.debug("deleteDnsRecord error" + error.toString());
         if (error.toString().isEmpty()) {
@@ -975,7 +975,7 @@ public class SystemService extends Service {
         program[4] = domainName;
         program[5] = "-U";
         program[6] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
-        OSSShellTools.exec(program, reply, error, null);
+        CrxSystemCmd.exec(program, reply, error, null);
         //TODO evaluate error
         return new CrxResponse(session, "OK", "DNS Zone was created succesfully.");
     }

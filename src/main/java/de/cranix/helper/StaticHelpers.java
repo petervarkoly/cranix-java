@@ -163,7 +163,7 @@ public class StaticHelpers {
 				logger.error("pluginHandler : Cephalix****:" + e.getMessage());
 			}
 		}
-		int ret = OSSShellTools.exec(program, reply, error, data.toString());
+		int ret = CrxSystemCmd.exec(program, reply, error, data.toString());
 		logger.debug(pluginName + " : " + data.toString() + " : " + error + " : " + ret);
 	}
 
@@ -182,7 +182,7 @@ public class StaticHelpers {
 			uids.add(user.getUid());
 		}
 		data.append(String.format("users: %s%n", String.join(",",uids)));
-		OSSShellTools.exec(program, reply, error, data.toString());
+		CrxSystemCmd.exec(program, reply, error, data.toString());
 		logger.debug("change_member  : " + data.toString() + " : " + error);
 	}
 
@@ -197,7 +197,7 @@ public class StaticHelpers {
 		data.append(String.format("changeType: %s%n",type));
 		data.append(String.format("group: %s%n", group.getName()));
 		data.append(String.format("users: %s%n", user.getUid()));
-		OSSShellTools.exec(program, reply, error, data.toString());
+		CrxSystemCmd.exec(program, reply, error, data.toString());
 		logger.debug("change_member  : " + data.toString() + " : " + error);
 	}
 

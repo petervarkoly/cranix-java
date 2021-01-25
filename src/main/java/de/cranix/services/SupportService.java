@@ -21,7 +21,7 @@ import de.cranix.dao.Session;
 import de.cranix.dao.SupportRequest;
 import de.cranix.services.SystemService;
 import de.cranix.helper.CrxEntityManagerFactory;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.CranixConstants.*;
 
 public class SupportService extends Service {
@@ -97,7 +97,7 @@ public class SupportService extends Service {
 			program[9] = "-d";
 			program[10] = "@"+file.getPath();
 			program[11] = supportUrl;
-			OSSShellTools.exec(program, reply, stderr, null);
+			CrxSystemCmd.exec(program, reply, stderr, null);
 			logger.debug("Support reply" + reply.toString());
 			logger.debug("Support error" + stderr.toString());
 			try {
@@ -140,7 +140,7 @@ public class SupportService extends Service {
 			program[0] = "/usr/sbin/sendmail";
 			program[1] = supportEmail;
 
-			int result = OSSShellTools.exec(program, reply, error, request.toString());
+			int result = CrxSystemCmd.exec(program, reply, error, request.toString());
 			if (result == 0) {
 				parameters.add(supportRequest.getSubject());
 				parameters.add(supportRequest.getEmail());

@@ -24,7 +24,7 @@ public class SslCrypto {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		program[0] = basePath + "tools/encrypt.sh";
-		OSSShellTools.exec(program, reply, error, stringToEncrypt);
+		CrxSystemCmd.exec(program, reply, error, stringToEncrypt);
 		return reply.toString();
 	}
 	
@@ -33,7 +33,7 @@ public class SslCrypto {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		program[0] = basePath + "tools/decrypt.sh";
-		OSSShellTools.exec(program, reply, error, stringToDecrypt);
+		CrxSystemCmd.exec(program, reply, error, stringToDecrypt);
 		return reply.toString();
 	}
 

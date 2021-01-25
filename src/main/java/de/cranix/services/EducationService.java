@@ -2,7 +2,7 @@
 package de.cranix.services;
 
 import de.cranix.dao.*;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -508,7 +508,7 @@ public class EducationService extends UserService {
                 program[0] = "/usr/bin/rm";
                 program[1] = "-rf";
                 program[2] = homeDir;
-                OSSShellTools.exec(program, reply, error, null);
+                CrxSystemCmd.exec(program, reply, error, null);
                 File homeDirF = new File(homeDir);
                 Files.createDirectories(homeDirF.toPath(), privatDirAttribute);
                 Files.setOwner(homeDirF.toPath(), owner);
@@ -520,7 +520,7 @@ public class EducationService extends UserService {
                 program[0] = "/usr/bin/rm";
                 program[1] = "-rf";
                 program[2] = homeDir + "/Import/";
-                OSSShellTools.exec(program, reply, error, null);
+                CrxSystemCmd.exec(program, reply, error, null);
             }
             String importDir = homeDir + "Import/";
             // Create the directory first.
@@ -641,7 +641,7 @@ public class EducationService extends UserService {
             program[2] = "passwordsettings";
             program[3] = "set";
             program[4] = "--complexity=off";
-            OSSShellTools.exec(program, reply, error, null);
+            CrxSystemCmd.exec(program, reply, error, null);
             program[1] = "user";
             program[2] = "setpassword";
             program[4] = "--newpassword=" + actionContent.get("password");
@@ -649,7 +649,7 @@ public class EducationService extends UserService {
                 error = new StringBuffer();
                 reply = new StringBuffer();
                 program[3] = device.getName();
-                OSSShellTools.exec(program, reply, error, null);
+                CrxSystemCmd.exec(program, reply, error, null);
                 logger.debug(program[0] + " " + program[1] + " " + program[2] + " " + program[3] + " " + program[4] + " R:"
                         + reply.toString() + " E:" + error.toString());
             }
@@ -660,7 +660,7 @@ public class EducationService extends UserService {
                 program[2] = "passwordsettings";
                 program[3] = "set";
                 program[4] = "--complexity=on";
-                OSSShellTools.exec(program, reply, error, null);
+                CrxSystemCmd.exec(program, reply, error, null);
             }
             return new CrxResponse(this.getSession(), "OK", "The password of the selected users was reseted.");
         }
@@ -756,7 +756,7 @@ public class EducationService extends UserService {
         program[2] = String.join(",", devices);
         program[3] = "crx_client.set_controller_ip";
         program[4] = controllers.toString();
-        OSSShellTools.exec(program, reply, stderr, null);
+        CrxSystemCmd.exec(program, reply, stderr, null);
 
         RoomSmartControl roomSmartControl = new RoomSmartControl(roomId, this.session.getUserId(), minutes);
         try {

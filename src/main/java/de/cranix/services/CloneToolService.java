@@ -22,7 +22,7 @@ import de.cranix.dao.Room;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.SoftwareStatus;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.StaticHelpers.*;
 import static de.cranix.helper.CranixConstants.*;
 
@@ -583,7 +583,7 @@ public class CloneToolService extends Service {
 			program[1] = "user";
 			program[2] = "delete";
 			program[3] = deviceName + "$";
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 			StringBuilder path = new StringBuilder("/etc/salt/pki/master/minions/");
 			path.append(deviceName).append(".").append(this.getConfigValue("DOMAIN"));
 			Files.deleteIfExists(Paths.get(path.toString()));
@@ -625,7 +625,7 @@ public class CloneToolService extends Service {
 			program[1] = cranixBaseDir + "tools/start_multicast_imaging.sh";
 			program[2] = networkDevice;
 			program[3] = images + hwconfId + "/" + partition.getName() + ".img";
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 		} catch (Exception e) {
 			logger.error("startMulticast: " + e.getMessage());
 			return null;

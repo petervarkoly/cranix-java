@@ -29,7 +29,7 @@ import de.cranix.dao.Group;
 import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.StaticHelpers.*;
 import static de.cranix.helper.CranixConstants.*;
 
@@ -414,11 +414,7 @@ public class GroupService extends Service {
 		if( user.getGroups().contains(group)) {
 			return new CrxResponse(this.getSession(),"OK","User %s is already member of group %s.",null,parameters );
 		}
-		group.getUsers().add(user);
-		if (user.getGroups()==null) {
-			user.setGroups(new ArrayList<Group>());
-		}
-		user.getGroups().add(group);
+		group.addUser(user);
 		try {
 			this.em.getTransaction().begin();
 			this.em.merge(user);
@@ -439,8 +435,7 @@ public class GroupService extends Service {
 		try {
 			for( User user: users ) {
 				if(! user.getGroups().contains(group) ) {
-					group.getUsers().add(user);
-					user.getGroups().add(group);
+					group.addUser(user);
 					this.em.getTransaction().begin();
 					this.em.merge(user);
 					this.em.merge(group);
@@ -498,8 +493,7 @@ public class GroupService extends Service {
 		if( group.getOwner().equals(user) ) {
 			return new CrxResponse(this.getSession(),"ERROR","You must not remove yourself from your owned groups.");
 		}
-		group.getUsers().remove(user);
-		user.getGroups().remove(group);
+		group.removeUser(user);
 		try {
 			this.em.getTransaction().begin();
 			this.em.merge(user);
@@ -542,13 +536,13 @@ public class GroupService extends Service {
 		return new CrxResponse(this.getSession(),"OK","Group owner was changed.");
 	}
 
-	public CrxResponse cleanGrupDirectory(Group group) {
+	public CrxResponse cleanGroupDirectory(Group group) {
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		String[] program = new String[2];
 		program[0] = "/usr/sbin/crx_clean_group_directory.sh";
 		program[1] = group.getName();
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		if( error.length() > 0 ) {
 			parameters = new ArrayList<String>();
 			parameters.add(group.getName());
@@ -560,7 +554,7 @@ public class GroupService extends Service {
 
 	public CrxResponse cleanClassDirectories() {
 		for( Group group : this.getByType("class")) {
-			if( cleanGrupDirectory(group).getCode().equals("ERROR") ) {
+			if( cleanGroupDirectory(group).getCode().equals("ERROR") ) {
 				return new CrxResponse(this.getSession(),"ERROR","Class directory %s can not be cleaned.",null,group.getName());
 			}
 		}
@@ -618,10 +612,10 @@ public class GroupService extends Service {
                         switch(crxActionMap.getName().toLowerCase()) {
                                 case "delete":  responses.add(this.delete(group));
                                                 break;
-                                case "cleanup": responses.add(this.cleanGrupDirectory(group));
+                                case "cleanup": responses.add(this.cleanGroupDirectory(group));
                                                 break;
                         }
                 }
 		return responses;
-        }
+	}
 }

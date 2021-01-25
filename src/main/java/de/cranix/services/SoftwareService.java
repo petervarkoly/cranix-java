@@ -3,7 +3,7 @@
 
  import com.fasterxml.jackson.databind.ObjectMapper;
  import de.cranix.dao.*;
- import de.cranix.helper.OSSShellTools;
+ import de.cranix.helper.CrxSystemCmd;
  import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
  import org.jdom2.Document;
  import org.jdom2.Element;
@@ -209,7 +209,7 @@
              program[2] = "/srv/salt/repos.d/";
              program[3] = "rm";
              program[4] = "oss-pkg-" + softwareName;
-             OSSShellTools.exec(program, reply, stderr, null);
+             CrxSystemCmd.exec(program, reply, stderr, null);
              logger.debug("Delete repy: " + reply.toString());
              logger.debug("Delete stderr: " + stderr.toString());
              //TODO Evaluate error message.
@@ -386,7 +386,7 @@
          program[6] = "package";
          program[7] = "-r";
          program[8] = "salt-packages";
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          try {
              Document doc = new SAXBuilder().build(new StringReader(reply.toString()));
              Element rootNode = doc.getRootElement();
@@ -413,7 +413,7 @@
          program[4] = "%{NAME}##%{SUMMARY}##%{VERSION}\\n";
 		 reply = new StringBuffer();
          stderr = new StringBuffer();
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          logger.debug("Reply" + reply.toString());
          for (String line : reply.toString().split("\\n")) {
              String[] values = line.split("##");
@@ -448,7 +448,7 @@
          program[3] = "se";
          program[4] = "-sur";
          program[5] = "salt-packages";
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          try {
              Document doc = new SAXBuilder().build(new StringReader(reply.toString()));
              logger.debug(reply.toString());
@@ -517,7 +517,7 @@
          program[1] = "-f";
          program[2] = file.toPath().toString();
          program[3] = "now";
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          return new CrxResponse(this.getSession(), "OK", "Download of the softwares was started succesfully");
      }
 
@@ -531,7 +531,7 @@
          program[3] = "ref";
          program[4] = "-r";
          program[5] = "salt-packages";
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          return new CrxResponse(this.getSession(), "OK", "Software repositories was refreshed succesfully");
      }
 
@@ -548,7 +548,7 @@
          program[3] = "lu";
          program[4] = "-r";
          program[5] = "salt-packages";
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          try {
              Document doc = new SAXBuilder().build(new StringReader(reply.toString()));
              logger.debug(reply.toString());
@@ -603,7 +603,7 @@
          program[1] = "-f";
          program[2] = file.toPath().toString();
          program[3] = "now";
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          return new CrxResponse(this.getSession(), "OK", "Update of the softwares was started succesfully");
      }
 
@@ -621,7 +621,7 @@
          for (int i = 0; i < softwares.size(); i++) {
              program[7 + i] = "oss-pkg-" + softwares.get(i);
          }
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          return new CrxResponse(this.getSession(), "OK", "Softwares were updated succesfully");
      }
 
@@ -637,7 +637,7 @@
          for (int i = 0; i < softwares.size(); i++) {
              program[5 + i] = softwares.get(i);
          }
-         OSSShellTools.exec(program, reply, stderr, null);
+         CrxSystemCmd.exec(program, reply, stderr, null);
          return new CrxResponse(this.getSession(), "OK", "Softwares were updated succesfully");
      }
 

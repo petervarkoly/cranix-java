@@ -38,7 +38,7 @@ import de.cranix.dao.Room;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
 import de.cranix.helper.IPv4Net;
-import de.cranix.helper.OSSShellTools;
+import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.StaticHelpers.*;
 import static de.cranix.helper.CranixConstants.*;
 
@@ -683,7 +683,7 @@ public class RoomService extends Service {
 					program[1] = "1";
 				else
 					program[1] = "0";
-				OSSShellTools.exec(program, reply, error, null);
+				CrxSystemCmd.exec(program, reply, error, null);
 			}
 
 			// Portal Access
@@ -692,7 +692,7 @@ public class RoomService extends Service {
 				program[1] = "1";
 			else
 				program[1] = "0";
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 
 			// Proxy Access
 			program[3] = "proxy";
@@ -700,7 +700,7 @@ public class RoomService extends Service {
 				program[1] = "1";
 			else
 				program[1] = "0";
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 
 			// Printing Access
 			program[3] = "printing";
@@ -708,7 +708,7 @@ public class RoomService extends Service {
 				program[1] = "1";
 			else
 				program[1] = "0";
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 
 			// Login
 			program[3] = "login";
@@ -716,7 +716,7 @@ public class RoomService extends Service {
 				program[1] = "1";
 			else
 				program[1] = "0";
-			OSSShellTools.exec(program, reply, error, null);
+			CrxSystemCmd.exec(program, reply, error, null);
 		}
 	}
 
@@ -811,7 +811,7 @@ public class RoomService extends Service {
 
 		// Direct internet
 		program[2] = "direct";
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		if( reply.toString().equals("1") )
 			access.setDirect(true);
 		else
@@ -821,7 +821,7 @@ public class RoomService extends Service {
 		program[2] = "portal";
 		reply = new StringBuffer();
 		error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		if( reply.toString().equals("1") )
 			access.setPortal(true);
 		else
@@ -831,7 +831,7 @@ public class RoomService extends Service {
 		program[2] = "proxy";
 		reply = new StringBuffer();
 		error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		if( reply.toString().equals("1") )
 			access.setProxy(true);
 		else
@@ -841,7 +841,7 @@ public class RoomService extends Service {
 		program[2] = "printing";
 		reply = new StringBuffer();
 		error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		if( reply.toString().equals("1") )
 			access.setPrinting(true);
 		else
@@ -851,7 +851,7 @@ public class RoomService extends Service {
 		program[2] = "login";
 		reply = new StringBuffer();
 		error = new StringBuffer();
-		OSSShellTools.exec(program, reply, error, null);
+		CrxSystemCmd.exec(program, reply, error, null);
 		if( reply.toString().equals("1") )
 			access.setLogin(true);
 		else
