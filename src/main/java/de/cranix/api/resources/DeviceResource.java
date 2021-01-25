@@ -646,8 +646,25 @@ public class DeviceResource {
 		@PathParam("deviceId") Long deviceId
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		final DeviceService deviceService = new DeviceService(session,em);
-		CrxResponse resp = deviceService.delete(deviceId,true);
+		CrxResponse resp = new DeviceService(session,em).delete(deviceId,true);
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("{deviceId}/remove")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Removes a device without rewriting the DHCP and salt configuration.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("device.delete")
+	public CrxResponse remove(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("deviceId") Long deviceId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new DeviceService(session,em).delete(deviceId,false);
 		em.close();
 		return resp;
 	}
