@@ -726,7 +726,7 @@ public class SystemResource {
 	public CrxResponse resetUnbound( @ApiParam(hidden = true) @Auth Session session)
 	{
 		String[] program   = new String[1];
-		program[0] = cranixBaseDir + "tools/unbound/create_unbound_redirects.sh";
+		program[0] = cranixBaseDir + "tools/unbound/create_unbound_redirects";
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
 		CrxSystemCmd.exec(program, reply, error, "");
