@@ -575,7 +575,7 @@ public class RoomService extends Service {
 		if(roomNetMask < subNetwork.getNetmaskNumeric() ) {
 			throw new NumberFormatException("The network netmask must be less then the room netmask:" + roomNetMask + ">" + subNetwork.getNetmaskNumeric() );
 		}
-		Query query = this.em.createNamedQuery("Room.findAllWithFirewallControl");
+		Query query = this.em.createNamedQuery("Room.findAll");
 		List<Room> rooms = (List<Room>) query.getResultList();
 		String nextNet = subNetwork.getBase();
 
