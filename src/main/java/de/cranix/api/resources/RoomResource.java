@@ -421,7 +421,7 @@ public class RoomResource {
 	@RolesAllowed("room.manage")
 	public CrxResponse setScheduledAccess( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).setDefaultAccess();
+		CrxResponse resp = new RoomService(session,em).setScheduledAccess();
 		em.close();
 		return resp;
 	}
