@@ -778,9 +778,17 @@ public class Service extends Config {
 		return crxMConfigs;
 	}
 
-	public List<CrxMConfig> getMConfigs(String type, String key) {
+
+	public List<CrxMConfig> getMConfigs(String objectType, String key) {
 		Query query = this.em.createNamedQuery("CrxMConfig.getAllByKey");
-		query.setParameter("type",type).setParameter("keyword",key);
+		query.setParameter("type",objectType).setParameter("keyword",key);
+		List<CrxMConfig> crxMConfigs = (List<CrxMConfig>) query.getResultList();
+		return crxMConfigs;
+	}
+
+	public List<CrxMConfig> getMConfigs(String objectType, String key, String value) {
+		Query query = this.em.createNamedQuery("CrxMConfig.getAllObject");
+		query.setParameter("type",objectType).setParameter("keyword",key).setParameter("value",value);
 		List<CrxMConfig> crxMConfigs = (List<CrxMConfig>) query.getResultList();
 		return crxMConfigs;
 	}

@@ -213,7 +213,7 @@ public class UserService extends Service {
 					user.getRole());
 		}
 		// Check Birthday
-		if (user.getBirthDay() == null) {
+		if (user.getBirthDay() == null || user.getBirthDay() == "") {
 			if ( !user.getRole().equals(roleStudent) ) {
 				user.setBirthDay(this.nowDateString());
 			} else {
