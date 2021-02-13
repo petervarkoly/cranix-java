@@ -688,9 +688,9 @@ public class UserService extends Service {
 				program[3] = user.getUid();
 				CrxSystemCmd.exec(program, reply, error, null);
 				if( disable ) {
-					responses.add(new CrxResponse(this.getSession(), "OK", "The '%s' was disabled.",null,user.getUid()));
+					responses.add(new CrxResponse(this.getSession(), "OK", "'%s' was disabled.",null,user.getUid()));
 				} else {
-					responses.add(new CrxResponse(this.getSession(), "OK", "The '%s' was enabled.",null,user.getUid()));
+					responses.add(new CrxResponse(this.getSession(), "OK", "'%s' was enabled.",null,user.getUid()));
 				}
 			}
 		}
