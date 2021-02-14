@@ -594,7 +594,6 @@ public class CloneToolService extends Service {
 			path.append(deviceName).append(".").append(this.getConfigValue("DOMAIN"));
 			Files.deleteIfExists(Paths.get(path.toString()));
 			this.systemctl("try-restart", "salt-master");
-			this.systemctl("try-restart", "crx_salt_event_watcher");
 			this.em.getTransaction().begin();
 			for ( SoftwareStatus st : device.getSoftwareStatus() ) {
 				if( st != null ) {

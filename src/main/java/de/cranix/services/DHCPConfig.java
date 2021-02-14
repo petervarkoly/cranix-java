@@ -59,7 +59,6 @@ public class DHCPConfig extends Service {
 		    this.systemctl("try-restart", "dhcpd");
 		}
 		this.systemctl("try-restart", "salt-master");
-		this.systemctl("try-restart", "crx_salt_event_watcher");
 	}
 
 	public CrxResponse Test() {

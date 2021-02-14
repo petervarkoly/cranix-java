@@ -1251,8 +1251,6 @@
              }
              logger.debug("restart salt-master");
              this.systemctl("try-restart", "salt-master");
-             logger.debug("restart crx_salt_event_watcher");
-             this.systemctl("try-restart", "crx_salt_event_watcher");
              logger.debug("Services restarted");
          }
          return new CrxResponse(this.session,"OK","Salt configuration was rewritten.");
