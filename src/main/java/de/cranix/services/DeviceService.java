@@ -199,10 +199,8 @@ public class DeviceService extends Service {
             }
             this.deletAllConfigs(device);
             this.em.remove(device);
-            //Clean up room
             room.getDevices().remove(device);
             this.em.merge(room);
-            this.em.flush();
             this.em.getTransaction().commit();
             startPlugin("delete_device", device);
             if (atomic) {

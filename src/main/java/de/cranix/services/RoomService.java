@@ -1457,7 +1457,7 @@ public class RoomService extends Service {
 			return new CrxResponse(this.session,"ERROR", e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.session,"OK","Acces was created succesfully");
+		return new CrxResponse(this.session,"OK","Access was created succesfully");
 	}
 
 	public CrxResponse addAccessList(long roomId, AccessInRoom accessList) {
@@ -1480,7 +1480,7 @@ public class RoomService extends Service {
 			return new CrxResponse(this.session,"ERROR", e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.session,"OK","Acces was created succesfully");
+		return new CrxResponse(this.session,"OK","Access was created succesfully");
 	}
 
 	public CrxResponse deleteAccessList(long accessInRoomId) {
@@ -1500,7 +1500,7 @@ public class RoomService extends Service {
 			return new CrxResponse(this.session,"ERROR", e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.session,"OK","Acces was deleted succesfully");
+		return new CrxResponse(this.session,"OK","Access was deleted succesfully");
 	}
 
 	public CrxResponse importRooms(InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
