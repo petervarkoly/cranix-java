@@ -83,6 +83,9 @@ public class AdHocLanService extends Service {
 		room.setNetMask(adHocRoom.getNetMask());
 		room.setDevCount(adHocRoom.getDevCount());
 		room.setRoomType("AdHocAccess");
+		if( adHocRoom.getNetwork() != null ) {
+			room.setNetwork(adHocRoom.getNetwork());
+		}
 		if( adHocRoom.getDevicesProUser() != null ) {
 			room.setPlaces(adHocRoom.getDevicesProUser());
 		} else {
