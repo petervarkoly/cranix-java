@@ -22,16 +22,6 @@ public class StaticHelpers {
 
 	static CharSequence toReplace = "íéáűőúöüóÍÉÁŰŐÚÖÜÓß";
 	static CharSequence replaceIn = "ieauououoIEAUOUOUOs";
-	private static String basePath;
-	static {
-		String os = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-		if ((os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0)) {
-			basePath = "/usr/local/oss/";
-		} else {
-			basePath = cranixBaseDir;
-		}
-	}
-
 
 	static public String createRandomPassword()
 	{
@@ -77,7 +67,7 @@ public class StaticHelpers {
 		String[] program   = new String[2];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		program[0] = basePath + "plugins/plugin_handler.sh";
+		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = pluginName;
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.User":
@@ -173,7 +163,7 @@ public class StaticHelpers {
 		String[] program   = new String[2];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		program[0] = basePath + "plugins/plugin_handler.sh";
+		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = "change_member";
 		data.append(String.format("changeType: %s%n",type));
 		data.append(String.format("group: %s%n", group.getName()));
@@ -192,7 +182,7 @@ public class StaticHelpers {
 		String[] program   = new String[2];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		program[0] = basePath + "plugins/plugin_handler.sh";
+		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = "change_member";
 		data.append(String.format("changeType: %s%n",type));
 		data.append(String.format("group: %s%n", group.getName()));

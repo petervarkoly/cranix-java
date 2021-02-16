@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
 
+import de.cranix.helper.CrxSystemCmd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static de.cranix.helper.CranixConstants.*;
@@ -172,6 +173,16 @@ public class Config {
 			e.printStackTrace();
 			return false;
 		}
+		//Start plugin modify_config
+		StringBuilder data = new StringBuilder();
+		String[] program   = new String[2];
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
+		program[1] = "modify_config";
+		data.append(String.format("key: %s%n", key));
+		data.append(String.format("value: %s%n", value));
+		int ret = CrxSystemCmd.exec(program, reply, error, data.toString());
 		return true;
 	}
 
