@@ -279,7 +279,7 @@ public class GroupResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Group not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("group.manage")
+	@RolesAllowed("group.modify")
 	public CrxResponse setMembers(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupId") Long groupId,
@@ -297,7 +297,7 @@ public class GroupResource {
 	@ApiOperation(value = "Deletes a member of a group by userId.")
 	@ApiResponses(value = {
 	   @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("group.manage")
+	@RolesAllowed("group.modify")
 	public CrxResponse removeMember(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupId") Long groupId,
@@ -316,7 +316,7 @@ public class GroupResource {
 	@ApiResponses(value = {
 	   @ApiResponse(code = 404, message = "Group not found"),
 	   @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("group.manage")
+	@RolesAllowed("group.modify")
 	public CrxResponse addMember(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("groupId") Long groupId,
