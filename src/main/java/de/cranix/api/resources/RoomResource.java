@@ -494,6 +494,24 @@ public class RoomResource {
 	}
 
 	@POST
+	@Path("accessList")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Sets the actual access in a room")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("room.manage")
+	public CrxResponse setAccessStatus(
+		@ApiParam(hidden = true) @Auth Session session,
+		AccessInRoom access
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new RoomService(session,em).modifyAccessInRoom(access);
+		em.close();
+		return resp;
+	}
+
+	@POST
 	@Path("{roomId}/devices")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create new devices")

@@ -2,9 +2,9 @@
 package de.cranix.services;
 
 import de.cranix.dao.*;
+import de.cranix.helper.CrxSystemCmd;
 import de.cranix.helper.IPv4;
 import de.cranix.helper.IPv4Net;
-import de.cranix.helper.CrxSystemCmd;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ public class DeviceService extends Service {
         boolean needReloadSalt = false;
         try {
             for (Long deviceId : deviceIds) {
-                Device device = this.em.find(Device.class, deviceId);
+                Device device = this.getById(deviceId);
                 if (device.getHwconf() != null && device.getHwconf().getDeviceType().equals("FatClient")) {
                     needReloadSalt = true;
                 }
@@ -436,8 +436,8 @@ public class DeviceService extends Service {
             return printer;
         }
         printer = device.getRoom().getDefaultPrinter();
-		return printer;
-	}
+        return printer;
+    }
 
     /*
      * Find the available printer for a device
@@ -1105,7 +1105,7 @@ public class DeviceService extends Service {
                 } catch (Exception e) {
                     logger.error("sethwconfofroom:" + e.getMessage(), e);
                 }
-		return new CrxResponse(this.getSession(), "OK", "HWConf was set on '%s'.", null, FQHN.toString());
+                return new CrxResponse(this.getSession(), "OK", "HWConf was set on '%s'.", null, FQHN.toString());
             case "cleanuploggedin":
                 try {
                     this.em.getTransaction().begin();
@@ -1119,10 +1119,10 @@ public class DeviceService extends Service {
                 } catch (Exception e) {
                     logger.error("cleanuploggedin:" + e.getMessage(), e);
                 }
-		return new CrxResponse(this.getSession(), "OK", "Logged in users was cleaned up on '%s'.", null, FQHN.toString());
+                return new CrxResponse(this.getSession(), "OK", "Logged in users was cleaned up on '%s'.", null, FQHN.toString());
             case "download":
                 UserService uc = new UserService(this.session, this.em);
-		boolean cleanUpExport = true;
+                boolean cleanUpExport = true;
                 boolean sortInDirs = true;
                 String projectName = this.nowString();
                 if (actionContent != null) {
@@ -1248,7 +1248,7 @@ public class DeviceService extends Service {
         parameters.add(device.getName());
         parameters.add(device.getIp());
         parameters.add(user.getUid());
-		logger.debug("addLoggedInUser: " + device.toString());
+        logger.debug("addLoggedInUser: " + device.toString());
         logger.debug("addLoggedInUser: " + user.toString());
         this.cleanUpLoggedIn(device);
         try {
@@ -1305,23 +1305,64 @@ public class DeviceService extends Service {
         return new CrxResponse(this.session, "OK", "Printers of the device was set.");
     }
 
-    public CrxResponse addDHCP( Long deviceId, CrxMConfig dhcpParameter)
-    {
-                if( !dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions") ) {
-                        return new CrxResponse(session,"ERROR","Bad DHCP parameter.");
-                }
-                Device device = this.getById(deviceId);
-                CrxResponse crxResponse = this.addMConfig(device, dhcpParameter.getKeyword(), dhcpParameter.getValue());
-                if( crxResponse.getCode().equals("ERROR") ) {
-                        return crxResponse;
-                }
-                Long dhcpParameterId = crxResponse.getObjectId();
-                crxResponse = new DHCPConfig(session,em).Test();
-                if( crxResponse.getCode().equals("ERROR") ) {
-                        this.deleteMConfig(null, dhcpParameterId);
-                        return crxResponse;
-                }
-                new DHCPConfig(session,em).Create();
-                return new CrxResponse(session,"OK","DHCP Parameter was added succesfully");
+    public CrxResponse addDHCP(Long deviceId, CrxMConfig dhcpParameter) {
+        if (!dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions")) {
+            return new CrxResponse(session, "ERROR", "Bad DHCP parameter.");
+        }
+        Device device = this.getById(deviceId);
+        CrxResponse crxResponse = this.addMConfig(device, dhcpParameter.getKeyword(), dhcpParameter.getValue());
+        if (crxResponse.getCode().equals("ERROR")) {
+            return crxResponse;
+        }
+        Long dhcpParameterId = crxResponse.getObjectId();
+        crxResponse = new DHCPConfig(session, em).Test();
+        if (crxResponse.getCode().equals("ERROR")) {
+            this.deleteMConfig(null, dhcpParameterId);
+            return crxResponse;
+        }
+        new DHCPConfig(session, em).Create();
+        return new CrxResponse(session, "OK", "DHCP Parameter was added succesfully");
+    }
+
+    public List<CrxResponse> moveDevices(List<Long> deviceIds, Long roomId) {
+        List<CrxResponse> responses = new ArrayList<>();
+        List<Device> newDevices = new ArrayList<>();
+        List<Device> devicesToDelete = new ArrayList<>();
+        RoomService roomService = new RoomService(this.session, this.em);
+        Room room = roomService.getById(roomId);
+        Integer ipCount = 0;
+        //In first step we create the list of the new devices
+        for (Long deviceId : deviceIds) {
+            List<String> parameters = new ArrayList<>();
+            Device device = this.getById(deviceId);
+            parameters.add(device.getName());
+            parameters.add(room.getName());
+            //It is stupid but it can be:
+            if (device.getRoom().equals(room)) {
+                responses.add( new CrxResponse(this.session, "OK",
+                        "The device '%s' is already in room '%s'.", parameters)
+                );
+                continue;
+            }
+            Device newDevice = new Device();
+            newDevice.setMac(device.getMac());
+            newDevice.setHwconfId(device.getHwconfId());
+            ipCount++;
+            if (!device.getWlanMac().isBlank()) {
+                newDevice.setWlanMac(device.getWlanMac());
+                ipCount++;
+            }
+            newDevices.add(newDevice);
+        }
+        List<String> availableIps = roomService.getAvailableIPAddresses(room,ipCount);
+        if( availableIps.size() < ipCount ) {
+            responses.add( new CrxResponse(this.session,"ERROR","There is not enough free IP-Address in this room."));
+            return responses;
+        }
+        for(Device dev: devicesToDelete) {
+            responses.add( this.delete(dev,false));
+        }
+        responses.addAll(roomService.addDevices(roomId,newDevices));
+        return responses;
     }
 }

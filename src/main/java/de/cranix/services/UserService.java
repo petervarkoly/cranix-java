@@ -1,29 +1,25 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
 package de.cranix.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.cranix.dao.*;
+import de.cranix.helper.CrxSystemCmd;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.persistence.EntityManager;
+import javax.persistence.OrderBy;
+import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.OrderBy;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.cranix.dao.*;
-import de.cranix.helper.CrxSystemCmd;
-import static de.cranix.helper.StaticHelpers.*;
 import static de.cranix.helper.CranixConstants.*;
+import static de.cranix.helper.StaticHelpers.*;
 
 @SuppressWarnings("unchecked")
 public class UserService extends Service {
