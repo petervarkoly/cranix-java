@@ -358,7 +358,7 @@ public class GroupService extends Service {
 	public CrxResponse setMembers(long groupId, List<Long> userIds) {
 		Group group = this.getById(groupId);
 		if( !this.mayModify(group) ) {
-       return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
+			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
         }
 		List<User> usersToRemove = new ArrayList<User>();
 		List<User> usersToAdd    = new ArrayList<User>();
@@ -431,7 +431,7 @@ public class GroupService extends Service {
 	public CrxResponse addMembers(Group group, List<User> users) {
 		if( !this.mayModify(group) ) {
 			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
-	        }
+		}
 		try {
 			for( User user: users ) {
 				if(! user.getGroups().contains(group) ) {

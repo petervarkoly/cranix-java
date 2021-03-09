@@ -1124,11 +1124,11 @@ public class EducationResource {
 	@RolesAllowed("education.guestusers")
 	public CrxResponse addGuestUsers(
 		@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("name")	  String  name,
-		@FormDataParam("description")   String  description,
-		@FormDataParam("roomId")	Long    roomId,
-		@FormDataParam("count")	 Long    count,
-		@FormDataParam("validUntil")    Date    validUntil
+		@FormDataParam("name")	      String  name,
+		@FormDataParam("description") String  description,
+		@FormDataParam("roomId")	  Long    roomId,
+		@FormDataParam("count")       Integer count,
+		@FormDataParam("validUntil")  Date    validUntil
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		GuestUsers guestUsers = new GuestUsers(name,description,count,roomId,validUntil);
@@ -1138,7 +1138,7 @@ public class EducationResource {
 	}
 
 	@POST
-	@Path("guestUsers/create")
+	@Path("guestUsers")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new guest users accounts.")
 	@ApiResponses(value = {
@@ -1162,11 +1162,11 @@ public class EducationResource {
 		@ApiResponse(code = 404, message = "User not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	public List<Category> getGuestUsers(
+	public List<GuestUsers> getGuestUsers(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
 	       EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-	       List<Category> resp = new UserService(session,em).getGuestUsers();
+	       List<GuestUsers> resp = new UserService(session,em).getGuestUsers();
 	       em.close();
 	       return resp;
 	}
@@ -1180,7 +1180,7 @@ public class EducationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
 	public Category getGuestUsersCategory(
-		@ApiParam(hidden = true) @Auth Session session,
+		@ApiParam(hidden = true)      @Auth    Session session,
 		@PathParam("guestUsersId")     Long    guestUsersId
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
@@ -1221,5 +1221,4 @@ public class EducationResource {
 		em.close();
 		return resp;
 	}
-
 }

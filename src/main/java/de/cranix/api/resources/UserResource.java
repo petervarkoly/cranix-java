@@ -93,7 +93,7 @@ public class UserResource {
 	@POST
 	@Path("insert")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Create new user without syncing it to squidGuard.")
+	@ApiOperation(value = "Create new user without syncing it to squidGuard. This function will be used only by import.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -488,11 +488,11 @@ public class UserResource {
 		@ApiResponse(code = 404, message = "User not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("user.guestusers")
-	public List<Category> getGuestUsers(
+	public List<GuestUsers> getGuestUsers(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<Category> resp = new UserService(session, em).getGuestUsers();
+		List<GuestUsers> resp = new UserService(session, em).getGuestUsers();
 		em.close();
 		return resp;
 	}
@@ -546,7 +546,7 @@ public class UserResource {
 		@FormDataParam("name") String name,
 		@FormDataParam("description") String description,
 		@FormDataParam("roomId") Long roomId,
-		@FormDataParam("count") Long count,
+		@FormDataParam("count") Integer count,
 		@FormDataParam("validUntil") Date validUntil
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();

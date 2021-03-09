@@ -340,24 +340,27 @@ public class SessionService extends Service {
 			return true;
 		}
 
+		for( String acl : session.getAcls() ){
+			if( acl.startsWith(requiredRole)) {
+				return true;
+			}
+		}
 		/**
-		 * A required role can be allowed or denied by the user.
-		 */
+		 * A required role can be allowed or denied by the user
 		for( Acl acl : session.getUser().getAcls() ){
 			if( acl.getAcl().startsWith(requiredRole)) {
 				return acl.getAllowed();
 			}
 		}
-		/**
+		*
 		 * A required role can be allowed or denied by one of the groups of a user.
-		 */
 		for( Group group : session.getUser().getGroups() ) {
 			for( Acl acl : group.getAcls() ) {
 				if( acl.getAcl().startsWith(requiredRole)) {
 					return acl.getAllowed();
 				}
 			}
-		}
+		}*/
 		return false;
 	}
 

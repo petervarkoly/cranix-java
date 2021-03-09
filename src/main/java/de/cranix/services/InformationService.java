@@ -9,14 +9,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
-import de.cranix.dao.Announcement;
-import de.cranix.dao.Category;
-import de.cranix.dao.Contact;
-import de.cranix.dao.FAQ;
-import de.cranix.dao.Group;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.Session;
-import de.cranix.dao.User;
+import de.cranix.dao.*;
+
 /**
  * @author varkoly
  *
@@ -171,6 +165,76 @@ public class InformationService extends Service {
 	 * @return
 	 * @see Announcement
 	 */
+	public List<Announcement> getTasks() {
+		List<Announcement> announcements = new ArrayList<Announcement>();
+		User user;
+		try {
+			user = this.em.find(User.class, this.session.getUser().getId());
+		} catch (Exception e) {
+			logger.error("add " + e.getMessage(),e);
+			return null;
+		} finally {
+		}
+		for(Group group : user.getGroups() ) {
+			for(Category category : group.getCategories() ) {
+				List<Category> categories = new ArrayList<Category>();
+				categories.add(category);
+				for(Announcement announcement : category.getAnnouncements() ) {
+					if(!announcement.getIssue().equals("task")) {
+						continue;
+					}
+					if( announcement.getValidFrom().before(this.now()) &&
+							announcement.getValidUntil().after(this.now())
+					)
+					{
+						announcement.setSeenByMy( announcement.getHaveSeenUsers().contains(this.session.getUser()));
+						announcement.setCategories(categories);
+						announcement.setText("");
+						announcements.add(announcement);
+					}
+				}
+			}
+		}
+		return announcements;
+	}
+
+	public List<Announcement> getNewTasks() {
+		List<Announcement> announcements = new ArrayList<Announcement>();
+		User user;
+		try {
+			user = this.em.find(User.class, this.session.getUser().getId());
+		} catch (Exception e) {
+			logger.error("add " + e.getMessage(),e);
+			return null;
+		} finally {
+		}
+		for(Group group : user.getGroups() ) {
+			for(Category category : group.getCategories() ) {
+				List<Category> categories = new ArrayList<Category>();
+				categories.add(category);
+				for(Announcement announcement : category.getAnnouncements() ) {
+					if(!announcement.getIssue().equals("task")) {
+						continue;
+					}
+					if( !this.now().before(announcement.getValidFrom()) &&
+							!this.now().after(announcement.getValidUntil()) &&
+							!user.getReadAnnouncements().contains(announcement) )
+					{
+						announcement.setCategories(categories);
+						announcement.setSeenByMy(false);
+						announcements.add(announcement);
+					}
+				}
+			}
+		}
+		return announcements;
+	}
+
+	/**
+	 * Delivers the valid announcements corresponding to the session user.
+	 * @return
+	 * @see Announcement
+	 */
 	public List<Announcement> getAnnouncements() {
 		List<Announcement> announcements = new ArrayList<Announcement>();
 		User user;
@@ -186,10 +250,14 @@ public class InformationService extends Service {
 				List<Category> categories = new ArrayList<Category>();
 				categories.add(category);
 				for(Announcement announcement : category.getAnnouncements() ) {
+					if(announcement.getIssue().equals("task")) {
+						continue;
+					}
 					if( announcement.getValidFrom().before(this.now()) &&
 					    announcement.getValidUntil().after(this.now())
 					)
 					{
+						announcement.setSeenByMy( announcement.getHaveSeenUsers().contains(this.session.getUser()));
 						announcement.setCategories(categories);
 						announcement.setText("");
 						announcements.add(announcement);
@@ -197,7 +265,6 @@ public class InformationService extends Service {
 				}
 			}
 		}
-		
 		return announcements;
 	}
 
@@ -216,11 +283,15 @@ public class InformationService extends Service {
 				List<Category> categories = new ArrayList<Category>();
 				categories.add(category);
 				for(Announcement announcement : category.getAnnouncements() ) {
+					if(announcement.getIssue().equals("task")) {
+						continue;
+					}
 					if( !this.now().before(announcement.getValidFrom()) &&
 						!this.now().after(announcement.getValidUntil()) &&
 						!user.getReadAnnouncements().contains(announcement) )
 					{
 						announcement.setCategories(categories);
+						announcement.setSeenByMy(false);
 						announcements.add(announcement);
 					}
 				}
@@ -233,6 +304,9 @@ public class InformationService extends Service {
 		try {
 			Announcement announcement = this.em.find(Announcement.class, announcementId);
 			User user = this.session.getUser();
+			if(announcement.getHaveSeenUsers().contains(user) ) {
+				return new CrxResponse(this.getSession(),"OK","Annoncement was set as seen.");
+			}
 			announcement.getHaveSeenUsers().add(user);
 			user.getReadAnnouncements().add(announcement);
 			this.em.getTransaction().begin();
@@ -355,13 +429,37 @@ public class InformationService extends Service {
 				this.em.merge(user);
 				//TODO check if there are relay changes.
 			}
+			oldAnnouncement.setTitle(announcement.getTitle());
 			oldAnnouncement.setIssue(announcement.getIssue());
 			oldAnnouncement.setKeywords(announcement.getKeywords());
 			oldAnnouncement.setText(announcement.getText());
 			oldAnnouncement.setValidFrom(announcement.getValidFrom());
 			oldAnnouncement.setValidUntil(announcement.getValidUntil());
 			oldAnnouncement.setHaveSeenUsers(new ArrayList<User>());
-			this.em.merge(announcement);
+			for( Category category: oldAnnouncement.getCategories() ) {
+				if( !announcement.getCategoryIds().contains(category.getId())) {
+					category.getAnnouncements().remove(oldAnnouncement);
+					oldAnnouncement.getCategories().remove(category);
+					this.em.merge(category);
+				}
+			}
+			for( Long categoryId: announcement.getCategoryIds() ) {
+				boolean found = false;
+				for( Category category: oldAnnouncement.getCategories() ) {
+					if( categoryId == category.getId() ) {
+						found = true;
+						break;
+					}
+				}
+				if( !found ) {
+					Category newCategory = this.em.find(Category.class, categoryId);
+					newCategory.getAnnouncements().add(oldAnnouncement);
+					oldAnnouncement.getCategories().add(newCategory);
+					this.em.merge(newCategory);
+				}
+			}
+			this.em.merge(oldAnnouncement);
+			this.em.merge(announcement.getOwner());
 			this.em.getTransaction().commit();
 			return new CrxResponse(this.getSession(),"OK", "Announcement was modified succesfully.");
 		} catch (Exception e) {
@@ -393,7 +491,30 @@ public class InformationService extends Service {
 			oldContact.setPhone(contact.getPhone());
 			oldContact.setTitle(contact.getTitle());
 			oldContact.setIssue(contact.getIssue());
+			for( Category category: oldContact.getCategories() ) {
+				if( !contact.getCategoryIds().contains(category.getId())) {
+					category.getContacts().remove(oldContact);
+					oldContact.getCategories().remove(category);
+					this.em.merge(category);
+				}
+			}
+			for( Long categoryId: contact.getCategoryIds() ) {
+				boolean found = false;
+				for( Category category: oldContact.getCategories() ) {
+					if( categoryId == category.getId() ) {
+						found = true;
+						break;
+					}
+				}
+				if( !found ) {
+					Category newCategory = this.em.find(Category.class, categoryId);
+					newCategory.getContacts().add(oldContact);
+					oldContact.getCategories().add(newCategory);
+					this.em.merge(newCategory);
+				}
+			}
 			this.em.merge(oldContact);
+			this.em.merge(oldContact.getOwner());
 			this.em.getTransaction().commit();
 			return new CrxResponse(this.getSession(),"OK", "Contact was modified succesfully.");
 		} catch (Exception e) {
@@ -423,7 +544,30 @@ public class InformationService extends Service {
 			oldFaq.setIssue(faq.getIssue());
 			oldFaq.setTitle(faq.getTitle());
 			oldFaq.setText(faq.getText());
+			for( Category category: oldFaq.getCategories() ) {
+				if( !faq.getCategoryIds().contains(category.getId())) {
+					category.getFaqs().remove(oldFaq);
+					oldFaq.getCategories().remove(category);
+					this.em.merge(category);
+				}
+			}
+			for( Long categoryId: faq.getCategoryIds() ) {
+				boolean found = false;
+				for( Category category: oldFaq.getCategories() ) {
+					if( categoryId == category.getId() ) {
+						found = true;
+						break;
+					}
+				}
+				if( !found ) {
+					Category newCategory = this.em.find(Category.class, categoryId);
+					newCategory.getFaqs().add(oldFaq);
+					oldFaq.getCategories().add(newCategory);
+					this.em.merge(newCategory);
+				}
+			}
 			this.em.merge(oldFaq);
+			this.em.merge(oldFaq.getOwner());
 			this.em.getTransaction().commit();
 			return new CrxResponse(this.getSession(),"OK", "FAQ was modified succesfully.");
 		} catch (Exception e) {
@@ -435,7 +579,7 @@ public class InformationService extends Service {
 
 	/**
 	 * Remove a announcement.
-	 * @param faqId The technical id of the announcement.
+	 * @param announcementId The technical id of the announcement.
 	 * @return The result in form of CrxResponse
 	 */
 	public CrxResponse deleteAnnouncement(Long announcementId) {
@@ -469,7 +613,7 @@ public class InformationService extends Service {
 
 	/**
 	 * Remove a contact.
-	 * @param faqId The technical id of the contact.
+	 * @param contactId The technical id of the contact.
 	 * @return The result in form of CrxResponse
 	 */
 	public CrxResponse deleteContact(Long contactId) {
@@ -563,4 +707,73 @@ public class InformationService extends Service {
 		return categories;
 	}
 
+    public CrxResponse addTaskResponse(TaskResponse taskResponse) {
+		Announcement announcement = this.getAnnouncementById((taskResponse.getParentId()));
+		User owner       = this.session.getUser();
+		try {
+			this.em.getTransaction().begin();
+			taskResponse.setRating("");
+			taskResponse.setOwner(owner);
+			announcement.addTasksResponses(taskResponse);
+			if( ! announcement.getHaveSeenUsers().contains(owner) ) {
+				announcement.getHaveSeenUsers().add(owner);
+			}
+			this.em.merge(announcement);
+			owner.addTaskResponse(taskResponse);
+			this.em.merge(owner);
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			logger.error("add " + e.getMessage(),e);
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+		}
+		return new CrxResponse(this.getSession(),"OK", "Task Response was created successfully");
+    }
+
+    public CrxResponse modifyTaskResponse(TaskResponse taskResponse) {
+		TaskResponse oldResponse = this.em.find(TaskResponse.class,taskResponse.getId());
+		if( ! this.session.getUser().equals(oldResponse.getOwner()) ) {
+			return new CrxResponse(this.getSession(),"ERROR", "You are not allowed to modify this task response");
+		}
+		oldResponse.setText(taskResponse.getText());
+		try {
+			this.em.getTransaction().begin();
+			this.em.merge(oldResponse);
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			logger.error("add " + e.getMessage(),e);
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+		}
+		return new CrxResponse(this.getSession(),"OK", "Task Response was modified successfully");
+	}
+
+	public CrxResponse rateTaskResponse(TaskResponse taskResponse) {
+		TaskResponse oldResponse = this.em.find(TaskResponse.class,taskResponse.getId());
+		if( ! this.session.getUser().equals(oldResponse.getParent().getOwner()) ) {
+			return new CrxResponse(this.getSession(),"ERROR", "You are not allowed to rate this task response");
+		}
+		oldResponse.setRating(taskResponse.getRating());
+		try {
+			this.em.getTransaction().begin();
+			this.em.merge(oldResponse);
+			this.em.getTransaction().commit();
+		} catch (Exception e) {
+			logger.error("add " + e.getMessage(),e);
+			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+		}
+		return new CrxResponse(this.getSession(),"OK", "Task Response was rated successfully");
+
+	}
+
+	public TaskResponse findTaskResponseById(Long id) {
+		try {
+			TaskResponse taskResponse = this.em.find(TaskResponse.class, id);
+			if( this.session.getUser().equals(taskResponse.getOwner()) ) {
+				return  taskResponse;
+			}
+		} catch (Exception e) {
+			logger.error("add " + e.getMessage(),e);
+			return null;
+		}
+		return  null;
+	}
 }

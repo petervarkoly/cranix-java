@@ -28,6 +28,7 @@
     <class>de.cranix.dao.SoftwareLicense</class>
     <class>de.cranix.dao.SoftwareStatus</class>
     <class>de.cranix.dao.SoftwareVersion</class>
+    <class>de.cranix.dao.TaskResponses</class>
     <class>de.cranix.dao.Test</class>
     <class>de.cranix.dao.TestFile</class>
     <class>de.cranix.dao.TestUser</class>

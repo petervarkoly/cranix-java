@@ -10,18 +10,14 @@ import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import de.cranix.dao.Announcement;
-import de.cranix.dao.Category;
-import de.cranix.dao.Contact;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.FAQ;
-import de.cranix.dao.Session;
+import de.cranix.dao.*;
 import de.cranix.services.InformationService;
 import de.cranix.helper.CrxEntityManagerFactory;
 
@@ -31,12 +27,15 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Path("informations")
 @Api(value = "informations")
 public class InformationResource {
 
+	Logger logger = LoggerFactory.getLogger(InformationResource.class);
 	public InformationResource() { }
 
 	@POST
@@ -50,6 +49,24 @@ public class InformationResource {
 	public CrxResponse addAnnouncement(
 		@ApiParam(hidden = true) @Auth Session session,
 		Announcement announcement
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new InformationService(session,em).addAnnouncement(announcement);
+		em.close();
+		return resp;
+	}
+
+	@POST
+	@Path("tasks")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Creates a ne announcement.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("information.add")
+	public CrxResponse addTask(
+			@ApiParam(hidden = true) @Auth Session session,
+			Announcement announcement
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new InformationService(session,em).addAnnouncement(announcement);
@@ -142,6 +159,54 @@ public class InformationResource {
 	}
 
 	@GET
+	@Path("tasks")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets the announcements corresponding to an user.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public List<Announcement> getTasks( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Announcement> resp = new InformationService(session,em).getTasks();
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("newTasks")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets the announcements corresponding to an user.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public List<Announcement> getNewTasks( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Announcement> resp = new InformationService(session,em).getNewTasks();
+		em.close();
+		return resp;
+	}
+
+	@PUT
+	@Path("tastks/{taskId}/seen")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Mark the announcement for the user as have seen.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public CrxResponse setTaskHaveSeen(
+			@ApiParam(hidden = true)      @Auth Session session,
+			@PathParam("taskId")  Long taskId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new InformationService(session,em).setAnnouncementHaveSeen(taskId);
+		em.close();
+		return resp;
+	}
+
+	@GET
 	@Path("contacts")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the contacts corresponding to an user.")
@@ -181,9 +246,31 @@ public class InformationResource {
 	@RolesAllowed("information.add")
 	public List<Announcement> getMyAnnouncements( @ApiParam(hidden = true) @Auth Session session) {
 		List<Announcement> announcements = new ArrayList<Announcement>();
+		logger.debug("SessionUser" + session.getUser().getMyAnnouncements());
 		for( Announcement a :  session.getUser().getMyAnnouncements() ) {
-			a.setText("");
-			announcements.add(a);
+			if(!a.getIssue().equals("task")) {
+				a.setText("");
+				announcements.add(a);;
+			}
+		}
+		return announcements;
+	}
+
+	@GET
+	@Path("my/tasks")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets the announcements of an user.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("information.add")
+	public List<Announcement> getMyTasks( @ApiParam(hidden = true) @Auth Session session) {
+		List<Announcement> announcements = new ArrayList<Announcement>();
+		for( Announcement a :  session.getUser().getMyAnnouncements() ) {
+			if(a.getIssue().equals("task")) {
+				a.setText("");
+				announcements.add(a);;
+			}
 		}
 		return announcements;
 	}
@@ -217,14 +304,14 @@ public class InformationResource {
 		return faqs;
 	}
 
-	@POST
+	@PATCH
 	@Path("announcements/{announcementId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify an announcement.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("information.delete")
+	@RolesAllowed("information.add")
 	public CrxResponse modifyAnnouncement(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("announcementId") Long announcementId,
@@ -236,15 +323,34 @@ public class InformationResource {
 		em.close();
 		return resp;
 	}
+	@PATCH
+	@Path("tasks/{taskId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Modify an announcement.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("information.add")
+	public CrxResponse modifyTask(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("taskId") Long taskId,
+			Announcement announcement
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		announcement.setId(taskId);
+		CrxResponse resp = new InformationService(session,em).modifyAnnouncement(announcement);
+		em.close();
+		return resp;
+	}
 
-	@POST
+	@PATCH
 	@Path("contacts/{contactId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a contact.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("information.delete")
+	@RolesAllowed("information.add")
 	public CrxResponse modifyContact(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("contactId") Long contactId,
@@ -257,14 +363,14 @@ public class InformationResource {
 		return resp;
 	}
 
-	@POST
+	@PATCH
 	@Path("faqs/{faqId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a FAQ.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("information.delete")
+	@RolesAllowed("information.add")
 	public CrxResponse modifyFAQ(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("faqId") Long faqId,
@@ -273,6 +379,25 @@ public class InformationResource {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		faq.setId(faqId);
 		CrxResponse resp = new InformationService(session,em).modifyFAQ(faq);
+		em.close();
+		return resp;
+	}
+
+	@PATCH
+	@Path("taskResponses/{id}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Modify a task response.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll()
+	public CrxResponse modifyTaskResponse(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("id") Long id,
+			TaskResponse taskResponse
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new InformationService(session,em).modifyTaskResponse(taskResponse);
 		em.close();
 		return resp;
 	}
@@ -295,6 +420,79 @@ public class InformationResource {
 		return resp;
 	}
 
+	@GET
+	@Path("tasks/{taskId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get a task by id.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public Announcement getTask(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("taskId") Long taskId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Announcement resp = new InformationService(session,em).getAnnouncementById(taskId);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("tasks/{taskId}/responses")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get the responses for a task by task id.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public List<TaskResponse> getTaskResponses(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("taskId") Long taskId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Announcement announcement = new InformationService(session,em).getAnnouncementById(taskId);
+		em.close();
+		return ( announcement == null ) ? null : announcement.getTaskResponses();
+	}
+
+	@POST
+	@Path("taskResponses")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Rate task response. This call only modifies the rating of the task response.<br>" +
+			"Only the owner of the parent task is allowed to do it")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public CrxResponse rateTaskResponse(
+			@ApiParam(hidden = true) @Auth Session session,
+			TaskResponse taskResponse
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse response = new InformationService(session,em).rateTaskResponse(taskResponse);
+		em.close();
+		return response;
+	}
+
+	@GET
+	@Path("taskResponses/{id}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get a task response.<br>" +
+			"Only the owner of the task is allowed to do it")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@PermitAll
+	public TaskResponse getTaskResponse(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("id") Long id
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		TaskResponse response = new InformationService(session,em).findTaskResponseById(id);
+		em.close();
+		return response;
+	}
 	@GET
 	@Path("contacts/{contactId}")
 	@Produces(JSON_UTF8)

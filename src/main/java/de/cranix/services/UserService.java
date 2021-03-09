@@ -812,18 +812,55 @@ public class UserService extends Service {
 	 * Get the list of created guest users categories
 	 * @return The list of the guest users categories
 	 */
-	public List<Category> getGuestUsers() {
+	public List<GuestUsers> getGuestUsers() {
 		final CategoryService categoryService = new CategoryService(this.session,this.em);
-		if (categoryService.isSuperuser()) {
-			return categoryService.getByType("guestUsers");
-		}
 		List<Category> categories = new ArrayList<Category>();
-		for (Category category : categoryService.getByType("guestUsers")) {
-			if (category.getOwner().equals(session.getUser())) {
-				categories.add(category);
+		if (categoryService.isSuperuser()) {
+			categories = categoryService.getByType("guestUsers");
+		} else {
+			for (Category category : categoryService.getByType("guestUsers")) {
+				if (category.getOwner().equals(session.getUser()) ||
+						category.isPublicAccess()) {
+					categories.add(category);
+				}
 			}
 		}
-		return categories;
+		List<GuestUsers> guestUsers = new ArrayList<>();
+		for(Category category: categories) {
+			Boolean adHoc = false;
+			String  roomControl = "";
+			Group   guestGroup = null;
+			for( Room room :  category.getRooms() ) {
+				if(room.getRoomType().equals("adHocAccess") ) {
+					adHoc = true;
+					roomControl = room.getRoomControl();
+				}
+			}
+			for( Group g : category.getGroups() ) {
+				if( g.getName().equals(category.getName().toUpperCase() )) {
+					guestGroup = g;
+					break;
+				}
+			}
+			if( guestGroup == null ) {
+				logger.error("Guest Users Category has no groups:" + category.getName());
+				continue;
+			}
+			GuestUsers gu = new GuestUsers(
+					category.getName(),
+					category.getDescription(),
+					guestGroup.getUsers().size(),
+					category.getRoomIds(),
+					"",
+					!category.isPublicAccess(),
+					roomControl,
+					adHoc,
+					category.getValidUntil()
+			);
+			gu.setId(guestGroup.getId());
+			guestUsers.add(gu);
+		}
+		return guestUsers;
 	}
 
 	/**

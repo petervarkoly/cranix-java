@@ -86,22 +86,26 @@ public class DHCPConfig extends Service {
 	}
 
 	public void Create() {
-		File lock = new File(LOCK);
-		while( lock.exists() ) {
-			try {
-				TimeUnit.SECONDS.sleep(1);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-		try {
-			lock.createNewFile();
+		if(this.getProperty("de.cranix.services.DHCPConfig.wait").equals("no") ) {
 			Write(DHCP_CONFIG);
-			Restart();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			lock.delete();
+		} else {
+			File lock = new File(LOCK);
+			while (lock.exists()) {
+				try {
+					TimeUnit.SECONDS.sleep(1);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+			try {
+				lock.createNewFile();
+				Write(DHCP_CONFIG);
+				Restart();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				lock.delete();
+			}
 		}
 	}
 

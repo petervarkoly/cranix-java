@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -62,11 +62,11 @@ public class Announcement implements Serializable {
 	private Date validUntil;
 
 	//bi-directional many-to-many association to User
-	@ManyToMany(mappedBy="readAnnouncements",cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+	@ManyToMany(mappedBy="readAnnouncements",cascade ={CascadeType.MERGE, CascadeType.REFRESH})
 	private List<User> haveSeenUsers;
 
 	//bi-directional many-to-many association to Category
-	@ManyToMany(mappedBy="announcements",cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+	@ManyToMany(mappedBy="announcements",cascade ={CascadeType.MERGE, CascadeType.REFRESH})
 	private List<Category> categories;
 
 	@Transient
@@ -74,11 +74,27 @@ public class Announcement implements Serializable {
 
 	//bi-directional many-to-one association to User
 	@ManyToOne
-	@JsonIgnore
 	private User owner;
 
 	@Column(name="owner_id", insertable=false, updatable=false)
 	private Long ownerId;
+
+
+	public Boolean getSeenByMy() {
+		return seenByMy;
+	}
+
+	public void setSeenByMy(Boolean seenByMy) {
+		this.seenByMy = seenByMy;
+	}
+
+	@Transient
+	private Boolean seenByMy = false;
+
+	//bi-directional many-to-many association to Category
+	@JsonIgnore
+	@OneToMany(mappedBy="parent",cascade ={CascadeType.ALL})
+	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
 
 	public Announcement() {
 		this.haveSeenUsers = new ArrayList<User>();
@@ -180,6 +196,25 @@ public class Announcement implements Serializable {
 		this.ownerId = ownerId;
 	}
 
+	public List<TaskResponse> getTaskResponses() {
+		return taskResponses;
+	}
+
+	public void setTaskResponses(List<TaskResponse> taskResponses) {
+		this.taskResponses = taskResponses;
+	}
+	public void addTasksResponses(TaskResponse taskResponse) {
+		taskResponse.setParent(this);
+		if( !this.taskResponses.contains(taskResponse) ) {
+			this.taskResponses.add(taskResponse);
+		}
+	}
+	public void deleteTasksResponses(TaskResponse taskResponse) {
+		taskResponse.setParent(null);
+		if( this.taskResponses.contains(taskResponse) ) {
+			this.taskResponses.remove(taskResponse);
+		}
+	}
 	@Override
 	public String toString() {
 		try {
