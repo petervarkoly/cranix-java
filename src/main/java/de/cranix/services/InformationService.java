@@ -187,7 +187,7 @@ public class InformationService extends Service {
 							announcement.getValidUntil().after(this.now())
 					)
 					{
-						announcement.setSeenByMy( announcement.getHaveSeenUsers().contains(this.session.getUser()));
+						announcement.setSeenByMe( announcement.getHaveSeenUsers().contains(this.session.getUser()));
 						announcement.setCategories(categories);
 						announcement.setText("");
 						announcements.add(announcement);
@@ -221,7 +221,7 @@ public class InformationService extends Service {
 							!user.getReadAnnouncements().contains(announcement) )
 					{
 						announcement.setCategories(categories);
-						announcement.setSeenByMy(false);
+						announcement.setSeenByMe(false);
 						announcements.add(announcement);
 					}
 				}
@@ -257,7 +257,7 @@ public class InformationService extends Service {
 					    announcement.getValidUntil().after(this.now())
 					)
 					{
-						announcement.setSeenByMy( announcement.getHaveSeenUsers().contains(this.session.getUser()));
+						announcement.setSeenByMe( announcement.getHaveSeenUsers().contains(this.session.getUser()));
 						announcement.setCategories(categories);
 						announcement.setText("");
 						announcements.add(announcement);
@@ -291,7 +291,7 @@ public class InformationService extends Service {
 						!user.getReadAnnouncements().contains(announcement) )
 					{
 						announcement.setCategories(categories);
-						announcement.setSeenByMy(false);
+						announcement.setSeenByMe(false);
 						announcements.add(announcement);
 					}
 				}
