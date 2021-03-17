@@ -80,16 +80,16 @@ public class Announcement implements Serializable {
 	private Long ownerId;
 
 
-	public Boolean getSeenByMy() {
-		return seenByMy;
+	public Boolean getSeenByMe() {
+		return seenByMe;
 	}
 
-	public void setSeenByMy(Boolean seenByMy) {
-		this.seenByMy = seenByMy;
+	public void setSeenByMe(Boolean seenByMe) {
+		this.seenByMe = seenByMe;
 	}
 
 	@Transient
-	private Boolean seenByMy = false;
+	private Boolean seenByMe = false;
 
 	//bi-directional many-to-many association to Category
 	@JsonIgnore
