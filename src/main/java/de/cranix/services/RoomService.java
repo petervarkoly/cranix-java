@@ -348,7 +348,10 @@ public class RoomService extends Service {
 		if (room.getDescription() != null && !room.getDescription().isEmpty() && !this.isDescriptionUnique(room.getDescription())) {
 			return new CrxResponse(this.session, "ERROR", "Room description is not unique.");
 		}
-
+		//Only adHocRooms name can be longer then 10 char
+		if ( !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10 ) {
+			return new CrxResponse(this.session, "ERROR", "Room description is not unique.");
+		}
 		//If no devCount was set we calculate the net mask
 		if (room.getDevCount() != null) {
 			room.convertCountToNm();
