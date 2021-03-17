@@ -56,15 +56,15 @@ public class Device implements Serializable {
 		@Pattern(
                  regexp = "^[^,~:@#$%\\^'\\.\\(\\)/\\\\\\{\\}_\\s\\*\\?<>\\|]+$",
                  flags = Pattern.Flag.CASE_INSENSITIVE,
-                 message = "Group name must not contains following signs: ',~:$%^/\\.(){}#;_' and spaces."),
+                 message = "Device name must not contains following signs: ',~:$%^/\\.(){}#;_' and spaces."),
 		@Pattern(
                 regexp = "^[^-].*",
                 flags = Pattern.Flag.CASE_INSENSITIVE,
-                message = "Group name must not start with '-'."),
+                message = "Device name must not start with '-'."),
 		@Pattern(
                 regexp = ".*[^-]$",
                 flags = Pattern.Flag.CASE_INSENSITIVE,
-                message = "Group name must not ends with '-'.")
+                message = "Device name must not ends with '-'.")
 	})
 	private String name;
 
