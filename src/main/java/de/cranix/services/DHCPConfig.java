@@ -96,28 +96,8 @@ public class DHCPConfig extends Service {
     }
 
     public void Create() {
-        if (this.getProperty("de.cranix.services.DHCPConfig.wait").equals("no")) {
             Write(DHCP_CONFIG);
             Restart();
-        } else {
-            File lock = new File(LOCK);
-            while (lock.exists()) {
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-            try {
-                lock.createNewFile();
-                Write(DHCP_CONFIG);
-                Restart();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                lock.delete();
-            }
-        }
     }
 
     private void Write(Path path) {
