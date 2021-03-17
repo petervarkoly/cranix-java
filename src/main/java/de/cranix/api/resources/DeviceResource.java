@@ -725,20 +725,8 @@ public class DeviceResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		DeviceService deviceService = new DeviceService(session, em);
-		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		logger.debug("actionMap" + actionMap);
-		if (actionMap.getName().equals("move")) {
-			responses = deviceService.moveDevices(actionMap.getObjectIds(),actionMap.getLongValue());
-		} else {
-			for (Long id : actionMap.getObjectIds()) {
-				responses.add(deviceService.manageDevice(id, actionMap.getName(), null));
-			}
-			if (actionMap.getName().equals("delete")) {
-				new DHCPConfig(session, em).Create();
-				new SoftwareService(session, em).rewriteTopSls();
-
-			}
-		}
+		List<CrxResponse> responses = deviceService.applyAction(actionMap);
 		em.close();
 		return responses;
 	}

@@ -1231,4 +1231,63 @@ public class UserService extends Service {
 	}
 
 
+    public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {
+		List<CrxResponse> responses = new ArrayList<>();
+		logger.debug(crxActionMap.toString());
+		switch (crxActionMap.getName().toLowerCase()) {
+			case "setpassword":
+				return this.resetUserPassword(
+						crxActionMap.getObjectIds(),
+						crxActionMap.getStringValue(),
+						crxActionMap.isBooleanValue());
+			case "setfilesystemquota":
+				return this.setFsQuota(
+						crxActionMap.getObjectIds(),
+						crxActionMap.getLongValue());
+			case "setmailsystemquota":
+				return this.setMsQuota(
+						crxActionMap.getObjectIds(),
+						crxActionMap.getLongValue());
+			case "disablelogin":
+				return this.disableLogin(
+						crxActionMap.getObjectIds(),
+						true);
+			case "enablelogin":
+				return this.disableLogin(
+						crxActionMap.getObjectIds(),
+						false);
+			case "disableinternet":
+				return this.disableInternet(
+						crxActionMap.getObjectIds(),
+						true);
+			case "enableinternet":
+				return this.disableInternet(
+						crxActionMap.getObjectIds(),
+						false);
+			case "mandatoryprofile":
+				return this.mandatoryProfile(
+						crxActionMap.getObjectIds(),
+						true);
+			case "openprofile":
+				return this.mandatoryProfile(
+						crxActionMap.getObjectIds(),
+						false);
+			case "copytemplate":
+				return this.copyTemplate(
+						crxActionMap.getObjectIds(),
+						crxActionMap.getStringValue());
+			case "removeprofiles":
+				return this.removeProfile(crxActionMap.getObjectIds());
+			case "delete":
+				for (Long userId : crxActionMap.getObjectIds()) {
+					User user = this.getById(userId);
+					if (user != null) {
+						logger.debug("delete user:" + user);
+						responses.add(this.delete(user));
+					}
+				}
+		}
+		return responses;
+    }
+
 }

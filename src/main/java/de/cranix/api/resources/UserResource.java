@@ -1281,62 +1281,7 @@ public class UserResource {
 		CrxActionMap crxActionMap
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<CrxResponse> responses = new ArrayList<CrxResponse>();
-		UserService userService = new UserService(session, em);
-		logger.debug(crxActionMap.toString());
-		switch (crxActionMap.getName().toLowerCase()) {
-			case "setpassword":
-			return userService.resetUserPassword(
-				crxActionMap.getObjectIds(),
-				crxActionMap.getStringValue(),
-				crxActionMap.isBooleanValue());
-			case "setfilesystemquota":
-			return userService.setFsQuota(
-				crxActionMap.getObjectIds(),
-				crxActionMap.getLongValue());
-			case "setmailsystemquota":
-			return userService.setMsQuota(
-				crxActionMap.getObjectIds(),
-				crxActionMap.getLongValue());
-			case "disablelogin":
-			return userService.disableLogin(
-				crxActionMap.getObjectIds(),
-				true);
-			case "enablelogin":
-			return userService.disableLogin(
-				crxActionMap.getObjectIds(),
-				false);
-			case "disableinternet":
-			return userService.disableInternet(
-				crxActionMap.getObjectIds(),
-				true);
-			case "enableinternet":
-			return userService.disableInternet(
-				crxActionMap.getObjectIds(),
-				false);
-			case "mandatoryprofile":
-			return userService.mandatoryProfile(
-				crxActionMap.getObjectIds(),
-				true);
-			case "openprofile":
-			return userService.mandatoryProfile(
-				crxActionMap.getObjectIds(),
-				false);
-			case "copytemplate":
-			return userService.copyTemplate(
-				crxActionMap.getObjectIds(),
-				crxActionMap.getStringValue());
-			case "removeprofiles":
-			return userService.removeProfile(crxActionMap.getObjectIds());
-			case "delete":
-			for (Long userId : crxActionMap.getObjectIds()) {
-				User user = userService.getById(userId);
-				if (user != null) {
-				logger.debug("delete user:" + user);
-				responses.add(userService.delete(user));
-				}
-			}
-		}
+		List<CrxResponse> responses = new UserService(session, em).applyAction(crxActionMap);
 		em.close();
 		return responses;
 	}

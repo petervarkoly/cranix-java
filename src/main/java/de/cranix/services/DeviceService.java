@@ -141,7 +141,7 @@ public class DeviceService extends Service {
                     this.em.getTransaction().rollback();
                 }
             } else {
-                logger.error(("Opening transaction"));
+                logger.debug(("Opening transaction"));
             }
             this.em.getTransaction().begin();
             if (hwconf != null) {
@@ -1079,7 +1079,7 @@ public class DeviceService extends Service {
                     file = File.createTempFile("crx_", fileName + ".crxb", new File(cranixTmpDir));
                     Files.write(file.toPath(), fileContent);
                 } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
+                    logger.error("savefile: "+ e.getMessage(), e);
                     return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
                 }
                 program = new String[4];
@@ -1364,5 +1364,22 @@ public class DeviceService extends Service {
         }
         responses.addAll(roomService.addDevices(roomId,newDevices));
         return responses;
+    }
+
+    public List<CrxResponse> applyAction(CrxActionMap actionMap) {
+        List<CrxResponse> responses = new ArrayList<>();
+        if (actionMap.getName().equals("move")) {
+            responses = this.moveDevices(actionMap.getObjectIds(),actionMap.getLongValue());
+        } else {
+            for (Long id : actionMap.getObjectIds()) {
+                responses.add(this.manageDevice(id, actionMap.getName(), null));
+            }
+            if (actionMap.getName().equals("delete")) {
+                new DHCPConfig(session, em).Create();
+                new SoftwareService(session, em).rewriteTopSls();
+
+            }
+        }
+        return  responses;
     }
 }
