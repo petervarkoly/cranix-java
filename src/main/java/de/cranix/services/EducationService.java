@@ -113,20 +113,6 @@ public class EducationService extends UserService {
         return rooms;
     }
 
-    /**
-     * Return the list of room ids in which a user may actually control the access.<br>
-     *
-     * @return The list of the ids of the found rooms.
-     * @see getMyRooms
-     */
-    public List<Long> getMyRoomsId() {
-        List<Long> roomIds = new ArrayList<Long>();
-        for (Room room : this.getMyRooms()) {
-            roomIds.add(room.getId());
-        }
-        return roomIds;
-    }
-
     /*
      * Create the a new smart room from a hash:
      * {
