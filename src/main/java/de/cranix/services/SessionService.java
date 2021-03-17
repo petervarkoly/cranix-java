@@ -8,7 +8,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import de.cranix.dao.Session;
-import de.cranix.dao.SessionToken;
 import de.cranix.dao.User;
 import de.cranix.services.DeviceService;
 import de.cranix.services.UserService;
@@ -25,6 +24,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.dropwizard.auth.AuthenticationException;
@@ -43,6 +43,11 @@ public class SessionService extends Service {
 	}
 
 	public static Map<String, Session> sessions = new ConcurrentHashMap<String, Session>();
+
+	private static String createSessionToken(String prefix) {
+		String token =  prefix + "_" + UUID.randomUUID().toString();
+		return token.length() > 60 ? token.substring(0,60) : token ;
+        }
 
 	static public void removeAllSessionsFromCache() {
 		sessions.clear();
@@ -107,9 +112,9 @@ public class SessionService extends Service {
 			room = device.getRoom();
 		}
 
-		String token = SessionToken.createSessionToken("dummy");
+		String token = createSessionToken(username);
 		while( this.getByToken(token) != null ) {
-			token = SessionToken.createSessionToken("dummy");
+			token = createSessionToken(username);
 		}
 		this.session.setToken(token);
 		this.session.setUserId(user.getId());
@@ -168,9 +173,9 @@ public class SessionService extends Service {
 		if( user == null ) {
 			return null;
 		}
-		String token = SessionToken.createSessionToken("dummy");
+		String token = createSessionToken("dummy");
 		while( this.getByToken(token) != null ) {
-			token = SessionToken.createSessionToken("dummy");
+			token = createSessionToken("dummy");
 		}
 		this.session.setToken(token);
 		this.session.setUserId(user.getId());
