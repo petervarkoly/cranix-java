@@ -655,21 +655,21 @@ public class Service extends Config {
 		Query query = this.em.createNamedQuery("CrxMConfig.check");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
-		query.setParameter("type","Group");
-		id    = ((Group) object ).getId();
-		break;
+			query.setParameter("type","Group");
+			id    = ((Group) object ).getId();
+			break;
 		case "de.cranix.dao.User":
-		query.setParameter("type","User");
-		id    = ((User) object ).getId();
-		break;
+			query.setParameter("type","User");
+			id    = ((User) object ).getId();
+			break;
 		case "de.cranix.dao.Room":
-		query.setParameter("type","Room");
+			query.setParameter("type","Room");
 			id    = ((Room) object ).getId();
 			break;
 		case "de.cranix.dao.Device":
-		query.setParameter("type","Device");
-		id    = ((Device) object ).getId();
-		break;
+			query.setParameter("type","Device");
+			id    = ((Device) object ).getId();
+			break;
 		}
 		query.setParameter("id", id).setParameter("keyword", key).setParameter("value", value);
 		if( query.getResultList().isEmpty() ) {
@@ -690,13 +690,13 @@ public class Service extends Config {
 		Query query = this.em.createNamedQuery("CrxConfig.get");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
-		query.setParameter("type","Group");
-		id    = ((Group) object ).getId();
-		break;
+			query.setParameter("type","Group");
+			id    = ((Group) object ).getId();
+			break;
 		case "de.cranix.dao.User":
-		query.setParameter("type","User");
-		id    = ((User) object ).getId();
-		break;
+			query.setParameter("type","User");
+			id    = ((User) object ).getId();
+			break;
 		case "de.cranix.dao.Room":
 			query.setParameter("type","Room");
 			id    = ((Room) object ).getId();
@@ -827,13 +827,13 @@ public class Service extends Config {
 		Query query = this.em.createNamedQuery("CrxMConfig.getAllById");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
-		query.setParameter("type","Group");
-		id    = ((Group) object ).getId();
-		break;
+			query.setParameter("type","Group");
+			id    = ((Group) object ).getId();
+			break;
 		case "de.cranix.dao.User":
-		query.setParameter("type","User");
-		id    = ((User) object ).getId();
-		break;
+			query.setParameter("type","User");
+			id    = ((User) object ).getId();
+			break;
 		case "de.cranix.dao.Room":
 			query.setParameter("type","Room");
 			id    = ((Room) object ).getId();
@@ -852,9 +852,9 @@ public class Service extends Config {
 		Query query = this.em.createNamedQuery("CrxMConfig.get");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
-		query.setParameter("type","Group");
-		id    = ((Group) object ).getId();
-		break;
+			query.setParameter("type","Group");
+			id    = ((Group) object ).getId();
+			break;
 		case "de.cranix.dao.User":
 			query.setParameter("type","User");
 			id    = ((User) object ).getId();
@@ -887,13 +887,13 @@ public class Service extends Config {
 		Query query = this.em.createNamedQuery("CrxConfig.get");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
-		query.setParameter("type","Group");
-		id    = ((Group) object ).getId();
-		break;
+			query.setParameter("type","Group");
+			id    = ((Group) object ).getId();
+			break;
 		case "de.cranix.dao.User":
-		query.setParameter("type","User");
-		id    = ((User) object ).getId();
-		break;
+			query.setParameter("type","User");
+			id    = ((User) object ).getId();
+			break;
 		case "de.cranix.dao.Room":
 			query.setParameter("type","Room");
 			id    = ((Room) object ).getId();
@@ -916,13 +916,13 @@ public class Service extends Config {
 		Query query = this.em.createNamedQuery("CrxConfig.getAllById");
 		switch(object.getClass().getName()) {
 		case "de.cranix.dao.Group":
-		query.setParameter("type","Group");
-		id    = ((Group) object ).getId();
-		break;
+			query.setParameter("type","Group");
+			id    = ((Group) object ).getId();
+			break;
 		case "de.cranix.dao.User":
-		query.setParameter("type","User");
-		id    = ((User) object ).getId();
-		break;
+			query.setParameter("type","User");
+			id    = ((User) object ).getId();
+			break;
 		case "de.cranix.dao.Room":
 			query.setParameter("type","Room");
 			id    = ((Room) object ).getId();
