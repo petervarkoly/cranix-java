@@ -79,13 +79,18 @@ public class EducationService extends UserService {
      */
     public List<Room> getMyRooms() {
         List<Room> rooms = new ArrayList<Room>();
-        if (this.session.getRoom() == null || this.session.getRoom().getRoomControl().equals("no")) {
+        if (this.session.getRoom() == null ||
+                this.session.getRoom().getRoomControl().equals("no") ||
+                this.getProperty("de.cranix.dao.Education.Rooms.mayControlFromInRoom").equals("yes")
+        ) {
             for (Room room : new RoomService(this.session, this.em).getAllToUse()) {
                 switch (room.getRoomControl()) {
                     case "no":
+                        break;
                     case "inRoom":
-                        if (this.session.getUser().getRole().equals(roleSysadmin) &&
-                                getProperty("de.cranix.dao.Education.Rooms.sysadminsConrtolInRoom").equals("yes")) {
+                        if ( this.getProperty("de.cranix.dao.Education.Rooms.mayControlInRoom").equals("yes") ||
+                                room.equals(this.session.getRoom())
+                        ) {
                             rooms.add(room);
                         }
                         break;
@@ -413,8 +418,8 @@ public class EducationService extends UserService {
         File file = null;
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
         String fileName = "";
-		fileName = new String(contentDispositionHeader.getFileName().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-		try {
+        fileName = new String(contentDispositionHeader.getFileName().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        try {
             file = File.createTempFile("crx_uploadFile", ".crxb", new File(cranixTmpDir));
             Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
