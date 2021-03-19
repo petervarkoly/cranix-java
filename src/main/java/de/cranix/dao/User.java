@@ -245,7 +245,7 @@ public class User implements Serializable {
 		}
 	}
 	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="owner")
+	@OneToMany(mappedBy="owner", cascade ={CascadeType.ALL}, orphanRemoval=true)
 	@JsonIgnore
 	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
 
