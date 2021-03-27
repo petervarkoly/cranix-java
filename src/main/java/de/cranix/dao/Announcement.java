@@ -37,13 +37,13 @@ public class Announcement implements Serializable {
 	/**
 	 * The issue of the announcement. The maximal length is 128
 	 */
-	@Size(max=128, message="Issue must not be longer then 64 characters.")
+	@Size(max=128, message="Issue must not be longer then 128 characters.")
 	private String issue;
 
 	/*+
 	 * Keywords to the announcement.
 	 */
-	@Size(max=128, message="Keywords must not be longer then 64 characters.")
+	@Size(max=128, message="Keywords must not be longer then 128 characters.")
 	private String keywords;
 
 	/**
@@ -51,7 +51,7 @@ public class Announcement implements Serializable {
 	 */
 	private String text;
 
-	@Size(max=128, message="Title must not be longer then 64 characters.")
+	@Size(max=128, message="Title must not be longer then 128 characters.")
 	private String title;
 
 
