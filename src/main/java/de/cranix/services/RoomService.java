@@ -650,64 +650,13 @@ public class RoomService extends Service {
 		if (room.getRoomControl() != null && room.getRoomControl().equals("no")) {
 			return;
 		}
-
-		String[] program = new String[4];
-		if (access.getAllowSessionIp()) {
-			program = new String[5];
-			program[4] = this.session.getIp();
-		}
-		program[0] = "/usr/sbin/crx_set_access_state.sh";
-		program[2] = room.getStartIP() + "/" + room.getNetMask();
-		access.setRoom(room);
-		StringBuffer reply = new StringBuffer();
-		StringBuffer error = new StringBuffer();
-
 		if (access.getAccessType().equals("ACT")) {
 			DeviceService dc = new DeviceService(this.session, this.em);
 			for (Device device : room.getDevices()) {
 				dc.manageDevice(device, access.getAction(), null);
 			}
 		} else {
-			if (this.isAllowed("room.direct")) {
-				program[3] = "direct";
-				if (access.getDirect())
-					program[1] = "1";
-				else
-					program[1] = "0";
-				CrxSystemCmd.exec(program, reply, error, null);
-			}
-
-			// Portal Access
-			program[3] = "portal";
-			if (access.getPortal())
-				program[1] = "1";
-			else
-				program[1] = "0";
-			CrxSystemCmd.exec(program, reply, error, null);
-
-			// Proxy Access
-			program[3] = "proxy";
-			if (access.getProxy())
-				program[1] = "1";
-			else
-				program[1] = "0";
-			CrxSystemCmd.exec(program, reply, error, null);
-
-			// Printing Access
-			program[3] = "printing";
-			if (access.getPrinting())
-				program[1] = "1";
-			else
-				program[1] = "0";
-			CrxSystemCmd.exec(program, reply, error, null);
-
-			// Login
-			program[3] = "login";
-			if (access.getLogin())
-				program[1] = "1";
-			else
-				program[1] = "0";
-			CrxSystemCmd.exec(program, reply, error, null);
+			new AccessService().setAccessStatus(room, access, this.isAllowed("room.direct"));
 		}
 	}
 
@@ -788,52 +737,7 @@ public class RoomService extends Service {
 	 * Gets the actual access status in a room
 	 */
 	public AccessInRoom getAccessStatus(Room room) {
-
-		AccessInRoom access = new AccessInRoom();
-		access.setAccessType("FW");
-		access.setRoomId(room.getId());
-		access.setRoomName(room.getName());
-
-		String[] program = new String[3];
-		program[0] = "/usr/sbin/crx_get_access_state.sh";
-		program[1] = room.getStartIP() + "/" + room.getNetMask();
-		access.setRoom(room);
-		StringBuffer reply = new StringBuffer();
-		StringBuffer error = new StringBuffer();
-
-		// Direct internet
-		program[2] = "direct";
-		CrxSystemCmd.exec(program, reply, error, null);
-		access.setDirect(reply.toString().equals("1"));
-
-		// Portal Access
-		program[2] = "portal";
-		reply = new StringBuffer();
-		error = new StringBuffer();
-		CrxSystemCmd.exec(program, reply, error, null);
-		access.setPortal(reply.toString().equals("1"));
-
-		// Proxy Access
-		program[2] = "proxy";
-		reply = new StringBuffer();
-		error = new StringBuffer();
-		CrxSystemCmd.exec(program, reply, error, null);
-		access.setProxy(reply.toString().equals("1"));
-
-		// Printing Access
-		program[2] = "printing";
-		reply = new StringBuffer();
-		error = new StringBuffer();
-		CrxSystemCmd.exec(program, reply, error, null);
-		access.setPrinting(reply.toString().equals("1"));
-
-		// Login
-		program[2] = "login";
-		reply = new StringBuffer();
-		error = new StringBuffer();
-		CrxSystemCmd.exec(program, reply, error, null);
-		access.setLogin(reply.toString().equals("1"));
-		return access;
+		return new AccessService().getAccessStatus(room);
 	}
 
 	/*
@@ -851,8 +755,9 @@ public class RoomService extends Service {
 	 */
 	public List<AccessInRoom> getAccessStatus() {
 		List<AccessInRoom> accesses = new ArrayList<AccessInRoom>();
+		AccessService accessService = new AccessService();
 		for (Room room : this.getAllWithControl()) {
-			accesses.add(this.getAccessStatus(room));
+			accesses.add(accessService.getAccessStatus(room));
 		}
 		return accesses;
 	}
