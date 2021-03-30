@@ -335,8 +335,6 @@ public class UserService extends Service {
 				}
 			}
 		}
-		oldUser.setAliases(newAliases);
-		logger.debug("modifyUser new user:"+ oldUser);
 		// Check user parameter
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -348,6 +346,14 @@ public class UserService extends Service {
 		}
 		try {
 			this.em.getTransaction().begin();
+			for( Alias alias : oldUser.getAliases() ) {
+				this.em.remove(alias);
+                        }
+			oldUser.setAliases(null);
+			this.em.merge(oldUser);
+			this.em.getTransaction().commit();
+			this.em.getTransaction().begin();
+			oldUser.setAliases(newAliases);
 			this.em.merge(oldUser);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
