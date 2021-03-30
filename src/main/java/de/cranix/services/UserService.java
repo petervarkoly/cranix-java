@@ -312,6 +312,7 @@ public class UserService extends Service {
 			}
 		}
 		logger.debug("modifyUser user:" + user);
+		oldUser.setUuid(user.getUuid());
 		oldUser.setGivenName(user.getGivenName());
 		oldUser.setSurName(user.getSurName());
 		oldUser.setBirthDay(user.getBirthDay());
@@ -335,6 +336,7 @@ public class UserService extends Service {
 			}
 		}
 		oldUser.setAliases(newAliases);
+		logger.debug("modifyUser new user:"+ oldUser);
 		// Check user parameter
 		StringBuilder errorMessage = new StringBuilder();
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();

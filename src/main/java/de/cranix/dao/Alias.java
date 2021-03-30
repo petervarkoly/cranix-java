@@ -59,6 +59,9 @@ public class Alias implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Alias other = (Alias) obj;
+		if( alias.equals(((Alias) obj).getAlias())) {
+			return true;
+		}
 		if (id == null) {
 			if (other.id != null)
 				return false;
