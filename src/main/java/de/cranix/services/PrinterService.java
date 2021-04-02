@@ -27,9 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static de.cranix.helper.CranixConstants.cranixBaseDir;
-import static de.cranix.helper.CranixConstants.cranixPrinters;
-import static de.cranix.helper.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.CranixConstants.*;
 
 public class PrinterService extends Service {
     private static Path DRIVERS = Paths.get(cranixBaseDir + "templates/drivers.txt");

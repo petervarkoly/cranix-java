@@ -1,4 +1,6 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (C) 2021 Péter Varkoly <pvarkoly@cephalix.eu> Nuremberg Germany - all rights reserved
+* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved
+* */
 package de.cranix.services;
 import java.util.*;
 import java.io.IOException;
@@ -6,14 +8,10 @@ import java.nio.file.*;
 import java.text.SimpleDateFormat;
 
 import de.cranix.helper.CrxSystemCmd;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import static de.cranix.helper.CranixConstants.*;
 
 public class Config {
-
-	Logger logger = LoggerFactory.getLogger(Config.class);
-	private Path OSS_CONFIG = Paths.get(cranixSysConfig);
+	private Path CRX_CONFIG = Paths.get(cranixSysConfig);
 	private String prefix = cranixSysPrefix;
 	private Map<String,String>   config;
 	private Map<String,String>   configPath;
@@ -27,13 +25,13 @@ public class Config {
 	}
 
 	public Config(String configPath, String prefix) {
-		this.OSS_CONFIG = Paths.get(configPath);
+		this.CRX_CONFIG = Paths.get(configPath);
 		this.prefix = prefix;
 		this.InitConfig();
 	}
 
 	public void setConfig(String configPath, String prefix) {
-		this.OSS_CONFIG = Paths.get(configPath);
+		this.CRX_CONFIG = Paths.get(configPath);
 		this.prefix = prefix;
 		this.InitConfig();
 	}
@@ -44,7 +42,7 @@ public class Config {
 		configType = new HashMap<>();
 		configHelp = new HashMap<>();
 		try {
-			configFile = Files.readAllLines(this.OSS_CONFIG);
+			configFile = Files.readAllLines(this.CRX_CONFIG);
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
@@ -167,7 +165,7 @@ public class Config {
 		}
 		configFile = tmpConfig;
 		try {
-			Files.write(this.OSS_CONFIG, tmpConfig );
+			Files.write(this.CRX_CONFIG, tmpConfig );
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
