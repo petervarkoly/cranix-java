@@ -632,7 +632,7 @@ public class SystemResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the proxy lists.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	@RolesAllowed("system.proxy")
+	@RolesAllowed({"system.proxy","system.unbound"})
 	public List<Map<String,String>> getProxyLists( @ApiParam(hidden = true) @Auth Session session) {
 		return new ProxyService(session,null).getLists();
 	}
@@ -673,7 +673,7 @@ public class SystemResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the custom lists of the proxy: good or bad.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	@RolesAllowed("system.proxy")
+	@RolesAllowed({"system.proxy","system.unbound"})
 	public List<String> getTheCustomList(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("list") String list
@@ -692,7 +692,7 @@ public class SystemResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the custom lists of the proxy: good or bad.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	@RolesAllowed("system.proxy")
+	@RolesAllowed({"system.proxy","system.unbound"})
 	public CrxResponse setTheCustomList(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("list")	String list,
