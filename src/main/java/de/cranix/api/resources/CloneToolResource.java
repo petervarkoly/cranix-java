@@ -2,6 +2,8 @@
 package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.*;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -725,6 +727,35 @@ public class CloneToolResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new CloneToolService(session,em).startMulticast(partitionId,networkDevice);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("runningMulticast")
+	@Produces(TEXT)
+	@ApiOperation(value = "Get the status of multicast cloning")
+	@RolesAllowed("hwconf.manage")
+	public String getRunningMulticast(@ApiParam(hidden = true) @Auth Session session)
+	{
+		try {
+			return  Files.readString(Paths.get("/run/cranix/multicast-imaging"));
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@DELETE
+	@Path("runningMulticast")
+	@Produces(TEXT)
+	@ApiOperation(value = "Get the status of multicast cloning")
+	@RolesAllowed("hwconf.manage")
+	public CrxResponse stopRunningMulticast(@ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CloneToolService(session,em).stopMulticast();
 		em.close();
 		return resp;
 	}

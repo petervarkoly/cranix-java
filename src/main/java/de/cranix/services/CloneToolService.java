@@ -338,7 +338,7 @@ public class CloneToolService extends Service {
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK", "Hardware configuration was deleted succesfully.");
+		return new CrxResponse(this.getSession(),"OK", "Hardware configuration was deleted successfully.");
 	}
 
 	public CrxResponse deletePartition(Long hwconfId, String partitionName) {
@@ -470,7 +470,7 @@ public class CloneToolService extends Service {
 			}
 		}
 		if( ERROR.length() == 0 ) {
-			return new CrxResponse(this.getSession(),"OK", "Boot configuration was saved succesfully for %s.",null,String.join(" ",deviceNames) );
+			return new CrxResponse(this.getSession(),"OK", "Boot configuration was saved successfully for %s.",null,String.join(" ",deviceNames) );
 		}
 		parameters.add(ERROR.toString());
 		return new CrxResponse(this.getSession(),"ERROR","Error(s) accoured during saving the boot configuration: %s",null,parameters);
@@ -530,7 +530,7 @@ public class CloneToolService extends Service {
 			}
 		}
 		if( ERROR.length() == 0 ) {
-			return new CrxResponse(this.getSession(),"OK", "Boot configuration was saved succesfully." );
+			return new CrxResponse(this.getSession(),"OK", "Boot configuration was saved successfully." );
 		}
 		responseParameters.add(ERROR.toString());
 		return new CrxResponse(this.getSession(),"ERROR","Error(s) accoured during saving the boot configuration: %s",hwconfId,responseParameters);
@@ -563,7 +563,7 @@ public class CloneToolService extends Service {
 			}
 		}
 		if( ERROR.length() == 0 ) {
-			return new CrxResponse(this.getSession(),"OK", "Boot configuration for %s was removed succesfully.",null, String.join(" ",deviceNames));
+			return new CrxResponse(this.getSession(),"OK", "Boot configuration for %s was removed successfully.",null, String.join(" ",deviceNames));
 		}
 		parameters.add(ERROR.toString());
 		return new CrxResponse(this.getSession(),"ERROR","Error(s) accoured during removing the boot configuration: %s",null,parameters);
@@ -617,22 +617,34 @@ public class CloneToolService extends Service {
 		try {
 			partition = this.em.find(Partition.class, partitionId);
 			Long hwconfId = partition.getHwconf().getId();
-			String[] program   = new String[4];
+			String[] program   = new String[3];
 			StringBuffer reply = new StringBuffer();
 			StringBuffer error = new StringBuffer();
-			program[0] = "/sbin/startproc";
-			program[1] = cranixBaseDir + "tools/start_multicast_imaging.sh";
-			program[2] = networkDevice;
-			program[3] = images + hwconfId + "/" + partition.getName() + ".img";
+			program[0] = cranixBaseDir + "tools/start_multicast_imaging.sh";
+			program[1] = networkDevice;
+			program[2] = images + hwconfId + "/" + partition.getName() + ".img";
 			CrxSystemCmd.exec(program, reply, error, null);
 		} catch (Exception e) {
 			logger.error("startMulticast: " + e.getMessage());
-			return null;
-		} finally {
+			return new CrxResponse(this.getSession(),"ERROR","Multicast imaging could not be started.");
 		}
-		return new CrxResponse(this.getSession(),"OK","Multicast imaging was started succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Multicast imaging was started successfully.");
 	}
 
+	public CrxResponse stopMulticast() {
+		Partition partition;
+		try {
+			String[] program   = new String[1];
+			StringBuffer reply = new StringBuffer();
+			StringBuffer error = new StringBuffer();
+			program[0] = cranixBaseDir + "tools/stop_multicast_imaging.sh";
+			CrxSystemCmd.exec(program, reply, error, null);
+		} catch (Exception e) {
+			logger.error("stopMulticast: " + e.getMessage());
+			return null;
+		}
+		return new CrxResponse(this.getSession(),"OK","Multicast imaging was stopped successfully.");
+	}
 	public CrxResponse modifyPartition(Long partitionId, Partition partition) {
 		try {
 			if( partition.getId() != partitionId ) {
@@ -654,6 +666,6 @@ public class CloneToolService extends Service {
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK","Multicast imaging was started succesfully.");
+		return new CrxResponse(this.getSession(),"OK","Multicast imaging was started successfully.");
 	}
 }
