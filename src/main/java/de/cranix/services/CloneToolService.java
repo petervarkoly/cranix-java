@@ -179,26 +179,28 @@ public class CloneToolService extends Service {
 
 	public CrxResponse modifyHWConf(Long hwconfId, HWConf hwconf){
 		try {
-			this.em.getTransaction().begin();
 			HWConf oldHwconf = this.em.find(HWConf.class, hwconfId);
 			if( !oldHwconf.getName().equals(hwconf.getName()) && !this.isNameUnique(hwconf.getName())){
 				// Check only if name is unique if the name was changed.
 				return new CrxResponse(this.getSession(),"ERROR", "Configuration name is not unique.");
 			}
 			if( hwconf.getPartitions() != null && hwconf.getPartitions().size() > 0 ) {
+				this.em.getTransaction().begin();
 				for( Partition partition : oldHwconf.getPartitions()) {
-					Partition tmp = this.em.find(Partition.class, partition.getId());
-					this.em.remove(tmp);
+					this.em.remove(partition);
 				}
-				oldHwconf.setPartitions(new ArrayList<Partition>());
+				oldHwconf.setPartitions(null);
+				this.em.merge(oldHwconf);
+				this.em.getTransaction().commit();
+				oldHwconf.setPartitions(new ArrayList<>());
 				for( Partition partition : hwconf.getPartitions() ) {
 					partition.setId(null);
 					partition.setHwconf(oldHwconf);
 					partition.setCreator(session.getUser());
-					this.em.persist(partition);
 					oldHwconf.addPartition(partition);
 				}
 			}
+			this.em.getTransaction().begin();
 			oldHwconf.setName(hwconf.getName());
 			oldHwconf.setDescription(hwconf.getDescription());
 			oldHwconf.setDeviceType(hwconf.getDeviceType());
