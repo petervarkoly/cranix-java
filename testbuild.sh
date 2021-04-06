@@ -1,5 +1,5 @@
 #!/bin/bash -x
-REPO="/home/OSC/home:pvarkoly:CRANIX/cranix-java"
+REPO="/home/OSC/home:pvarkoly:CRANIX:leap15.2/cranix-java"
 HERE=$( pwd )
 mvn clean package install
 

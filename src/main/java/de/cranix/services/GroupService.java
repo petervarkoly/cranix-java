@@ -156,7 +156,7 @@ public class GroupService extends Service {
 		try {
 			this.em.getTransaction().begin();
 			if( group.getGroupType().equals("primary")) {
-				Enumerate enumerate = new Enumerate("role",group.getName(),this.session.getUser());
+				Enumerate enumerate = new Enumerate("role",group.getName().toLowerCase(),this.session.getUser());
 				this.em.persist(enumerate);
 			}
 			this.em.persist(group);
@@ -171,7 +171,6 @@ public class GroupService extends Service {
 		} catch (Exception e) {
 			logger.error("Error crating a group" + e.getMessage(),e);
 			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
-		} finally {
 		}
 		startPlugin("add_group", group);
 		if( group.getGroupType().equals("workgroup") ) {
