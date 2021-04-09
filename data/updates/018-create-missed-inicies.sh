@@ -17,3 +17,9 @@ SOFTINDX=$( echo "SELECT * FROM information_schema.statistics WHERE table_schema
 if [ -z "$SOFTINDX" ]; then
 	echo "CREATE UNIQUE INDEX softwares_name on Softwares(name);" | mysql CRX
 fi
+#Avoid creating printer name duplication
+PRINTINDX=$( echo "SELECT * FROM information_schema.statistics WHERE table_schema = 'CRX' AND table_name = 'Printers' AND column_name = 'name';" | mysql CRX )
+if [ -z "$PRINTINDX" ]; then
+	echo "CREATE UNIQUE INDEX printers_name on Printers(name);" | mysql CRX
+fi
+
