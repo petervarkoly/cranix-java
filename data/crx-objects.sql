@@ -180,6 +180,7 @@ CREATE TABLE IF NOT EXISTS Printers (
         FOREIGN KEY(creator_id) REFERENCES Users(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX printers on Printers(name);
 
 CREATE TABLE IF NOT EXISTS DefaultPrinter (
         id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
