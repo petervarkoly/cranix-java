@@ -28,6 +28,7 @@ public class SoftwareLicense implements Serializable {
 	/**
 	 * The amount of the devices the license can be used for.
 	 */
+	@Column(name = "count")
 	private int count;
 
 	/**
@@ -39,6 +40,7 @@ public class SoftwareLicense implements Serializable {
 	/**
 	 * The type of the license. This can be F for licenses saved in files or C for Licenses passed by command line.
 	 */
+	@Column(name = "licenseType")
 	private Character licenseType;
 
 	/**
@@ -46,6 +48,7 @@ public class SoftwareLicense implements Serializable {
 	 * By F licenses this is the name of the file in which the license was saved.
 	 */
 	@Size(max=1024, message="License must not be longer then 1024 characters.")
+	@Column(name = "value", length = 1024)
 	private String value;
 	
 	//bi-directional many-to-many association to Device
