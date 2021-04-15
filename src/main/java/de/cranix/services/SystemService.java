@@ -729,6 +729,14 @@ public class SystemService extends Service {
         } catch (Exception e) {
             oldAcl = null;
         }
+        if( oldAcl == null ) {
+            for( Acl gacl : group.getAcls()) {
+                if( gacl.getAcl().equals(acl.getAcl())) {
+                    oldAcl = gacl;
+                    break;
+                }
+            }
+        }
         try {
             this.em.getTransaction().begin();
             if (oldAcl != null) {
