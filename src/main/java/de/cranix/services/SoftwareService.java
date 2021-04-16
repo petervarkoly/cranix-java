@@ -704,6 +704,18 @@
          Query query = this.em.createNamedQuery("SoftwareStatus.findAll");
          List<SoftwareStatus> sts = new ArrayList<SoftwareStatus>();
          for (SoftwareStatus st : (List<SoftwareStatus>) query.getResultList()) {
+             if( st == null ) {
+                 logger.error("SoftwareStatus null");
+                 continue;
+             }
+             if( st.getSoftwareVersion() == null ) {
+                 logger.error("SoftwareVersion null" + st);
+                 continue;
+             }
+             if( st.getSoftwareVersion().getSoftware() == null ) {
+                 logger.error("Software null" + st + st.getSoftwareVersion() );
+                 continue;
+             }
              st.setSoftwareName(st.getSoftwareVersion().getSoftware().getName());
              st.setVersion(st.getSoftwareVersion().getVersion());
              st.setDeviceName(st.getDevice().getName());
@@ -1615,12 +1627,6 @@
 
          //We are searching for the status of this version of the software on the device.
          List<SoftwareStatus> softwareStatusToRemove = new ArrayList<SoftwareStatus>();
-/*		try {
-			logger.debug("Software Status on Device:" + new ObjectMapper().writeValueAsString(device.getSoftwareStatus()));
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-*/
          for (SoftwareStatus st : device.getSoftwareStatus()) {
              if (st == null) {
                  logger.error("setSoftwareStatusOnDevice SoftwareStatus of " + softwareName + " is NULL on device:" + device);
