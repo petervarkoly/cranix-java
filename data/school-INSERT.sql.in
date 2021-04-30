@@ -37,9 +37,8 @@ INSERT INTO Rooms VALUES(2,NULL,'ANON_DHCP','Virtual room for unknown devices','
 INSERT INTO Devices VALUES(1,1,1,NULL,'#CRANIX_NETBIOSNAME#','#CRANIX_SERVER#',NULL,'','',0,0,'','','',0);
 INSERT INTO Devices VALUES(2,1,1,NULL,'schoolserver','#CRANIX_MAILSERVER#',NULL,'','',0,0,'','','',0);
 INSERT INTO Devices VALUES(3,1,1,NULL,'proxy','#CRANIX_PROXY#',NULL,'','',0,0,'','','',0);
+INSERT INTO Devices VALUES(4,1,1,NULL,'printserver','#CRANIX_PRINTSERVER#',NULL,'','',0,0,'','','',0);
 INSERT INTO Devices VALUES(5,1,1,NULL,'backup','#CRANIX_BACKUP_SERVER#',NULL,'','',0,0,'','','',0);
-INSERT INTO Devices VALUES(6,1,1,NULL,'install','#CRANIX_SERVER#',NULL,'','',0,0,'','','',0);
-INSERT INTO Devices VALUES(7,1,1,NULL,'timeserver','#CRANIX_SERVER#',NULL,'','',0,0,'','','',0);
 INSERT INTO Enumerates VALUES(NULL,'deviceType','FatClient',1);
 INSERT INTO Enumerates VALUES(NULL,'deviceType','Printer',1);
 INSERT INTO Enumerates VALUES(NULL,'deviceType','Router',1);
