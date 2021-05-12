@@ -56,15 +56,15 @@ public class Device implements Serializable {
 		@Pattern(
                  regexp = "^[^,~:@#$%\\^'\\.\\(\\)/\\\\\\{\\}_\\s\\*\\?<>\\|]+$",
                  flags = Pattern.Flag.CASE_INSENSITIVE,
-                 message = "Group name must not contains following signs: ',~:$%^/\\.(){}#;_' and spaces."),
+                 message = "Device name must not contains following signs: ',~:$%^/\\.(){}#;_' and spaces."),
 		@Pattern(
                 regexp = "^[^-].*",
                 flags = Pattern.Flag.CASE_INSENSITIVE,
-                message = "Group name must not start with '-'."),
+                message = "Device name must not start with '-'."),
 		@Pattern(
                 regexp = ".*[^-]$",
                 flags = Pattern.Flag.CASE_INSENSITIVE,
-                message = "Group name must not ends with '-'.")
+                message = "Device name must not ends with '-'.")
 	})
 	private String name;
 
@@ -123,7 +123,6 @@ public class Device implements Serializable {
 	@JsonIgnore
 	private Printer defaultPrinter;
 
-	//bi-directional many-to-one association to SoftwareStatus
 	@OneToMany(mappedBy="device")
 	@JsonIgnore
 	private List<Printer> printerQueue = new ArrayList<Printer>();
@@ -134,7 +133,7 @@ public class Device implements Serializable {
 	private List<SoftwareLicense> softwareLicenses = new ArrayList<SoftwareLicense>() ;
 
 	//bi-directional many-to-one association to SoftwareStatus
-	@OneToMany(mappedBy="device", cascade ={CascadeType.ALL}, orphanRemoval=true)
+	@OneToMany(mappedBy="device", cascade =CascadeType.ALL)
 	@JsonIgnore
 	private List<SoftwareStatus> softwareStatus = new ArrayList<SoftwareStatus>();
 
@@ -152,7 +151,7 @@ public class Device implements Serializable {
 	private Room room;
 
 	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="device", cascade ={CascadeType.ALL} )
+	@OneToMany(mappedBy="device", cascade =CascadeType.ALL )
 	@JsonIgnore
 	private List<Session> sessions = new ArrayList<Session>();
 
@@ -329,7 +328,11 @@ public class Device implements Serializable {
 	}
 
 	public void setHwconf(HWConf hwconf) {
-		this.hwconf = hwconf;
+		this.hwconf   = hwconf;
+		this.hwconfId = hwconf.getId();
+		if( ! hwconf.getDevices().contains(this) ) {
+			hwconf.getDevices().add(this);
+		}
 	}
 
 	public Room getRoom() {
@@ -338,6 +341,10 @@ public class Device implements Serializable {
 
 	public void setRoom(Room room) {
 		this.room = room;
+		this.roomId = room.getId();
+		if( ! room.getDevices().contains(this) ) {
+			room.getDevices().add(this);
+		}
 	}
 
 	public User getOwner() {

@@ -1,11 +1,10 @@
-/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api;
 
 import de.cranix.api.config.*;
 import de.cranix.api.auth.CrxAuthorizer;
 import de.cranix.api.auth.CrxTokenAuthenticator;
 import de.cranix.api.health.TemplateHealthCheck;
-import de.cranix.api.resourceimpl.*;
 import de.cranix.api.resources.*;
 import de.cranix.dao.Session;
 import io.dropwizard.Application;
@@ -20,8 +19,8 @@ import io.dropwizard.setup.Environment;
 import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import javax.persistence.EntityManager;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
+
+import static de.cranix.helper.CranixConstants.cranixMdmConfig;
 
 public class CranixApplication extends Application<ServerConfiguration> {
 
@@ -34,84 +33,88 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		return "CRANIX API";
 	}
 
-	@Override
+	/* @Override
 	public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
-/*		bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
-                       @Override
-                       protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ServerConfiguration configuration) {
-                               return configuration.swaggerBundleConfiguration;
-                       }
-               });*/
-	}
+		bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
+		       @Override
+		       protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(ServerConfiguration configuration) {
+			       return configuration.swaggerBundleConfiguration;
+		       }
+	       });
+	}*/
 
 	@Override
 	public void run(ServerConfiguration configuration, Environment environment) {
 
-		final EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-
 		@SuppressWarnings("rawtypes")
 		AuthFilter tokenAuthorizer = new OAuthCredentialAuthFilter.Builder<Session>()
-		.setAuthenticator(new CrxTokenAuthenticator())
-		.setAuthorizer(new CrxAuthorizer())
-		.setPrefix("Bearer")
-		.buildAuthFilter();
+			.setAuthenticator(new CrxTokenAuthenticator())
+			.setAuthorizer(new CrxAuthorizer())
+			.setPrefix("Bearer")
+			.buildAuthFilter();
 
 		environment.jersey().register(new AuthDynamicFeature(tokenAuthorizer));
 		environment.jersey().register(new AuthValueFactoryProvider.Binder<>(Session.class));
 		environment.jersey().register(RolesAllowedDynamicFeature.class);
-
 		environment.jersey().register(MultiPartFeature.class);
 
-		final SchedulerResource schedulerResource = new SchedulerResourceImpl();
-		environment.jersey().register(schedulerResource);
-
-		final SystemResource systemResource = new SystemResourceImpl();
-		environment.jersey().register(systemResource);
-
-		final AdHocLanResource adHocLanResource = new AdHocLanResourceImpl(em);
+		final AdHocLanResource adHocLanResource = new AdHocLanResource();
 		environment.jersey().register(adHocLanResource);
 
-		final SessionsResource sessionsResource = new SessionsResourceImpl();
-		environment.jersey().register(sessionsResource);
-
-		final SelfManagementResource selfManagementResource = new SelfManagementResourceImpl();
-		environment.jersey().register(selfManagementResource);
-
-		final RoomResource roomsResource = new RoomRescourceImpl();
-		environment.jersey().register(roomsResource);
-
-		final UserResource usersResource = new UserResourceImpl();
-		environment.jersey().register(usersResource);
-
-		final GroupResource groupsResource = new GroupResourceImpl();
-		environment.jersey().register(groupsResource);
-
-		final DeviceResource devicesResource = new DeviceResourceImpl();
-		environment.jersey().register(devicesResource);
-
-		final PrinterResource printerResource = new PrinterResourceImpl();
-		environment.jersey().register(printerResource);
-
-		final CloneToolResource cloneToolResource = new CloneToolResourceImpl();
-		environment.jersey().register(cloneToolResource);
-
-		final HwconfResource hwconfResource = new HwconfResourceImpl();
-		environment.jersey().register(hwconfResource);
-
-		final CategoryResource categoryResource = new CategoryResourceImpl();
+		final CategoryResource categoryResource = new CategoryResource();
 		environment.jersey().register(categoryResource);
 
-		final SoftwareResource softwareResource = new SoftwareResourceImpl();
-		environment.jersey().register(softwareResource);
+		final CloneToolResource cloneToolResource = new CloneToolResource();
+		environment.jersey().register(cloneToolResource);
 
-		final EducationResource educationResource = new EducationResourceImpl();
+		final DeviceResource devicesResource = new DeviceResource();
+		environment.jersey().register(devicesResource);
+
+		final EducationResource educationResource = new EducationResource();
 		environment.jersey().register(educationResource);
 
-		final InformationResource infoResource = new InformationResourceImpl();
+		final GroupResource groupsResource = new GroupResource();
+		environment.jersey().register(groupsResource);
+
+		final HwconfResource hwconfResource = new HwconfResource();
+		environment.jersey().register(hwconfResource);
+
+		final InformationResource infoResource = new InformationResource();
 		environment.jersey().register(infoResource);
 
-		final SupportResource supportResource = new SupportResourceImpl();
+		final PrinterResource printerResource = new PrinterResource();
+		environment.jersey().register(printerResource);
+
+		final RoomResource roomResource = new RoomResource();
+		environment.jersey().register(roomResource);
+
+		final SchedulerResource schedulerResource = new SchedulerResource();
+		environment.jersey().register(schedulerResource);
+
+		final SelfManagementResource selfManagementResource = new SelfManagementResource();
+		environment.jersey().register(selfManagementResource);
+
+		final SessionsResource sessionsResource = new SessionsResource();
+		environment.jersey().register(sessionsResource);
+
+		final SoftwareResource softwareResource = new SoftwareResource();
+		environment.jersey().register(softwareResource);
+
+		final SupportResource supportResource = new SupportResource();
 		environment.jersey().register(supportResource);
+
+		final SystemResource systemResource = new SystemResource();
+		environment.jersey().register(systemResource);
+
+		final UserResource usersResource = new UserResource();
+		environment.jersey().register(usersResource);
+
+		//Start mdm api only if it is configured.
+		File mdm_config = new File(cranixMdmConfig);
+		if( mdm_config.exists() ) {
+			final MdmResource mdmResource = new MdmResource();
+			environment.jersey().register(mdmResource);
+		}
 
 		final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
 		environment.healthChecks().register("template", healthCheck);

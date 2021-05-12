@@ -1,470 +1,230 @@
-/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
+/* (c) 2020 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved  */
 package de.cranix.api.resources;
 
 
 import static de.cranix.api.resources.Resource.*;
+import static de.cranix.helper.CranixConstants.*;
 
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.Group;
-import de.cranix.dao.GuestUsers;
-import de.cranix.dao.CrxActionMap;
-import de.cranix.dao.AccessInRoom;
-import de.cranix.dao.Category;
-import de.cranix.dao.PositiveList;
-import de.cranix.dao.Printer;
-import de.cranix.dao.Room;
-import de.cranix.dao.Session;
-import de.cranix.dao.SmartRoom;
-import de.cranix.dao.Student;
-import de.cranix.dao.User;
-import de.cranix.dao.Device;
+import de.cranix.dao.*;
+import de.cranix.services.*;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 @Path("education")
 @Api(value = "education")
-public interface EducationResource {
+public class EducationResource {
+
+	Logger logger = LoggerFactory.getLogger(EducationResource.class);
+
+	public EducationResource() { }
 
 	/******************************/
 	/* Functions to handle rooms  */
 	/******************************/
 
-	/*
-	 * POST education/rooms
-	 */
-	@POST
-	@Path("rooms/add")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Create a new smart room. A smart Room is a category with CategoryType smart room. " +
-	                      "The map can contains a description attribute. " +
-	                      "The map must contains either users or groups or devices. ")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse  createSmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        Category smartRoom
-	        );
-
-	/*
-	 * POST education/rooms/{roomId}
-	 */
-	@POST
-	@Path("rooms/{roomId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Modfy a smart room. Only name and description can be modified here. To modify the member there are some PUT and DELETE calls.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse  modifySmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        Category smartRoom
-	        );
-
-	/*
-	 *  PUT education/rooms/{roomId}/users/{userId}
-	 */
-	@PUT
-	@Path("rooms/{roomId}/users/{userId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Add a user to a smart room." )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse addUserToSmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("userId") Long userId
-	        );
-
-	/*
-	 *  PUT education/rooms/{roomId}/devices/{deviceId}
-	 */
-	@PUT
-	@Path("rooms/{roomId}/devices/{deviceId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Add a device to a smart room." )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse addDeviceToSmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId")   Long roomId,
-	        @PathParam("deviceId") Long deviceId
-	        );
-
-	/*
-	 *  PUT education/rooms/{roomId}/groups/{groupId}
-	 */
-	@PUT
-	@Path("rooms/{roomId}/groups/{groupId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Add a group to a smart room." )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse addGroupToSmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("groupId") Long roupId
-	        );
-
-
-	/*
-	 *  DELETE education/rooms/{roomId}/users/{userId}
-	 */
-	@DELETE
-	@Path("rooms/{roomId}/users/{userId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delete a user from a smart room." )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse deleteUserFromSmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("userId") Long userId
-	        );
-
-	/*
-	 *  DELETE education/rooms/{roomId}/    devices/{deviceId}
-	 */
-	@DELETE
-	@Path("rooms/{roomId}/devices/{deviceId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delete a device from a smart room." )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse deleteDeviceFromSmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId")   Long roomId,
-	        @PathParam("deviceId") Long deviceId
-	        );
-
-	/*
-	 *  DELETE education/rooms/{roomId}/groups/{groupId}
-	 */
-	@DELETE
-	@Path("rooms/{roomId}/groups/{groupId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delete a device from a smart room." )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse deleteGroupFromSmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId")  Long roomId,
-	        @PathParam("groupId") Long groupId
-	        );
-
-	/*
-	 * DELETE education/rooms/{roomId}
-	 */
-	@DELETE
-	@Path("rooms/{roomId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Deletes a new smart room.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	CrxResponse  deleteSmartRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
-
-
-	/*
-	 *  GET education/rooms
-	 */
-	@GET
-	@Path("rooms/all")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the list of the smart rooms the user has created.")
-	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@PermitAll
-	List<Room> getMySmartRooms(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/*
-	 *  GET education/rooms
-	 */
 	@GET
 	@Path("myRooms")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the of the rooms the session user may control.")
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<Room> getMyRooms(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<Room> getMyRooms( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Room> resp = new EducationService(session,em).getMyRooms();
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET education/rooms/{roomId}
-	 */
 	@GET
 	@Path("rooms/{roomId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the state of a room. This call delivers a list of list with the logged in users. " +
-	                      "A logged in user list has the format: [ userId , deviceId ] "
-	            )
+			      "A logged in user list has the format: [ userId , deviceId ] "
+		    )
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<List<Long>>  getRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
+	public List<List<Long>>  getRoom(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<List<Long>> resp = new EducationService(session,em).getRoom(roomId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET education/rooms/{roomId}
-	 */
 	@GET
 	@Path("rooms/{roomId}/details")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the state of a room. This call delivers all Informations about a room."
-	            )
+		    )
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	SmartRoom  getRoomDetails(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
+	public SmartRoom  getRoomDetails(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SmartRoom resp = new SmartRoom(session,em,roomId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET education/rooms/{roomId}/users
-	 * Delivers the list of the member users of a smart room
-	 */
-	@GET
-	@Path("rooms/{roomId}/users")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers the user members in a smart room" )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	List<User>  getUserMember(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
-
-	/*
-	 * GET education/rooms/{roomId}/users
-	 * Delivers the list of the member users of a smart room
-	 */
-	@GET
-	@Path("rooms/{roomId}/users/available")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers the user members in a smart room" )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	List<User>  getAvailableUserMember(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
-
-	/*
-	 * GET education/rooms/{roomId}/groups
-	 */
-	@GET
-	@Path("rooms/{roomId}/groups")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers the group members in a smart room" )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	List<Group>  getGroupMember(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
-
-	/*
-	 * GET education/rooms/{roomId}/groups/available
-	 */
-	@GET
-	@Path("rooms/{roomId}/groups/available")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers the group members in a smart room" )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	List<Group>  getAvailableGroupMember(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
-
-	/*
-	 * GET education/rooms/{roomId}/devices
-	 */
-	@GET
-	@Path("rooms/{roomId}/devices")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers the device members in a smart room" )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	List<Device>  getDeviceMember(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
-
-	/*
-	 * GET education/rooms/{roomId}/devices/available
-	 */
-	@GET
-	@Path("rooms/{roomId}/devices/available")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers the device members in a smart room" )
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	List<Device>  getAvailableDeviceMember(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	        );
-
-	/*
-	 * GET education/rooms/{roomId}/control/minutes
-	 */
 	@GET
 	@Path("rooms/{roomId}/control/{minutes}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the control for a room for an amount of time."
-	            )
+		    )
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	CrxResponse  getRoomControl(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId")  Long roomId,
-	        @PathParam("minutes") Long minutes
-	        );
+	public CrxResponse  getRoomControl(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId")  Long roomId,
+		@PathParam("minutes") Long minutes
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new EducationService(session,em).getRoomControl(roomId,minutes);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET rooms/{roomId}/accessStatus
-	 */
 	@GET
 	@Path("rooms/{roomId}/accessStatus")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the actual access in a room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	AccessInRoom getAccessStatus(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") long roomId
-	);
+	public AccessInRoom getAccessStatus(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		AccessInRoom resp = new RoomService(session,em).getAccessStatus(roomId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST education/rooms/{roomId}/accessStatus
-	 */
 	@POST
 	@Path("rooms/{roomId}/accessStatus")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the actual access in a room")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	CrxResponse setAccessStatus(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") long roomId,
-	        AccessInRoom access
-	);
+	public CrxResponse setAccessStatus(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") long roomId,
+		AccessInRoom access
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		access.setAllowSessionIp(true);
+		CrxResponse resp = new RoomService(session,em).setAccessStatus(roomId, access);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET education/rooms/{roomId}/actions
-	 */
 	@GET
 	@Path("rooms/{roomId}/actions")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a room.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<String> getAvailableRoomActions(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId
-	);
+	public List<String> getAvailableRoomActions(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<String> resp = new EducationService(session,em).getAvailableRoomActions(roomId);
+		em.close();
+		return resp;
+	}
 
 	/*
-	 * PUT education/rooms/{roomId}/{action}
+	 * Deprecated use applyAction instead of
 	 */
 	@PUT
 	@Path("rooms/{roomId}/{action}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a room. Valid actions are download, open, close, reboot, shutdown, wol, logout, lockInput, unlockInput, .")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	CrxResponse manageRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId") Long roomId,
-	        @PathParam("action") String action
-	);
+	public CrxResponse manageRoom(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		@PathParam("action") String action
+	) {
+		try {
+			logger.debug("EducationResourceImpl.manageRoom:" + roomId + " action:" + action);
+		}  catch (Exception e) {
+			logger.error("EducationResourceImpl.manageRoom error:" + e.getMessage());
+		}
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new EducationService(session,em).manageRoom(roomId,action, null);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST education/devices/applyAction
-	 */
 	@POST
 	@Path("rooms/applyAction")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin."
-	                + "This version of call allows to send a map with some parametrs:"
-	                + "graceTime : seconds to wait befor execute action."
-	                + "message : the message to shown befor/during execute the action.")
+			+ "This version of call allows to send a map with some parametrs:"
+			+ "graceTime : seconds to wait befor execute action."
+			+ "message : the message to shown befor/during execute the action.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<CrxResponse> manageRooms(
-	        @ApiParam(hidden = true) @Auth Session session,
+	public List<CrxResponse> manageRooms(
+		@ApiParam(hidden = true) @Auth Session session,
 		CrxActionMap crxActionMap
-	);
+	)  {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		RoomService roomService = new RoomService(session,em);
+		List<CrxResponse> responses = new ArrayList<CrxResponse>();
+		logger.debug("crxActionMap" + crxActionMap);
+		if( crxActionMap.getName().equals("delete") ) {
+			responses.add(new CrxResponse(session,"ERROR","You must not delete rooms"));
+
+		} else {
+			for( Long id: crxActionMap.getObjectIds() ) {
+				responses.add(roomService.manageRoom(id,crxActionMap.getName(),null));
+			}
+		}
+		em.close();
+		return responses;
+	}
 
 	@POST
 	@Path("rooms/upload")
@@ -472,15 +232,27 @@ public interface EducationResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<CrxResponse> uploadFileToRooms(@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("objectIds")    String  roomIds,
-	        @FormDataParam("cleanUp")      Boolean cleanUp,
-	        @FormDataParam("studentsOnly") Boolean studentsOnly,
-	        @FormDataParam("file")         final InputStream fileInputStream,
-	        @FormDataParam("file")         final FormDataContentDisposition contentDispositionHeader
-	);
+	public List<CrxResponse> uploadFileToRooms(
+		@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("objectIds")    String  roomIds,
+		@FormDataParam("cleanUp")      Boolean cleanUp,
+		@FormDataParam("studentsOnly") Boolean studentsOnly,
+		@FormDataParam("file")	 final InputStream fileInputStream,
+		@FormDataParam("file")	 final FormDataContentDisposition contentDispositionHeader
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> responses = new EducationService(session,em).uploadFileToRooms(
+		       roomIds,
+		       cleanUp,
+		       studentsOnly,
+		       fileInputStream,
+		       contentDispositionHeader
+		);
+		em.close();
+		return responses;
+	}
 
 	@POST
 	@Path("rooms/collect")
@@ -488,276 +260,241 @@ public interface EducationResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<CrxResponse> collectFileFromRooms(@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("objectIds")     String  roomIds,
-	        @FormDataParam("projectName")   String projectName,
-	        @FormDataParam("studentsOnly")  Boolean studentsOnly,
-	        @FormDataParam("sortInDirs")    Boolean sortInDirs,
-	        @FormDataParam("cleanUpExport") Boolean cleanUpExport
-	);
-
+	public List<CrxResponse> collectFileFromRooms(
+		@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("objectIds")     String  roomIds,
+		@FormDataParam("projectName")   String projectName,
+		@FormDataParam("studentsOnly")  Boolean studentsOnly,
+		@FormDataParam("sortInDirs")    Boolean sortInDirs,
+		@FormDataParam("cleanUpExport") Boolean cleanUpExport
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> responses = new EducationService(session,em).collectFileFromRooms(
+		       roomIds,
+		       projectName,
+		       sortInDirs,
+		       cleanUpExport,
+		       studentsOnly
+		);
+		em.close();
+		return responses;
+	}
 
 	/******************************/
 	/* Functions to handle groups */
 	/******************************/
 
-	/*
-	 * POST education/groups
-	 */
 	@POST
 	@Path("groups/add")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new workgroup.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	CrxResponse  addGroup(
-	        @ApiParam(hidden = true) @Auth Session session,
-	           Group group
-	        );
+	public CrxResponse  addGroup(
+		@ApiParam(hidden = true) @Auth Session session,
+		Group group
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new EducationService(session,em).createGroup(group);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST education/groups/{groupId}
-	 */
 	@POST
 	@Path("groups/{groupId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a workgroup.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	CrxResponse  modifyGroup(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") Long groupId,
-	        Group group
-	        );
+	public CrxResponse  modifyGroup(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") Long groupId,
+		Group group
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new EducationService(session,em).modifyGroup(groupId, group);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET education/groups/{groupId}
-	 */
 	@GET
 	@Path("groups/{groupId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a workgroup.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	Group  getGroup(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") Long groupId
-	        );
+	public Group  getGroup(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") Long groupId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Group resp = new GroupService(session,em).getById(groupId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET education/groups
-	 */
-	@GET
-	@Path("groups/all")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the workgroups and classes of a usrer.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@PermitAll
-	List<Group>  getMyGroups(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
-
-	@POST
-	@Path("groups/applyAction")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Apply an action for the members of some groups once.",
-	                        notes = "The following actions are available:<br>"
-	                                        + "setPassword -> stringValue has to contain the password and Boolean if the users have to reset the password after first login.<br>"
-	                                        + "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
-	                                        + "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
-	                                        + "disableLogin -> booleanValue has to contain the new value.<br>"
-	                                        + "disableInternet -> booleanValue has to contain the new value.<br>"
-	                                        + "copyTemplate -> Copy the home of the template user.<br>"
-	                                        + "mandatoryProfile -> boolenValue has to contain the new value.<br>"
-	                                        + "removeProfiles -> Clean up the profile directories.")
-	@ApiResponses(value = {
-	                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.groups")
-	List<CrxResponse> groupsApplyAction(@ApiParam(hidden = true) @Auth Session session,
-	                CrxActionMap crxActionMap
-	                );
-
-	/*
-	 * GET education/groups
-	 */
-	@GET
-	@Path("availableClasses")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the workgroups and classes of a usrer.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.groups")
-	List<Group>  getMyAvailableClasses(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
-
-	/*
-	 * GET groups/<groupId>/availableMembers
-	 */
-	@GET
-	@Path("groups/{groupId}/availableMembers")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get users which are not member in this group.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Group not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("education.groups")
-	List<User> getAvailableMembers(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") long groupId
-	);
-
-
-	/*
-	 * GET groups/<groupId>/members
-	 */
-	@GET
-	@Path("groups/{groupId}/members")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get users which are member in this group.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Group not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("education.groups")
-	List<User> getMembers(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") long groupId
-	);
-
-	/*
-	* POST groups/<groupId>/members
-	*/
-	@POST
-	@Path("groups/{groupId}/members")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets the member of this group.")
-	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Group not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("education.groups")
-	CrxResponse setMembers(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") Long groupId,
-	        List<Long> users
-	);
-
-	/*
-	 * DELETE groups/<groupId>/<userId>
-	 */
-	@DELETE
-	@Path("groups/{groupId}/{userId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Deletes a member of a group by userId.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("education.groups")
-	CrxResponse deleteMember(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") long groupId,
-	        @PathParam("userId") long userId
-	);
-
-	/*
-	 * PUT groups/<groupId>/<userId>
-	 */
-	@PUT
-	@Path("groups/{groupId}/{userId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Add a member to a group by userId.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Group not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("education.groups")
-	CrxResponse addMember(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") long groupId,
-	        @PathParam("userId") long userId
-	);
-	/*
-	 * DELETE education/groups/{groupId}
-	 */
 	@DELETE
 	@Path("groups/{groupId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delete a workgroup.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	CrxResponse  deleteGroup(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") Long groupId
-	       );
+	public CrxResponse  deleteGroup(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") Long groupId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new EducationService(session,em).deleteGroup(groupId);
+		em.close();
+		return resp;
+	}
 
-
-	/*
-	 * GET education/groups/{groupId}/actions
-	 */
 	@GET
-	@Path("groups/{groupId}/actions")
+	@Path("groups/all")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers a list of available actions for a group.")
+	@ApiOperation(value = "Gets the workgroups and classes of a usrer.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.groups")
-	List<String> getAvailableGroupActions(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") Long groupId
-	);
+	@PermitAll
+	public List<Group>  getMyGroups(
+		@ApiParam(hidden = true) @Auth Session session
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Group> resp = new EducationService(session,em).getMyGroups();
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * * PUT education/groups/{groupId}/actions/{actionNam}
-	*/
-	@PUT
-	@Path("groups/{groupId}/actions/{action}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Apply an actions for a group.")
-	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.groups")
-	CrxResponse manageGroup(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") Long groupId,
-	        @PathParam("action")  String action
-	);
-
-	/*
-	 * POST education/rooms/{roomId}/{action}
-	 */
 	@POST
-	@Path("groups/{groupId}/actionWithMap/{action}")
+	@Path("groups/applyAction")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, openProxy, closeProxy."
-	                + "This version of call allows to send a map with some parametrs:"
-	                + "graceTime : seconds to wait befor execute action."
-	                + "message : the message to shown befor/during execute the action.")
+	@ApiOperation(value = "Apply an action for the members of some groups once.",
+			notes = "The following actions are available:<br>"
+				+ "setPassword -> stringValue has to contain the password and Boolean if the users have to reset the password after first login.<br>"
+				+ "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
+				+ "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
+				+ "disableLogin -> booleanValue has to contain the new value.<br>"
+				+ "disableInternet -> booleanValue has to contain the new value.<br>"
+				+ "copyTemplate -> Copy the home of the template user.<br>"
+				+ "mandatoryProfile -> boolenValue has to contain the new value.<br>"
+						+ "removeProfiles -> Clean up the profile directories.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
-	CrxResponse manageGroup(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("groupId") Long groupId,
-	        @PathParam("action") String action,
-	        Map<String, String> actionContent
-	);
+	@RolesAllowed("education.groups")
+	public List<CrxResponse> groupsApplyAction(
+		@ApiParam(hidden = true) @Auth Session session,
+		CrxActionMap crxActionMap
+	) {
+		EntityManager       em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> resp = new EducationService(session,em).groupsApplyAction(crxActionMap);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("groups/{groupId}/availableMembers")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get users which are not member in this group.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "Group not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.groups")
+	public List<User> getAvailableMembers(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") long groupId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<User> resp = new EducationService(session,em).getAvailableMembers(groupId);
+		em.close();
+		return resp;
+	}
+
+
+	@GET
+	@Path("groups/{groupId}/members")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Get users which are member in this group.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "Group not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.groups")
+	public List<User> getMembers(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") long groupId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<User> resp = new EducationService(session,em).getMembers(groupId);
+		em.close();
+		return resp;
+	}
+
+	@POST
+	@Path("groups/{groupId}/members")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Sets the member of this group.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "Group not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.groups")
+	public CrxResponse setMembers(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") Long groupId,
+		List<Long> users
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new GroupService(session,em).setMembers(groupId,users);
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("groups/{groupId}/{userId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Deletes a member of a group by userId.")
+	@ApiResponses(value = {
+	@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.groups")
+	public CrxResponse deleteMember(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") long groupId,
+		@PathParam("userId") long userId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new GroupService(session,em).removeMember(groupId, userId);
+		em.close();
+		return resp;
+	}
+
+	@PUT
+	@Path("groups/{groupId}/{userId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a member to a group by userId.")
+	@ApiResponses(value = {
+	@ApiResponse(code = 404, message = "Group not found"),
+	@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.groups")
+	public CrxResponse addMember(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("groupId") long groupId,
+		@PathParam("userId") long userId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new GroupService(session,em).addMember(groupId, userId);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("groups/upload")
@@ -765,117 +502,154 @@ public interface EducationResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of groups. groupIds contains a comma separated list of groups." )
 	@ApiResponses(value = {
-	       @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	   @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	List<CrxResponse> uploadFileToGroups(@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("objectIds")     String groupIds,
-	        @FormDataParam("cleanUp") Boolean cleanUp,
-	        @FormDataParam("studentsOnly") Boolean studentsOnly,
-	        @FormDataParam("file") final InputStream fileInputStream,
-	        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-	        );
+	@RolesAllowed("education.groups")
+	public List<CrxResponse> uploadFileToGroups(@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("objectIds")    String objectIds,
+		@FormDataParam("cleanUp")      Boolean cleanUp,
+		@FormDataParam("studentsOnly") Boolean studentsOnly,
+		@FormDataParam("file")	 final InputStream fileInputStream,
+		@FormDataParam("file")	 final FormDataContentDisposition contentDispositionHeader
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> responses = new EducationService(session,em).uploadFileToDevices(
+			objectIds,
+			cleanUp,
+			studentsOnly,
+			fileInputStream,
+			contentDispositionHeader);
+		em.close();
+		return responses;
+	}
 
 	@POST
 	@Path("groups/collect")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Collects data from the students member of the corresponding group." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.groups")
-	List<CrxResponse> collectFileFromGroups(@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("objectIds")    String groupIds,
+	public List<CrxResponse> collectFileFromGroups(@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("objectIds")    String objectIds,
 		@FormDataParam("projectName")  String projectName,
 		@FormDataParam("sortInDirs")   Boolean sortInDirs,
 		@FormDataParam("cleanUpExport")Boolean cleanUpExport,
 		@FormDataParam("studentsOnly") Boolean studentsOnly
-	);
-	/************************************************************/
-	/* Actions on logged in users and smart rooms and groups. */
-	/************************************************************/
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> resp = new EducationService(session,em).collectFileFromGroups(
+				objectIds,
+				projectName,
+				sortInDirs,
+				cleanUpExport,
+				studentsOnly);
+		em.close();
+		return resp;
+	}
 
+	/*
+	 * Deprecated should not be used.
+	 */
 	@GET
 	@Path("users/all")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a list of users by the userids." )
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	List<Student> getUsers(
-	                @ApiParam(hidden = true) @Auth Session session
-	                );
+	public List<Student> getUsers( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Student> resp = new ArrayList<Student>();
+		for( User user : new UserService(session,em).getByRole(roleStudent) ) {
+			for( Group group : user.getGroups() ) {
+				if( !group.getGroupType().equals("primary") ) {
+					Student student = new Student(user);
+					student.setGroupName(group.getName());
+					student.setGroupId(group.getId());
+					resp.add(student);
+				}
+			}
+		}
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET education/users/{userId}
-	 */
 	@GET
 	@Path("users/{userId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a user by id.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	User getUserById(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("userId") Long userId
-	);
+	public User getUserById(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("userId") Long userId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		User resp = new UserService(session,em).getById(userId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * DELETE education/users/{userId}/{deviceId}
-	 */
 	@DELETE
 	@Path("users/{userId}/{deviceId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Log out a user from a device. If device is -1 user will be logged out from all devices." )
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	CrxResponse logOut(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("userId") Long userId,
-	        @PathParam("deviceId") Long deviceId
-	        );
+	public CrxResponse logOut(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("userId") Long userId,
+		@PathParam("deviceId") Long deviceId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new DeviceService(session,em).removeLoggedInUser(deviceId, userId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * PUT education/users/{userId}/{deviceId}
-	 */
 	@PUT
 	@Path("users/{userId}/{deviceId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Log in a user to a device." )
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	CrxResponse logIn(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("userId") Long userId,
-	        @PathParam("deviceId") Long roomId
-	        );
+	public CrxResponse logIn(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("userId") Long userId,
+		@PathParam("deviceId") Long deviceId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new DeviceService(session,em).addLoggedInUser(deviceId, userId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * GET education/users/{userId}/actions
-	 */
 	@GET
 	@Path("users/{userId}/actions")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a user.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	List<String> getAvailableUserActions(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("userId") Long userId
-	);
+	public List<String> getAvailableUserActions(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("userId") Long userId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<String> resp = new EducationService(session,em).getAvailableUserActions(userId);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("users/upload")
@@ -883,177 +657,225 @@ public interface EducationResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to selected users." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	List<CrxResponse> uploadFileToUsers(@ApiParam(hidden = true) @Auth Session session,
+	public List<CrxResponse> uploadFileToUsers(@ApiParam(hidden = true) @Auth Session session,
 		@FormDataParam("objectIds") final String userIds,
 		@FormDataParam("cleanUp")   Boolean cleanUp,
-	        @FormDataParam("file")      final InputStream fileInputStream,
-	        @FormDataParam("file")      final FormDataContentDisposition contentDispositionHeader
-        );
+		@FormDataParam("file")      final InputStream fileInputStream,
+		@FormDataParam("file")      final FormDataContentDisposition contentDispositionHeader
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> resp = new EducationService(session,em).uploadFileToUsers(userIds,cleanUp,fileInputStream,contentDispositionHeader);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("users/collect")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Collect file from selected users" )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	List<CrxResponse> collectFileFromUsers(
+	public List<CrxResponse> collectFileFromUsers(
 		@ApiParam(hidden = true) @Auth Session session,
 		@FormDataParam("objectIds")     String userIds,
 		@FormDataParam("projectName")   String projectName,
 		@FormDataParam("sortInDirs")    Boolean sortInDirs,
 		@FormDataParam("cleanUpExport") Boolean cleanUpExport
-        );
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> responses = new EducationService(session,em).collectFileFromUsers(
+			userIds,
+			projectName,
+			sortInDirs,
+			cleanUpExport);
+		em.close();
+		return responses;
+	}
 
 	@POST
 	@Path("users/applyAction")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Apply an action for a lot of user once.",
-	                        notes = "The following actions are available:<br>"
-	                                        + "setPassword -> stringValue has to contain the password and booleanValue if the users have to reset the password after first login.<br>"
-	                                        + "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
-	                                        + "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
-	                                        + "disableLogin -> booleanValue has to contain the new value.<br>"
-	                                        + "disableInternet -> booleanValue has to contain the new value.<br>"
-	                                        + "copyTemplate -> Copy the home of the template user.<br>"
-	                                        + "mandatoryProfile -> boolenValue has to contain the new value.<br>"
-	                                        + "removeProfiles -> Clean up the profile directories.")
+			notes = "The following actions are available:<br>"
+				+ "setPassword -> stringValue has to contain the password and booleanValue if the users have to reset the password after first login.<br>"
+				+ "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
+				+ "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
+				+ "disableLogin -> booleanValue has to contain the new value.<br>"
+				+ "disableInternet -> booleanValue has to contain the new value.<br>"
+				+ "copyTemplate -> Copy the home of the template user.<br>"
+				+ "mandatoryProfile -> boolenValue has to contain the new value.<br>"
+				+ "removeProfiles -> Clean up the profile directories.")
 	@ApiResponses(value = {
-	                @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.users")
-	List<CrxResponse> applyAction(@ApiParam(hidden = true) @Auth Session session,
-	                CrxActionMap crxActionMap
-	);
+	public List<CrxResponse> applyAction(
+		@ApiParam(hidden = true) @Auth Session session,
+		CrxActionMap crxActionMap
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> resp = new EducationService(session,em).applyAction(crxActionMap);
+		em.close();
+		return resp;
+	}
 
 
 	/****************************/
 	/* Actions on devices       */
 	/****************************/
-	 /*
-	 * POST education/devices
-	 */
 	@POST
 	@Path("devices")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of devices asked by the device ids.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<Device> getDevicesById(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        List<Long> deviceIds
-	);
+	public List<Device> getDevicesById(
+		@ApiParam(hidden = true) @Auth Session session,
+		List<Long> deviceIds
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Device> resp = new DeviceService(session,em).getDevices(deviceIds);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST education/devices/{deviceId}
-	 */
 	@POST
 	@Path("devices/{deviceId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Updates a device. Only row and place can be changed here.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	CrxResponse modifyDevice(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        Device device
-	);
-
+	public CrxResponse modifyDevice(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId,
+		Device device
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new EducationService(session,em).modifyDevice(deviceId, device);
+		em.close();
+		return resp;
+	}
 
 	/*
-	 * POST education/devices/{deviceId}
+	 * Deprecated should not be used.
 	 */
 	@POST
 	@Path("rooms/{roomId}/devices/{deviceId}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Updates a device. Only row and place can be changed here. The roomid is neccessary becouse of devices of smart rooms need to be handle on a other way.")
+	@ApiOperation(value = "Deprecated should not be used. Will be removed. Use POST education/devices/{deviceId} instead of<br>"
+			      + "Updates a device. Only row and place can be changed here. The roomid is neccessary becouse of devices of smart rooms need to be handle on a other way.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	CrxResponse modifyDeviceOfRoom(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("roomId")   Long roomId,
-	        @PathParam("deviceId") Long deviceId,
-	        Device device
-	);
+	public CrxResponse modifyDeviceOfRoom(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId")   Long roomId,
+		@PathParam("deviceId") Long deviceId,
+		Device device
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Room room = new RoomService(session,em).getById(roomId);
+		CrxResponse resp = null;
+		if( (room.getCategories() != null) && (room.getCategories().size() > 0 ) && room.getCategories().get(0).getCategoryType().equals("smartRoom") ) {
+			DeviceService deviceConrtoller = new DeviceService(session,em);
+			Device oldDevice = deviceConrtoller.getById(deviceId);
+			resp = deviceConrtoller.setConfig(oldDevice, "smartRoom-" + roomId + "-coordinates", String.format("%d,%d", device.getRow(),device.getPlace()));
+		} else {
+			resp = modifyDevice(session, deviceId, device);
+		}
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("devices/{deviceId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a device by id.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	Device getDeviceById(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
-	);
+	public Device getDeviceById(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Device resp = new DeviceService(session,em).getById(deviceId);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("devices/{deviceId}/actions")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a device.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<String> getAvailableDeviceActions(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId
-	);
+	public List<String> getAvailableDeviceActions(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<String> resp = new EducationService(session,em).getAvailableDeviceActions(deviceId);
+		em.close();
+		return resp;
+	}
 
 	/*
-	 * PUT education/devices/{deviceId}/{action}
+	 * Deprecated
 	 */
 	@PUT
 	@Path("devices/{deviceId}/{action}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin.")
+	@ApiOperation(value = "Deprecated. Will be removed. Use education/devices/applyAction instead of<br>"
+			      + "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	CrxResponse manageDevice(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("deviceId") Long deviceId,
-	        @PathParam("action") String action
-	);
+	public CrxResponse manageDevice(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("deviceId") Long deviceId,
+		@PathParam("action") String action
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new DeviceService(session,em).manageDevice(deviceId,action,null);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * POST education/devices/applyAction
-	 */
 	@POST
 	@Path("devices/applyAction")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin."
-	                + "This version of call allows to send a map with some parametrs:"
-	                + "graceTime : seconds to wait befor execute action."
-	                + "message : the message to shown befor/during execute the action.")
+			+ "This version of call allows to send a map with some parametrs:"
+			+ "graceTime : seconds to wait befor execute action."
+			+ "message : the message to shown befor/during execute the action.")
 	@ApiResponses(value = {
-	        // TODO so oder anders? @ApiResponse(code = 404, message = "At least one room was not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<CrxResponse> manageDevices(
-	        @ApiParam(hidden = true) @Auth Session session,
+	public List<CrxResponse> manageDevices(
+		@ApiParam(hidden = true) @Auth Session session,
 		CrxActionMap crxActionMap
-	);
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> resp = new EducationService(session,em).manageDevices(crxActionMap);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("devices/upload")
@@ -1061,64 +883,89 @@ public interface EducationResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<CrxResponse> uploadFileToDevices(@ApiParam(hidden = true) @Auth Session session,
-	        @FormDataParam("objectIds")    String  deviceIds,
-	        @FormDataParam("cleanUp")      Boolean cleanUp,
+	public List<CrxResponse> uploadFileToDevices(@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("objectIds")    String  deviceIds,
+		@FormDataParam("cleanUp")      Boolean cleanUp,
 		@FormDataParam("studentsOnly") Boolean studentsOnly,
-	        @FormDataParam("file") final   InputStream fileInputStream,
-	        @FormDataParam("file") final   FormDataContentDisposition contentDispositionHeader
-	);
+		@FormDataParam("file") final   InputStream fileInputStream,
+		@FormDataParam("file") final   FormDataContentDisposition contentDispositionHeader
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> resp = new EducationService(session,em).uploadFileToDevices(
+			deviceIds,
+			cleanUp,
+			studentsOnly,
+			fileInputStream,
+			contentDispositionHeader);
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("devices/collect")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Collects data from the students member of the corresponding group." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<CrxResponse> collectFileFromDevices(@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("objectIds")    String roomIds,
+	public List<CrxResponse> collectFileFromDevices(@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("objectIds")    String deviceIds,
 		@FormDataParam("projectName")  String projectName,
 		@FormDataParam("sortInDirs")   Boolean sortInDirs,
 		@FormDataParam("cleanUpExport")Boolean cleanUpExport,
 		@FormDataParam("studentsOnly") Boolean studentsOnly
-	);
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> resp = new EducationService(session,em).collectFileFromDevices(
+			deviceIds,
+			projectName,
+			sortInDirs,
+			cleanUpExport,
+			studentsOnly
+		       );
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * Get informations from the printers in the room
-	 */
 	@GET
 	@Path("rooms/{roomId}/defaultPrinter")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets the default printer in the room." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	Printer getDefaultPrinter(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("roomId") Long roomId
-	);
+	public Printer getDefaultPrinter(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Printer resp = new RoomService(session,em).getById(roomId).getDefaultPrinter();
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * Get informations from the printers in the room
-	 */
 	@GET
 	@Path("rooms/{roomId}/availablePrinters")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets the list fo the available printers in the room." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	List<Printer> getAvailablePrinters(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("roomId") Long roomId
-	);
+	public List<Printer> getAvailablePrinters(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Printer> resp = new RoomService(session,em).getById(roomId).getAvailablePrinters();
+		em.close();
+		return resp;
+	}
 
 
 	/*******************************************/
@@ -1129,63 +976,84 @@ public interface EducationResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets all positive lists." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	List<PositiveList> getPositiveLists(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<PositiveList> getPositiveLists( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<PositiveList> resp = new ProxyService(session,em).getAllPositiveLists();
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("proxy/myPositiveLists")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets owned positive lists." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	List<PositiveList> getMyPositiveLists(
-	    @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<PositiveList> getMyPositiveLists( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<PositiveList> resp = session.getUser().getOwnedPositiveLists();
+		em.close();
+		return resp;
+	}
 
 	@POST
 	@Path("proxy/positiveLists/add")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Creates a new positive list." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	CrxResponse addPositiveList(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    PositiveList positiveList
-	);
+	public CrxResponse addPositiveList(
+		@ApiParam(hidden = true) @Auth Session session,
+		PositiveList positiveList
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new ProxyService(session,em).editPositiveList(positiveList);
+		em.close();
+		return resp;
+	}
 
 	@GET
 	@Path("proxy/positiveLists/{positiveListId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets the content of a positive list." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	PositiveList getPositiveListById(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("positiveListId") Long positiveListId
-	);
+	public PositiveList getPositiveListById(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("positiveListId") Long positiveListId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		PositiveList resp = new ProxyService(session,em).getPositiveList(positiveListId);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("proxy/positiveLists/{positiveListId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Deletes a positive list." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	CrxResponse deletePositiveListById(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("positiveListId") Long positiveListId
-	);
+	public CrxResponse deletePositiveListById(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("positiveListId") Long positiveListId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new ProxyService(session,em).deletePositiveList(positiveListId);
+		em.close();
+		return resp;
+	}
 
 	//TODO these must be safer. Only the own controlled room may be modified
 	@POST
@@ -1193,121 +1061,164 @@ public interface EducationResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Activates positive lists in a room." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	CrxResponse activatePositiveListsInRoom(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("roomId") Long roomId,
-	    List<Long> postiveListIds
-	);
-
-	@GET
-	@Path("proxy/rooms/{roomId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation( value = "Gets the active positive lists in a room." )
-	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.proxy")
-	List<PositiveList> getPositiveListsInRoom(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("roomId") Long roomId
-	);
+	public CrxResponse activatePositiveListsInRoom(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId,
+		List<Long> positiveListIds
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new ProxyService(session,em).setAclsInRoom(roomId, positiveListIds);
+		em.close();
+		return resp;
+	}
 
 	@DELETE
 	@Path("proxy/rooms/{roomId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Deactivates positive lists in a room." )
 	@ApiResponses(value = {
-	            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.proxy")
-	CrxResponse deActivatePositiveListsInRoom(
-	    @ApiParam(hidden = true) @Auth Session session,
-	    @PathParam("roomId") Long roomId
-	);
+	public CrxResponse deActivatePositiveListsInRoom(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new ProxyService(session,em).deleteAclsInRoom(roomId);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("proxy/rooms/{roomId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation( value = "Gets the active positive lists in a room." )
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("education.proxy")
+	public List<PositiveList> getPositiveListsInRoom(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<PositiveList> resp = new ProxyService(session,em).getPositiveListsInRoom(roomId);
+		em.close();
+		return resp;
+	}
 
 	/*
-	 * Mange gast user
+	 * Manage gast user
 	 */
-	 @GET
-	 @Path("guestUsers")
-	 @Produces(JSON_UTF8)
-	 @ApiOperation(value = "Gets all actual gast users. Systadmins get the lists all guest users. Normal users gets the own gast users.")
-	 @ApiResponses(value = {
-	         @ApiResponse(code = 404, message = "User not found"),
-	         @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	 @RolesAllowed("education.guestusers")
-	 List<Category> getGuestUsers(
-	             @ApiParam(hidden = true) @Auth Session session
-	 );
-
-	 @GET
-	 @Path("guestUsers/{guestUsersId}")
-	 @Produces(JSON_UTF8)
-	 @ApiOperation(value = "Gets a guest users category.")
-	 @ApiResponses(value = {
-	         @ApiResponse(code = 404, message = "User not found"),
-	         @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	 @RolesAllowed("education.guestusers")
-	 Category getGuestUsersCategory(
-	             @ApiParam(hidden = true) @Auth Session session,
-	             @PathParam("guestUsersId")     Long    guestUsersId
-	 );
-
-	 @DELETE
-	 @Path("guestUsers/{guestUsersId}")
-	 @Produces(JSON_UTF8)
-	 @ApiOperation(value = "Delete a guest users category.")
-	 @ApiResponses(value = {
-	         @ApiResponse(code = 404, message = "User not found"),
-	         @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	 @RolesAllowed("education.guestusers")
-	 CrxResponse  deleteGuestUsers(
-	             @ApiParam(hidden = true) @Auth Session session,
-	             @PathParam("guestUsersId")     Long    guestUsersId
-	 );
-
 	@POST
 	@Path("guestUsers/add")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Creates a new guest users accounts.")
 	@ApiResponses(value = {
-	                @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	CrxResponse addGuestUsers(
-	                @ApiParam(hidden = true) @Auth Session session,
-	                @FormDataParam("name")          String  name,
-	                @FormDataParam("description")   String  description,
-	                @FormDataParam("roomId")        Long    roomId,
-	                @FormDataParam("count")         Long    count,
-	                @FormDataParam("validUntil")    Date    validUntil
-	                );
+	public CrxResponse addGuestUsers(
+		@ApiParam(hidden = true) @Auth Session session,
+		@FormDataParam("name")	      String  name,
+		@FormDataParam("description") String  description,
+		@FormDataParam("roomId")	  Long    roomId,
+		@FormDataParam("count")       Integer count,
+		@FormDataParam("validUntil")  Date    validUntil
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		GuestUsers guestUsers = new GuestUsers(name,description,count,roomId,validUntil);
+		CrxResponse resp = new UserService(session,em).addGuestUsers(guestUsers);
+		em.close();
+		return resp;
+	}
 
 	@POST
-	@Path("guestUsers/create")
+	@Path("guestUsers")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new guest users accounts.")
 	@ApiResponses(value = {
-	                @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	CrxResponse createGuestUsers(
-	                @ApiParam(hidden = true) @Auth Session session,
-	                GuestUsers guestUsers
-	                );
+	public CrxResponse createGuestUsers(
+		@ApiParam(hidden = true) @Auth Session session,
+		GuestUsers guestUsers
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new UserService(session,em).addGuestUsers(guestUsers);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("guestUsers")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets all actual gast users. Systadmins get the lists all guest users. Normal users gets the own gast users.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.guestusers")
+	public List<GuestUsers> getGuestUsers(
+		@ApiParam(hidden = true) @Auth Session session
+	) {
+	       EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+	       List<GuestUsers> resp = new UserService(session,em).getGuestUsers();
+	       em.close();
+	       return resp;
+	}
+
+	@GET
+	@Path("guestUsers/{guestUsersId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets a guest users category.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.guestusers")
+	public Category getGuestUsersCategory(
+		@ApiParam(hidden = true)      @Auth    Session session,
+		@PathParam("guestUsersId")     Long    guestUsersId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Category resp = new UserService(session,em).getGuestUsersCategory(guestUsersId);
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("guestUsers/{guestUsersId}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Delete a guest users category.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("education.guestusers")
+	public CrxResponse  deleteGuestUsers(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("guestUsersId")     Long    guestUsersId
+	) {
+	       EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+	       CrxResponse resp = new UserService(session,em).deleteGuestUsers(guestUsersId);
+	       em.close();
+	       return resp;
+	}
 
 	@GET
 	@Path("guestUsers/rooms")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of rooms can be reserved for guest users. At the moment this are all the rooms which can be controlled.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "User not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "User not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	List<Room> getGuestRooms(
-	            @ApiParam(hidden = true) @Auth Session session
-	);
-
+	public List<Room> getGuestRooms( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<Room> resp = new RoomService(session,em).getAllWithTeacherControl();
+		em.close();
+		return resp;
+	}
 }

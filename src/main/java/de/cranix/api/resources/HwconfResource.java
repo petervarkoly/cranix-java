@@ -1,9 +1,14 @@
- /* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.*;
+
+import java.util.List;
+import java.util.ArrayList;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.persistence.EntityManager;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.POST;
@@ -24,266 +29,261 @@ import de.cranix.dao.CrxActionMap;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Partition;
 import de.cranix.dao.Session;
-import java.util.List;
+import de.cranix.services.CloneToolService;
+import de.cranix.helper.CrxEntityManagerFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("hwconfs")
 @Api(value = "hwconfs")
-public interface HwconfResource {
+public class HwconfResource {
 
+	Logger logger = LoggerFactory.getLogger(HwconfResource.class);
 
-	/**
-	 * Delivers the list of all hwconfs
-	 * @param session
-	 * @return
-	 */
+	public HwconfResource() { }
+
 	@GET
 	@Path("all")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all hardware configuration.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@PermitAll
-	List<HWConf> getAllHWConf(
-	        @ApiParam(hidden = true) @Auth Session session
-	);
+	public List<HWConf> getAll( @ApiParam(hidden = true) @Auth Session session) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<HWConf> resp = new CloneToolService(session,em).getAllHWConf();
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Delivers a hwconf by id
-	 * @param session
-	 * @param hwconfId
-	 * @return
-	 */
 	@GET
 	@Path("{hwconfId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a hardware configuration.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.search")
-	HWConf getById(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("hwconfId") Long hwconfId
-	);
+	public HWConf getById(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId") Long hwconfId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final HWConf hwconf = new CloneToolService(session,em).getById(hwconfId);
+		em.close();
+		if (hwconf == null) {
+			throw new WebApplicationException(404);
+		}
+		return hwconf;
+	}
 
-        /**
-         * Import a list of ne hardware configurations.
-         * @param session
-         * @param hwconfs
-         * @return
-         */
-        @POST
-        @Path("import")
-        @Produces(JSON_UTF8)
-        @ApiOperation(value = "Import a list of ne hardware configurations.")
-        @ApiResponses(value = {
-                @ApiResponse(code = 404, message = "Device not found"),
-                @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-        @RolesAllowed("hwconf.add")
-        CrxResponse importHWConfs(
-                @ApiParam(hidden = true) @Auth Session session,
-                List<HWConf> hwconfs
-        );
-
-	/**
-	 * Creates a new hwconf
-	 * @param session
-	 * @param hwconf
-	 * @return
-	 */
 	@POST
 	@Path("add")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new hardware configuration.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.add")
-	CrxResponse add(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        HWConf hwconf
-	);
+	public CrxResponse add(
+		@ApiParam(hidden = true) @Auth Session session,
+		HWConf hwconf
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CloneToolService(session,em).addHWConf(hwconf);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Updates a hwconf
-	 * @param session
-	 * @param hwconfId
-	 * @param hwconf
-	 * @return
-	 */
 	@POST
 	@Path("{hwconfId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Updates a hardware configuration.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.modify")
-	CrxResponse modifyHWConf(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("hwconfId") Long hwconfId,
-		    HWConf hwconf
-	);
+	public CrxResponse modify(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId") Long hwconfId,
+		HWConf hwconf
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CloneToolService(session,em).modifyHWConf(hwconfId, hwconf);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Creates a new partition with all parameter in a hwconf 
-	 * @param session
-	 * @param hwconfId
-	 * @param partition
-	 * @return
-	 */
+	@POST
+	@Path("import")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Import a list of ne hardware configurations.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+	@RolesAllowed("hwconf.add")
+	public CrxResponse importHWConfs(
+		@ApiParam(hidden = true) @Auth Session session,
+		List<HWConf> hwconfs
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CloneToolService  cloneToolService = new CloneToolService(session,em);
+		CrxResponse crxResponse = null;
+		for( HWConf hwconf : hwconfs ) {
+			crxResponse = cloneToolService.addHWConf(hwconf);
+			if( crxResponse.getCode().equals("ERROR")) {
+				break;
+			}
+		}
+		em.close();
+		return crxResponse;
+	}
+
 	@POST
 	@Path("{hwconfId}/addPartition")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new partition to a given hardware configuration.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.modify")
-	CrxResponse addPartition(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("hwconfId") Long hwconfId,
-	        Partition partition
-	);
+	public CrxResponse addPartition(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId") Long hwconfId,
+		Partition partition
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CloneToolService(session,em).addPartitionToHWConf(hwconfId, partition);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Removes a hwconf
-	 * @param session
-	 * @param hwconfId
-	 * @return
-	 */
 	@DELETE
 	@Path("{hwconfId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Updates a hardware configuration.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.delete")
-	CrxResponse delete(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("hwconfId") Long hwconfId
-	);
+	public CrxResponse delete(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId") Long hwconfId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CloneToolService(session,em).delete(hwconfId);
+		em.close();
+		return resp;
+	}
 
-	/*
-	 * DELETE clonetool/{hwconfId}/{partitionName}
-	 */
 	@DELETE
 	@Path("{hwconfId}/{partitionName}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a partition to a given hardware configuration.")
 	@ApiResponses(value = {
-	        @ApiResponse(code = 404, message = "Device not found"),
-	        @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+		@ApiResponse(code = 404, message = "Device not found"),
+		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.modify")
-	CrxResponse deletePartition(
-	        @ApiParam(hidden = true) @Auth Session session,
-	        @PathParam("hwconfId") Long hwconfId,
-	        @PathParam("partitionName") String partitionName
-	);
+	public CrxResponse deletePartition(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId") Long hwconfId,
+		@PathParam("partitionName") String partitionName
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CloneToolService(session,em).deletePartition(hwconfId,partitionName);
+		em.close();
+		return resp;
+	}
 
 
-	/**
-	 * Start recovering of selected devices in a hwconf
-	 * @param session
-	 * @param hwconfId
-	 * @param parameters
-	 * @return
-	 */
 	@POST
 	@Path("{hwconfId}/recover")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning." +
-						"This call have to provide a hash with following informations" +
-						" devices    : [ IDs of devices ] " +
-						" partitions : [ IDs of partitions ] " +
-						" multicast  :  true/fals"
-						)
+				"This call have to provide a hash with following informations" +
+				" devices    : [ IDs of devices ] " +
+				" partitions : [ IDs of partitions ] " +
+				" multicast  :  true/fals"
+	)
 	@RolesAllowed("hwconf.manage")
-	CrxResponse startRecover(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("hwconfId") Long hwconfId,
-			Clone parameters
-			);
+	public CrxResponse startRecover(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId") Long hwconfId,
+		Clone parameters
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CloneToolService(session,em).startCloning(hwconfId,parameters);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Start recovering of all devices in a hwconf
-	 * @param session
-	 * @param hwconfId
-	 * @param multiCast
-	 * @return
-	 */
 	@PUT
 	@Path("{hwconfId}/recover/{multiCast}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for all workstations in a hwconf." +
-						  "Multicast can be 0 or 1"
-		)
+			  "Multicast can be 0 or 1"
+	)
 	@RolesAllowed("hwconf.manage")
-	CrxResponse startRecover(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("hwconfId")  Long hwconfId,
-			@PathParam("multiCast") int multiCast
-			);
+	public CrxResponse startRecover(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId")  Long hwconfId,
+		@PathParam("multiCast") int multiCast
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CloneToolService(session,em).startCloning("hwconf", hwconfId, multiCast);
+		em.close();
+		return resp;
+	}
 
-	/**
-	 * Removes the boot configurations for a hwconf
-	 * @param session
-	 * @param hwconfId
-	 * @return
-	 */
 	@DELETE
 	@Path("{hwconfId}/recover")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes the boot configuration for the automatical partitioning.")
 	@RolesAllowed("hwconf.manage")
-	CrxResponse stopRecover(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("hwconfId") Long hwconfId
-			);
+	public CrxResponse stopRecover(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("hwconfId") Long hwconfId
+	) {
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+                CrxResponse resp = new CloneToolService(session,em).stopCloning("hwconf",hwconfId);
+                em.close();
+                return resp;
+        }
 
-	/**
-	 * Start multicast cloning process of a partition on a device
-	 * @param session
-	 * @param partitionId
-	 * @param networkDevice
-	 * @return
-	 */
 	@PUT
 	@Path("partitions/{partitionId}/multicast/{networkDevice}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Start multicast imaging with a given partition.")
 	@RolesAllowed("hwconf.manage")
-	CrxResponse startMulticast(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("partitionId") Long partitionId,
-			@PathParam("networkDevice") String networkDevice
-	);
+	public CrxResponse startMulticast(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("partitionId") Long partitionId,
+		@PathParam("networkDevice") String networkDevice
+	) {
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+                CrxResponse resp = new CloneToolService(session,em).startMulticast(partitionId,networkDevice);
+                em.close();
+                return resp;
+        }
 
-	/**
-	 * Sets the parameters of an existing partition
-	 * @param session
-	 * @param partitionId
-	 * @param partition
-	 * @return
-	 */
 	@POST
 	@Path("partitions/{partitionId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the parameters of an existing partition.")
 	@RolesAllowed("hwconf.modify")
-	CrxResponse modifyPartition(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("partitionId") Long partitionId,
-			Partition partition
-			);
-	/**
-	 * Apply actions on a list of hwconfs.
-	 * @param session
-	 * @return The result in an CrxResponse object
-	 * @see CrxResponse
-	 */
+	public CrxResponse modifyPartition(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("partitionId") Long partitionId,
+		Partition partition
+	) {
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+                CrxResponse resp = new CloneToolService(session,em).modifyPartition(partitionId, partition);
+                em.close();
+                return resp;
+        }
+
 	@POST
 	@Path("applyAction")
 	@Produces(JSON_UTF8)
@@ -291,9 +291,29 @@ public interface HwconfResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("hwconf.manage")
-	List<CrxResponse> applyAction(
-			@ApiParam(hidden = true) @Auth Session session,
-			CrxActionMap actionMap
-			);
+	public List<CrxResponse> applyAction(
+		@ApiParam(hidden = true) @Auth Session session,
+		CrxActionMap crxActionMap
+	) {
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+                List<CrxResponse> responses = new ArrayList<CrxResponse>();
+                CloneToolService  cloneToolService = new CloneToolService(session,em);
+                logger.debug(crxActionMap.toString());
+                for( Long id : crxActionMap.getObjectIds() ) {
+                        switch(crxActionMap.getName().toLowerCase()) {
+                                case "delete":  responses.add(cloneToolService.delete(id));
+                                                break;
+/*                                case "cleanup": responses.add(cloneToolService.cleanUp(id));
+                                                break;*/
+                                case "startclone": responses.add(cloneToolService.startCloning("hwconf",id,0));
+                                                break;
+                                case "stopclone": responses.add(cloneToolService.stopCloning("hwconf",id));
+                                                break;
+                        }
+                }
+                em.close();
+                return responses;
+
+        }
 
 }

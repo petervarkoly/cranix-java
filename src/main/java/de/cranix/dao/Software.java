@@ -32,14 +32,19 @@ public class Software implements Serializable {
 	private Long id;
 
 	@Size(max=128, message="Description must not be longer then 128 characters.")
+	@Size(min = 1, max = 128)
+    @Column(name = "description", length = 128)
 	private String description;
 
 	@Convert(converter=BooleanToStringConverter.class)
 	private Boolean manually;
 
 	@Size(max=128, message="Name must not be longer then 128 characters.")
+	@Size(min = 1, max = 128)
+	@Column(name = "name", length = 128)
 	private String name;
 
+	@Column(name = "weight")
 	private Integer weight;
 
 	@Transient
@@ -51,11 +56,11 @@ public class Software implements Serializable {
 	private List<SoftwareLicense> softwareLicenses;
 
 	//bi-directional many-to-one association to SoftwareVersion
-	@OneToMany(mappedBy="software", cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy="software", cascade = CascadeType.ALL)
 	private List<SoftwareVersion> softwareVersions;
 
 	//bi-directional many-to-one association to SoftwareVersion
-	@OneToMany(mappedBy="software", cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy="software", cascade = CascadeType.ALL)
 	private List<SoftwareFullName> softwareFullNames;
 
 	//bi-directional many-to-many association to Category
@@ -88,7 +93,6 @@ public class Software implements Serializable {
 	@JsonIgnore
 	private List<Software> requiredBy = new ArrayList<Software>();
 
-
 	public Software() {
 		this.manually = false;
 		this.weight   = 50;
@@ -106,7 +110,6 @@ public class Software implements Serializable {
 			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
 		}
 	}
-
 
 	@Override
 	public int hashCode() {
@@ -154,7 +157,7 @@ public class Software implements Serializable {
 	}
 
 	public void setDescription(String description) {
-		this.description = description;
+		this.description = description.length() > 128 ? description.substring(0,128) : description;;
 	}
 
 	public Boolean getManually() {
@@ -170,7 +173,7 @@ public class Software implements Serializable {
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.length() > 128 ? name.substring(0,128) : name;;
 	}
 
 	public List<SoftwareLicense> getSoftwareLicenses() {
@@ -181,18 +184,16 @@ public class Software implements Serializable {
 		this.softwareLicenses = softwareLicenses;
 	}
 
-	public SoftwareLicense addSoftwareLicens(SoftwareLicense softwareLicens) {
-		getSoftwareLicenses().add(softwareLicens);
-		softwareLicens.setSoftware(this);
-
-		return softwareLicens;
+	public SoftwareLicense addSoftwareLicense(SoftwareLicense softwareLicense) {
+		getSoftwareLicenses().add(softwareLicense);
+		softwareLicense.setSoftware(this);
+		return softwareLicense;
 	}
 
-	public SoftwareLicense removeSoftwareLicens(SoftwareLicense softwareLicens) {
-		getSoftwareLicenses().remove(softwareLicens);
-		softwareLicens.setSoftware(null);
-
-		return softwareLicens;
+	public SoftwareLicense removeSoftwareLicense(SoftwareLicense softwareLicense) {
+		getSoftwareLicenses().remove(softwareLicense);
+		softwareLicense.setSoftware(null);
+		return softwareLicense;
 	}
 
 	public List<SoftwareVersion> getSoftwareVersions() {

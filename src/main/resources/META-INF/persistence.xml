@@ -28,6 +28,7 @@
     <class>de.cranix.dao.SoftwareLicense</class>
     <class>de.cranix.dao.SoftwareStatus</class>
     <class>de.cranix.dao.SoftwareVersion</class>
+    <class>de.cranix.dao.TaskResponse</class>
     <class>de.cranix.dao.Test</class>
     <class>de.cranix.dao.TestFile</class>
     <class>de.cranix.dao.TestUser</class>
@@ -35,10 +36,8 @@
     <class>de.cranix.dao.User</class>
     <class>de.cranix.dao.SoftwareFullName</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/CRX"/>
-      <property name="javax.persistence.jdbc.user" value="root"/>
-      <property name="javax.persistence.jdbc.password" value="Bartok12"/>
-      <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/CRX?serverTimezone=Europe/Berlin"/>
+      <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
       <property name="javax.persistence.validation.mode" value="none"/>
     </properties>
   </persistence-unit>

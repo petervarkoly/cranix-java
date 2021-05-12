@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.Session;
-import de.cranix.dao.controller.SessionController;
-import de.cranix.dao.internal.CommonEntityManagerFactory;
+import de.cranix.services.SessionService;
+import de.cranix.helper.CrxEntityManagerFactory;
 
 public class CrxTokenAuthenticator implements Authenticator<String, Session> {
 
@@ -24,9 +24,9 @@ public class CrxTokenAuthenticator implements Authenticator<String, Session> {
     public Optional<Session> authenticate(String token) throws AuthenticationException {
 
         logger.debug("Token: " + token);
-        EntityManager em = CommonEntityManagerFactory.instance("dummy").getEntityManagerFactory().createEntityManager();
-        final SessionController sessionController = new SessionController(em);
-        final Session session = sessionController.validateToken(token);
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final SessionService sessionService = new SessionService(em);
+        final Session session = sessionService.validateToken(token);
         em.close();
        
         if (session != null) {

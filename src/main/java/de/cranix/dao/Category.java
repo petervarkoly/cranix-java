@@ -193,20 +193,6 @@ public class Category implements Serializable {
 	@Convert(converter=BooleanToStringConverter.class)
 	boolean publicAccess;
 	
-	public boolean isPublicAccess() {
-		return publicAccess;
-	}
-
-
-	public void setPublicAccess(boolean publicAccess) {
-		this.publicAccess = publicAccess;
-	}
-
-
-	public Date getValidFrom() {
-		return validFrom;
-	}
-
 
 	@Override
 	public String toString() {
@@ -216,7 +202,6 @@ public class Category implements Serializable {
 			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
 		}
 	}
-	
 
 	@Override
 	public int hashCode() {
@@ -289,7 +274,6 @@ public class Category implements Serializable {
 		this.categoryType = categoryType;
 	}
 
-
 	public User getOwner() {
 		return this.owner;
 	}
@@ -298,100 +282,12 @@ public class Category implements Serializable {
 		this.owner = owner;
 	}
 
-	public List<Device> getDevices() {
-		return this.devices;
+	public Long getOwnerId() {
+		return ownerId;
 	}
 
-	public void setDevices(List<Device> devices) {
-		this.devices = devices;
-	}
-
-	public List<Long> getDeviceIds() {
-		return this.deviceIds;
-	}
-
-	public void setDeviceIds(List<Long> ids) {
-		this.deviceIds = ids;
-	}
-
-	public List<Group> getGroups() {
-		return this.groups;
-	}
-
-	public void setGroups(List<Group> groups) {
-		this.groups = groups;
-	}
-
-	public List<Long> getGroupIds() {
-		return this.groupIds;
-	}
-
-	public void setGroupIds(List<Long> ids) {
-		this.groupIds = ids;
-	}
-
-	public List<Long> getHwconfIds() {
-		return this.hwconfIds;
-	}
-
-	public void setHwconfIds(List<Long> ids) {
-		this.hwconfIds = ids;
-	}
-
-	public List<Room> getRooms() {
-		return this.rooms;
-	}
-
-	public void setRooms(List<Room> rooms) {
-		this.rooms = rooms;
-	}
-
-	public List<Long> getRoomIds() {
-		return this.roomIds;
-	}
-
-	public void setRoomIds(List<Long> ids) {
-		this.roomIds = ids;
-	}
-
-	public List<Software> getSoftwares() {
-		return this.softwares;
-	}
-
-	public void setSoftwares(List<Software> softwares) {
-		this.softwares = softwares;
-	}
-
-	public List<Long> getSoftwareIds() {
-		return this.softwareIds;
-	}
-
-	public void setSoftwareIds(List<Long> ids) {
-		this.softwareIds = ids;
-	}
-
-	public List<Software> getRemovedSoftwares() {
-		return this.removedSoftwares;
-	}
-
-	public void setRemovedSoftwares(List<Software> softwares) {
-		this.removedSoftwares = softwares;
-	}
-
-	public List<User> getUsers() {
-		return this.users;
-	}
-
-	public void setUsers(List<User> users) {
-		this.users = users;
-	}
-
-	public List<Long> getUserIds() {
-		return this.userIds;
-	}
-
-	public void setUserIds(List<Long> ids) {
-		this.userIds = ids;
+	public void setOwnerId(Long ownerId) {
+		this.ownerId = ownerId;
 	}
 
 	public boolean getStudentsOnly() {
@@ -402,6 +298,34 @@ public class Category implements Serializable {
 		this.studentsOnly = studentsOnly;
 	}
 
+	public boolean isPublicAccess() {
+		return publicAccess;
+	}
+
+	public void setPublicAccess(boolean publicAccess) {
+		this.publicAccess = publicAccess;
+	}
+
+	public void setValidFrom(Date validFrom) {
+		this.validFrom = validFrom;
+	}
+
+	public Date getValidUntil() {
+		return validUntil;
+	}
+
+	public Date getValidFrom() {
+		return validFrom;
+	}
+
+	public void setValidUntil(Date validUntil) {
+		this.validUntil = validUntil;
+	}
+
+	/**
+	 * Functions to handle the member of categories
+	 */
+	//Announcrements
 	public List<Announcement> getAnnouncements() {
 		return this.announcements;
 	}
@@ -418,6 +342,7 @@ public class Category implements Serializable {
 		this.announcementIds = ids;
 	}
 
+	//Contacts
 	public List<Contact> getContacts() {
 		return this.contacts;
 	}
@@ -433,7 +358,24 @@ public class Category implements Serializable {
 	public void setContactIds(List<Long> ids) {
 		this.contactIds = ids;
 	}
+	//Devices
+	public List<Device> getDevices() {
+		return this.devices;
+	}
 
+	public void setDevices(List<Device> devices) {
+		this.devices = devices;
+	}
+
+	public List<Long> getDeviceIds() {
+		return this.deviceIds;
+	}
+
+	public void setDeviceIds(List<Long> ids) {
+		this.deviceIds = ids;
+	}
+
+	//Faqs
 	public List<FAQ> getFaqs() {
 		return this.faqs;
 	}
@@ -442,14 +384,111 @@ public class Category implements Serializable {
 		this.faqs = faqs;
 	}
 
-	public List<Long> getFAQIds() {
-		return this.faqIds;
+	public List<Long> getFaqIds() {
+		return faqIds;
 	}
 
-	public void setFAQIds(List<Long> ids) {
-		this.faqIds = ids;
+	public void setFaqIds(List<Long> faqIds) {
+		this.faqIds = faqIds;
 	}
 
+	//Groups
+	public List<Group> getGroups() {
+		return this.groups;
+	}
+
+	public void setGroups(List<Group> groups) {
+		this.groups = groups;
+	}
+
+	public List<Long> getGroupIds() {
+		return this.groupIds;
+	}
+
+	public void setGroupIds(List<Long> ids) {
+		this.groupIds = ids;
+	}
+
+	//Hwconfs
+	public List<HWConf> getHwconfs() {
+		return hwconfs;
+	}
+
+	public void setHwconfs(List<HWConf> hwconfs) {
+		this.hwconfs = hwconfs;
+	}
+
+	public List<Long> getHwconfIds() {
+		return this.hwconfIds;
+	}
+
+	public void setHwconfIds(List<Long> ids) {
+		this.hwconfIds = ids;
+	}
+
+	//Rooms
+	public List<Room> getRooms() {
+		return this.rooms;
+	}
+
+	public void setRooms(List<Room> rooms) {
+		this.rooms = rooms;
+	}
+
+	public List<Long> getRoomIds() {
+		return this.roomIds;
+	}
+
+	public void setRoomIds(List<Long> ids) {
+		this.roomIds = ids;
+	}
+
+	//Softwares
+	public List<Software> getSoftwares() {
+		return this.softwares;
+	}
+
+	public void setSoftwares(List<Software> softwares) {
+		this.softwares = softwares;
+	}
+
+	public List<Long> getSoftwareIds() {
+		return this.softwareIds;
+	}
+
+	public void setSoftwareIds(List<Long> ids) {
+		this.softwareIds = ids;
+	}
+
+	//RemovedSoftwares
+	public List<Software> getRemovedSoftwares() {
+		return this.removedSoftwares;
+	}
+
+	public void setRemovedSoftwares(List<Software> softwares) {
+		this.removedSoftwares = softwares;
+	}
+
+	//Users
+	public List<User> getUsers() {
+		return this.users;
+	}
+
+	public void setUsers(List<User> users) {
+		this.users = users;
+	}
+
+	public List<Long> getUserIds() {
+		return this.userIds;
+	}
+
+	public void setUserIds(List<Long> ids) {
+		this.userIds = ids;
+	}
+
+	/**
+	 * Function to initialize the xxxxxIds attributes
+	 */
 	public void setIds() {
 		this.announcementIds = new ArrayList<Long>();
 		this.contactIds      = new ArrayList<Long>();
@@ -506,49 +545,4 @@ public class Category implements Serializable {
 			}
 		}
 	}
-
-	public void setValidFrom(Date validFrom) {
-		this.validFrom = validFrom;
-	}
-
-
-	public Date getValidUntil() {
-		return validUntil;
-	}
-
-
-	public void setValidUntil(Date validUntil) {
-		this.validUntil = validUntil;
-	}
-
-
-	public Long getOwnerId() {
-		return ownerId;
-	}
-
-
-	public void setOwnerId(Long ownerId) {
-		this.ownerId = ownerId;
-	}
-
-
-	public List<HWConf> getHwconfs() {
-		return hwconfs;
-	}
-
-
-	public void setHwconfs(List<HWConf> hwconfs) {
-		this.hwconfs = hwconfs;
-	}
-
-	public List<Long> getFaqIds() {
-		return faqIds;
-	}
-
-
-	public void setFaqIds(List<Long> faqIds) {
-		this.faqIds = faqIds;
-	}
-
-
 }

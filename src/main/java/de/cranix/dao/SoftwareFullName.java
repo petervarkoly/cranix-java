@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.Long;
 import java.lang.String;
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -30,6 +31,8 @@ public class SoftwareFullName implements Serializable {
 	@JsonIgnore
 	private Software software;
 
+	@Size(min = 1, max = 128)
+    @Column(name = "fullName", length = 128)
 	private String fullName;
 
 	private static final long serialVersionUID = 1L;
@@ -41,7 +44,7 @@ public class SoftwareFullName implements Serializable {
 	public SoftwareFullName(Software software, String fullName) {
 		super();
 		this.software = software;
-		this.fullName = fullName;
+		this.fullName = fullName.length() > 128 ? fullName.substring(0,128) : fullName;
 	}
 
 	public Long getId() {
@@ -64,6 +67,6 @@ public class SoftwareFullName implements Serializable {
 	}
 
 	public void setFullName(String fullName) {
-		this.fullName = fullName;
+		this.fullName = fullName.length() > 128 ? fullName.substring(0,128) : fullName;
 	}
 }

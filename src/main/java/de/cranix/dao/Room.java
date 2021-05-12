@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -20,21 +20,21 @@ import java.util.Map;
 @Entity
 @Table(name="Rooms")
 @NamedQueries ({
-	@NamedQuery(name="Room.findAll",                   query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom'"),
-	@NamedQuery(name="Room.findAllWithControl",        query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomControl != 'no'"),
+	@NamedQuery(name="Room.findAll",		   query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom'"),
+	@NamedQuery(name="Room.findAllWithControl",	   query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomControl != 'no'"),
 	@NamedQuery(name="Room.findAllWithTeacherControl", query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomControl != 'no' AND r.roomControl != 'sysadminsOnly'"),
-	@NamedQuery(name="Room.findAllWithFirewallControl",query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom'"),
-	@NamedQuery(name="Room.findAllToUse",              query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.name != 'ANON_DHCP' AND r.roomType != 'ANON_DHCP'"),
-	@NamedQuery(name="Room.findAllToRegister",         query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.name != 'ANON_DHCP' AND r.roomType != 'ANON_DHCP'"),
-	@NamedQuery(name="Room.getByName",                 query="SELECT r FROM Room r WHERE r.name = :name"),
-	@NamedQuery(name="Room.getByDescription",          query="SELECT r FROM Room r WHERE r.description = :description"),
-	@NamedQuery(name="Room.getByType",                 query="SELECT r FROM Room r WHERE r.roomType = :type"),
-	@NamedQuery(name="Room.getByControl",              query="SELECT r FROM Room r WHERE r.roomControl = :control"),
-	@NamedQuery(name="Room.getByIp",                   query="SELECT r FROM Room r WHERE r.startIP = :ip"),
-	@NamedQuery(name="Room.search",                    query="SELECT r FROM Room r WHERE r.name LIKE :search OR r.description LIKE :search OR r.roomType LIKE :search AND r.roomType != 'smartRoom'"),
-	@NamedQuery(name="Room.findAllId",                 query="SELECT r.id FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomType != 'adHocAccess'"),
-	@NamedQuery(name="Room.findAllToUseId",            query="SELECT r.id FROM Room r WHERE r.roomType != 'smartRoom' AND r.name != 'ANON_DHCP' AND r.roomType != 'ANON_DHCP'"),
-	@NamedQuery(name="Room.getDeviceCount",            query="SELECT COUNT( d ) FROM  Device d WHERE d.room.id = :id")
+	@NamedQuery(name="Room.findAllWithFirewallControl",query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomControl = 'no'"),
+	@NamedQuery(name="Room.findAllToUse",	           query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.name != 'ANON_DHCP' AND r.roomType != 'ANON_DHCP'"),
+	@NamedQuery(name="Room.findAllToRegister",	   query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.name != 'ANON_DHCP' AND r.roomType != 'ANON_DHCP'"),
+	@NamedQuery(name="Room.getByName",		   query="SELECT r FROM Room r WHERE r.name = :name"),
+	@NamedQuery(name="Room.getByDescription",	   query="SELECT r FROM Room r WHERE r.description = :description"),
+	@NamedQuery(name="Room.getByType",		   query="SELECT r FROM Room r WHERE r.roomType = :type"),
+	@NamedQuery(name="Room.getByControl",	           query="SELECT r FROM Room r WHERE r.roomControl = :control"),
+	@NamedQuery(name="Room.getByIp",		   query="SELECT r FROM Room r WHERE r.startIP = :ip"),
+	@NamedQuery(name="Room.search",		           query="SELECT r FROM Room r WHERE r.name LIKE :search OR r.description LIKE :search OR r.roomType LIKE :search AND r.roomType != 'smartRoom'"),
+	@NamedQuery(name="Room.findAllId",		   query="SELECT r.id FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomType != 'adHocAccess'"),
+	@NamedQuery(name="Room.findAllToUseId",	           query="SELECT r.id FROM Room r WHERE r.roomType != 'smartRoom' AND r.name != 'ANON_DHCP' AND r.roomType != 'ANON_DHCP'"),
+	@NamedQuery(name="Room.getDeviceCount",	           query="SELECT COUNT( d ) FROM  Device d WHERE d.room.id = :id")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class Room implements Serializable {
@@ -81,7 +81,7 @@ public class Room implements Serializable {
 	private Long id;
 
 	@Column(name = "name", updatable = false)
-	@Size(max=10, message="Name must not be longer then 10 characters.")
+	@Size(max=32, message="Name must not be longer then 10 characters.")
 	private String name;
 
 	private Integer places;
@@ -113,7 +113,7 @@ public class Room implements Serializable {
 	private List<AccessInRoom> accessInRooms = new ArrayList<AccessInRoom>();
 
 	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="room")
+	@OneToMany(mappedBy="room", cascade=CascadeType.ALL )
 	@JsonIgnore
 	private List<Device> devices = new ArrayList<Device>();
 
@@ -378,17 +378,17 @@ public class Room implements Serializable {
 		this.network = network;
 	}
 
-        public List<Category> getCategories() {
-                return this.categories;
-        }
+	public List<Category> getCategories() {
+		return this.categories;
+	}
 
-        public void setCategories(List<Category> categories) {
-                this.categories = categories;
-        }
+	public void setCategories(List<Category> categories) {
+		this.categories = categories;
+	}
 
-        public List<RoomSmartControl> getSmartControls() {
-        	return this.smartControls;
-        }
+	public List<RoomSmartControl> getSmartControls() {
+		return this.smartControls;
+	}
 
 	public User getCreator() {
 		return creator;

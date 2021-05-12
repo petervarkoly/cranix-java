@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS Partitions (
         FOREIGN KEY(hwconf_id) REFERENCES HWConfs(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX partitions on Partitions(hwconf_id,name);
 
 CREATE TABLE IF NOT EXISTS Rooms (
         id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -179,6 +180,7 @@ CREATE TABLE IF NOT EXISTS Printers (
         FOREIGN KEY(creator_id) REFERENCES Users(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX printers on Printers(name);
 
 CREATE TABLE IF NOT EXISTS DefaultPrinter (
         id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -332,6 +334,7 @@ CREATE TABLE IF NOT EXISTS Softwares (
 	FOREIGN KEY(creator_id)  REFERENCES Users(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX softwares_name on Softwares(name);
 
 CREATE TABLE IF NOT EXISTS SoftwareRequirements (
         software_id		    BIGINT UNSIGNED,
@@ -434,6 +437,17 @@ CREATE TABLE IF NOT EXISTS HaveSeen (
 	PRIMARY KEY(announcement_id,user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
 
+CREATE TABLE IF NOT EXISTS TaskResponses (
+	id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        owner_id   BIGINT UNSIGNED DEFAULT NULL,
+        parent_id  BIGINT UNSIGNED DEFAULT NULL,
+	rating     VARCHAR(8192),
+        text       MEDIUMTEXT,
+        FOREIGN KEY(owner_id)  REFERENCES Users(id),
+        FOREIGN KEY(parent_id) REFERENCES Announcements(id),
+        PRIMARY KEY  (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+
 CREATE TABLE IF NOT EXISTS FAQs (
 	id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
         owner_id   BIGINT UNSIGNED DEFAULT NULL,
@@ -469,6 +483,7 @@ CREATE TABLE IF NOT EXISTS Categories (
         FOREIGN KEY(owner_id)  REFERENCES Users(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX categories on Categories(name,categoryType);
 
 CREATE TABLE IF NOT EXISTS DeviceInCategories (
         device_id          BIGINT UNSIGNED NOT NULL,

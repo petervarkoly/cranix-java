@@ -13,8 +13,16 @@ import java.util.List;
  */
 public class GuestUsers {
 
-	public GuestUsers(String name, String description, Long count, List<Long> roomIds, String password,
-			boolean createAdHocRoom, String roomControl, boolean privateGroup, Date validity) {
+	public GuestUsers(
+			String name,
+			String description,
+			Integer count,
+			List<Long> roomIds,
+			String password,
+			boolean createAdHocRoom,
+			String roomControl,
+			boolean privateGroup,
+			Date validity) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -27,7 +35,7 @@ public class GuestUsers {
 		this.validUntil = validity;
 	}
 
-	public GuestUsers(String name, String description, Long count, Long room, Date validity) {
+	public GuestUsers(String name, String description, Integer count, Long room, Date validity) {
 			super();
 			this.name = name;
 			this.description = description;
@@ -49,6 +57,11 @@ public class GuestUsers {
 	}
 
 	/**
+	 * The id of the guest group
+	 */
+	private Long id = 0L;
+
+	/**
 	 * The name of the guest group
 	 */
 	private String name = "";
@@ -57,11 +70,12 @@ public class GuestUsers {
 	 * Description of the guest group
 	 */
 	private String description = "";
-	
+
+
 	/**
 	 * Count of the user in the guest group
 	 */
-	private Long count = 1L;
+	private Integer count = 1;
 	
 	/**
 	 * The list of the room ids where the member of the group may use the workstations
@@ -84,7 +98,7 @@ public class GuestUsers {
 	private String roomControl = "no";
 	
 	/**
-	 * 
+	 * Is this group private
 	 */
 	private boolean privateGroup = false;
 	
@@ -124,14 +138,14 @@ public class GuestUsers {
 	/**
 	 * @return the count
 	 */
-	public Long getCount() {
+	public Integer getCount() {
 		return count;
 	}
 
 	/**
 	 * @param count the count to set
 	 */
-	public void setCount(Long count) {
+	public void setCount(Integer count) {
 		this.count = count;
 	}
 
@@ -219,4 +233,11 @@ public class GuestUsers {
 		this.privateGroup = privateGroup;
 	}
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 }

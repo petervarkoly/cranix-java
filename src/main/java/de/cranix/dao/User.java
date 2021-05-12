@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 import org.eclipse.persistence.annotations.Cache;
 import org.eclipse.persistence.annotations.CacheType;
 
-import de.cranix.dao.tools.SslCrypto;
+import de.cranix.helper.SslCrypto;
 
 
 /**
@@ -223,6 +223,32 @@ public class User implements Serializable {
 	@JsonIgnore
 	private List<Announcement> myAnnouncements = new ArrayList<Announcement>();
 
+	public List<TaskResponse> getTaskResponses() {
+		return taskResponses;
+	}
+
+	public void setTaskResponses(List<TaskResponse> taskResponses) {
+		this.taskResponses = taskResponses;
+	}
+
+	public void addTaskResponse(TaskResponse taskResponse) {
+		if( !this.taskResponses.contains(taskResponse)) {
+			this.taskResponses.add(taskResponse);
+			taskResponse.setOwner(this);
+		}
+	}
+
+	public void deleteTaskResponse(TaskResponse taskResponse) {
+		if( this.taskResponses.contains(taskResponse)) {
+			this.taskResponses.remove(taskResponse);
+			taskResponse.setOwner(null);
+		}
+	}
+	//bi-directional many-to-one association to Device
+	@OneToMany(mappedBy="owner", cascade ={CascadeType.ALL}, orphanRemoval=true)
+	@JsonIgnore
+	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
+
 	//bi-directional many-to-many association to Category
 	@ManyToMany(mappedBy="users")
 	@JsonIgnore
@@ -261,6 +287,8 @@ public class User implements Serializable {
 	//@JsonManagedReference
 	@JsonIgnore
 	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();
+
+
 
 	private Integer fsQuotaUsed;
 	private Integer fsQuota;

@@ -6,3 +6,7 @@ cranix-dao/dao.iml
 cranix-assembly/cranix-dao.iml
 cranix-api/cranix-api.iml
 cranix-java/
+cranix.iml
+dependency-reduced-pom.xml
+nohup.out
+target/

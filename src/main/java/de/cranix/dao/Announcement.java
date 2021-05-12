@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -37,13 +37,13 @@ public class Announcement implements Serializable {
 	/**
 	 * The issue of the announcement. The maximal length is 128
 	 */
-	@Size(max=128, message="Issue must not be longer then 64 characters.")
+	@Size(max=128, message="Issue must not be longer then 128 characters.")
 	private String issue;
 
 	/*+
 	 * Keywords to the announcement.
 	 */
-	@Size(max=128, message="Keywords must not be longer then 64 characters.")
+	@Size(max=128, message="Keywords must not be longer then 128 characters.")
 	private String keywords;
 
 	/**
@@ -51,7 +51,7 @@ public class Announcement implements Serializable {
 	 */
 	private String text;
 
-	@Size(max=128, message="Title must not be longer then 64 characters.")
+	@Size(max=128, message="Title must not be longer then 128 characters.")
 	private String title;
 
 
@@ -62,11 +62,11 @@ public class Announcement implements Serializable {
 	private Date validUntil;
 
 	//bi-directional many-to-many association to User
-	@ManyToMany(mappedBy="readAnnouncements",cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+	@ManyToMany(mappedBy="readAnnouncements",cascade ={CascadeType.MERGE, CascadeType.REFRESH})
 	private List<User> haveSeenUsers;
 
 	//bi-directional many-to-many association to Category
-	@ManyToMany(mappedBy="announcements",cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+	@ManyToMany(mappedBy="announcements",cascade ={CascadeType.MERGE, CascadeType.REFRESH})
 	private List<Category> categories;
 
 	@Transient
@@ -74,11 +74,27 @@ public class Announcement implements Serializable {
 
 	//bi-directional many-to-one association to User
 	@ManyToOne
-	@JsonIgnore
 	private User owner;
 
 	@Column(name="owner_id", insertable=false, updatable=false)
 	private Long ownerId;
+
+
+	public Boolean getSeenByMe() {
+		return seenByMe;
+	}
+
+	public void setSeenByMe(Boolean seenByMe) {
+		this.seenByMe = seenByMe;
+	}
+
+	@Transient
+	private Boolean seenByMe = false;
+
+	//bi-directional many-to-many association to Category
+	@JsonIgnore
+	@OneToMany(mappedBy="parent",cascade ={CascadeType.ALL})
+	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
 
 	public Announcement() {
 		this.haveSeenUsers = new ArrayList<User>();
@@ -180,6 +196,25 @@ public class Announcement implements Serializable {
 		this.ownerId = ownerId;
 	}
 
+	public List<TaskResponse> getTaskResponses() {
+		return taskResponses;
+	}
+
+	public void setTaskResponses(List<TaskResponse> taskResponses) {
+		this.taskResponses = taskResponses;
+	}
+	public void addTasksResponses(TaskResponse taskResponse) {
+		taskResponse.setParent(this);
+		if( !this.taskResponses.contains(taskResponse) ) {
+			this.taskResponses.add(taskResponse);
+		}
+	}
+	public void deleteTasksResponses(TaskResponse taskResponse) {
+		taskResponse.setParent(null);
+		if( this.taskResponses.contains(taskResponse) ) {
+			this.taskResponses.remove(taskResponse);
+		}
+	}
 	@Override
 	public String toString() {
 		try {

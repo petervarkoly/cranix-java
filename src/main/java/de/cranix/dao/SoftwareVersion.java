@@ -33,7 +33,7 @@ public class SoftwareVersion implements Serializable {
 	private String version;
 
 	//bi-directional many-to-one association, cascade=CascadeType.REMOVEn to SoftwareStatus
-	@OneToMany(mappedBy="softwareVersion", cascade=CascadeType.REMOVE)
+	@OneToMany(mappedBy="softwareVersion", cascade=CascadeType.ALL)
 	@JsonIgnore
 	private List<SoftwareStatus> softwareStatuses;
 
@@ -95,6 +95,7 @@ public class SoftwareVersion implements Serializable {
 		this.software = software;
 		this.version  = version;
 		this.status   = status;
+		software.getSoftwareVersions().add(this);
 	}
 
 	public Long getId() {

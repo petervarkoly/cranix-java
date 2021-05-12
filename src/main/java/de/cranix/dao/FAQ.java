@@ -45,7 +45,6 @@ public class FAQ implements Serializable {
 
 	//bi-directional many-to-one association to User
 	@ManyToOne
-	@JsonIgnore
 	private User owner;
 
 	@Column(name="owner_id", insertable=false, updatable=false)
