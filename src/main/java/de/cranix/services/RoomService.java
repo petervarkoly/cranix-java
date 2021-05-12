@@ -641,6 +641,21 @@ public class RoomService extends Service {
 		return new ArrayList();
 	}
 
+	/*
+	 * Returns the default accesses in a room
+	 */
+	public AccessInRoom getDefaultAccess(long roomId) {
+		Room room = this.getById(roomId);
+		if (room != null) {
+			for(AccessInRoom accessInRoom: room.getAccessInRooms() ) {
+				if( accessInRoom.getAccessType().equals("DEF") ) {
+					return accessInRoom;
+				}
+			}
+		}
+		return null;
+	}
+
 
 	/*
 	 * Sets the actual access status in a room

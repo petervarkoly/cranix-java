@@ -369,6 +369,27 @@ public class RoomResource {
 		return accesses;
 	}
 
+	@GET
+	@Path("{roomId}/defaultAccess")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets the default access in a room")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("room.add")
+	public AccessInRoom getDefaultAccess(
+		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("roomId") Long roomId
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		final AccessInRoom access = new RoomService(session,em).getDefaultAccess(roomId);
+		em.close();
+		if ( access == null) {
+			throw new WebApplicationException(404);
+		}
+		return access;
+	}
+
 	@POST
 	@Path("{roomId}/accessList")
 	@Produces(JSON_UTF8)
