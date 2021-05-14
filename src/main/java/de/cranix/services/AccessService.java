@@ -4,34 +4,86 @@ import de.cranix.dao.AccessInRoom;
 import de.cranix.dao.Room;
 import de.cranix.helper.CrxSystemCmd;
 import org.ini4j.Ini;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AccessService {
+public class AccessService extends Config {
 
+    Logger logger = LoggerFactory.getLogger(AdHocLanService.class);
     Ini sambaConf;
-    String fwStatus;
+    HashMap<String,HashMap<String,String>> fwStatus = new HashMap<>();
+    String proxy;
+    String portal;
 
     public AccessService() {
+        super();
         try {
             sambaConf = new Ini(new File("/etc/samba/smb.conf"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String[] program = new String[4];
-        program[0] = "/usr/sbin/iptables";
-        program[1] = "-L";
-        program[2] = "-n";
-        program[3] = "-v";
+        proxy  = this.getConfigValue("PROXY");
+        portal = this.getConfigValue("MAILSERVER");
+
+        String nameString      = "^(\\S+)";
+        String richRuleString  = "^\\s+rich rules:";
+        String valueString     = "^\\s+(\\S+): (\\S+)";
+        String addressString   = "address=\"([0-9\\.]+)\"";
+        Pattern namePattern     = Pattern.compile(nameString);
+        Pattern richRulePattern = Pattern.compile(richRuleString);
+        Pattern valuePattern    = Pattern.compile(valueString);
+        Pattern addressPattern  = Pattern.compile(addressString);
+        String key = "";
+        HashMap<String, String> map = null;
+        Boolean rule = false;
+        List<String> rules = new ArrayList<String>();
+        String[] program = new String[2];
+        program[0] = "/usr/bin/firewall-cmd";
+        program[1] = "--list-all-zones";
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         CrxSystemCmd.exec(program, reply, error, null);
-        fwStatus = reply.toString();
+        for(String line: reply.toString().split("\n") ) {
+            logger.debug(line);
+            Matcher nameMatcher = namePattern.matcher(line);
+            if( nameMatcher.find() ) {
+                if(map != null) {
+                    map.put("rule",String.join(" ",rules));
+                    fwStatus.put(key,map);
+                }
+                key = nameMatcher.group(1);
+                map = new HashMap<String, String>();
+                rule  = false;
+                rules = new ArrayList<String>();
+                continue;
+            }
+            if( rule ) {
+                Matcher addressMatcher = addressPattern.matcher(line);
+                if( addressMatcher.find()) {
+                    rules.add(addressMatcher.group(1));
+                }
+                continue;
+            }
+            Matcher richRuleMatcher = richRulePattern.matcher(line);
+            if( richRuleMatcher.find()) {
+                rule = true;
+                continue;
+            }
+            Matcher valueMatcher = valuePattern.matcher(line);
+            if( valueMatcher.find() ) {
+                map.put(valueMatcher.group(1), valueMatcher.group(2));
+            }
+        }
+        map.put("rule",String.join(" ",rules));
+        fwStatus.put(key,map);
     }
 
     public AccessInRoom getAccessStatus(Room room) {
@@ -46,9 +98,9 @@ public class AccessService {
         accessInRoom.setLogin(isAllowed(loginDeny, network));
         accessInRoom.setPrinting(isAllowed(printDeny, network));
         /* Read FW settings*/
-        accessInRoom.setProxy(!fwStatus.contains("proxy-" + network));
-        accessInRoom.setPortal(!fwStatus.contains("portal-" + network));
-        accessInRoom.setDirect(isDirect(network));
+        accessInRoom.setProxy(!fwStatus.get(room.getName()).get("rule").contains(proxy));
+        accessInRoom.setPortal(!fwStatus.get(room.getName()).get("rule").contains(portal));
+        accessInRoom.setDirect(fwStatus.get(room.getName()).get("masquerade").equals("yes"));
         return accessInRoom;
     }
 
@@ -61,12 +113,6 @@ public class AccessService {
             }
         }
         return true;
-    }
-
-    boolean isDirect(String network) {
-        Pattern pattern = Pattern.compile("MASQUERADE.*all.*" + network);
-        Matcher matcher = pattern.matcher(fwStatus);
-        return matcher.find();
     }
 
     /*
@@ -95,17 +141,16 @@ public class AccessService {
         }
         String[] program = new String[4];
         //TODO own IP
-        program[0] = "/usr/sbin/crx_set_access_state.sh";
-        program[2] = network;
+        program[0] = "/usr/bin/firewall-cmd";
+        program[1] = "--zone=" + room.getName();
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         //Direct access
         if (allowedDirect) {
-            program[3] = "direct";
             if (access.getDirect())
-                program[1] = "1";
+                program[3] = "--add-masquerade";
             else
-                program[1] = "0";
+                program[3] = "--remove-masquerade";
             CrxSystemCmd.exec(program, reply, error, null);
         }
         // Portal Access
