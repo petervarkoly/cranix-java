@@ -120,12 +120,12 @@ public class EducationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
-	public AccessInRoom getAccessStatus(
+	public Object getAccessStatus(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") long roomId
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		AccessInRoom resp = new RoomService(session,em).getAccessStatus(roomId);
+		Object resp = new RoomService(session,em).getAccessStatus(roomId);
 		em.close();
 		return resp;
 	}
