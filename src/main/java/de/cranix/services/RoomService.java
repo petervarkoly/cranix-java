@@ -59,7 +59,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return false;
-		} finally {
 		}
 	}
 
@@ -72,7 +71,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return false;
-		} finally {
 		}
 	}
 
@@ -87,7 +85,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -98,7 +95,6 @@ public class RoomService extends Service {
 			rooms = query.getResultList();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-		} finally {
 		}
 		for (Room room : rooms) {
 			room.convertNmToCount();
@@ -114,7 +110,6 @@ public class RoomService extends Service {
 			rooms = query.getResultList();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-		} finally {
 		}
 		for (Room room : rooms) {
 			room.convertNmToCount();
@@ -130,7 +125,6 @@ public class RoomService extends Service {
 			rooms = query.getResultList();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-		} finally {
 		}
 		for (Room room : rooms) {
 			room.convertNmToCount();
@@ -146,7 +140,6 @@ public class RoomService extends Service {
 			rooms = query.getResultList();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-		} finally {
 		}
 		for (Room room : rooms) {
 			room.convertNmToCount();
@@ -179,7 +172,6 @@ public class RoomService extends Service {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-		} finally {
 		}
 		for (Room room : rooms) {
 			room.convertNmToCount();
@@ -195,7 +187,6 @@ public class RoomService extends Service {
 			rooms = query.getResultList();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-		} finally {
 		}
 		for (Room room : rooms) {
 			room.convertNmToCount();
@@ -216,7 +207,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -231,7 +221,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -295,7 +284,6 @@ public class RoomService extends Service {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-		} finally {
 		}
 		for (Room room : rooms) {
 			room.convertNmToCount();
@@ -318,7 +306,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -400,7 +387,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error("Error by creating Room:" + e.getMessage());
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		startPlugin("add_room", room);
 		return new CrxResponse(this.session, "OK", "Room was created successfully.", room.getId());
@@ -461,7 +447,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		DHCPConfig dhcpconfig = new DHCPConfig(session, em);
 		dhcpconfig.Create();
@@ -751,7 +736,8 @@ public class RoomService extends Service {
 	/*
 	 * Gets the actual access status in a room
 	 */
-	public AccessInRoom getAccessStatus(Room room) {
+	public AccessInRoom getAccessStatus(Room room)
+	{
 		return new AccessService().getAccessStatus(room);
 	}
 
@@ -910,7 +896,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		new DHCPConfig(session, em).Create();
 		if (needWriteSalt) {
@@ -998,7 +983,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.session, "ERROR", "Error by registering: " + e.getMessage());
-		} finally {
 		}
 		//Start plugin and create DHCP and salt configuration
 		startPlugin("add_device", device);
@@ -1012,7 +996,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -1026,7 +1009,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "The hardware configuration of the room was set successfully.");
 	}
@@ -1053,10 +1035,8 @@ public class RoomService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		startPlugin("modify_room", oldRoom);
-
 		return new CrxResponse(this.session, "OK", "The room was modified successfully.");
 	}
 
@@ -1085,7 +1065,6 @@ public class RoomService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "The default printer of the room was set successfully.");
 	}
@@ -1115,7 +1094,6 @@ public class RoomService extends Service {
 				this.em.getTransaction().commit();
 			} catch (Exception e) {
 				return new CrxResponse(this.session, "ERROR", e.getMessage());
-			} finally {
 			}
 		}
 		return new CrxResponse(this.session, "OK", "The default printer of the room was deleted successfully.");
@@ -1140,7 +1118,6 @@ public class RoomService extends Service {
 
 		} catch (Exception e) {
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "The available printers of the room was set successfully.");
 	}
@@ -1160,7 +1137,6 @@ public class RoomService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "The selected printer was added to the room.");
 	}
@@ -1180,7 +1156,6 @@ public class RoomService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "The selected printer was removed from room.");
 	}
@@ -1218,7 +1193,7 @@ public class RoomService extends Service {
 				this.addAvailablePrinter(roomId, printerId);
 			}
 		} catch (Exception e) {
-
+			logger.debug("setPrinters " + e.getMessage());
 		}
 		return new CrxResponse(this.session, "OK", "Printers of the room was set.");
 	}
@@ -1351,7 +1326,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "Access was created successfully");
 	}
@@ -1374,7 +1348,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "Access was created successfully");
 	}
@@ -1394,7 +1367,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "Access was deleted successfully");
 	}
@@ -1558,7 +1530,6 @@ public class RoomService extends Service {
 		} catch ( Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse(this.session, "ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.session, "OK", "Access was modified successfully");
 	}
