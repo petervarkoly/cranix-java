@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2021 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.services;
 
 import de.cranix.dao.*;
@@ -650,7 +650,7 @@ public class RoomService extends Service {
 		if (room.getRoomControl() != null && room.getRoomControl().equals("no")) {
 			return;
 		}
-		if (access.getAccessType().equals("ACT")) {
+		if (access.getAccessType() != null && access.getAccessType().equals("ACT")) {
 			DeviceService dc = new DeviceService(this.session, this.em);
 			for (Device device : room.getDevices()) {
 				dc.manageDevice(device, access.getAction(), null);
@@ -669,14 +669,15 @@ public class RoomService extends Service {
 		return new CrxResponse(this.session, "OK", "Access state in %s was set successfully.", null, room.getName());
 	}
 
+	public CrxResponse setDefaultAccess(long roomId) {
+		Room room = this.getById(roomId);
+		new AccessService().setDefaultAccess(room);
+		return new CrxResponse(this.session, "OK", "Default access state in %s was set successfully.", null, room.getName());
+	}
 
 	public CrxResponse setDefaultAccess() {
-		Query query = this.em.createNamedQuery("AccessInRoom.findByType");
-		query.setParameter("accessType", "DEF");
-		for (AccessInRoom access : (List<AccessInRoom>) query.getResultList()) {
-			this.setAccessStatus(access.getRoom(), access);
-		}
-		return null;
+		new AccessService().setDefaultAccess();
+		return new CrxResponse(this.session, "OK", "The default access was set in all rooms.");
 	}
 
 	/*
@@ -736,7 +737,7 @@ public class RoomService extends Service {
 	/*
 	 * Gets the actual access status in a room
 	 */
-	public AccessInRoom getAccessStatus(Room room)
+	public Object getAccessStatus(Room room)
 	{
 		return new AccessService().getAccessStatus(room);
 	}
@@ -745,7 +746,7 @@ public class RoomService extends Service {
 	 * Sets the actual access status in a room.
 	 * Room is given by roomId
 	 */
-	public AccessInRoom getAccessStatus(long roomId) {
+	public Object getAccessStatus(long roomId) {
 		Room room = this.getById(roomId);
 		return this.getAccessStatus(room);
 	}
@@ -754,13 +755,8 @@ public class RoomService extends Service {
 	 * Gets the actual access status in all rooms.
 	 * Room is given by roomId
 	 */
-	public List<AccessInRoom> getAccessStatus() {
-		List<AccessInRoom> accesses = new ArrayList<AccessInRoom>();
-		AccessService accessService = new AccessService();
-		for (Room room : this.getAllWithControl()) {
-			accesses.add(accessService.getAccessStatus(room));
-		}
-		return accesses;
+	public Object getAccessStatus() {
+		return new AccessService().getAccessStatus();
 	}
 
 	/*
