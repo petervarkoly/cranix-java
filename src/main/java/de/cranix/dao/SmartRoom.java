@@ -144,7 +144,8 @@ public class SmartRoom {
 				}
 			}
 		}*/
-		this.accessInRooms = rc.getAccessStatus(roomId);
+		//TODO
+		this.accessInRooms = (AccessInRoom) rc.getAccessStatus(roomId);
 	}
 
 	@JsonIgnore
