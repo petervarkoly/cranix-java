@@ -31,7 +31,7 @@ public class SmartRoom {
 
 	private int rows;
 
-	private AccessInRoom accessInRooms;
+	private Object accessInRooms;
 
 	private List<Device> devices;
 
@@ -145,7 +145,7 @@ public class SmartRoom {
 			}
 		}*/
 		//TODO
-		this.accessInRooms = (AccessInRoom) rc.getAccessStatus(roomId);
+		this.accessInRooms = rc.getAccessStatus(roomId);
 	}
 
 	@JsonIgnore
@@ -207,11 +207,11 @@ public class SmartRoom {
 		this.rows = rows;
 	}
 
-	public AccessInRoom getAccessInRooms() {
+	public Object getAccessInRooms() {
 		return accessInRooms;
 	}
 
-	public void setAccessInRooms(AccessInRoom accessInRooms) {
+	public void setAccessInRooms(Object accessInRooms) {
 		this.accessInRooms = accessInRooms;
 	}
 
