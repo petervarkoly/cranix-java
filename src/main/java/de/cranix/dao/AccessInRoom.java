@@ -141,7 +141,7 @@ public class AccessInRoom implements Serializable {
 	public AccessInRoom() {
 		this.pointInTime = "06:00";
 		this.monday   = true;
-		this.tuesday   = true;
+		this.tuesday  = true;
 		this.wednesday= true;
 		this.thursday = true;
 		this.friday   = true;
@@ -153,10 +153,28 @@ public class AccessInRoom implements Serializable {
 		this.portal   = true;
 		this.printing = true;
 		this.proxy    = true;
-		this.action  = "";
+		this.action   = "";
 	}
 
-	public AccessInRoom(Room room) {
+	public AccessInRoom(Boolean directAccess) {
+		this.pointInTime = "06:00";
+		this.monday   = true;
+		this.tuesday  = true;
+		this.wednesday= true;
+		this.thursday = true;
+		this.friday   = true;
+		this.saturday = false;
+		this.sunday   = false;
+		this.holiday  = false;
+		this.direct   = directAccess;
+		this.login    = true;
+		this.portal   = true;
+		this.printing = true;
+		this.proxy    = true;
+		this.action   = "";
+	}
+
+	public AccessInRoom(Room room, Boolean directAccess) {
 		this.pointInTime = "06:00";
 		this.accessType  = "DEF";
 		this.monday   = true;
@@ -167,7 +185,7 @@ public class AccessInRoom implements Serializable {
 		this.saturday = false;
 		this.sunday   = false;
 		this.holiday  = false;
-		this.direct   = false;
+		this.direct   = directAccess;
 		this.login    = true;
 		this.portal   = true;
 		this.printing = true;

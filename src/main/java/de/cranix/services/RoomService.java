@@ -376,7 +376,7 @@ public class RoomService extends Service {
 		room.setCreator(this.session.getUser());
 		hwconf.getRooms().add(room);
 		if (room.getRoomControl() != null && !room.getRoomControl().equals("no")) {
-			new AccessInRoom(room);
+			new AccessInRoom(room,!this.getConfigValue("INTERNET_FILTER").equals("proxy"));
 		}
 		try {
 			logger.debug("Create Room:" + room);

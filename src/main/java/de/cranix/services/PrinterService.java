@@ -80,7 +80,6 @@ public class PrinterService extends Service {
         } catch (Exception e) {
             logger.debug("id " + printerId + " " + e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -102,7 +101,6 @@ public class PrinterService extends Service {
         } catch (Exception e) {
             logger.debug("name " + name + " " + e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -305,7 +303,6 @@ public class PrinterService extends Service {
         } catch (Exception e) {
             logger.debug("addPrinterQueue :" + e.getMessage());
             return new CrxResponse(session, "ERROR", e.getMessage());
-        } finally {
         }
         //Create the printer in CUPS
         String driverFile = "/usr/share/cups/model/Postscript.ppd.gz";
