@@ -51,51 +51,63 @@ public class Device implements Serializable {
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
 	private Long id;
 
-	@Column(name = "name", updatable = false)
+	@Column(name = "name", updatable = false, length = 32)
+	@Size(max=32)
 	@Pattern.List({
-		@Pattern(
+		/*@Pattern(
                  regexp = "^[^,~:@#$%\\^'\\.\\(\\)/\\\\\\{\\}_\\s\\*\\?<>\\|]+$",
                  flags = Pattern.Flag.CASE_INSENSITIVE,
-                 message = "Device name must not contains following signs: ',~:$%^/\\.(){}#;_' and spaces."),
-		@Pattern(
+                 message = "Device name must not contains following signs: ',~:$%^/\\.(){}#;_' and spaces."),*/
+			@Pattern(
+					regexp = "[a-z0-9-].*",
+					flags = Pattern.Flag.CASE_INSENSITIVE,
+					message = "Device name contains invalid characters. Use only a-z0-9-"),
+			@Pattern(
                 regexp = "^[^-].*",
                 flags = Pattern.Flag.CASE_INSENSITIVE,
                 message = "Device name must not start with '-'."),
-		@Pattern(
+			@Pattern(
                 regexp = ".*[^-]$",
                 flags = Pattern.Flag.CASE_INSENSITIVE,
                 message = "Device name must not ends with '-'.")
 	})
 	private String name;
 
+	@Column(name = "place")
 	private int place;
 
 	@Column(name = "roomRow")
 	private int row;
 
-	@Column(name="IP")
+	@Column(name="IP", length = 16)
 	@Size(max=16, message="IP must not be longer then 16 characters.")
 	private String ip;
 
-	@Column(name="MAC")
+	@Column(name="MAC", length = 17)
 	@Size(max=17, message="MAC must not be longer then 17 characters.")
 	private String mac;
 
+	@Column(name="wlanIp", length = 16)
 	@Size(max=16, message="WLAN-IP must not be longer then 16 characters.")
 	private String wlanIp;
 
+	@Column(name="wlanMac", length = 17)
 	@Size(max=17, message="WLAN-MAC must not be longer then 17 characters.")
 	private String wlanMac;
 
+	@Column(name="serial", length = 32)
 	@Size(max=32, message="Serial must not be longer then 32 characters.")
 	private String serial;
 
+	@Column(name="inventary", length = 32)
 	@Size(max=32, message="Inventary must not be longer then 32 characters.")
 	private String inventary;
 
+	@Column(name="locality", length = 32)
 	@Size(max=32, message="Locality must not be longer then 32 characters.")
 	private String locality;
 
+	@Column(name="counter")
 	private Long   counter;
 
 	//bi-directional many-to-many association to Category
