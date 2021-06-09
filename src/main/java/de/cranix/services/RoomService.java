@@ -874,7 +874,7 @@ public class RoomService extends Service {
 		try {
 			for (Device device : devices) {
 				//Remove trailing and ending spaces.
-				device.setName(device.getName().trim());
+				device.setName(device.getName().trim().toLowerCase());
 				logger.debug("addDevices device" + device);
 				ipAddress = this.getAvailableIPAddresses(roomId, 2);
 				logger.debug("addDevices ipAddress" + ipAddress);

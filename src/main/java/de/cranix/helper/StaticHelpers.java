@@ -165,7 +165,7 @@ public class StaticHelpers {
 		StringBuffer error = new StringBuffer();
 		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = "change_member";
-		data.append(String.format("changeType: %s%n",type));
+		data.append(String.format("changetype: %s%n",type));
 		data.append(String.format("group: %s%n", group.getName()));
 		List<String> uids = new ArrayList<String>();
 		for( User user : users ) {
@@ -184,7 +184,7 @@ public class StaticHelpers {
 		StringBuffer error = new StringBuffer();
 		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = "change_member";
-		data.append(String.format("changeType: %s%n",type));
+		data.append(String.format("changetype: %s%n",type));
 		data.append(String.format("group: %s%n", group.getName()));
 		data.append(String.format("users: %s%n", user.getUid()));
 		CrxSystemCmd.exec(program, reply, error, data.toString());
