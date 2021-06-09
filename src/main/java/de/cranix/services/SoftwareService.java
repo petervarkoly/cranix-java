@@ -1277,23 +1277,43 @@
 
      public CrxResponse applySoftwareStateToHosts(List<Device> devices) {
          DeviceService deviceService = new DeviceService(this.session, this.em);
-         Map<String, List<String>> softwaresToInstall = new HashMap<>();
+         Map<String, List<String>>   softwaresToInstall = new HashMap<>();
          Map<String, List<Software>> softwaresToRemove = new HashMap<>();
-         Map<String, Boolean> softwareMustBeIncluded = new HashMap<>();
-         List<String> toInstall = new ArrayList<String>();
-         List<Software> toRemove = new ArrayList<Software>();
-         final String domainName = this.getConfigValue("DOMAIN");
+         Map<String, Boolean>        softwareMustBeIncluded = new HashMap<>();
+         List<String> toInstall      = new ArrayList<String>();
+         List<Software> toRemove     = new ArrayList<Software>();
+         final String domainName     = this.getConfigValue("DOMAIN");
          StringBuilder errorMessages = new StringBuilder();
-         String registerPassword = this.getProperty("de.cranix.dao.User.Register.Password");
+         String registerPassword     = this.getProperty("de.cranix.dao.User.Register.Password");
          UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
          UserPrincipal saltPrincipial = null;
+         try {
+             saltPrincipial = lookupService.lookupPrincipalByName("salt");
+         } catch (IOException e) {
+             logger.error(e.getMessage());
+             return new CrxResponse(session, "ERROR", "Can not get salt's user principal.");
+         }
          //Collect the corresponding Rooms and Hwconfs
          List<HWConf> hwconfs = new ArrayList<HWConf>();
-         List<Room> rooms = new ArrayList<Room>();
+         List<Room>   rooms   = new ArrayList<Room>();
+         List<String> domainJoinSls = new ArrayList<String>();
+         domainJoinSls.add(domainName + ":");
+         domainJoinSls.add("  system.join_domain:");
+         domainJoinSls.add("    - username: register");
+         domainJoinSls.add("    - password: " + registerPassword);
+         domainJoinSls.add("    - restart: True");
+         Path DOMAIN_JOIN = Paths.get("/srv/salt/domain_join.sls");
+         try {
+             Files.write(DOMAIN_JOIN, domainJoinSls);
+             Files.setPosixFilePermissions(DOMAIN_JOIN, groupReadDirPermission);
+             Files.setOwner(DOMAIN_JOIN, saltPrincipial);
+         } catch (IOException e) {
+             logger.error(e.getMessage());
+         }
          for (Device device : devices) {
-	     if( device == null || device.getHwconf() == null || device.getRoom() == null ) {
-		     continue;
-	     }
+             if (device == null || device.getHwconf() == null || device.getRoom() == null) {
+                 continue;
+             }
              if (!hwconfs.contains(device.getHwconf())) {
                  hwconfs.add(device.getHwconf());
              }
@@ -1301,12 +1321,7 @@
                  rooms.add(device.getRoom());
              }
          }
-         try {
-             saltPrincipial = lookupService.lookupPrincipalByName("salt");
-         } catch (IOException e) {
-             logger.error(e.getMessage());
-             return new CrxResponse(session, "ERROR", "Can not get salt's user principal.");
-         }
+
          /* Analyse all installable software if these are packaged */
          Query query = this.em.createNamedQuery("Software.findAll");
          for (Software software : (List<Software>) query.getResultList()) {
@@ -1394,9 +1409,9 @@
          //Evaluate hwconf categories
          logger.debug("Process hwconfs");
          for (HWConf hwconf : hwconfs) {
-	     if( hwconf == null ) {
-		     continue;
-	     }
+             if (hwconf == null) {
+                 continue;
+             }
              logger.debug("HWConfs: " + hwconf.getName() + " " + hwconf.getDeviceType());
              if (!hwconf.getDeviceType().equals("FatClient")) {
                  continue;
@@ -1455,7 +1470,8 @@
              logger.debug("Processing:" + device.getName());
              List<String> deviceRemove = new ArrayList<String>();
              List<String> deviceInstall = new ArrayList<String>();
-             List<String> deviceOssInst = new ArrayList<String>();
+             List<String> deviceCrxInst = new ArrayList<String>();
+             deviceCrxInst.add("  - ntp_conf");
              deviceRemove.add("packages.toremove:");
              deviceRemove.add("  pkg.removed:");
              deviceRemove.add("    - pkgs:");
@@ -1526,7 +1542,7 @@
                      /*
                       * TODO to implement frozen versions.
                       */
-                     deviceOssInst.add("  - " + softwareName);
+                     deviceCrxInst.add("  - " + softwareName);
                  } else {
                      deviceInstall.add(softwareName + ":");
                      deviceInstall.add("  - pkg:");
@@ -1537,20 +1553,16 @@
              deviceSls.add(device.getName() + ":");
              deviceSls.add("  system.computer_name: []");
              if (device.getHwconf().isDomainjoin()) {
-                 deviceSls.add(domainName + ":");
-                 deviceSls.add("  system.join_domain:");
-                 deviceSls.add("    - username: register");
-                 deviceSls.add("    - password: " + registerPassword);
-                 deviceSls.add("    - restart: True");
+                 deviceCrxInst.add("  - domain_join");
              }
              if (deviceRemove.size() > 3) {
                  deviceSls.addAll(deviceRemove);
              }
              deviceSls.addAll(deviceInstall);
              //deviceSls.addAll(deviceGrains);
-             if (deviceOssInst.size() > 0) {
+             if (deviceCrxInst.size() > 0) {
                  deviceSls.add("include:");
-                 deviceSls.addAll(deviceOssInst);
+                 deviceSls.addAll(deviceCrxInst);
              }
 
              if (deviceSls.size() > 0) {
@@ -1565,7 +1577,7 @@
              }
          }
          logger.debug("write top.sls");
-	 this.rewriteTopSls();
+         this.rewriteTopSls();
          if (errorMessages.length() > 0) {
              logger.error(errorMessages.toString());
              return new CrxResponse(this.getSession(), "ERROR", errorMessages.toString());
