@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
+import static de.cranix.helper.StaticHelpers.reloadFirewall;
 
 @SuppressWarnings("unchecked")
 public class SystemService extends Service {
@@ -33,85 +34,13 @@ public class SystemService extends Service {
         super(session, em);
     }
 
-    /**
-     * Translate a sting in a required language.
-     * If the translation does not exists the string will be written into the missed translations table.
-     *
-     * @param    lang    Two letter description of the required language
-     * @param    key        The text to be translated
-     * @return The translated text if there was found a translation or the original text
-     * @see                AddTranslation
-     */
-    public String translate(String lang, String key) {
-        Query query = this.em.createNamedQuery("Translation.find").setParameter("lang", lang.toUpperCase()).setParameter("string", key);
-        try {
-            Translation trans = (Translation) query.getSingleResult();
-            if (trans.getValue().isEmpty()) {
-                return key;
-            }
-            return trans.getValue();
-        } catch (Exception e) {
-            Translation newTrans = new Translation(lang, key);
-            this.addTranslation(newTrans);
-        } finally {
-        }
-        return key;
-    }
-
-    /**
-     * Add a translated text to the Translations table.
-     * If the translation already exists this will be updated.
-     * If there are an entry in MissedTranslations table this will be removed.
-     *
-     * @param    translationTwo letter description of the language of the translation.
-     * The text to be translated. Must not be longer then 256 characters
-     * The translated text. Must not be longer then 256 characters
-     * @return The result of the DB operations
-     * @see                Translate
-     */
-    public CrxResponse addTranslation(Translation translation) {
-        translation.setLang(translation.getLang().toUpperCase());
-        Query query = this.em.createNamedQuery("Translation.find")
-                .setParameter("lang", translation.getLang())
-                .setParameter("string", translation.getString());
-        String responseText = "Translation was created";
-        if (query.getResultList().isEmpty()) {
-            try {
-                this.em.getTransaction().begin();
-                this.em.persist(translation);
-                this.em.getTransaction().commit();
-                responseText = "Translation was updated";
-            } catch (Exception b) {
-                logger.error(b.getMessage());
-                return new CrxResponse(this.session, "ERROR", b.getMessage());
-            }
-        } else {
-            try {
-                this.em.getTransaction().begin();
-                this.em.merge(translation);
-                this.em.getTransaction().commit();
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                return new CrxResponse(this.session, "ERROR", e.getMessage());
-            }
-        }
-
-        return new CrxResponse(this.session, "OK", responseText);
-    }
-
-    /**
-     * Delivers a list of the missed translations to a language.
-     *
-     * @param    lang    Two letter description of the language of the translation.
-     * @return The list of the missed translations
-     * @see                Translate
-     * @see                AddTranslation
-     */
-    public List<Translation> getMissedTranslations(String lang) {
-        Query query = this.em.createNamedQuery("Translation.untranslated").setParameter("lang", lang.toUpperCase());
-        return query.getResultList();
-    }
-
+    static Pattern dnsRecordName = Pattern.compile("Name=(.+?), Records");
+    static Pattern dnsRecordType = Pattern.compile("(.+?): (.+?) \\(flags");
+    static Pattern portForward = Pattern.compile("port=(\\d+):proto=tcp:toport=(\\d+):toaddr=(.*)$");
+    static Pattern servicePattern = Pattern.compile("services: (.*)");
+    static Pattern destinationAddress = Pattern.compile("destination address=\"([0-9\\./]+)\"");
+    static Pattern sourceAddress = Pattern.compile("source address=\"([0-9\\./]+)\"");
+    static Pattern protocolPattern = Pattern.compile("source address=\"([0-9\\./]+)\"");
 
     /**
      * Delivers a list of the status of the system
@@ -217,34 +146,30 @@ public class SystemService extends Service {
         StringBuffer error = new StringBuffer();
         program[0] = "/usr/bin/df";
         int ret = CrxSystemCmd.exec(program, reply, error, "");
-        String[] lines = reply.toString().split("\\n");
-        for(String line: reply.toString().split("\\n")) {
+        for (String line : reply.toString().split("\\n")) {
             String[] fields = line.split("\\s+");
             if (fields[0].startsWith("/dev/")) {
-				statusMapList = new ArrayList<Map<String, String>>();
-            	statusMap = new HashMap<>();
-            	statusMap.put("name", "used");
-            	statusMap.put("count", fields[2]);
-            	statusMapList.add(statusMap);
-				statusMap = new HashMap<>();
-				statusMap.put("name", "free");
-				statusMap.put("count", fields[3]);
-				statusMapList.add(statusMap);
-				systemStatus.put(fields[0], statusMapList);
+                statusMapList = new ArrayList<Map<String, String>>();
+                statusMap = new HashMap<>();
+                statusMap.put("name", "used");
+                statusMap.put("count", fields[2]);
+                statusMapList.add(statusMap);
+                statusMap = new HashMap<>();
+                statusMap.put("name", "free");
+                statusMap.put("count", fields[3]);
+                statusMapList.add(statusMap);
+                systemStatus.put(fields[0], statusMapList);
                 this.session.setMac(fields[2]);
             }
         }
-
         return systemStatus;
     }
 
     /**
      * Add a new enumerate
      *
-     * @param        name    Name of the enumerates: roomType, groupType, deviceType ...
-     * @param        value    The new value
-     * @see                    getEnumerates
-     * @see                    deleteEnumerate
+     * @param name  Name of the enumerates: roomType, groupType, deviceType ...
+     * @param value The new value
      */
     public CrxResponse addEnumerate(String name, String value) {
         Query query = this.em.createNamedQuery("Enumerate.get").setParameter("name", name).setParameter("value", value);
@@ -259,7 +184,6 @@ public class SystemService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "Enumerate was created succesfully.");
     }
@@ -267,10 +191,8 @@ public class SystemService extends Service {
     /**
      * Deletes an existing enumerate
      *
-     * @param        type    Name of the enumerates: roomType, groupType, deviceType ...
-     * @param        value    The new value
-     * @see                    getEnumerates
-     * @see                    addEnumerate
+     * @param name  Name of the enumerates: roomType, groupType, deviceType ...
+     * @param value The new value
      */
     public CrxResponse deleteEnumerate(String name, String value) {
         Query query = this.em.createNamedQuery("Enumerate.getByName").setParameter("name", name).setParameter("value", value);
@@ -282,9 +204,8 @@ public class SystemService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
-        return new CrxResponse(this.getSession(), "OK", "Enumerate was removed succesfully.");
+        return new CrxResponse(this.getSession(), "OK", "Enumerate was removed successfully.");
     }
 
     ////////////////////////////////////////////////////////
@@ -292,204 +213,274 @@ public class SystemService extends Service {
     ///////////////////////////////////////////////////////
 
     public Map<String, String> getFirewallIncomingRules() {
-        Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
+        String[] program = new String[3];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/usr/bin/firewall-cmd";
+        program[1] = "--zone=external";
+        program[2] = "--list-services";
         Map<String, String> statusMap;
-        //External Ports
         statusMap = new HashMap<>();
-        statusMap.put("ssh", "false");
-        statusMap.put("https", "false");
-        statusMap.put("admin", "false");
-        statusMap.put("rdesktop", "false");
-        statusMap.put("other", "");
-        for (String extPort : fwConfig.getConfigValue("SERVICES_EXT_TCP").split(" ")) {
-            switch (extPort) {
-                case "ssh":
-                case "22":
-                    statusMap.put("ssh", "true");
-                    break;
-                case "443":
-                case "https":
-                    statusMap.put("https", "true");
-                    break;
-                case "444":
-                    statusMap.put("admin", "true");
-                    break;
-                case "3389":
-                case "ms-wbt-server":
-                    statusMap.put("rdesktop", "true");
-                    break;
-                default:
-                    statusMap.put("other", statusMap.get("other") + " " + extPort);
-
+        CrxSystemCmd.exec(program, reply, error, null);
+        for (String service : reply.toString().split("\\s")) {
+            if( !service.isBlank() ) {
+                statusMap.put(service, "true");
             }
         }
         return statusMap;
     }
 
     public CrxResponse setFirewallIncomingRules(Map<String, String> firewallExt) {
-        List<String> fwServicesExtTcp = new ArrayList<String>();
-        Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
-        if (firewallExt.get("ssh").equals("true")) {
-            fwServicesExtTcp.add("ssh");
+        String[] program;
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        List<String> addService = new ArrayList<String>();
+        List<String> deleteService = new ArrayList<String>();
+        addService.add("/usr/bin/firewall-cmd");
+        addService.add("--zone=external");
+        addService.add("--permanent");
+        deleteService.add("/usr/bin/firewall-cmd");
+        deleteService.add("--zone=external");
+        deleteService.add("--permanent");
+        for (String key : firewallExt.keySet()) {
+            if (firewallExt.get(key).equals("true")) {
+                addService.add("--add-service");
+                addService.add(key);
+            } else {
+                addService.add("--delete-service");
+                deleteService.add(key);
+            }
         }
-        if (firewallExt.get("https").equals("true")) {
-            fwServicesExtTcp.add("https");
+        if (addService.size() > 3) {
+            program = addService.toArray(new String[addService.size()]);
+            CrxSystemCmd.exec(program, reply, error, null);
         }
-        if (firewallExt.get("admin").equals("true")) {
-            fwServicesExtTcp.add("444");
+        if (deleteService.size() > 3) {
+            program = deleteService.toArray(new String[deleteService.size()]);
+            CrxSystemCmd.exec(program, reply, error, null);
         }
-        if (firewallExt.get("rdesktop").equals("true")) {
-            fwServicesExtTcp.add("3389");
-        }
-        if (firewallExt.get("other") != null && !firewallExt.get("other").isEmpty()) {
-            fwServicesExtTcp.add(firewallExt.get("other"));
-        }
-        fwConfig.setConfigValue("SERVICES_EXT_TCP", String.join(" ", fwServicesExtTcp));
-        this.systemctl("try-restart", "SuSEfirewall2");
-        return new CrxResponse(this.getSession(), "OK", "Firewall incoming access rule  was set succesfully.");
+        reloadFirewall();
+        return new CrxResponse(this.getSession(), "OK", "Firewall outgoing access rule  was set successfully.");
     }
 
     public List<Map<String, String>> getFirewallOutgoingRules() {
-        Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
-        List<Map<String, String>> firewallList = new ArrayList<>();
-        Map<String, String> statusMap;
+        Matcher matcher;
         RoomService roomService = new RoomService(this.session, this.em);
         DeviceService deviceService = new DeviceService(this.session, this.em);
-
-        for (String outRule : fwConfig.getConfigValue("MASQ_NETS").split(" ")) {
-            if (outRule.length() > 0) {
-                statusMap = new HashMap<>();
-                String[] rule = outRule.split(",");
-                String[] host = rule[0].split("/");
-                String dest = rule[1];
-                String prot = rule.length > 2 ? rule[2] : "all";
-                String port = rule.length > 3 ? rule[3] : "all";
-                if (host.length == 1 || host[1].equals("32")) {
-                    logger.debug("host " + host[0]);
-                    Device device = deviceService.getByMainIP(host[0]);
-                    if (device == null) {
-                        logger.debug("not found");
-                        continue;
-                    }
-                    statusMap.put("id", Long.toString(device.getId()));
-                    statusMap.put("name", device.getName());
-                    statusMap.put("type", "host");
-                } else {
-                    if (host[1].equals(this.getConfigValue("NETMASK"))) {
-                        statusMap.put("id", "0");
-                        statusMap.put("name", "INTRANET");
-                        statusMap.put("type", "room");
-                    } else {
-                        Room room = roomService.getByIP(host[0]);
-                        if (room == null) {
-                            continue;
-                        }
-                        statusMap.put("id", Long.toString(room.getId()));
-                        statusMap.put("name", room.getName());
-                        statusMap.put("type", "room");
-                    }
-                }
-                statusMap.put("dest", dest);
-                statusMap.put("prot", prot);
-                statusMap.put("port", port);
-                firewallList.add(statusMap);
+        List<Map<String, String>> firewallList = new ArrayList<>();
+        Map<String, String> statusMap;
+        String[] program = new String[3];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/usr/bin/firewall-cmd";
+        program[1] = "--zone=external";
+        program[2] = "--list-rich-rules";
+        CrxSystemCmd.exec(program, reply, error, null);
+        for( String line: reply.toString().split("\\n")) {
+            statusMap = new HashMap<>();
+            //Evaluate source
+            matcher = sourceAddress.matcher(line);
+            if( !matcher.find()) {
+                logger.error("getFirewallOutgoingRules bad rule:" + line);
             }
+            String[] host = matcher.group(1).split("/");
+            if (host.length == 1 || host[1].equals("32")) {
+                Device device = deviceService.getByMainIP(host[0]);
+                if (device == null) {
+                    logger.debug("not found");
+                    continue;
+                }
+                statusMap.put("id", Long.toString(device.getId()));
+                statusMap.put("name", device.getName());
+                statusMap.put("type", "host");
+            } else {
+                Room room = roomService.getByIP(host[0]);
+                if (room == null || !room.getRoomControl().equals("no")) {
+                    continue;
+                }
+                statusMap.put("id", Long.toString(room.getId()));
+                statusMap.put("name", room.getName());
+                statusMap.put("type", "room");
+            }
+            // Evaluate destination
+            matcher = destinationAddress.matcher(line);
+            if( matcher.find() ) {
+                statusMap.put("dest",matcher.group(1));
+            } else {
+                statusMap.put("dest","0/0");
+            }
+            // Evaluate protocol
+            matcher = protocolPattern.matcher(line);
+            if( matcher.find() ){
+                statusMap.put("prot",matcher.group(1));
+            } else {
+                statusMap.put("prot","all");
+            }
+            firewallList.add(statusMap);
         }
         return firewallList;
     }
 
-    public CrxResponse setFirewallOutgoingRules(List<Map<String, String>> firewallList) {
-        List<String> fwMasqNets = new ArrayList<String>();
+    public CrxResponse addFirewallOutgoingRule(Map<String, String> firewalRule) {
         try {
-            logger.debug(new ObjectMapper().writeValueAsString(firewallList));
+            logger.debug(new ObjectMapper().writeValueAsString(firewalRule));
+            String[] program = new String[4];
+            StringBuffer reply = new StringBuffer();
+            StringBuffer error = new StringBuffer();
+            program[0] = "/usr/bin/firewall-cmd";
+            program[1] = "--permanent";
+            program[2] = "--zone=external";
+            String source = "";
+            Long id = Long.getLong(firewalRule.get("id"));
+            if (firewalRule.get("type").equals("room")) {
+                Room room = new RoomService(this.session, this.em).getById(id);
+                source = String.format("%s/%s",room.getStartIP(),room.getNetMask());
+            } else {
+                Device device = new DeviceService(this.session, this.em).getById(id);
+                source = String.format("%s/32",device.getIp());
+            }
+            StringBuilder richRule = new StringBuilder();
+            richRule.append("--add-rich-rule=\"rule family=ipv4 source address=");
+            richRule.append(source);
+            if( !firewalRule.get("prot").equals("all")) {
+                richRule.append(" protocol value=");
+                richRule.append(firewalRule.get("prot"));
+            }
+            if( firewalRule.get("dest").equals("0/0")) {
+                program[3] = String.format("--add-rich-rule=\"rule family=ipv4 source address=%s masquerade\"",source);
+            } else {
+                program[3] = String.format(
+                        "--add-rich-rule=\"rule family=ipv4 source address=%s destination address=%s masquerade\"",
+                        source, firewalRule.get("dest")
+                );
+            }
+            CrxSystemCmd.exec(program, reply, error, null);
+            logger.debug("addFirewallOutgoingRule error:", error.toString());
+            reloadFirewall();
+            return new CrxResponse(this.getSession(), "OK", "Firewall outgoing access rule was add successfully.");
         } catch (Exception e) {
             logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
+            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
         }
-        Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
-        RoomService roomService = new RoomService(this.session, this.em);
-        DeviceService deviceService = new DeviceService(this.session, this.em);
-        for (Map<String, String> map : firewallList) {
-            Device device = null;
-            Room room = null;
-            StringBuilder data = new StringBuilder();
-            if (map.get("type").equals("room")) {
-                if (map.get("id").equals("0")) {
-                    data.append(this.getConfigValue("NETWORK")).append("/").append(this.getConfigValue("NETMASK")).append(",");
-                } else {
-                    room = roomService.getById(Long.parseLong(map.get("id")));
-                    data.append(room.getStartIP()).append("/").append(String.valueOf(room.getNetMask())).append(",");
-                }
+    }
+
+    public CrxResponse deleteFirewallOutgoingRule(Map<String, String> firewalRule) {
+        try {
+            logger.debug(new ObjectMapper().writeValueAsString(firewalRule));
+            String[] program = new String[4];
+            StringBuffer reply = new StringBuffer();
+            StringBuffer error = new StringBuffer();
+            program[0] = "/usr/bin/firewall-cmd";
+            program[1] = "--permanent";
+            program[2] = "--zone=external";
+            String source = "";
+            Long id = Long.getLong(firewalRule.get("id"));
+            if (firewalRule.get("type").equals("room")) {
+                Room room = new RoomService(this.session, this.em).getById(id);
+                source = String.format("%s/%s",room.getStartIP(),room.getNetMask());
             } else {
-                device = deviceService.getById(Long.parseLong(map.get("id")));
-                data.append(device.getIp()).append("/32,");
+                Device device = new DeviceService(this.session, this.em).getById(id);
+                source = String.format("%s/32",device.getIp());
             }
-            data.append(map.get("dest"));
-            if (!map.get("prot").equals("all")) {
-                data.append(",").append(map.get("prot")).append(",").append(map.get("port"));
+            StringBuilder richRule = new StringBuilder();
+            richRule.append("--add-rich-rule=\"rule family=ipv4 source address=");
+            richRule.append(source);
+            if( !firewalRule.get("prot").equals("all")) {
+                richRule.append(" protocol value=");
+                richRule.append(firewalRule.get("prot"));
             }
-            fwMasqNets.add(data.toString());
-            if (device != null && device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
-                data = new StringBuilder();
-                data.append(device.getWlanIp()).append("/32,");
-                data.append(map.get("dest"));
-                if (!map.get("prot").equals("all")) {
-                    data.append(",").append(map.get("prot")).append(",").append(map.get("port"));
-                }
-                fwMasqNets.add(data.toString());
+            if( firewalRule.get("dest").equals("0/0")) {
+                program[3] = String.format("--remove-rich-rule=\"rule family=ipv4 source address=%s masquerade\"",source);
+            } else {
+                program[3] = String.format(
+                        "--remove-rich-rule=\"rule family=ipv4 source address=%s destination address=%s masquerade\"",
+                        source, firewalRule.get("dest")
+                );
             }
+            CrxSystemCmd.exec(program, reply, error, null);
+            logger.debug("deleteFirewallOutgoingRule error:", error.toString());
+            reloadFirewall();
+            return new CrxResponse(this.getSession(), "OK", "Firewall outgoing access rule was deleted successfully.");
+        } catch (Exception e) {
+            logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
+            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
         }
-        fwConfig.setConfigValue("ROUTE", "yes");
-        if (fwMasqNets.isEmpty()) {
-            fwConfig.setConfigValue("MASQUERADE", "no");
-            fwConfig.setConfigValue("MASQ_NETS", " ");
-        } else {
-            fwConfig.setConfigValue("MASQUERADE", "yes");
-            fwConfig.setConfigValue("MASQ_NETS", String.join(" ", fwMasqNets));
-        }
-        this.systemctl("try-restart", "SuSEfirewall2");
-        return new CrxResponse(this.getSession(), "OK", "Firewall outgoing access rule  was set succesfully.");
     }
 
     public List<Map<String, String>> getFirewallRemoteAccessRules() {
-        Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
+        String[] program = new String[3];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/usr/bin/firewall-cmd";
+        program[1] = "--zone=external";
+        program[2] = "--list-forward-ports";
+        CrxSystemCmd.exec(program, reply, error, null);
         List<Map<String, String>> firewallList = new ArrayList<>();
         Map<String, String> statusMap;
         DeviceService deviceService = new DeviceService(this.session, this.em);
-
-        for (String outRule : fwConfig.getConfigValue("FORWARD_MASQ").split(" ")) {
-            if (outRule != null && outRule.length() > 0) {
-                statusMap = new HashMap<>();
-                String[] rule = outRule.split(",");
-                if (rule != null && rule.length >= 4) {
-                    Device device = deviceService.getByIP(rule[1]);
-                    if (device != null) {
-                        statusMap.put("ext", rule[3]);
-                        statusMap.put("id", Long.toString(device.getId()));
-                        statusMap.put("name", device.getName());
-                        if (rule.length > 3) {
-                            statusMap.put("port", rule[4]);
-                        } else {
-                            statusMap.put("port", rule[3]);
-                        }
-                        firewallList.add(statusMap);
-                    }
+        for( String line: reply.toString().split("\\n")) {
+            Matcher matcher = portForward.matcher(line);
+            if (matcher.find()) {
+                Device device = deviceService.getByIP(matcher.group(3));
+                if (device != null) {
+                    statusMap = new HashMap<String, String>();
+                    statusMap.put("extport", matcher.group(1));
+                    statusMap.put("port", matcher.group(2));
+                    statusMap.put("name", device.getName());
+                    statusMap.put("id", device.getId().toString());
+                    firewallList.add(statusMap);
+                } else {
+                    logger.error("getFirewallRemoteAccessRules can not find host:"+ matcher.group(3));
                 }
+            } else {
+                logger.error("getFirewallRemoteAccessRules bad rule: "+ line);
             }
         }
         return firewallList;
     }
 
-    public CrxResponse setFirewallRemoteAccessRules(List<Map<String, String>> firewallList) {
-        List<String> fwForwardMasq = new ArrayList<String>();
-        Config fwConfig = new Config("/etc/sysconfig/SuSEfirewall2", "FW_");
-        DeviceService deviceService = new DeviceService(this.session, this.em);
-        for (Map<String, String> map : firewallList) {
-            Device device = deviceService.getById(Long.parseLong(map.get("id")));
-            fwForwardMasq.add("0/0," + device.getIp() + ",tcp," + map.get("ext") + "," + map.get("port"));
+    public CrxResponse addFirewallRemoteAccessRule(Map<String, String> remoteRule) {
+        String[] program = new String[4];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/usr/bin/firewall-cmd";
+        program[1] = "--permanent";
+        program[2] = "--zone=external";
+        Device device = new DeviceService(this.session, this.em).getById(
+                Long.getLong(remoteRule.get("id"))
+        );
+        if (device == null) {
+            return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not set.");
         }
-        fwConfig.setConfigValue("FORWARD_MASQ", String.join(" ", fwForwardMasq));
-        this.systemctl("try-restart", "SuSEfirewall2");
-        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule  was set succesfully.");
+        program[3] = String.format("--add-forward-port=port=%s:proto=tcp:toport=%s:toaddr=%s",
+                remoteRule.get("extport"), remoteRule.get("port"), device.getIp()
+        );
+        CrxSystemCmd.exec(program, reply, error, null);
+        logger.debug("addFirewallRemoteAccessRule error:", error.toString());
+        reloadFirewall();
+        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule was add successfully.");
+    }
+
+    public CrxResponse deleteFirewallRemoteAccessRule(Map<String, String> remoteRule) {
+        String[] program = new String[4];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/usr/bin/firewall-cmd";
+        program[1] = "--permanent";
+        program[2] = "--zone=external";
+        Device device = new DeviceService(this.session, this.em).getById(
+                Long.getLong(remoteRule.get("id"))
+        );
+        if (device == null) {
+            return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not set.");
+        }
+        program[3] = String.format("--remove-forward-port=port=%s:proto=tcp:toport=%s:toaddr=%s",
+                remoteRule.get("extport"), remoteRule.get("port"), device.getIp()
+        );
+        CrxSystemCmd.exec(program, reply, error, null);
+        logger.debug("deleteFirewallRemoteAccessRule error:", error.toString());
+        reloadFirewall();
+        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule was add successfully.");
     }
 
     /*
@@ -546,7 +537,7 @@ public class SystemService extends Service {
         try {
             Document doc = new SAXBuilder().build(reply.toString());
             Element rootNode = doc.getRootElement();
-            for (Element node : (List<Element>) rootNode.getChild("search-result").getChild("solvable-list").getChildren("solvable")) {
+            for (Element node : rootNode.getChild("search-result").getChild("solvable-list").getChildren("solvable")) {
                 if (!node.getAttribute("kind").getValue().equals("package")) {
                     continue;
                 }
@@ -685,7 +676,6 @@ public class SystemService extends Service {
             return this.em.find(Acl.class, aclId);
         } catch (Exception e) {
             return null;
-        } finally {
         }
     }
 
@@ -729,9 +719,9 @@ public class SystemService extends Service {
         } catch (Exception e) {
             oldAcl = null;
         }
-        if( oldAcl == null ) {
-            for( Acl gacl : group.getAcls()) {
-                if( gacl.getAcl().equals(acl.getAcl())) {
+        if (oldAcl == null) {
+            for (Acl gacl : group.getAcls()) {
+                if (gacl.getAcl().equals(acl.getAcl())) {
                     oldAcl = gacl;
                     break;
                 }
@@ -759,7 +749,6 @@ public class SystemService extends Service {
         } catch (Exception e) {
             logger.debug("ERROR in setAclToGroup:" + e.getMessage());
             return new CrxResponse(session, "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(session, "OK", "ACL was set succesfully.");
     }
@@ -847,7 +836,6 @@ public class SystemService extends Service {
         } catch (Exception e) {
             logger.debug("ERROR in setAclToUser:" + e.getMessage());
             return new CrxResponse(session, "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(session, "OK", "ACL was set succesfully.");
     }
@@ -889,18 +877,14 @@ public class SystemService extends Service {
         String name = null;
         String type = null;
         String data = null;
-        String patternNameString = "Name=(.+?), Records";
-        String patternTypeString = "(.+?): (.+?) \\(flags";
-        Pattern patternName = Pattern.compile(patternNameString);
-        Pattern patternType = Pattern.compile(patternTypeString);
         DeviceService dc = new DeviceService(this.session, this.em);
         for (String line : reply.toString().split(this.getNl())) {
-            Matcher matcher = patternName.matcher(line);
+            Matcher matcher = dnsRecordName.matcher(line);
             while (matcher.find()) {
                 name = matcher.group(1);
                 continue;
             }
-            matcher = patternType.matcher(line);
+            matcher = dnsRecordType.matcher(line);
             while (matcher.find()) {
                 if (name == null) {
                     continue;

@@ -1506,10 +1506,13 @@ public class RoomService extends Service {
 	}
 
 	public List<AccessInRoom> getAccessList() {
-		List<AccessInRoom> accesses = null;
+		List<AccessInRoom> accesses = new ArrayList<>();
 		try {
 			Query query = em.createNamedQuery("AccessInRoom.findAll");
-			accesses = query.getResultList();
+			for( AccessInRoom air: (List<AccessInRoom>) query.getResultList() ) {
+				air.setRoomName(this.getById(air.getRoomId()).getName());
+				accesses.add(air);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}

@@ -423,13 +423,32 @@ public class SystemResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	public CrxResponse  setFirewallOutgoingRules(
+	public CrxResponse  addFirewallOutgoingRule(
 		@ApiParam(hidden = true) @Auth Session session,
-		List<Map<String, String>> outgoingRules
+		Map<String, String> outgoingRule
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SystemService systemService = new SystemService(session,em);
-		CrxResponse resp = systemService.setFirewallOutgoingRules(outgoingRules);
+		CrxResponse resp = systemService.addFirewallOutgoingRule(outgoingRule);
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("firewall/outgoingRules")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Sets the outgoing firewall rules.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("system.firewall")
+	public CrxResponse  deleteFirewallOutgoingRule(
+			@ApiParam(hidden = true) @Auth Session session,
+			Map<String, String> outgoingRule
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.deleteFirewallOutgoingRule(outgoingRule);
 		em.close();
 		return resp;
 	}
@@ -459,13 +478,32 @@ public class SystemResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	public CrxResponse  setFirewallRemoteAccessRules(
+	public CrxResponse  addFirewallRemoteAccessRule(
 		@ApiParam(hidden = true) @Auth Session session,
-		List<Map<String, String>> remoteAccessRules
+		Map<String, String> remoteAccessRule
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SystemService systemService = new SystemService(session,em);
-		CrxResponse resp = systemService.setFirewallRemoteAccessRules(remoteAccessRules);
+		CrxResponse resp = systemService.addFirewallRemoteAccessRule(remoteAccessRule);
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("firewall/remoteAccessRules")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Sets the remote access firewall rules.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("system.firewall")
+	public CrxResponse  deleteFirewallRemoteAccessRule(
+			@ApiParam(hidden = true) @Auth Session session,
+			Map<String, String> remoteAccessRule
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		CrxResponse resp = systemService.deleteFirewallRemoteAccessRule(remoteAccessRule);
 		em.close();
 		return resp;
 	}
