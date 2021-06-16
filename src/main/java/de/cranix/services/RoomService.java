@@ -1511,6 +1511,13 @@ public class RoomService extends Service {
 			Query query = em.createNamedQuery("AccessInRoom.findAll");
 			for( AccessInRoom air: (List<AccessInRoom>) query.getResultList() ) {
 				air.setRoomName(this.getById(air.getRoomId()).getName());
+				if( air.getAccessType().equals("ACT") ) {
+					air.setPrinting(null);
+					air.setLogin(null);
+					air.setPortal(null);
+					air.setProxy(null);
+					air.setDirect(null);
+				}
 				accesses.add(air);
 			}
 		} catch (Exception e) {
