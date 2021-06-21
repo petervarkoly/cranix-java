@@ -318,7 +318,6 @@ public class RoomService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -349,8 +348,8 @@ public class RoomService extends Service {
 			return new CrxResponse(this.session, "ERROR", "Room description is not unique.");
 		}
 		//Only adHocRooms name can be longer then 10 char
-		if ( !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10 ) {
-			return new CrxResponse(this.session, "ERROR", "Room description is not unique.");
+		if ( !room.isIgnoreNetbios() && !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10 ) {
+			return new CrxResponse(this.session, "ERROR", "Room name is to long.");
 		}
 		//If no devCount was set we calculate the net mask
 		if (room.getDevCount() != null) {

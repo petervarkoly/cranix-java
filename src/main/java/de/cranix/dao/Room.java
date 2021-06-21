@@ -171,6 +171,18 @@ public class Room implements Serializable {
 	@Transient
 	private Integer devCount;
 
+	//If this is set netbios conventions will be ignored.
+	public boolean isIgnoreNetbios() {
+		return ignoreNetbios;
+	}
+
+	public void setIgnoreNetbios(boolean ignoreNetbios) {
+		this.ignoreNetbios = ignoreNetbios;
+	}
+
+	@Transient
+	private boolean ignoreNetbios = false;
+
 	public Room() {
 		this.convertNmToCount();
 	}
