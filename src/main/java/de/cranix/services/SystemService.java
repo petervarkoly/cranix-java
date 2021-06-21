@@ -40,7 +40,7 @@ public class SystemService extends Service {
     static Pattern servicePattern = Pattern.compile("services: (.*)");
     static Pattern destinationAddress = Pattern.compile("destination address=\"([0-9\\./]+)\"");
     static Pattern sourceAddress = Pattern.compile("source address=\"([0-9\\./]+)\"");
-    static Pattern protocolPattern = Pattern.compile("source address=\"([0-9\\./]+)\"");
+    static Pattern protocolPattern = Pattern.compile("protocol value=(\\S+)");
 
     /**
      * Delivers a list of the status of the system
@@ -282,6 +282,7 @@ public class SystemService extends Service {
             matcher = sourceAddress.matcher(line);
             if( !matcher.find()) {
                 logger.error("getFirewallOutgoingRules bad rule:" + line);
+                continue;
             }
             String[] host = matcher.group(1).split("/");
             if (host.length == 1 || host[1].equals("32")) {
