@@ -336,8 +336,8 @@ public class RoomService extends Service {
 			return new CrxResponse(this.session, "ERROR", "Room description is not unique.");
 		}
 		//Only adHocRooms name can be longer then 10 char
-		if ( !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10 ) {
-			return new CrxResponse(this.session, "ERROR", "Room description is not unique.");
+		if ( !room.isIgnoreNetbios() && !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10 ) {
+			return new CrxResponse(this.session, "ERROR", "Room name is to long.");
 		}
 		//If no devCount was set we calculate the net mask
 		if (room.getDevCount() != null) {
@@ -1506,10 +1506,20 @@ public class RoomService extends Service {
 	}
 
 	public List<AccessInRoom> getAccessList() {
-		List<AccessInRoom> accesses = null;
+		List<AccessInRoom> accesses = new ArrayList<>();
 		try {
 			Query query = em.createNamedQuery("AccessInRoom.findAll");
-			accesses = query.getResultList();
+			for( AccessInRoom air: (List<AccessInRoom>) query.getResultList() ) {
+				air.setRoomName(this.getById(air.getRoomId()).getName());
+				if( air.getAccessType().equals("ACT") ) {
+					air.setPrinting(null);
+					air.setLogin(null);
+					air.setPortal(null);
+					air.setProxy(null);
+					air.setDirect(null);
+				}
+				accesses.add(air);
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
