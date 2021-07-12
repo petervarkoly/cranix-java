@@ -830,7 +830,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "Device was modified succesfully");
     }
@@ -886,7 +885,7 @@ public class DeviceService extends Service {
                     parameters.add(name);
                     error.add("The WLAN MAC address '%s' will be used allready: %s");
                 }
-                if (!IPv4.validateMACAddress(device.getMac())) {
+                if (!IPv4.validateMACAddress(device.getWlanMac())) {
                     parameters.add(device.getWlanMac());
                     error.add("The WLAN MAC address is not valid: '%s'");
                 }
@@ -936,7 +935,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", "ERROR-3" + e.getMessage());
-        } finally {
         }
         startPlugin("modify_device", oldDevice);
         if (macChange) {
