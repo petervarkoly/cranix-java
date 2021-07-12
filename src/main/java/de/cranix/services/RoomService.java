@@ -1020,8 +1020,13 @@ public class RoomService extends Service {
 				return new CrxResponse(this.session, "ERROR", "You have no rights to register devices in this room.");
 			}
 			//Check if the count of the registered devices is lower then the allowed mount
-			//TODO do. Check it realy
-			if (owner.getOwnedDevices().size() >= room.getPlaces()) {
+			int ownedDevicesInRoom = 0;
+			for(Device device1: owner.getOwnedDevices() ) {
+				if(device1.getRoom().equals(room)) {
+					ownedDevicesInRoom++;
+				}
+			}
+			if ( ownedDevicesInRoom >= room.getPlaces()) {
 				return new CrxResponse(this.session, "ERROR", "You must not register more devices in this room.");
 			}
 			if (hwconf == null) {
