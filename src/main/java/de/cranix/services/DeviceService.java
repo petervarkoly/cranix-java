@@ -936,7 +936,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", "ERROR-3" + e.getMessage());
-        } finally {
         }
         startPlugin("modify_device", oldDevice);
         if (macChange) {
