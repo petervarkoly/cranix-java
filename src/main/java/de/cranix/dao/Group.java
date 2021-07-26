@@ -189,7 +189,7 @@ public class Group implements Serializable {
 
 	public void removeUser(User user) {
 		this.users.remove(user);
-		user.getGroups().remove(user);
+		user.getGroups().remove(this);
 	}
 
 	public List<Category> getCategories() {
