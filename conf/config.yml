@@ -17,7 +17,7 @@ server:
 swagger:
   resourcePackage: de.cranix.api.resources
   title: CRANIX Server API
-  version: 0.0.1
+  version: 4.4.1
 
 logging:
   level: INFO
