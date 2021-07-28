@@ -513,7 +513,7 @@ public class EducationResource {
 		@FormDataParam("file")	 final FormDataContentDisposition contentDispositionHeader
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<CrxResponse> responses = new EducationService(session,em).uploadFileToDevices(
+		List<CrxResponse> responses = new EducationService(session,em).uploadFileToGroups(
 			objectIds,
 			cleanUp,
 			studentsOnly,
