@@ -17,6 +17,7 @@ public class StaticHelpers {
 
     static CharSequence toReplace = "íéáűőúöüóÍÉÁŰŐÚÖÜÓß";
     static CharSequence replaceIn = "ieauououoIEAUOUOUOs";
+    static public SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm yyyy-MM-dd");
 
     static public String createRandomPassword() {
         String[] salt = new String[3];
@@ -203,13 +204,11 @@ public class StaticHelpers {
     }
 
     static public String convertJavaTime(Long times) {
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        return fmt.format(new Date(times));
+        return simpleDateFormat.format(new Date(times));
     }
 
     static public String convertJavaDate(Long times) {
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        return fmt.format(new Date(times));
+        return simpleDateFormat.format(new Date(times));
     }
 
     static public void reloadFirewall() {

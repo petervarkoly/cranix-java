@@ -172,7 +172,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("addHWConf: "+ e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Hardware configuration was created.",hwconf.getId());
 	}
