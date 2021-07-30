@@ -103,7 +103,7 @@ public class JobService extends Service {
 			path.append(String.valueOf(job.getId()));
 			Path jobFile     = Paths.get(path.toString());
 			List<String> tmp =  new ArrayList<String>();
-			tmp.add("( "+ cranixBaseDir + " tools/crx_date.sh");
+			tmp.add("( "+ cranixBaseDir + "tools/crx_date.sh");
 			tmp.add(job.getCommand());
 			tmp.add("E=$?");
 			tmp.add("crx_api.sh PUT system/jobs/"+String.valueOf(job.getId())+"/exit/$E");
