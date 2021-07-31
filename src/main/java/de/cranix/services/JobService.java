@@ -88,7 +88,6 @@ public class JobService extends Service {
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 
 		/*
@@ -139,7 +138,6 @@ public class JobService extends Service {
 		}  catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Jobs exit code was set successfully");
 	}
@@ -154,7 +152,6 @@ public class JobService extends Service {
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		String[] program   = new String[4];
 		StringBuffer reply = new StringBuffer();
