@@ -72,7 +72,7 @@ public class JobService extends Service {
 		 */
 		String scheduledTime = "now";
 		if( job.isPromptly() ) {
-			job.setStartTime((Timestamp) now());
+			job.setStartTime(new Timestamp(System.currentTimeMillis()));
 		} else {
 			Date date = new Date(job.getStartTime().getTime());
 			scheduledTime        = simpleDateFormat.format(date);
