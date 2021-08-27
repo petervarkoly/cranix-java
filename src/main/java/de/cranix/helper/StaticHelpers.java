@@ -127,7 +127,7 @@ public class StaticHelpers {
 			}
 			if( device.getHwconf() != null ) {
 				data.append(String.format("hwconf: %s%n", device.getHwconf().getName()));
-				data.append(String.format("hwconfid: %s%n", device.getHwconfId()));
+				data.append(String.format("hwconfid: %s%n", device.getHwconf().getId()));
 			}
 			break;
 		case "de.cranix.dao.HWconf":
