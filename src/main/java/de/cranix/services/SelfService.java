@@ -140,6 +140,10 @@ public class SelfService extends Service {
         try {
             session.setIp(req.getRemoteAddr());
             session = sc.createInternalUserSession(userName);
+            if(session == null ) {
+                logger.error("addDeviceToUser CAN-NOT-FIND-USER:" + userName + " MAC:" + MAC);
+                return "CAN-NOT-FIND-USER: "+ userName;
+            }
             DeviceService deviceService = new DeviceService(session, em);
             if (deviceService.getByMAC(MAC) != null) {
                 resp = "ALREADY-REGISTERED";
