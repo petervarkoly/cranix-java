@@ -343,7 +343,6 @@ public class CloneToolService extends Service {
 		try {
 			this.em.getTransaction().begin();
 			this.em.remove(partition);
-			this.em.merge(hwconf);
 			this.em.getTransaction().commit();
 			this.em.getEntityManagerFactory().getCache().evict(hwconf.getClass());
 		} catch (Exception e) {

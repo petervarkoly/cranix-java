@@ -173,8 +173,6 @@ public class HWConf implements Serializable {
 
 	public Partition removePartition(Partition partition) {
 		getPartitions().remove(partition);
-		partition.setHwconf(null);
-
 		return partition;
 	}
 
