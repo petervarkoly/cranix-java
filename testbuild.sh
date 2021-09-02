@@ -1,7 +1,7 @@
 #!/bin/bash -x
 REPO="/home/OSC/home:pvarkoly:CRANIX:leap15.2/cranix-java"
 HERE=$( pwd )
-mvn clean package install
+mvn package install
 
 if [ "$1" ]; then
         PORT=22
