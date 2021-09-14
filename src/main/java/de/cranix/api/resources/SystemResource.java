@@ -470,6 +470,32 @@ public class SystemResource {
 		return resp;
 	}
 
+	@PUT
+	@Path("firewall/{state}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Sets the remote access firewall rules.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("system.firewall")
+	public CrxResponse  setFirewallStatus(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("state") String state
+	) {
+		switch (state) {
+			case "stop": {
+				return this.setServicesStatus(session,"SuSEfirewall2","active","false");
+			}
+			case "start": {
+				return this.setServicesStatus(session,"SuSEfirewall2","active","true");
+			}
+			case "restart": {
+				return this.setServicesStatus(session,"SuSEfirewall2","active","restart");
+			}
+		}
+		return new CrxResponse(session,"ERROR","Bad firewall state.");
+	}
+
 	/*
 	 * Registration
 	 */
