@@ -179,7 +179,7 @@ public class GroupResource {
     }
 
 
-	@POST
+    @POST
     @Path("import")
     @Produces(JSON_UTF8)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -285,87 +285,105 @@ public class GroupResource {
         return resp;
     }
 
-	@GET
-	@Path("text/byType/{type}")
-	@Produces(TEXT)
-	@ApiOperation(value = "Get groups from a type")
-	@ApiResponses(value = {
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("group.search")
-	public String getByTypeText(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("type") String type
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<String> groups = new ArrayList<String>();
-		final GroupService gc = new GroupService(session, em);
-		for (Group group : gc.getByType(type)) {
-			groups.add(group.getName());
-		}
-		String resp = String.join(gc.getNl(), groups);
-		em.close();
-		return resp;
-	}
+    @GET
+    @Path("text/byType/{type}")
+    @Produces(TEXT)
+    @ApiOperation(value = "Get groups from a type")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed("group.search")
+    public String getByTypeText(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("type") String type
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<String> groups = new ArrayList<String>();
+        final GroupService gc = new GroupService(session, em);
+        for (Group group : gc.getByType(type)) {
+            groups.add(group.getName());
+        }
+        String resp = String.join(gc.getNl(), groups);
+        em.close();
+        return resp;
+    }
 
-	@DELETE
-	@Path("text/{groupName}")
-	@Produces(TEXT)
-	@ApiOperation(value = "Deletes a group presented by name.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("group.search")
-	public String delete(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("groupName") String groupName
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		String resp = new GroupService(session, em).delete(groupName).getCode();
-		em.close();
-		return resp;
-	}
+    @DELETE
+    @Path("text/{groupName}")
+    @Produces(TEXT)
+    @ApiOperation(value = "Deletes a group presented by name.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed("group.search")
+    public String delete(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("groupName") String groupName
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        String resp = new GroupService(session, em).delete(groupName).getCode();
+        em.close();
+        return resp;
+    }
 
-	@GET
-	@Path("text/{groupName}/members")
-	@Produces(TEXT)
-	@ApiOperation(value = "Get users which are member in this group.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "Group not found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("group.manage")
-	public String getMembersText(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("groupName") String groupName
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<String> member = new ArrayList<String>();
-		final GroupService gc = new GroupService(session, em);
-		Group group = gc.getByName(groupName);
-		for (User user : group.getUsers()) {
-			member.add(user.getUid());
-		}
-		String resp = String.join(gc.getNl(), member);
-		em.close();
-		return resp;
-	}
+    @GET
+    @Path("text/{groupName}/members")
+    @Produces(TEXT)
+    @ApiOperation(value = "Get users which are member in this group.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Group not found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+    @RolesAllowed("group.manage")
+    public String getMembersText(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("groupName") String groupName
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<String> member = new ArrayList<String>();
+        final GroupService gc = new GroupService(session, em);
+        Group group = gc.getByName(groupName);
+        for (User user : group.getUsers()) {
+            member.add(user.getUid());
+        }
+        String resp = String.join(gc.getNl(), member);
+        em.close();
+        return resp;
+    }
 
-	@PUT
-	@Path("text/{groupName}/owner/{userName}")
-	@Produces(TEXT)
-	@ApiOperation(value = "Get users which are member in this group.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "Group not found"),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("group.manage")
-	public String setOwner(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("groupName") String groupName,
-			@PathParam("userName") String userName
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse crxResponse = new GroupService(session, em).setOwner(groupName,userName);
-		em.close();
-		return crxResponse.getCode();
-	}
+    @PUT
+    @Path("text/{groupName}/owner/{userName}")
+    @Produces(TEXT)
+    @ApiOperation(value = "Set the owner of the group.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Group not found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+    @RolesAllowed("group.manage")
+    public String setOwner(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("groupName") String groupName,
+            @PathParam("userName") String userName
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse crxResponse = new GroupService(session, em).setOwner(groupName,userName);
+        em.close();
+        return crxResponse.getCode();
+    }
+
+    @GET
+    @Path("text/{groupName}/owner")
+    @Produces(TEXT)
+    @ApiOperation(value = "Get the owner of the group.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "Group not found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+    @RolesAllowed("group.manage")
+    public String getOwner(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("groupName") String groupName
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        String resp = new GroupService(session, em).getOwner(groupName);
+        em.close();
+        return resp;
+    }
 }

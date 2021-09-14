@@ -518,6 +518,9 @@ public class GroupService extends Service {
 	}
 
 	public CrxResponse setOwner(Group group, User user) {
+		if( group.getOwner() != null && group.getOwner().equals(user)) {
+			return new CrxResponse(this.getSession(),"OK","Group owner need not be changed.");
+		}
 		try {
 			this.em.getTransaction().begin();
 			if( group.getOwner() != null ) {
@@ -624,5 +627,16 @@ public class GroupService extends Service {
                         }
                 }
 		return responses;
+	}
+
+	public User getOwner(Group group) {
+		return group.getOwner();
+	}
+	public String getOwner(String groupName) {
+		Group group = this.getByName(groupName);
+		if( group != null && group.getOwner() != null) {
+			return group.getOwner().getUid();
+		}
+		return "";
 	}
 }
