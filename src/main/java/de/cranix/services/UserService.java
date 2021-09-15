@@ -402,9 +402,12 @@ public class UserService extends Service {
         //Remove the devices before doing anything else
         if (!user.getOwnedDevices().isEmpty()) {
             DeviceService dc = new DeviceService(this.session, this.em);
-            List<Device> devices = user.getOwnedDevices();
-            for (Device device : devices) {
-                dc.delete(device, false);
+            List<Long> dIds = new ArrayList<>();
+            for (Device device : user.getOwnedDevices()) {
+                dIds.add(device.getId());
+            }
+            for(Long id: dIds) {
+                dc.delete(id, false);
             }
             DHCPConfig dhcpConfig = new DHCPConfig(session, this.em);
             dhcpConfig.Create();
