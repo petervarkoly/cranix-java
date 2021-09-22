@@ -15,8 +15,6 @@ public class StaticHelpers {
 
 	static Logger logger = LoggerFactory.getLogger(StaticHelpers.class);
 
-	static CharSequence toReplace = "íéáűőúöüóÍÉÁŰŐÚÖÜÓß";
-	static CharSequence replaceIn = "ieauououoIEAUOUOUOs";
 	static public SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm yyyy-MM-dd");
 
 	static public String createRandomPassword() {
@@ -51,6 +49,16 @@ public class StaticHelpers {
 		//return pattern.matcher(output).replaceAll("");
 	}
 
+	static public String normalizeTelex(String input) {
+		return  Normalizer.normalize(
+				input.replace("ß","ss").
+						replace("ö", "oe").
+						replace("ü", "ue").
+						replace("ä", "ae"),
+				Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+		//Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+		//return pattern.matcher(output).replaceAll("");
+	}
 	/**
 	 * Start a plugin for an object by creating modifying or deleting
 	 *
