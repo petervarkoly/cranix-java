@@ -160,17 +160,17 @@ public class UserService extends Service {
         String userId = "";
         Pattern pattern = Pattern.compile("([GNY])(\\d+)");
         for (Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME")); m.find(); ) {
-            int endIndex = Integer.valueOf(m.group(2));
+            int endIndex = Integer.parseInt(m.group(2));
             //logger.debug("have found" + m.group(1) + " " + m.group(2) + " " + endIndex + " " + givenName );
             switch (m.group(1)) {
                 case "V":
                 case "G":
-                    endIndex = endIndex > givenName.length() ? givenName.length() : endIndex;
+                    endIndex = Math.min(endIndex, givenName.length());
                     userId = userId.concat(givenName.substring(0, endIndex));
                     break;
                 case "N":
                 case "S":
-                    endIndex = endIndex > surName.length() ? surName.length() : endIndex;
+                    endIndex = Math.min(endIndex, surName.length());
                     userId = userId.concat(surName.substring(0, endIndex));
                     break;
                 case "Y":
@@ -186,10 +186,13 @@ public class UserService extends Service {
             }
         }
         String newUserId = this.getConfigValue("LOGIN_PREFIX") + userId;
-        Integer i = 1;
+        int i = 1;
         while (!this.isNameUnique(newUserId)) {
             newUserId = this.getConfigValue("LOGIN_PREFIX") + userId + i;
             i++;
+        }
+        if(this.getConfigValue("LOGIN_TELEX").equals("yes")) {
+            return normalizeTelex(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9]", "");
         }
         return normalize(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9]", "");
     }
@@ -402,9 +405,12 @@ public class UserService extends Service {
         //Remove the devices before doing anything else
         if (!user.getOwnedDevices().isEmpty()) {
             DeviceService dc = new DeviceService(this.session, this.em);
-            List<Device> devices = user.getOwnedDevices();
-            for (Device device : devices) {
-                dc.delete(device, false);
+            List<Long> dIds = new ArrayList<>();
+            for (Device device : user.getOwnedDevices()) {
+                dIds.add(device.getId());
+            }
+            for(Long id: dIds) {
+                dc.delete(id, false);
             }
             DHCPConfig dhcpConfig = new DHCPConfig(session, this.em);
             dhcpConfig.Create();

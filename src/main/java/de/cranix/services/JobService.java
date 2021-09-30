@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.CranixConstants.*;
+import static de.cranix.helper.StaticHelpers.simpleDateFormat;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -53,7 +53,6 @@ public class JobService extends Service {
 		} catch (Exception e) {
 			logger.error("DeviceId:" + jobId + " " + e.getMessage(),e);
 			return null;
-		} finally {
 		}
 	}
 
@@ -76,8 +75,7 @@ public class JobService extends Service {
 			job.setStartTime(new Timestamp(System.currentTimeMillis()));
 		} else {
 			Date date = new Date(job.getStartTime().getTime());
-			SimpleDateFormat fmt = new SimpleDateFormat("HH:mm yyyy-MM-dd");
-			scheduledTime        = fmt.format(date);
+			scheduledTime        = simpleDateFormat.format(date);
 		}
 
 		/*
@@ -90,7 +88,6 @@ public class JobService extends Service {
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 
 		/*
@@ -103,7 +100,7 @@ public class JobService extends Service {
 			path.append(String.valueOf(job.getId()));
 			Path jobFile     = Paths.get(path.toString());
 			List<String> tmp =  new ArrayList<String>();
-			tmp.add("( "+ cranixBaseDir + " tools/crx_date.sh");
+			tmp.add("( "+ cranixBaseDir + "tools/crx_date.sh");
 			tmp.add(job.getCommand());
 			tmp.add("E=$?");
 			tmp.add("crx_api.sh PUT system/jobs/"+String.valueOf(job.getId())+"/exit/$E");
@@ -141,7 +138,6 @@ public class JobService extends Service {
 		}  catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Jobs exit code was set successfully");
 	}
@@ -156,7 +152,6 @@ public class JobService extends Service {
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		String[] program   = new String[4];
 		StringBuffer reply = new StringBuffer();

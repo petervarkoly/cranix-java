@@ -63,7 +63,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("getById: "+ e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -74,7 +73,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("getByName: " +e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -85,7 +83,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("getByType: "+ e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -122,7 +119,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("getPartitionById" + e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -172,7 +168,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("addHWConf: "+ e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Hardware configuration was created.",hwconf.getId());
 	}
@@ -209,7 +204,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("modifyHWConf" + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK", "Hardware configuration was modified.");
 	}
@@ -237,7 +231,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("addPartitionToHWConf: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK", "Partition: %s was created in %s (%s)",null,parameters);
 	}
@@ -262,7 +255,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("addPartitionToHWConf: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK", "Partition: %s was created in %s (%s)",null,parameters);
 	}
@@ -303,7 +295,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("setConfigurationValue: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		parameters.add(key);
 		parameters.add(value);
@@ -338,7 +329,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("delete: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK", "Hardware configuration was deleted successfully.");
 	}
@@ -353,13 +343,11 @@ public class CloneToolService extends Service {
 		try {
 			this.em.getTransaction().begin();
 			this.em.remove(partition);
-			this.em.merge(hwconf);
 			this.em.getTransaction().commit();
 			this.em.getEntityManagerFactory().getCache().evict(hwconf.getClass());
 		} catch (Exception e) {
 			logger.error("deletePartition: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		parameters.add(partitionName);
 		parameters.add(hwconf.getName());
@@ -396,7 +384,6 @@ public class CloneToolService extends Service {
 		} catch (Exception e) {
 			logger.error("deleteConfigurationValue: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
-		} finally {
 		}
 		parameters.add(key);
 		return new CrxResponse(this.getSession(),"OK", "Partitions key: %s was deleted",null,parameters );
@@ -577,25 +564,8 @@ public class CloneToolService extends Service {
 			if( device == null ) {
 				return "ERROR Can not find the device.";
 			}
-			String deviceName  = device.getName();
-			String[] program   = new String[4];
-			StringBuffer reply = new StringBuffer();
-			StringBuffer error = new StringBuffer();
-			program[0] = "/usr/bin/samba-tool";
-			program[1] = "user";
-			program[2] = "delete";
-			program[3] = deviceName + "$";
-			CrxSystemCmd.exec(program, reply, error, null);
-			StringBuilder path = new StringBuilder("/etc/salt/pki/master/minions/");
-			path.append(deviceName).append(".").append(this.getConfigValue("DOMAIN"));
-			Files.deleteIfExists(Paths.get(path.toString()));
-			path = new StringBuilder("/etc/salt/pki/master/minions_denied/");
-			path.append(deviceName).append(".").append(this.getConfigValue("DOMAIN"));
-			Files.deleteIfExists(Paths.get(path.toString()));
-			path = new StringBuilder("/etc/salt/pki/master/minions_rejected/");
-			path.append(deviceName).append(".").append(this.getConfigValue("DOMAIN"));
-			Files.deleteIfExists(Paths.get(path.toString()));
-			this.systemctl("try-restart", "salt-master");
+			startPlugin("reset_device", device);
+			//Remove all software status entries that belong to the device.
 			this.em.getTransaction().begin();
 			for ( SoftwareStatus st : device.getSoftwareStatus() ) {
 				if( st != null ) {
@@ -607,7 +577,7 @@ public class CloneToolService extends Service {
 			device.setSoftwareStatus(null);
 			this.em.merge(device);
 			this.em.getTransaction().commit();
-		} catch ( IOException e ) {
+		} catch ( Exception e ) {
 			logger.error("resetMinion: " + e.getMessage());
 			return "ERROR "+e.getMessage();
 		}

@@ -3,11 +3,15 @@ package de.cranix.services;
 import de.cranix.dao.AccessInRoom;
 import de.cranix.dao.Room;
 import de.cranix.helper.CrxSystemCmd;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class AccessService{
 
+    Logger logger = LoggerFactory.getLogger(AccessService.class);
     public AccessService() {
     }
 
@@ -58,6 +62,8 @@ public class AccessService{
             attrs.add("--let_direct");
         }
         String[] program = attrs.toArray(new String[attrs.size()]);
+        logger.debug("setAccessStatus: " + attrs);
+        logger.debug("setAccessStatus: " + program);
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         CrxSystemCmd.exec(program, reply, error, null);

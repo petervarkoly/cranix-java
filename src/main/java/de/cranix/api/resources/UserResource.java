@@ -1045,42 +1045,28 @@ public class UserResource {
 	}
 
 	@GET
-	@Path("imports/{startTime}/pdf")
+	@Path("imports/{startTime}/{type}")
 	@Produces("*/*")
-	@ApiOperation(value = "Delivers result of the import as PDF file.")
+	@ApiOperation(value = "Delivers result of the import as a zip archive of the pdf or txt files.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("user.manage")
-	public Response getImportAsPdf(
+	public Response getImportAsArchive(
 		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("startTime") String startTime
+		@PathParam("startTime") String startTime,
+		@PathParam("type") String type
 	) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@GET
-	@Path("imports/{startTime}/txt")
-	@Produces("*/*")
-	@ApiOperation(value = "Delivers result of the import as txt file.")
-	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("user.manage")
-	public Response getImportAsTxt(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("startTime") String startTime
-	) {
-		Service controller = new Service(session, null);
-		StringBuilder importDir = controller.getImportDir(startTime);
-		String[] program = new String[2];
+		StringBuilder importDir = new Service(session, null).getImportDir(startTime);
+		String[] program = new String[3];
 		program[0] = "/usr/share/cranix/tools/pack_import.sh";
 		program[1] = startTime;
+		program[2] = type;
 		StringBuffer reply = new StringBuffer();
 		StringBuffer stderr = new StringBuffer();
 		CrxSystemCmd.exec(program, reply, stderr, null);
 		File importFile = new File(importDir.append("/userimport.zip").toString());
+		logger.debug("getImportAsArchive:" + importFile.getName());
 		ResponseBuilder response = Response.ok(importFile);
 		response = response.header("Content-Disposition", "attachment; filename=" + importFile.getName());
 		return response.build();

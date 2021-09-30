@@ -45,7 +45,6 @@ public class DeviceService extends Service {
             return this.em.find(Device.class, deviceId);
         } catch (Exception e) {
             return null;
-        } finally {
         }
     }
 
@@ -59,7 +58,6 @@ public class DeviceService extends Service {
             devices = query.getResultList();
         } catch (Exception e) {
             logger.error("getAll " + e.getMessage(), e);
-        } finally {
         }
         devices.sort(Comparator.comparing(Device::getName));
         return devices;
@@ -75,7 +73,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.error("getAllId " + e.getMessage(), e);
             return null;
-        } finally {
         }
     }
 
@@ -101,7 +98,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.error("delete: " + e.getMessage(), e);
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
     }
 
@@ -134,15 +130,7 @@ public class DeviceService extends Service {
                                 + "You have to delete this devices via printer management.");
             }
             //Start the transaction
-            if (this.em.getTransaction().isActive()) {
-                logger.error(("delete Transaction open"));
-                this.em.getTransaction().wait(100L);
-                if (this.em.getTransaction().isActive()) {
-                    this.em.getTransaction().rollback();
-                }
-            } else {
-                logger.debug(("Opening transaction"));
-            }
+            logger.debug("Transaction active 0:" + this.em.getTransaction().isActive());
             this.em.getTransaction().begin();
             if (hwconf != null) {
                 //Remove device from the hwconf.
@@ -197,11 +185,15 @@ public class DeviceService extends Service {
                     logger.error("Deleting salt file:" + e.getMessage());
                 }
             }
-            this.deletAllConfigs(device);
-            this.em.remove(device);
+            //this.deletAllConfigs(device);
             room.getDevices().remove(device);
             this.em.merge(room);
             this.em.getTransaction().commit();
+            logger.debug("Transaction active 1:" + this.em.getTransaction().isActive());
+            this.em.getTransaction().begin();
+            this.em.remove(device);
+            this.em.getTransaction().commit();
+            logger.debug("Transaction closed 2:" + this.em.getTransaction().isActive());
             startPlugin("delete_device", device);
             if (atomic) {
                 new DHCPConfig(session, em).Create();
@@ -218,7 +210,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.error("device: " + device.getName() + " " + e.getMessage(), e);
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
     }
 
@@ -336,7 +327,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.error("add " + e.getMessage(), e);
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
     }
 
@@ -354,7 +344,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.debug("device.getByIP " + IP + " " + e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -372,7 +361,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.debug("device.getByMainIP " + IP + " " + e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -387,7 +375,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.debug("MAC " + MAC + " " + e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -402,7 +389,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.debug("name " + name + " " + e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -421,7 +407,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.debug("search " + search + " " + e.getMessage(), e);
             return null;
-        } finally {
         }
     }
 
@@ -552,7 +537,12 @@ public class DeviceService extends Service {
                 i++;
             }
             logger.debug("values" + values);
-            Room room = roomService.getByName(values.get("room"));
+            Room room = null;
+            try {
+                room = roomService.getById(Long.parseLong(values.get("room")));
+            } catch (Exception e) {
+                room = roomService.getByName(values.get("room"));
+            }
             if (room == null) {
                 logger.debug("Can Not find the Room" + values.get("room"));
                 parameters.add(values.get("room"));
@@ -600,7 +590,12 @@ public class DeviceService extends Service {
                 }
             }
             if (values.containsKey("hwconf") && !values.get("hwconf").isEmpty()) {
-                HWConf hwconf = cloneToolService.getByName(values.get("hwconf"));
+                HWConf hwconf;
+                try {
+                    hwconf = cloneToolService.getById(Long.parseLong(values.get("hwconf")));
+                } catch (Exception e) {
+                    hwconf = cloneToolService.getByName(values.get("hwconf"));
+                }
                 if (hwconf != null) {
                     device.setHwconf(hwconf);
                 }
@@ -637,7 +632,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "Default printer was set succesfully.");
     }
@@ -659,7 +653,6 @@ public class DeviceService extends Service {
                 this.em.getTransaction().commit();
             } catch (Exception e) {
                 return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-            } finally {
             }
         }
         return new CrxResponse(this.getSession(), "OK", "The default printer of the device was deleted succesfully.");
@@ -683,7 +676,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "The selected printer was added to the device.");
     }
@@ -703,7 +695,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "The selected printer was removed from device.");
     }
@@ -764,7 +755,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "Logged in user was added succesfully:%s;%s;%s", null, parameters);
     }
@@ -812,7 +802,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         parameters.add(device.getName());
         parameters.add(user.getUid());
@@ -830,7 +819,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "Device was modified succesfully");
     }
@@ -886,7 +874,7 @@ public class DeviceService extends Service {
                     parameters.add(name);
                     error.add("The WLAN MAC address '%s' will be used allready: %s");
                 }
-                if (!IPv4.validateMACAddress(device.getMac())) {
+                if (!IPv4.validateMACAddress(device.getWlanMac())) {
                     parameters.add(device.getWlanMac());
                     error.add("The WLAN MAC address is not valid: '%s'");
                 }
@@ -936,7 +924,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", "ERROR-3" + e.getMessage());
-        } finally {
         }
         startPlugin("modify_device", oldDevice);
         if (macChange) {
@@ -1170,7 +1157,6 @@ public class DeviceService extends Service {
         } catch (Exception e) {
             logger.debug("cleanUpLoggedIn: " + e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "LoggedIn attributes was cleaned up.");
     }
@@ -1261,7 +1247,6 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "Logged in user was added succesfully:%s;%s;%s", null, parameters);
     }

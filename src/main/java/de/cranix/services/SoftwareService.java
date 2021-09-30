@@ -1472,6 +1472,9 @@
              List<String> deviceInstall = new ArrayList<String>();
              List<String> deviceCrxInst = new ArrayList<String>();
              deviceCrxInst.add("  - ntp_conf");
+             if (device.getHwconf().isDomainjoin()) {
+                 deviceCrxInst.add("  - domain_join");
+             }
              deviceRemove.add("packages.toremove:");
              deviceRemove.add("  pkg.removed:");
              deviceRemove.add("    - pkgs:");
@@ -1552,9 +1555,6 @@
              List<String> deviceSls = new ArrayList<String>();
              deviceSls.add(device.getName() + ":");
              deviceSls.add("  system.computer_name: []");
-             if (device.getHwconf().isDomainjoin()) {
-                 deviceCrxInst.add("  - domain_join");
-             }
              if (deviceRemove.size() > 3) {
                  deviceSls.addAll(deviceRemove);
              }

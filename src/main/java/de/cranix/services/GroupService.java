@@ -517,22 +517,33 @@ public class GroupService extends Service {
 		return groups;
 	}
 
-	public CrxResponse setOwner(String groupName, String userName) {
-		Long groupId = this.getByName(groupName).getId();
-		User user    = new UserService(this.session,this.em).getByUid(userName);
-		Group group = this.em.find(Group.class, groupId);
-		group.setOwner(user);
-		user.getOwnedGroups().add(group);
+	public CrxResponse setOwner(Group group, User user) {
+		if( group.getOwner() != null && group.getOwner().equals(user)) {
+			return new CrxResponse(this.getSession(),"OK","Group owner need not be changed.");
+		}
 		try {
 			this.em.getTransaction().begin();
+			if( group.getOwner() != null ) {
+				User oldUser = group.getOwner();
+				oldUser.getOwnedGroups().remove(group);
+				this.em.merge(oldUser);
+			}
+			group.setOwner(user);
+			group.setOwnerId(user.getId());
+			user.getOwnedGroups().add(group);
 			this.em.merge(user);
 			this.em.merge(group);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Group owner was changed.");
+	}
+
+	public CrxResponse setOwner(String groupName, String userName) {
+		Group group = this.getByName(groupName);
+		User user = new UserService(this.session, this.em).getByUid(userName);
+		return this.setOwner(group,user);
 	}
 
 	public CrxResponse cleanGroupDirectory(Group group) {
@@ -616,5 +627,16 @@ public class GroupService extends Service {
                         }
                 }
 		return responses;
+	}
+
+	public User getOwner(Group group) {
+		return group.getOwner();
+	}
+	public String getOwner(String groupName) {
+		Group group = this.getByName(groupName);
+		if( group != null && group.getOwner() != null) {
+			return group.getOwner().getUid();
+		}
+		return "";
 	}
 }
