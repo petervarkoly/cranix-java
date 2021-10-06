@@ -213,12 +213,13 @@ public class SystemService extends Service {
     ///////////////////////////////////////////////////////
 
     public Map<String, String> getFirewallIncomingRules() {
-        String[] program = new String[3];
+        String[] program = new String[4];
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         program[0] = "/usr/bin/firewall-cmd";
         program[1] = "--zone=external";
         program[2] = "--list-services";
+        program[3] = "--permanent";
         Map<String, String> statusMap;
         statusMap = new HashMap<>();
         CrxSystemCmd.exec(program, reply, error, null);
@@ -227,40 +228,28 @@ public class SystemService extends Service {
                 statusMap.put(service, "true");
             }
         }
+        program[0] = "/usr/bin/firewall-cmd";
+        program[1] = "--zone=external";
+        program[2] = "--list-ports";
+        program[3] = "--permanent";
+        CrxSystemCmd.exec(program, reply, error, null);
+        List<String> ports = new ArrayList<String>();
+        for (String service : reply.toString().split("\\s")) {
+            if( !service.isBlank() ) {
+                ports.add(service);
+            }
+        }
+        statusMap.put("other", String.join(" ",ports));
         return statusMap;
     }
 
     public CrxResponse setFirewallIncomingRules(Map<String, String> firewallExt) {
-        String[] program;
+        String[] program = new String[1];
+        program[0] = "/usr/bin/crx_set_fw_incomming.py";
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
-        List<String> addService = new ArrayList<String>();
-        List<String> deleteService = new ArrayList<String>();
-        addService.add("/usr/bin/firewall-cmd");
-        addService.add("--zone=external");
-        addService.add("--permanent");
-        deleteService.add("/usr/bin/firewall-cmd");
-        deleteService.add("--zone=external");
-        deleteService.add("--permanent");
-        for (String key : firewallExt.keySet()) {
-            if (firewallExt.get(key).equals("true")) {
-                addService.add("--add-service");
-                addService.add(key);
-            } else {
-                addService.add("--delete-service");
-                deleteService.add(key);
-            }
-        }
-        if (addService.size() > 3) {
-            program = addService.toArray(new String[addService.size()]);
-            CrxSystemCmd.exec(program, reply, error, null);
-        }
-        if (deleteService.size() > 3) {
-            program = deleteService.toArray(new String[deleteService.size()]);
-            CrxSystemCmd.exec(program, reply, error, null);
-        }
-        reloadFirewall();
-        return new CrxResponse(this.getSession(), "OK", "Firewall outgoing access rule  was set successfully.");
+        CrxSystemCmd.exec(program, reply, error, firewallExt.toString());
+        return new CrxResponse(this.getSession(), "OK", "Firewall incoming access rules were set successfully.");
     }
 
     public List<Map<String, String>> getFirewallOutgoingRules() {
