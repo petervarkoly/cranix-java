@@ -245,7 +245,7 @@ public class SystemService extends Service {
 
     public CrxResponse setFirewallIncomingRules(Map<String, String> firewallExt) {
         String[] program = new String[1];
-        program[0] = "/usr/bin/crx_set_fw_incomming.py";
+        program[0] = cranixBaseDir + "tools/set_fw_incomming.py";
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         CrxSystemCmd.exec(program, reply, error, firewallExt.toString());
