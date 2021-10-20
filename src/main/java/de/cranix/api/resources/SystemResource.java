@@ -434,8 +434,8 @@ public class SystemResource {
 		return resp;
 	}
 
-	@DELETE
-	@Path("firewall/outgoingRules")
+	@POST
+	@Path("firewall/outgoingRules/delete")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the outgoing firewall rules.")
 	@ApiResponses(value = {

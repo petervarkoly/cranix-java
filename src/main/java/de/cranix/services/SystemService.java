@@ -224,7 +224,7 @@ public class SystemService extends Service {
         statusMap = new HashMap<>();
         CrxSystemCmd.exec(program, reply, error, null);
         for (String service : reply.toString().split("\\s")) {
-            if( !service.isBlank() ) {
+            if (!service.isBlank()) {
                 statusMap.put(service, "true");
             }
         }
@@ -235,11 +235,11 @@ public class SystemService extends Service {
         CrxSystemCmd.exec(program, reply, error, null);
         List<String> ports = new ArrayList<String>();
         for (String service : reply.toString().split("\\s")) {
-            if( !service.isBlank() ) {
+            if (!service.isBlank()) {
                 ports.add(service);
             }
         }
-        statusMap.put("other", String.join(" ",ports));
+        statusMap.put("other", String.join(" ", ports));
         return statusMap;
     }
 
@@ -265,11 +265,11 @@ public class SystemService extends Service {
         program[1] = "--zone=external";
         program[2] = "--list-rich-rules";
         CrxSystemCmd.exec(program, reply, error, null);
-        for( String line: reply.toString().split("\\n")) {
+        for (String line : reply.toString().split("\\n")) {
             statusMap = new HashMap<>();
             //Evaluate source
             matcher = sourceAddress.matcher(line);
-            if( !matcher.find()) {
+            if (!matcher.find()) {
                 logger.error("getFirewallOutgoingRules bad rule:" + line);
                 continue;
             }
@@ -294,17 +294,17 @@ public class SystemService extends Service {
             }
             // Evaluate destination
             matcher = destinationAddress.matcher(line);
-            if( matcher.find() ) {
-                statusMap.put("dest",matcher.group(1));
+            if (matcher.find()) {
+                statusMap.put("dest", matcher.group(1));
             } else {
-                statusMap.put("dest","0/0");
+                statusMap.put("dest", "0/0");
             }
             // Evaluate protocol
             matcher = protocolPattern.matcher(line);
-            if( matcher.find() ){
-                statusMap.put("prot",matcher.group(1));
+            if (matcher.find()) {
+                statusMap.put("prot", matcher.group(1));
             } else {
-                statusMap.put("prot","all");
+                statusMap.put("prot", "all");
             }
             firewallList.add(statusMap);
         }
@@ -313,38 +313,44 @@ public class SystemService extends Service {
 
     public CrxResponse addFirewallOutgoingRule(Map<String, String> firewalRule) {
         try {
-            logger.debug(new ObjectMapper().writeValueAsString(firewalRule));
-            String[] program = new String[4];
+            logger.debug("addFirewallOutgoingRule 1." + new ObjectMapper().writeValueAsString(firewalRule));
+            String[] program = new String[2];
             StringBuffer reply = new StringBuffer();
             StringBuffer error = new StringBuffer();
-            program[0] = "/usr/bin/firewall-cmd";
-            program[1] = "--permanent";
-            program[2] = "--zone=external";
+            program[0] = "/usr/share/cranix/tools/add-external-rule.sh";
             String source = "";
-            Long id = Long.getLong(firewalRule.get("id"));
+            Long id = Long.parseLong(firewalRule.get("id"));
             if (firewalRule.get("type").equals("room")) {
+                logger.debug("addFirewallOutgoingRule 1.1 room" + firewalRule.get("id"));
                 Room room = new RoomService(this.session, this.em).getById(id);
-                source = String.format("%s/%s",room.getStartIP(),room.getNetMask());
+                logger.debug("addFirewallOutgoingRule 1.2 room" + room);
+                source = String.format("%s/%s", room.getStartIP(), room.getNetMask());
             } else {
+                logger.debug("addFirewallOutgoingRule 1.1 device");
                 Device device = new DeviceService(this.session, this.em).getById(id);
-                source = String.format("%s/32",device.getIp());
+                logger.debug("addFirewallOutgoingRule 1.2 device" + device);
+                source = String.format("%s/32", device.getIp());
             }
+            logger.debug("addFirewallOutgoingRule 2." + source);
             StringBuilder richRule = new StringBuilder();
-            richRule.append("--add-rich-rule=\"rule family=ipv4 source address=");
+            richRule.append("\"rule family=ipv4 source address=");
             richRule.append(source);
-            if( !firewalRule.get("prot").equals("all")) {
+            if (!firewalRule.get("prot").equals("all")) {
                 richRule.append(" protocol value=");
                 richRule.append(firewalRule.get("prot"));
             }
-            if( firewalRule.get("dest").equals("0/0")) {
-                program[3] = String.format("--add-rich-rule=\"rule family=ipv4 source address=%s masquerade\"",source);
+            logger.debug("addFirewallOutgoingRule 3." + richRule);
+            if (firewalRule.get("dest").equals("0/0")) {
+                program[1] = String.format("rule family=ipv4 source address=%s masquerade", source);
             } else {
-                program[3] = String.format(
-                        "--add-rich-rule=\"rule family=ipv4 source address=%s destination address=%s masquerade\"",
+                program[1] = String.format(
+                        "rule family=ipv4 source address=%s destination address=%s masquerade",
                         source, firewalRule.get("dest")
                 );
             }
+            logger.debug("addFirewallOutgoingRule 4.:" + program[0] + " " + program[1]);
             CrxSystemCmd.exec(program, reply, error, null);
+            logger.debug("addFirewallOutgoingRule reply:", reply.toString());
             logger.debug("addFirewallOutgoingRule error:", error.toString());
             reloadFirewall();
             return new CrxResponse(this.getSession(), "OK", "Firewall outgoing access rule was add successfully.");
@@ -357,33 +363,31 @@ public class SystemService extends Service {
     public CrxResponse deleteFirewallOutgoingRule(Map<String, String> firewalRule) {
         try {
             logger.debug(new ObjectMapper().writeValueAsString(firewalRule));
-            String[] program = new String[4];
+            String[] program = new String[2];
             StringBuffer reply = new StringBuffer();
             StringBuffer error = new StringBuffer();
-            program[0] = "/usr/bin/firewall-cmd";
-            program[1] = "--permanent";
-            program[2] = "--zone=external";
+            program[0] = "/usr/share/cranix/tools/remove-external-rule.sh";
             String source = "";
-            Long id = Long.getLong(firewalRule.get("id"));
+            Long id = Long.parseLong(firewalRule.get("id"));
             if (firewalRule.get("type").equals("room")) {
                 Room room = new RoomService(this.session, this.em).getById(id);
-                source = String.format("%s/%s",room.getStartIP(),room.getNetMask());
+                source = String.format("%s/%s", room.getStartIP(), room.getNetMask());
             } else {
                 Device device = new DeviceService(this.session, this.em).getById(id);
-                source = String.format("%s/32",device.getIp());
+                source = String.format("%s/32", device.getIp());
             }
             StringBuilder richRule = new StringBuilder();
-            richRule.append("--add-rich-rule=\"rule family=ipv4 source address=");
+            richRule.append("\"rule family=ipv4 source address=");
             richRule.append(source);
-            if( !firewalRule.get("prot").equals("all")) {
+            if (!firewalRule.get("prot").equals("all")) {
                 richRule.append(" protocol value=");
                 richRule.append(firewalRule.get("prot"));
             }
-            if( firewalRule.get("dest").equals("0/0")) {
-                program[3] = String.format("--remove-rich-rule=\"rule family=ipv4 source address=%s masquerade\"",source);
+            if (firewalRule.get("dest").equals("0/0")) {
+                program[1] = String.format("rule family=ipv4 source address=%s masquerade", source);
             } else {
-                program[3] = String.format(
-                        "--remove-rich-rule=\"rule family=ipv4 source address=%s destination address=%s masquerade\"",
+                program[1] = String.format(
+                        "\"rule family=ipv4 source address=%s destination address=%s masquerade\"",
                         source, firewalRule.get("dest")
                 );
             }
@@ -408,7 +412,7 @@ public class SystemService extends Service {
         List<Map<String, String>> firewallList = new ArrayList<>();
         Map<String, String> statusMap;
         DeviceService deviceService = new DeviceService(this.session, this.em);
-        for( String line: reply.toString().split("\\n")) {
+        for (String line : reply.toString().split("\\n")) {
             Matcher matcher = portForward.matcher(line);
             if (matcher.find()) {
                 Device device = deviceService.getByIP(matcher.group(3));
@@ -420,10 +424,10 @@ public class SystemService extends Service {
                     statusMap.put("id", device.getId().toString());
                     firewallList.add(statusMap);
                 } else {
-                    logger.error("getFirewallRemoteAccessRules can not find host:"+ matcher.group(3));
+                    logger.error("getFirewallRemoteAccessRules can not find host:" + matcher.group(3));
                 }
             } else {
-                logger.error("getFirewallRemoteAccessRules bad rule: "+ line);
+                logger.error("getFirewallRemoteAccessRules bad rule: " + line);
             }
         }
         return firewallList;
@@ -437,7 +441,7 @@ public class SystemService extends Service {
         program[1] = "--permanent";
         program[2] = "--zone=external";
         Device device = new DeviceService(this.session, this.em).getById(
-                Long.getLong(remoteRule.get("id"))
+                Long.parseLong(remoteRule.get("id"))
         );
         if (device == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not set.");
@@ -459,7 +463,7 @@ public class SystemService extends Service {
         program[1] = "--permanent";
         program[2] = "--zone=external";
         Device device = new DeviceService(this.session, this.em).getById(
-                Long.getLong(remoteRule.get("id"))
+                Long.parseLong(remoteRule.get("id"))
         );
         if (device == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not set.");

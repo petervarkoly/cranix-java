@@ -150,21 +150,6 @@ public class RoomService extends Service {
 
 	public List<Room> getAllWithFirewallControl() {
 		List<Room> rooms = new ArrayList<Room>();
-		for (String network : this.getEnumerates("network")) {
-			String[] net = network.split("/");
-			if (net.length != 2) {
-				logger.error("Bad network");
-			} else {
-				logger.debug("net:" + net[0]);
-				logger.debug("net:" + net[1]);
-				Room room = new Room();
-				room.setName(net[0]);
-				room.setDescription(net[0]);
-				room.setStartIP(net[0]);
-				room.setNetMask(Integer.parseInt(net[1]));
-				rooms.add(room);
-			}
-		}
 		try {
 			Query query = this.em.createNamedQuery("Room.findAllWithFirewallControl");
 			for (Room room : (List<Room>) query.getResultList()) {
