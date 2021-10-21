@@ -15,7 +15,6 @@ foreach( split /\n/, $ROLES )
 	{
 		my $r = $1;
 		next if( $r eq "printers.add" );
-		next if( $r eq "system.superuser" );
 		$hroles->{$1} = 1;
 		if( $r =~ /education/  || $r =~ /information/ ) {
 			next if( $r =~ /softwares*/ );

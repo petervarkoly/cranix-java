@@ -55,6 +55,7 @@ public class StaticHelpers {
 	}
 
 	static public String normalizeTelex(String input) {
+		logger.debug("normalizeTelex input: " + input.replace("ß","ss").replace("ö", "oe").replace("ü", "ue").replace("ä", "ae"));
 		return  Normalizer.normalize(
 				input.replace("ß","ss").
 						replace("ö", "oe").
