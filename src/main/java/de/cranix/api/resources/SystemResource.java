@@ -363,6 +363,23 @@ public class SystemResource {
 
 	// Firewall configuration
 	@GET
+	@Path("firewall/services")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets the incoming firewall rules.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("system.firewall")
+	public String[]  getFirewallServices( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		SystemService systemService = new SystemService(session,em);
+		String[] resp = systemService.getFirewallServices();
+		em.close();
+		return resp;
+	}
+
+	@GET
 	@Path("firewall/incomingRules")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the incoming firewall rules.")
@@ -370,11 +387,11 @@ public class SystemResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("system.firewall")
-	public Map<String, String>  getFirewallIncomingRules( @ApiParam(hidden = true) @Auth Session session)
+	public Map<String, List<String>>  getFirewallIncomingRules( @ApiParam(hidden = true) @Auth Session session)
 	   	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SystemService systemService = new SystemService(session,em);
-		Map<String, String> resp = systemService.getFirewallIncomingRules();
+		Map<String, List<String>> resp = systemService.getFirewallIncomingRules();
 		em.close();
 		return resp;
 	}
@@ -389,7 +406,7 @@ public class SystemResource {
 	@RolesAllowed("system.firewall")
 	public CrxResponse  setFirewallIncomingRules(
 		@ApiParam(hidden = true) @Auth Session session,
-		Map<String, String> incommingRules
+		Map<String, List<String>> incommingRules
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		SystemService systemService = new SystemService(session,em);
@@ -489,8 +506,8 @@ public class SystemResource {
 		return resp;
 	}
 
-	@DELETE
-	@Path("firewall/remoteAccessRules")
+	@POST
+	@Path("firewall/remoteAccessRules/delete")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the remote access firewall rules.")
 	@ApiResponses(value = {

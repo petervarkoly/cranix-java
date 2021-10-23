@@ -726,7 +726,7 @@ public class RoomService extends Service {
 	/*
 	 * Gets the actual access status in a room
 	 */
-	public Object getAccessStatus(Room room)
+	public AccessInRoom getAccessStatus(Room room)
 	{
 		return new AccessService().getAccessStatus(room);
 	}
@@ -735,7 +735,7 @@ public class RoomService extends Service {
 	 * Sets the actual access status in a room.
 	 * Room is given by roomId
 	 */
-	public Object getAccessStatus(long roomId) {
+	public AccessInRoom getAccessStatus(long roomId) {
 		Room room = this.getById(roomId);
 		return this.getAccessStatus(room);
 	}
@@ -744,7 +744,7 @@ public class RoomService extends Service {
 	 * Gets the actual access status in all rooms.
 	 * Room is given by roomId
 	 */
-	public Object getAccessStatus() {
+	public AccessInRoom getAccessStatus() {
 		return new AccessService().getAccessStatus();
 	}
 

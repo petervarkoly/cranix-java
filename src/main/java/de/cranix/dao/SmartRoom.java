@@ -31,7 +31,7 @@ public class SmartRoom {
 
 	private int rows;
 
-	private Object accessInRooms;
+	private AccessInRoom accessInRooms;
 
 	private List<Device> devices;
 
@@ -211,7 +211,7 @@ public class SmartRoom {
 		return accessInRooms;
 	}
 
-	public void setAccessInRooms(Object accessInRooms) {
+	public void setAccessInRooms(AccessInRoom accessInRooms) {
 		this.accessInRooms = accessInRooms;
 	}
 
