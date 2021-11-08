@@ -96,6 +96,7 @@ public class PrinterService extends Service {
             Printer printer = (Printer) query.getSingleResult();
             printer.setRoomId(printer.getDevice().getRoom().getId());
             printer.setMac(printer.getDevice().getMac());
+            printer.setIp(printer.getDevice().getIp());
             printer.setDeviceName(printer.getDevice().getName());
             return printer;
         } catch (Exception e) {
