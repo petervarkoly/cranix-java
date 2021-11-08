@@ -744,7 +744,7 @@ public class RoomService extends Service {
 	 * Gets the actual access status in all rooms.
 	 * Room is given by roomId
 	 */
-	public AccessInRoom getAccessStatus() {
+	public AccessInRoom[] getAccessStatus() {
 		return new AccessService().getAccessStatus();
 	}
 

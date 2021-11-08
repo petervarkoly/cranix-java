@@ -470,9 +470,9 @@ public class RoomResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	public AccessInRoom getAccessStatus( @ApiParam(hidden = true) @Auth Session session) {
+	public AccessInRoom[] getAccessStatus( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		final AccessInRoom accesses = new RoomService(session,em).getAccessStatus();
+		final AccessInRoom[] accesses = new RoomService(session,em).getAccessStatus();
 		em.close();
 		return accesses;
 	}

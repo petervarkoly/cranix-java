@@ -18,7 +18,7 @@ public class AccessService{
     public AccessService() {
     }
 
-    public AccessInRoom getAccessStatus() {
+    public AccessInRoom[] getAccessStatus() {
         String[] program = new String[3];
         program[0] = "/usr/sbin/crx_manage_room_access.py";
         program[1] = "--get";
@@ -27,7 +27,7 @@ public class AccessService{
         StringBuffer error = new StringBuffer();
         CrxSystemCmd.exec(program, reply, error, null);
         try {
-            return mapper.readValue(reply.toString(),AccessInRoom.class);
+            return mapper.readValue(reply.toString(),AccessInRoom[].class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return null;
