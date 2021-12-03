@@ -106,6 +106,23 @@ public class SessionService extends Service {
 		if( user == null ) {
 			return null;
 		}
+		/**
+		 * For debug reason.
+		 * Create Variable CRANIX_USER_<USERNAME>_SESSION_IP="<IP-Of-The-Device>" in /etc/sysconfig/cranix
+		 * And the user will logg in on this device everytime
+		 **/
+		if( !this.getConfigValue("USER_" + username + "_SESSION_IP").isEmpty() ) {
+			this.getSession().setIp(this.getConfigValue("USER_" + username + "_SESSION_IP"));
+		}
+
+		/**
+		 * For debug reason.
+		 * Create Variable CRANIX_USER_<USERNAME>_SESSION_IP="<IP-Of-The-Device>" in /etc/sysconfig/cranix
+		 * And the user will logg in on this device everytime
+		 **/
+		if( !this.getConfigValue("USER_" + username + "_SESSION_IP").isEmpty() ) {
+			this.getSession().setIp(this.getConfigValue("USER_" + username + "_SESSION_IP"));
+		}
 		String IP = this.getSession().getIp();
 		Device device = deviceService.getByIP(IP);
 		if( device != null ) {
