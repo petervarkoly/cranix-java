@@ -1082,6 +1082,7 @@ public class DeviceService extends Service {
                 program[1] = "--async";
                 program[2] = FQHN.toString();
                 program[3] = "crx_client.logOff";
+                this.cleanUpLoggedIn(device);
                 break;
             case "sethwconfofroom":
                 try {
