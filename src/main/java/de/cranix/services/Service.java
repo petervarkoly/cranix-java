@@ -684,6 +684,20 @@ public class Service extends Config {
         return (CrxMConfig) query.getResultList().get(0);
     }
 
+    public List<CrxMConfig> getMConfigObjects(
+            String objectType,
+            String keyword,
+            String value
+    ) {
+        Query query = this.em.createNamedQuery("CrxMConfig.getAllObject");
+        query.setParameter("type", objectType)
+                .setParameter("keyword", keyword )
+                .setParameter("value", value);
+        if (query.getResultList().isEmpty()) {
+            return null;
+        }
+        return (List<CrxMConfig>) query.getResultList();
+    }
     public boolean checkMConfig(Object object, String key, String value) {
         if (this.getMConfigObject(object, key, value) == null) {
             return false;
