@@ -28,6 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static de.cranix.helper.CranixConstants.*;
+import static de.cranix.helper.StaticHelpers.createLiteralJson;
+import static de.cranix.helper.StaticHelpers.startPlugin;
 
 public class PrinterService extends Service {
     private static final Path DRIVERS = Paths.get(cranixBaseDir + "templates/drivers.txt");
@@ -174,15 +176,9 @@ public class PrinterService extends Service {
         CrxResponse crxResponse = new CrxResponse(session, "OK", "Printer was deleted succesfully.");
         try {
             Device printerDevice = printer.getDevice();
-            String[] program = new String[3];
-            StringBuffer reply = new StringBuffer();
-            StringBuffer stderr = new StringBuffer();
-            program[0] = "/usr/sbin/lpadmin";
-            program[1] = "-x";
-            program[2] = printer.getName();
-            CrxSystemCmd.exec(program, reply, stderr, null);
-            logger.debug("deletePrinter reply:" + reply.toString() + " err:" + stderr.toString());
-            this.em.getTransaction().begin();
+            Map<String, String> tmpMap = new HashMap<>();
+            tmpMap.put("name",printer.getName());
+            startPlugin("delete_printer_queue", createLiteralJson(tmpMap));
             printerDevice.getPrinterQueue().remove(printer);
             this.em.remove(printer);
             this.em.merge(printerDevice);
@@ -212,38 +208,11 @@ public class PrinterService extends Service {
 
     public CrxResponse activateWindowsDriver(String printerName) {
         logger.debug("Activating windows driver for: " + printerName);
-        String[] program = new String[7];
-        StringBuffer reply = new StringBuffer();
-        StringBuffer stderr = new StringBuffer();
-        program[0] = "/usr/sbin/cupsaddsmb";
-        program[1] = "-v";
-        program[2] = "-H";
-        program[3] = "localhost";
-        program[4] = "-U";
-        program[5] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
-        program[6] = printerName;
-        int success = CrxSystemCmd.exec(program, reply, stderr, null);
-        try {
-            logger.debug(new ObjectMapper().writeValueAsString(program));
-        } catch (Exception e) {
-            logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
-        }
-        logger.debug("activateWindowsDriver cupsaddsmb stderr: " + stderr.toString());
-        if (success != 0) {
-            return new CrxResponse(session, "ERROR", stderr.toString());
-        }
-        program = new String[6];
-        program[0] = "/usr/bin/rpcclient";
-        program[1] = "-U";
-        program[2] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
-        program[3] = "localhost";
-        program[4] = "-c";
-        program[5] = "setdriver " + printerName + " " + printerName;
-        logger.debug("activateWindowsDriver rpcclient: " + reply.toString());
-        CrxSystemCmd.exec(program, reply, stderr, null);
-        logger.debug("activateWindowsDriver error" + stderr.toString());
-        logger.debug("activateWindowsDriver reply" + reply.toString());
-        return new CrxResponse(session, "OK", "Windows driver was activated.");
+        Map<String, String> tmpMap = new HashMap<>();
+        tmpMap.put("name",printerName);
+        tmpMap.put("action","activateWindowsDriver");
+        startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+        return new CrxResponse(session, "OK", "Windows driver activation was started.");
     }
 
     public CrxResponse addPrinter(
@@ -305,7 +274,7 @@ public class PrinterService extends Service {
             logger.debug("addPrinterQueue :" + e.getMessage());
             return new CrxResponse(session, "ERROR", e.getMessage());
         }
-        //Create the printer in CUPS
+        //Find the driver file
         String driverFile = "/usr/share/cups/model/Postscript.ppd.gz";
         if (fileInputStream != null) {
             File file = null;
@@ -331,46 +300,11 @@ public class PrinterService extends Service {
                 return new CrxResponse(session, "ERROR", e.getMessage());
             }
         }
-        logger.debug("Add printer/usr/sbin/lpadmin -p " + name + " -P " + driverFile + " -o printer-error-policy=abort-job -o PageSize=A4 -v socket://" + name);
-        String[] program = new String[11];
-        StringBuffer reply = new StringBuffer();
-        StringBuffer stderr = new StringBuffer();
-        program[0] = "/usr/sbin/lpadmin";
-        program[1] = "-p";
-        program[2] = name;
-        program[3] = "-P";
-        program[4] = driverFile;
-        program[5] = "-o";
-        program[6] = "printer-error-policy=abort-job";
-        program[7] = "-o";
-        program[8] = "PageSize=A4";
-        program[9] = "-v";
-        program[10] = "socket://" + deviceHostName;
-
-        CrxSystemCmd.exec(program, reply, stderr, null);
-        logger.debug(stderr.toString());
-        logger.debug(reply.toString());
-        this.systemctl("try-restart", "samba-ad");
-        //Now we have to check if the printer is already visible in samba
-        int tries = 6;
-        program = new String[6];
-        program[0] = "/usr/bin/rpcclient";
-        program[1] = "-U";
-        program[2] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
-        program[3] = "localhost";
-        program[4] = "-c";
-        program[5] = "getprinter " + name;
-        do {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-            reply = new StringBuffer();
-            stderr = new StringBuffer();
-            CrxSystemCmd.exec(program, reply, stderr, null);
-            logger.debug("activateWindowsDriver error" + stderr.toString());
-        } while (!stderr.toString().isEmpty() && tries > -1);
+        Map<String, String> tmpMap = new HashMap<>();
+        tmpMap.put("name",printer.getName());
+        tmpMap.put("driverFile",driverFile);
+        tmpMap.put("hostName",deviceHostName);
+        startPlugin("add_printer_queue", createLiteralJson(tmpMap));
 
         if (windowsDriver) {
             CrxResponse crxResponse = activateWindowsDriver(name);
