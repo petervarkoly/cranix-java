@@ -694,7 +694,7 @@ public class Service extends Config {
                 .setParameter("keyword", keyword )
                 .setParameter("value", value);
         if (query.getResultList().isEmpty()) {
-            return null;
+            return new ArrayList<>();
         }
         return (List<CrxMConfig>) query.getResultList();
     }
