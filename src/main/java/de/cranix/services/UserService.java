@@ -191,9 +191,9 @@ public class UserService extends Service {
             newUserId = this.getConfigValue("LOGIN_PREFIX") + userId + i;
             i++;
         }
-	logger.debug("LOGIN_TELEX" + this.getConfigValue("LOGIN_TELEX"));
-        if(this.getConfigValue("LOGIN_TELEX").equals("yes")) {
-	    logger.debug("LOGIN_TELEX" + newUserId );
+        logger.debug("LOGIN_TELEX" + this.getConfigValue("LOGIN_TELEX"));
+        if (this.getConfigValue("LOGIN_TELEX").equals("yes")) {
+            logger.debug("LOGIN_TELEX" + newUserId);
             return normalizeTelex(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9]", "");
         }
         return normalize(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9]", "");
@@ -226,7 +226,7 @@ public class UserService extends Service {
         }
         // Create uid if not given
         if (user.getUid() == null || user.getUid().isEmpty()) {
-	    logger.debug("this.createUid called");
+            logger.debug("this.createUid called");
             this.createUid(user);
         } else {
             user.setUid(user.getUid().toLowerCase());
@@ -412,7 +412,7 @@ public class UserService extends Service {
             for (Device device : user.getOwnedDevices()) {
                 dIds.add(device.getId());
             }
-            for(Long id: dIds) {
+            for (Long id : dIds) {
                 dc.delete(id, false);
             }
             DHCPConfig dhcpConfig = new DHCPConfig(session, this.em);
@@ -1290,8 +1290,8 @@ public class UserService extends Service {
             case "mandatoryprofile":
                 return this.mandatoryProfile(
                         crxActionMap.getObjectIds(),
-                        true);
-            case "openprofile":
+                        crxActionMap.isBooleanValue());
+            case "rwprofile":
                 return this.mandatoryProfile(
                         crxActionMap.getObjectIds(),
                         false);
