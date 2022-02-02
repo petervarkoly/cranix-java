@@ -80,6 +80,17 @@ public class Printer implements Serializable  {
 	@Transient
 	private String    mac;
 
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	@Transient
+	private String  ip;
+
 	@Transient
 	private Long      roomId;
 

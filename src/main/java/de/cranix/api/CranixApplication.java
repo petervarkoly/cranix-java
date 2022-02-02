@@ -109,6 +109,9 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final UserResource usersResource = new UserResource();
 		environment.jersey().register(usersResource);
 
+		final ObjectResource objectResource = new ObjectResource();
+		environment.jersey().register(objectResource);
+
 		//Start mdm api only if it is configured.
 		File mdm_config = new File(cranixMdmConfig);
 		if( mdm_config.exists() ) {

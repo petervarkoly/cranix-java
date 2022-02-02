@@ -1287,8 +1287,8 @@ public class UserService extends Service {
             case "mandatoryprofile":
                 return this.mandatoryProfile(
                         crxActionMap.getObjectIds(),
-                        true);
-            case "openprofile":
+                        crxActionMap.isBooleanValue());
+            case "rwprofile":
                 return this.mandatoryProfile(
                         crxActionMap.getObjectIds(),
                         false);

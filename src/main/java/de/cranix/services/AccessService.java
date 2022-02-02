@@ -1,5 +1,7 @@
 /* (c) 2021 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.services;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.AccessInRoom;
 import de.cranix.dao.Room;
 import de.cranix.helper.CrxSystemCmd;
@@ -12,10 +14,11 @@ import java.util.List;
 public class AccessService{
 
     Logger logger = LoggerFactory.getLogger(AccessService.class);
+    ObjectMapper mapper = new ObjectMapper();
     public AccessService() {
     }
 
-    public Object getAccessStatus() {
+    public AccessInRoom[] getAccessStatus() {
         String[] program = new String[3];
         program[0] = "/usr/sbin/crx_manage_room_access.py";
         program[1] = "--get";
@@ -23,10 +26,15 @@ public class AccessService{
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         CrxSystemCmd.exec(program, reply, error, null);
-        return reply.toString();
+        try {
+            return mapper.readValue(reply.toString(),AccessInRoom[].class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public Object getAccessStatus(Room room) {
+    public AccessInRoom getAccessStatus(Room room) {
         String[] program = new String[4];
         program[0] = "/usr/sbin/crx_manage_room_access.py";
         program[1] = "--id";
@@ -35,7 +43,12 @@ public class AccessService{
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         CrxSystemCmd.exec(program, reply, error, null);
-        return reply.toString();
+        try {
+            return mapper.readValue(reply.toString(),AccessInRoom.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void setAccessStatus(Room room, AccessInRoom access, Boolean allowedDirect) {

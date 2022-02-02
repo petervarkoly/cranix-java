@@ -278,6 +278,7 @@ CREATE TABLE IF NOT EXISTS CrxConfig (
 	FOREIGN KEY(creator_id)  REFERENCES Users(id),
         PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
+CREATE UNIQUE INDEX CrxConfig on CrxConfig(objectType,objectId,keyword,value);
 
 CREATE TABLE IF NOT EXISTS CrxMConfig (
 	id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

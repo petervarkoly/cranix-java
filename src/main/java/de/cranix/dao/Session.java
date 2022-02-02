@@ -317,7 +317,7 @@ public class Session implements Principal {
 		for( Acl acl : this.user.getAcls() ){
 			if( acl.getAllowed() && !modules.contains(acl.getAcl())) {
 				modules.add(acl.getAcl());
-			} else if( modules.contains(acl.getAcl()) ) {
+			} else if( !acl.getAllowed() && modules.contains(acl.getAcl()) ) {
 				//It is forbidden by the user
 				modules.remove(acl.getAcl());
 			}

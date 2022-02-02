@@ -23,13 +23,25 @@ if [ -z "$PRINTINDX" ]; then
 	echo "CREATE UNIQUE INDEX printers_name on Printers(name);" | mysql CRX
 fi
 #Avoid creating private devices with the same IP-Adrrsess
-IPINDEX=$( echo "SELECT * FROM information_schema.statistics WHERE table_schema = 'CRX' AND table_name = 'Devices' AND column_name = 'IP';" | mysql CRX )
-if [ -z "$IPINDEX" ]; then
+INDEX=$( echo "SELECT * FROM information_schema.statistics WHERE table_schema = 'CRX' AND table_name = 'Devices' AND column_name = 'IP';" | mysql CRX )
+if [ -z "$INDEX" ]; then
         echo "DELETE FROM Devices WHERE IP = '${CRANIX_SERVER}' AND id > 1" | mysql CRX
         echo "CREATE UNIQUE INDEX device_ip on Devices(IP);" | mysql CRX
-        IPINDEX=$( echo "SELECT * FROM information_schema.statistics WHERE table_schema = 'CRX' AND table_name = 'Devices' AND column_name = 'IP';" | mysql CRX )
-        if  [ -z "$IPINDEX" ]; then
+        INDEX=$( echo "SELECT * FROM information_schema.statistics WHERE table_schema = 'CRX' AND table_name = 'Devices' AND column_name = 'IP';" | mysql CRX )
+        if  [ -z "$INDEX" ]; then
                 SUPPORT='{"email":"noreply@cephalix.eu","subject":"Can not create device_ip index","description":"Can not create device_ip index","regcode":"'${CRANIX_REG_CODE}'"}'
+                curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d "${SUPPORT}" ${CRANIX_SUPPORT_URL}
+        fi
+fi
+
+
+#Avoid Creating multiple configs
+INDEX=$( echo "SELECT * FROM information_schema.statistics WHERE table_schema = 'CRX' AND table_name = 'CrxConfig' AND  column_name = 'objectType';"  | mysql CRX )
+if [ -z "$INDEX" ]; then
+	echo "CREATE UNIQUE INDEX CrxConfig on CrxConfig(objectType,objectId,keyword,value);"  | mysql CRX
+	INDEX=$( echo "SELECT * FROM information_schema.statistics WHERE table_schema = 'CRX' AND table_name = 'CrxConfig' AND  column_name = 'objectType';"  | mysql CRX )
+	if  [ -z "$INDEX" ]; then
+                SUPPORT='{"email":"noreply@cephalix.eu","subject":"Can not create CrxConfig_index index","description":"Can not create CrxConfig_index index","regcode":"'${CRANIX_REG_CODE}'"}'
                 curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' -d "${SUPPORT}" ${CRANIX_SUPPORT_URL}
         fi
 fi

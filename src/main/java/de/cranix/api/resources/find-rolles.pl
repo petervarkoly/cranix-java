@@ -14,8 +14,6 @@ foreach( split /\n/, $ROLES )
 	if(	/\@RolesAllowed\("(.*)"\)/ )
 	{
 		my $r = $1;
-		next if( $r eq "printers.add" );
-		next if( $r eq "system.superuser" );
 		$hroles->{$1} = 1;
 		if( $r =~ /education/  || $r =~ /information/ ) {
 			next if( $r =~ /softwares*/ );
@@ -37,7 +35,6 @@ foreach( sort keys %$forTeachers )
 {
 	print "INSERT INTO Acls VALUES(NULL,NULL,2,'$_','Y',6);\n";
 }
-print "INSERT INTO Acls VALUES(NULL,1,NULL,'printers.add','Y',6);\n";
 
 foreach( @USERROLES ) {
 	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','user.add.$_',6);\n";

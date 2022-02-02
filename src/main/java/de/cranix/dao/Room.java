@@ -129,7 +129,6 @@ public class Room implements Serializable {
 		joinColumns={ @JoinColumn(name="room_id") },
 		inverseJoinColumns={@JoinColumn(name="printer_id")}
 		)
-	@JsonIgnore
 	private List<Printer> availablePrinters = new ArrayList<Printer>();
 
 	//bi-directional many-to-one association to Device
@@ -139,7 +138,6 @@ public class Room implements Serializable {
 		joinColumns={ @JoinColumn(name="room_id") },
 		inverseJoinColumns={ @JoinColumn(name="printer_id") }
 		)
-	@JsonIgnore
 	private Printer defaultPrinter;
 
 	//bi-directional many-to-one association to Test

@@ -470,9 +470,9 @@ public class RoomResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	public Object getAccessStatus( @ApiParam(hidden = true) @Auth Session session) {
+	public AccessInRoom[] getAccessStatus( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		final Object accesses = new RoomService(session,em).getAccessStatus();
+		final AccessInRoom[] accesses = new RoomService(session,em).getAccessStatus();
 		em.close();
 		return accesses;
 	}
@@ -485,12 +485,12 @@ public class RoomResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("room.manage")
-	public Object getAccessStatus(
+	public AccessInRoom getAccessStatus(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		Object resp = new RoomService(session,em).getAccessStatus(roomId);
+		AccessInRoom resp = new RoomService(session,em).getAccessStatus(roomId);
 		em.close();
 		return resp;
 	}
@@ -638,43 +638,6 @@ public class RoomResource {
 		return resp;
 	}
 
-	@PUT
-	@Path("{roomId}/defaultPrinter/{deviceId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets the default printer in a room.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Device not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.manage")
-	public CrxResponse setDefaultPrinter(
-		@ApiParam(hidden = true) @Auth  Session session,
-		@PathParam("roomId")		Long roomId,
-		@PathParam("deviceId")		Long printerId
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).setDefaultPrinter(roomId, printerId);
-		em.close();
-		return resp;
-	}
-
-	@DELETE
-	@Path("{roomId}/defaultPrinter")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Deletes the default printer in a room.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Device not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.manage")
-	public CrxResponse deleteDefaultPrinter(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("roomId") Long roomId
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).deleteDefaultPrinter(roomId);
-		em.close();
-		return resp;
-	}
-
 	@GET
 	@Path("{roomId}/defaultPrinter")
 	@Produces(JSON_UTF8)
@@ -689,63 +652,6 @@ public class RoomResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Printer resp = new RoomService(session,em).getById(roomId).getDefaultPrinter();
-		em.close();
-		return resp;
-	}
-
-	@POST
-	@Path("{roomId}/availablePrinters")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets the available printers in a room.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Device not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.manage")
-	public CrxResponse setAvailablePrinters(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("roomId") Long roomId,
-		List<Long> printerIds
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).setAvailablePrinters(roomId, printerIds);
-		em.close();
-		return resp;
-	}
-
-	@PUT
-	@Path("{roomId}/availablePrinters/{prinerId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Adds an available printers in a room.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Device not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.manage")
-	public CrxResponse addAvailablePrinters(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("roomId")   Long roomId,
-		@PathParam("prinerId") Long printerId
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).addAvailablePrinter(roomId, printerId);
-		em.close();
-		return resp;
-	}
-
-	@DELETE
-	@Path("{roomId}/availablePrinters/{prinerId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Deletes an avilable printer in a room.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Device not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.manage")
-	public CrxResponse deleteAvailablePrinters(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("roomId")   Long roomId,
-		@PathParam("prinerId") Long printerId
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).deleteAvailablePrinter(roomId, printerId);
 		em.close();
 		return resp;
 	}
@@ -769,27 +675,8 @@ public class RoomResource {
 	}
 
 	/*
-	 * may be deprecated
+	* Action control
 	 */
-	@PUT
-	@Path("text/{roomName}/defaultPrinter/{printerName}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Sets the default printer in a room.")
-	@ApiResponses(value = {
-	    @ApiResponse(code = 404, message = "Device not found"),
-	    @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("room.manage")
-	public CrxResponse setDefaultPrinter(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("roomName") String roomName,
-		@PathParam("printerName") String printerName
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).setDefaultPrinter(roomName, printerName);
-		em.close();
-		return resp;
-	}
-
 	@POST
 	@Path("applyAction")
 	@Produces(JSON_UTF8)

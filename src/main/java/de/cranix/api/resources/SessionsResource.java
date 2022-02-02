@@ -141,7 +141,7 @@ public class SessionsResource {
 	public Session getStatus(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
-		session.setAcls(this.allowedModules(session));
+		session.setAcls(session.getUserAcls());
 		return session;
 	}
 
@@ -237,25 +237,7 @@ public class SessionsResource {
 	public List<String> allowedModules(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
-		List<String> modules = new ArrayList<String>();
-		//Is it allowed by the groups.
-		for( Group group : session.getUser().getGroups() ) {
-			for( Acl acl : group.getAcls() ) {
-				if( acl.getAllowed() ) {
-					modules.add(acl.getAcl());
-				}
-			}
-		}
-		//Is it allowed by the user
-		for( Acl acl : session.getUser().getAcls() ){
-			if( acl.getAllowed() && !modules.contains(acl.getAcl())) {
-				modules.add(acl.getAcl());
-			} else if( modules.contains(acl.getAcl()) ) {
-				//It is forbidden by the user
-				modules.remove(acl.getAcl());
-			}
-		}
-		return modules;
+		return session.getUserAcls();
 	}
 
 	@GET

@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import static de.cranix.helper.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.StaticHelpers.createLiteralJson;
 import static de.cranix.helper.StaticHelpers.startPlugin;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
@@ -613,16 +614,11 @@ public class DeviceService extends Service {
         return responses;
     }
 
-    public CrxResponse setDefaultPrinter(long deviceId, long printerId) {
+    public void setDefaultPrinter(Device device, long printerId) {
         try {
-            logger.debug("deviceId:" + deviceId + " printerId:" + printerId);
             Printer printer = this.em.find(Printer.class, printerId);
-            Device device = this.em.find(Device.class, deviceId);
-            if (device == null) {
-                return new CrxResponse(this.getSession(), "ERROR", "Device cannot be found.");
-            }
             if (printer == null) {
-                return new CrxResponse(this.getSession(), "ERROR", "Printer cannot be found.");
+                return;
             }
             this.em.getTransaction().begin();
             device.setDefaultPrinter(printer);
@@ -630,17 +626,27 @@ public class DeviceService extends Service {
             this.em.merge(device);
             this.em.merge(printer);
             this.em.getTransaction().commit();
+            Map<String, String> tmpMap = new HashMap<>();
+            tmpMap.put("name", printer.getName());
+            tmpMap.put("action", "enable");
+            tmpMap.put("network", device.getIp() );
+            startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+            if( device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
+                tmpMap = new HashMap<>();
+                tmpMap.put("name", printer.getName());
+                tmpMap.put("action", "enable");
+                tmpMap.put("network", device.getWlanIp() );
+                startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+            }
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            logger.error("setDefaultPrinter: " + e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Default printer was set succesfully.");
     }
 
 
-    public CrxResponse deleteDefaultPrinter(long deviceId) {
-        Device device = this.em.find(Device.class, deviceId);
+    public void deleteDefaultPrinter(Device device) {
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Device cannot be found.");
+            return;
         }
         Printer printer = device.getDefaultPrinter();
         if (printer != null) {
@@ -651,22 +657,33 @@ public class DeviceService extends Service {
                 this.em.merge(device);
                 this.em.merge(printer);
                 this.em.getTransaction().commit();
+                Map<String, String> tmpMap = new HashMap<>();
+                tmpMap.put("name", printer.getName());
+                tmpMap.put("action", "disable");
+                tmpMap.put("network", device.getIp() );
+                startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+                if( device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
+                    tmpMap = new HashMap<>();
+                    tmpMap.put("name", printer.getName());
+                    tmpMap.put("action", "disable");
+                    tmpMap.put("network", device.getWlanIp() );
+                    startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+                }
             } catch (Exception e) {
-                return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                logger.error("deleteDefaultPrinter: " + e.getMessage());
             }
         }
-        return new CrxResponse(this.getSession(), "OK", "The default printer of the device was deleted succesfully.");
     }
 
-    public CrxResponse addAvailablePrinter(long deviceId, long printerId) {
+    public void addAvailablePrinter(long deviceId, long printerId) {
         try {
             Printer printer = this.em.find(Printer.class, printerId);
             Device device = this.em.find(Device.class, deviceId);
             if (device == null || printer == null) {
-                return new CrxResponse(this.getSession(), "ERROR", "Device or printer cannot be found.");
+                return;
             }
             if (device.getAvailablePrinters().contains(printer)) {
-                return new CrxResponse(this.getSession(), "OK", "The printer is already assigned to device.");
+                return;
             }
             this.em.getTransaction().begin();
             device.getAvailablePrinters().add(printer);
@@ -674,18 +691,29 @@ public class DeviceService extends Service {
             this.em.merge(device);
             this.em.merge(printer);
             this.em.getTransaction().commit();
+            Map<String, String> tmpMap = new HashMap<>();
+            tmpMap.put("name", printer.getName());
+            tmpMap.put("action", "enable");
+            tmpMap.put("network", device.getIp() );
+            startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+            if( device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
+                tmpMap = new HashMap<>();
+                tmpMap.put("name", printer.getName());
+                tmpMap.put("action", "enable");
+                tmpMap.put("network", device.getWlanIp() );
+                startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+            }
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            logger.error("addAvailablePrinter: " + e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "The selected printer was added to the device.");
     }
 
-    public CrxResponse deleteAvailablePrinter(long deviceId, long printerId) {
+    public void deleteAvailablePrinter(long deviceId, long printerId) {
         try {
             Printer printer = this.em.find(Printer.class, printerId);
             Device device = this.em.find(Device.class, deviceId);
             if (device == null || printer == null) {
-                return new CrxResponse(this.getSession(), "ERROR", "Device or printer cannot be found.");
+                return;
             }
             this.em.getTransaction().begin();
             device.getAvailablePrinters().remove(printer);
@@ -693,10 +721,61 @@ public class DeviceService extends Service {
             this.em.merge(device);
             this.em.merge(printer);
             this.em.getTransaction().commit();
+            Map<String, String> tmpMap = new HashMap<>();
+            tmpMap.put("name", printer.getName());
+            tmpMap.put("action", "disable");
+            tmpMap.put("network", device.getIp() );
+            startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+            if( device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
+                tmpMap = new HashMap<>();
+                tmpMap.put("name", printer.getName());
+                tmpMap.put("action", "disable");
+                tmpMap.put("network", device.getWlanIp() );
+                startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+            }
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            logger.error("deleteAvailablePrinter: " + e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "The selected printer was removed from device.");
+    }
+
+    public CrxResponse setPrinters(Long deviceId, Map<String, List<Long>> printers) {
+        Device device = this.getById(deviceId);
+        List<Long> toAdd = new ArrayList<Long>();
+        List<Long> toRemove = new ArrayList<Long>();
+        this.deleteDefaultPrinter(device);
+        if (!printers.get("defaultPrinter").isEmpty()) {
+            this.setDefaultPrinter(device, printers.get("defaultPrinter").get(0));
+        }
+
+        try {
+            for (Printer printer : device.getAvailablePrinters()) {
+                if (!printers.get("availablePrinters").contains(printer.getId())) {
+                    toRemove.add(printer.getId());
+                }
+            }
+            for (Long printerId : printers.get("availablePrinters")) {
+                boolean found = false;
+                for (Printer printer : device.getAvailablePrinters()) {
+                    if (printer.getId().equals(printerId)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    toAdd.add(printerId);
+                }
+            }
+            for (Long printerId : toRemove) {
+                this.deleteAvailablePrinter(deviceId, printerId);
+            }
+            for (Long printerId : toAdd) {
+                this.addAvailablePrinter(deviceId, printerId);
+            }
+        } catch (Exception e) {
+            logger.error("can not set printers" + e.getMessage());
+            return new CrxResponse(this.session, "ERROR", "Printers of the device could not be set.");
+        }
+        return new CrxResponse(this.session, "OK", "Printers of the device was set.");
     }
 
     public CrxResponse addLoggedInUserByMac(String MAC, String userName) {
@@ -1082,6 +1161,7 @@ public class DeviceService extends Service {
                 program[1] = "--async";
                 program[2] = FQHN.toString();
                 program[3] = "crx_client.logOff";
+                this.cleanUpLoggedIn(device);
                 break;
             case "sethwconfofroom":
                 try {
@@ -1249,45 +1329,6 @@ public class DeviceService extends Service {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
         }
         return new CrxResponse(this.getSession(), "OK", "Logged in user was added succesfully:%s;%s;%s", null, parameters);
-    }
-
-    public CrxResponse setPrinters(Long deviceId, Map<String, List<Long>> printers) {
-        Device device = this.getById(deviceId);
-        List<Long> toAdd = new ArrayList<Long>();
-        List<Long> toRemove = new ArrayList<Long>();
-        this.deleteDefaultPrinter(deviceId);
-        if (!printers.get("defaultPrinter").isEmpty()) {
-            this.setDefaultPrinter(deviceId, printers.get("defaultPrinter").get(0));
-        }
-
-        try {
-            for (Printer printer : device.getAvailablePrinters()) {
-                if (!printers.get("availablePrinters").contains(printer.getId())) {
-                    toRemove.add(printer.getId());
-                }
-            }
-            for (Long printerId : printers.get("availablePrinters")) {
-                boolean found = false;
-                for (Printer printer : device.getAvailablePrinters()) {
-                    if (printer.getId().equals(printerId)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    toAdd.add(printerId);
-                }
-            }
-            for (Long printerId : toRemove) {
-                this.deleteAvailablePrinter(deviceId, printerId);
-            }
-            for (Long printerId : toAdd) {
-                this.addAvailablePrinter(deviceId, printerId);
-            }
-        } catch (Exception e) {
-
-        }
-        return new CrxResponse(this.session, "OK", "Printers of the device was set.");
     }
 
     public CrxResponse addDHCP(Long deviceId, CrxMConfig dhcpParameter) {
