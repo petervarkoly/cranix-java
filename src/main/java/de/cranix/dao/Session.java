@@ -262,18 +262,7 @@ public class Session implements Principal {
 		this.mac = mac;
 	}
 
-	public String getDNSName() {
-		return this.dnsName;
-	}
-
-	public void setDNSName(String dnsName) {
-		this.dnsName = dnsName;
-	}
-
 	public List<String> getAcls() {
-		if( acls == null) {
-			return this.getUserAcls();
-		}
 		return acls;
 	}
 
@@ -299,30 +288,6 @@ public class Session implements Principal {
 
 	public void setMustChange(Boolean mustChange) {
 		this.mustChange = mustChange;
-	}
-
-	public List<String> getUserAcls(){
-		List<String> modules = new ArrayList<String>();
-		//Modules with right permit all is allowed for all authorized users.
-		modules.add("permitall");
-		//Is it allowed by the groups.
-		for( Group group : this.user.getGroups() ) {
-			for( Acl acl : group.getAcls() ) {
-				if( acl.getAllowed() ) {
-					modules.add(acl.getAcl());
-				}
-			}
-		}
-		//Is it allowed by the user
-		for( Acl acl : this.user.getAcls() ){
-			if( acl.getAllowed() && !modules.contains(acl.getAcl())) {
-				modules.add(acl.getAcl());
-			} else if( !acl.getAllowed() && modules.contains(acl.getAcl()) ) {
-				//It is forbidden by the user
-				modules.remove(acl.getAcl());
-			}
-		}
-		return modules;
 	}
 
 	/**

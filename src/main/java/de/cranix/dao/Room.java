@@ -462,12 +462,4 @@ public class Room implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-
-	public List<Long> getDeviceIds() {
-		List<Long> ids = new ArrayList<>();
-		for( Device device : this.getDevices() ){
-			ids.add(device.getId());
-		}
-		return ids;
-	}
 }

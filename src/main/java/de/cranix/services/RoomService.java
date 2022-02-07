@@ -46,6 +46,14 @@ public class RoomService extends Service {
         put(19, 91);
     }};
 
+    static public List<Long> getDeviceIds(Room room) {
+        List<Long> ids = new ArrayList<>();
+        for( Device device : room.getDevices() ){
+                ids.add(device.getId());
+        }
+        return ids;
+    }
+
     public RoomService(Session session, EntityManager em) {
         super(session, em);
     }
@@ -1185,7 +1193,7 @@ public class RoomService extends Service {
         CrxResponse crxResponse = null;
         List<String> errors = new ArrayList<String>();
         DeviceService dc = new DeviceService(this.session, this.em);
-        for (Long deviceId : this.getById(roomId).getDeviceIds()) {
+        for (Long deviceId : getDeviceIds(this.getById(roomId))) {
             Device device = dc.getById(deviceId);
             //Do not control the own workstation
             if (this.session.getDevice() != null && this.session.getDevice().getId().equals(device.getId())) {
