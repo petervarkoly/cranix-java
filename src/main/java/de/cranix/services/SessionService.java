@@ -167,7 +167,7 @@ public class SessionService extends Service {
         }
 
         this.session.setCommonName(user.getGivenName() + " " + user.getSurName());
-        List<String> modules = this.getUserAcls(user);
+        List<String> modules = Session.getUserAcls(user);
         if (!this.isSuperuser()) {
             RoomService roomService = new RoomService(this.session, this.em);
             if (!roomService.getAllToRegister().isEmpty()) {
@@ -197,7 +197,7 @@ public class SessionService extends Service {
         this.session.setRole(user.getRole());
         this.session.setUser(user);
         this.session.setCommonName(user.getGivenName() + " " + user.getSurName());
-        List<String> modules = getUserAcls(user);
+        List<String> modules = Session.getUserAcls(user);
         if (!this.isSuperuser()) {
             RoomService roomService = new RoomService(this.session, this.em);
             ;
@@ -425,7 +425,7 @@ public class SessionService extends Service {
         return String.join(winLineSeparator, batFile);
     }
 
-    public List<String> getUserAcls(User user){
+/*    public List<String> getUserAcls(User user){
         List<String> modules = new ArrayList<String>();
         //Modules with right permit all is allowed for all authorized users.
         modules.add("permitall");
@@ -447,5 +447,5 @@ public class SessionService extends Service {
             }
         }
         return modules;
-    }
+    } */
 }
