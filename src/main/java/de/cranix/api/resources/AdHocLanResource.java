@@ -95,7 +95,7 @@ public class AdHocLanResource {
 		@PathParam("id")		Long id
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).delete(id);
+		CrxResponse resp = new RoomService(session,em).delete(id, true);
 		em.close();
 		return resp;
 	}

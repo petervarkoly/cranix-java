@@ -98,8 +98,8 @@ public class AdHocLanService extends Service {
 			room.setHwconfId(hwconf.getId());
 		}
 		logger.debug("Add AdHocLan: " + room);
-		RoomService roomConrtoller = new RoomService(this.session,this.em);;
-		CrxResponse crxResponseRoom =  roomConrtoller.add(room);
+		RoomService roomService = new RoomService(this.session,this.em);;
+		CrxResponse crxResponseRoom =  roomService.add(room);
 		logger.debug("Add AdHocLan after creating: " + room);
 		if( crxResponseRoom.getCode().equals("ERROR")) {
 			return crxResponseRoom;
@@ -116,7 +116,7 @@ public class AdHocLanService extends Service {
 		CategoryService categoryService = new CategoryService(this.session,this.em);;
 		CrxResponse crxResponseCategory = categoryService.add(category);
 		if( crxResponseCategory.getCode().equals("ERROR")) {
-			roomConrtoller.delete(crxResponseRoom.getObjectId());
+			roomService.delete(crxResponseRoom.getObjectId(),false);
 			return crxResponseCategory;
 		}
 		Long categoryId = crxResponseCategory.getObjectId();
@@ -124,7 +124,7 @@ public class AdHocLanService extends Service {
 		logger.debug("Add room to Category:"+ categoryId + " " + roomId);
 		if( crxResponseCategory.getCode().equals("ERROR")) {
 			if( crxResponseRoom.getObjectId() != null ) {
-				roomConrtoller.delete(crxResponseRoom.getObjectId());
+				roomService.delete(crxResponseRoom.getObjectId(),false);
 			}
 			if( crxResponseCategory.getObjectId() != null ) {
 				categoryService.delete(crxResponseCategory.getObjectId());
@@ -165,10 +165,11 @@ public class AdHocLanService extends Service {
 	public CrxResponse delete(Long adHocRoomId) {
 		try {
 			Category category = this.getAdHocCategoryOfRoom(adHocRoomId);
+			category.setIds();
 			logger.debug("Delete adHocRoom:" + category);
 			RoomService roomService = new RoomService(this.session,this.em);
-			for( Room room : category.getRooms() ) {
-				roomService.delete(room.getId());
+			for( Long roomId : category.getRoomIds() ) {
+				roomService.delete(roomId,true);
 			}
 			this.em.merge(category);
 			this.em.getTransaction().begin();

@@ -70,7 +70,7 @@ public class RoomResource {
 		@PathParam("roomId") Long roomId
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new RoomService(session,em).delete(roomId);
+		CrxResponse resp = new RoomService(session,em).delete(roomId,true);
 		em.close();
 		return resp;
 	}
