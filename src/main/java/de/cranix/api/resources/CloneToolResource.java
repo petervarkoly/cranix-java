@@ -102,9 +102,9 @@ public class CloneToolResource {
 	@GET
 	@Path("hostName")
 	@Produces(TEXT)
-	@ApiOperation(value = "Gets the fully qualified host name of the requester.")
+	@ApiOperation(value = "Gets the host name (withouth domain name) of the requester.")
 	@ApiResponses(value = {
-		@ApiResponse(code = 401, message = "No regcode was found"),
+		@ApiResponse(code = 401, message = "Device not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	public String getHostname(
@@ -127,7 +127,7 @@ public class CloneToolResource {
 	@Produces(TEXT)
 	@ApiOperation(value = "Gets the fully qualified host name of the requester.")
 	@ApiResponses(value = {
-		@ApiResponse(code = 401, message = "No regcode was found"),
+		@ApiResponse(code = 401, message = "Device not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	public String getFqhn(
@@ -149,9 +149,8 @@ public class CloneToolResource {
 	@GET
 	@Path("domainName")
 	@Produces(TEXT)
-	@ApiOperation(value = "Gets the fully qualified host name of the requester.")
+	@ApiOperation(value = "Gets the domain name of the requester.")
 	@ApiResponses(value = {
-		@ApiResponse(code = 401, message = "No regcode was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	public String getDomainName(
@@ -338,7 +337,7 @@ public class CloneToolResource {
 	@GET
 	@Path("roomsToRegister")
 	@Produces(TEXT)
-	@ApiOperation(value = "Gets a list of rooms to register." +
+	@ApiOperation(value = "Gets a list of rooms to register. " +
 			      "The format is id name##id name" )
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -538,15 +537,12 @@ public class CloneToolResource {
 	}
 
 	/*
-	 * PUT clonetool/{hwconfId}/{partitionName}/{key}/{value}
-	 */
-	/*
 	 * DELETE clonetool/{hwconfId}
 	 */
 	@DELETE
 	@Path("{hwconfId}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Updates a hardware configuration.")
+	@ApiOperation(value = "Deletes a hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
@@ -750,7 +746,7 @@ public class CloneToolResource {
 	@DELETE
 	@Path("runningMulticast")
 	@Produces(TEXT)
-	@ApiOperation(value = "Get the status of multicast cloning")
+	@ApiOperation(value = "Stop the running multicast cloning")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse stopRunningMulticast(@ApiParam(hidden = true) @Auth Session session)
 	{
