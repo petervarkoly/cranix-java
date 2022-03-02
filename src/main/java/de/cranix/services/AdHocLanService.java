@@ -19,18 +19,11 @@ public class AdHocLanService extends Service {
 		super(session,em);
 	}
 
-
 	public List<AdHocRoom> getAll() {
 		List<AdHocRoom> resp = new ArrayList<AdHocRoom>();
 		RoomService roomService = new RoomService(this.session,this.em);
-		if( roomService.isSuperuser() || this.session.getAcls().contains("adhoclan.manage")) {
-			for( Room  room : roomService.getByType("AdHocAccess") ) {
-				resp.add(this.roomToAdHoc(room));
-			}
-		} else {
-			for( Room  room : roomService.getAllToRegister() ) {
-				resp.add(this.roomToAdHoc(room));
-			}
+		for( Room  room : roomService.getByType("AdHocAccess") ) {
+			resp.add(this.roomToAdHoc(room));
 		}
 		return resp;
 	}
@@ -50,31 +43,6 @@ public class AdHocLanService extends Service {
 		Room room = this.em.find(Room.class, roomId);
 		return (( room == null ) ? null :getAdHocCategoryOfRoom(room) );
 	}
-
-	public List<Group> getGroups() {
-		ArrayList<Group> groups = new ArrayList<Group>();
-		for( Room room : new RoomService(this.session,this.em).getByType("AdHocAccess") ) {
-			for( Category category : room.getCategories() ) {
-				if( category.getCategoryType().equals("AdHocAccess")) {
-					groups.addAll(category.getGroups());
-				}
-			}
-		}
-		return groups;
-	}
-
-	public List<User> getUsers() {
-		ArrayList<User> users = new ArrayList<User>();
-		for( Room room : new RoomService(this.session,this.em).getByType("AdHocAccess") ) {
-			for( Category category : room.getCategories() ) {
-				if( category.getCategoryType().equals("AdHocAccess")) {
-					users.addAll(category.getUsers());
-				}
-			}
-		}
-		return users;
-	}
-
 
 	public CrxResponse add(AdHocRoom adHocRoom) {
 		Room room = new Room();
@@ -143,24 +111,6 @@ public class AdHocLanService extends Service {
 		}
 		return crxResponseRoom;
 	}
-
-	public CrxResponse putObjectIntoRoom(Long roomId, String objectType, Long objectId) {
-		Long categoryId = getAdHocCategoryOfRoom(roomId).getId();
-		if( categoryId == null ) {
-			return new CrxResponse(session,"ERROR","AdHocAccess not found");
-		}
-		return new CategoryService(this.session,this.em).addMember(categoryId, objectType, objectId);
-	}
-
-
-	public CrxResponse deleteObjectInRoom(Long roomId, String objectType, Long objectId) {
-		Long categoryId = getAdHocCategoryOfRoom(roomId).getId();
-		if( categoryId == null ) {
-			return new CrxResponse(session,"ERROR","AdHocAccess not found");
-		}
-		return new CategoryService(this.session,this.em).deleteMember(categoryId, objectType, objectId);
-	}
-
 
 	public CrxResponse delete(Long adHocRoomId) {
 		try {
@@ -254,4 +204,3 @@ public class AdHocLanService extends Service {
 		return adHocRoom;
 	}
 }
-
