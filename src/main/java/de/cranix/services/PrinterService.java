@@ -471,4 +471,36 @@ public class PrinterService extends Service {
         }
         return printers;
     }
+
+    public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {
+            List<CrxResponse> responses = new ArrayList<>();
+            logger.debug(crxActionMap.toString());
+            switch (crxActionMap.getName().toLowerCase()) {
+                case "disableprinter":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                        responses.add(this.disablePrinter(id));
+                    }
+                    break;
+                case "enableprinter":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                        responses.add(this.enablePrinter(id));
+                    }
+                    break;
+                case "activatewindowsdriver":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                        responses.add(this.activateWindowsDriver(id));
+                    }
+                    break;
+                case "reset":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                        responses.add(this.resetPrinter(id));
+                    }
+                    break;
+                case "delete":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                            responses.add(this.deletePrinter(id));
+                    }
+            }
+            return responses;
+    }
 }
