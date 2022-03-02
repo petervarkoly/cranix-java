@@ -56,9 +56,11 @@ public class EducationResource {
 	@GET
 	@Path("rooms/{roomId}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the state of a room. This call delivers a list of list with the logged in users. " +
-			      "A logged in user list has the format: [ userId , deviceId ] "
-		    )
+	@ApiOperation(
+		value = "Gets the state of a room.",
+		notes = "This call delivers a list of list with the logged in users. " +
+			"A logged in user list has the format: [ userId , deviceId ] "
+	)
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -362,7 +364,7 @@ public class EducationResource {
 	@GET
 	@Path("groups/all")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the workgroups and classes of a usrer.")
+	@ApiOperation(value = "Gets the workgroups that are owned by the session user and classes in which he is member of.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -379,16 +381,18 @@ public class EducationResource {
 	@POST
 	@Path("groups/applyAction")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Apply an action for the members of some groups once.",
-			notes = "The following actions are available:<br>"
-				+ "setPassword -> stringValue has to contain the password and Boolean if the users have to reset the password after first login.<br>"
-				+ "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
-				+ "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
-				+ "disableLogin -> booleanValue has to contain the new value.<br>"
-				+ "disableInternet -> booleanValue has to contain the new value.<br>"
-				+ "copyTemplate -> Copy the home of the template user.<br>"
-				+ "mandatoryProfile -> boolenValue has to contain the new value.<br>"
-						+ "removeProfiles -> Clean up the profile directories.")
+	@ApiOperation(
+		value = "Apply an action for the members of some groups once.",
+		notes = "The following actions are available:<br>"
+			+ "setPassword -> stringValue has to contain the password and Boolean if the users have to reset the password after first login.<br>"
+			+ "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
+			+ "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
+			+ "disableLogin -> booleanValue has to contain the new value.<br>"
+			+ "disableInternet -> booleanValue has to contain the new value.<br>"
+			+ "copyTemplate -> Copy the home of the template user.<br>"
+			+ "mandatoryProfile -> boolenValue has to contain the new value.<br>"
+			+ "removeProfiles -> Clean up the profile directories."
+	)
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -700,16 +704,18 @@ public class EducationResource {
 	@POST
 	@Path("users/applyAction")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Apply an action for a lot of user once.",
-			notes = "The following actions are available:<br>"
-				+ "setPassword -> stringValue has to contain the password and booleanValue if the users have to reset the password after first login.<br>"
-				+ "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
-				+ "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
-				+ "disableLogin -> booleanValue has to contain the new value.<br>"
-				+ "disableInternet -> booleanValue has to contain the new value.<br>"
-				+ "copyTemplate -> Copy the home of the template user.<br>"
-				+ "mandatoryProfile -> boolenValue has to contain the new value.<br>"
-				+ "removeProfiles -> Clean up the profile directories.")
+	@ApiOperation(
+		value = "Apply an action for a lot of user once.",
+		notes = "The following actions are available:<br>"
+			+ "setPassword -> stringValue has to contain the password and booleanValue if the users have to reset the password after first login.<br>"
+			+ "setFilesystemQuota -> longValue has to contain the new quota value.<br>"
+			+ "setMailSystemQuota -> longValue has to contain the new quota value.<br>"
+			+ "disableLogin -> booleanValue has to contain the new value.<br>"
+			+ "disableInternet -> booleanValue has to contain the new value.<br>"
+			+ "copyTemplate -> Copy the home of the template user.<br>"
+			+ "mandatoryProfile -> boolenValue has to contain the new value.<br>"
+			+ "removeProfiles -> Clean up the profile directories."
+	)
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -729,24 +735,6 @@ public class EducationResource {
 	/* Actions on devices       */
 	/****************************/
 	@POST
-	@Path("devices")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers a list of devices asked by the device ids.")
-	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	public List<Device> getDevicesById(
-		@ApiParam(hidden = true) @Auth Session session,
-		List<Long> deviceIds
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<Device> resp = new DeviceService(session,em).getDevices(deviceIds);
-		em.close();
-		return resp;
-	}
-
-	@POST
 	@Path("devices/{deviceId}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Updates a device. Only row and place can be changed here.")
@@ -761,56 +749,6 @@ public class EducationResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new EducationService(session,em).modifyDevice(deviceId, device);
-		em.close();
-		return resp;
-	}
-
-	/*
-	 * Deprecated should not be used.
-	 */
-	@POST
-	@Path("rooms/{roomId}/devices/{deviceId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Deprecated should not be used. Will be removed. Use POST education/devices/{deviceId} instead of<br>"
-			      + "Updates a device. Only row and place can be changed here. The roomid is neccessary becouse of devices of smart rooms need to be handle on a other way.")
-	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	public CrxResponse modifyDeviceOfRoom(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("roomId")   Long roomId,
-		@PathParam("deviceId") Long deviceId,
-		Device device
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		Room room = new RoomService(session,em).getById(roomId);
-		CrxResponse resp = null;
-		if( (room.getCategories() != null) && (room.getCategories().size() > 0 ) && room.getCategories().get(0).getCategoryType().equals("smartRoom") ) {
-			DeviceService deviceConrtoller = new DeviceService(session,em);
-			Device oldDevice = deviceConrtoller.getById(deviceId);
-			resp = deviceConrtoller.setConfig(oldDevice, "smartRoom-" + roomId + "-coordinates", String.format("%d,%d", device.getRow(),device.getPlace()));
-		} else {
-			resp = modifyDevice(session, deviceId, device);
-		}
-		em.close();
-		return resp;
-	}
-
-	@GET
-	@Path("devices/{deviceId}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Delivers a device by id.")
-	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	public Device getDeviceById(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("deviceId") Long deviceId
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		Device resp = new DeviceService(session,em).getById(deviceId);
 		em.close();
 		return resp;
 	}
@@ -833,36 +771,16 @@ public class EducationResource {
 		return resp;
 	}
 
-	/*
-	 * Deprecated
-	 */
-	@PUT
-	@Path("devices/{deviceId}/{action}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Deprecated. Will be removed. Use education/devices/applyAction instead of<br>"
-			      + "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin.")
-	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("education.rooms")
-	public CrxResponse manageDevice(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("deviceId") Long deviceId,
-		@PathParam("action") String action
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new DeviceService(session,em).manageDevice(deviceId,action,null);
-		em.close();
-		return resp;
-	}
-
 	@POST
 	@Path("devices/applyAction")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin."
+	@ApiOperation(
+		value = "Manage a device.",
+		notes = "Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin."
 			+ "This version of call allows to send a map with some parametrs:"
 			+ "graceTime : seconds to wait befor execute action."
-			+ "message : the message to shown befor/during execute the action.")
+			+ "message : the message to shown befor/during execute the action."
+	)
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -883,25 +801,25 @@ public class EducationResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
 	public List<CrxResponse> uploadFileToDevices(@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("objectIds")    String  deviceIds,
-		@FormDataParam("cleanUp")      Boolean cleanUp,
-		@FormDataParam("studentsOnly") Boolean studentsOnly,
-		@FormDataParam("file") final   InputStream fileInputStream,
-		@FormDataParam("file") final   FormDataContentDisposition contentDispositionHeader
+	        @FormDataParam("objectIds")    String  deviceIds,
+	        @FormDataParam("cleanUp")      Boolean cleanUp,
+	        @FormDataParam("studentsOnly") Boolean studentsOnly,
+	        @FormDataParam("file") final   InputStream fileInputStream,
+	        @FormDataParam("file") final   FormDataContentDisposition contentDispositionHeader
 	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<CrxResponse> resp = new EducationService(session,em).uploadFileToDevices(
-			deviceIds,
-			cleanUp,
-			studentsOnly,
-			fileInputStream,
-			contentDispositionHeader);
-		em.close();
-		return resp;
+	        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+	        List<CrxResponse> resp = new EducationService(session,em).uploadFileToDevices(
+	                deviceIds,
+	                cleanUp,
+	                studentsOnly,
+	                fileInputStream,
+	                contentDispositionHeader);
+	        em.close();
+	        return resp;
 	}
 
 	@POST
@@ -909,26 +827,26 @@ public class EducationResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Collects data from the students member of the corresponding group." )
 	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@RolesAllowed("education.rooms")
 	public List<CrxResponse> collectFileFromDevices(@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("objectIds")    String deviceIds,
-		@FormDataParam("projectName")  String projectName,
-		@FormDataParam("sortInDirs")   Boolean sortInDirs,
-		@FormDataParam("cleanUpExport")Boolean cleanUpExport,
-		@FormDataParam("studentsOnly") Boolean studentsOnly
+	        @FormDataParam("objectIds")    String deviceIds,
+	        @FormDataParam("projectName")  String projectName,
+	        @FormDataParam("sortInDirs")   Boolean sortInDirs,
+	        @FormDataParam("cleanUpExport")Boolean cleanUpExport,
+	        @FormDataParam("studentsOnly") Boolean studentsOnly
 	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<CrxResponse> resp = new EducationService(session,em).collectFileFromDevices(
-			deviceIds,
-			projectName,
-			sortInDirs,
-			cleanUpExport,
-			studentsOnly
-		       );
-		em.close();
-		return resp;
+	        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+	        List<CrxResponse> resp = new EducationService(session,em).collectFileFromDevices(
+	                deviceIds,
+	                projectName,
+	                sortInDirs,
+	                cleanUpExport,
+	                studentsOnly
+	               );
+	        em.close();
+	        return resp;
 	}
 
 	@GET
@@ -1112,31 +1030,8 @@ public class EducationResource {
 	}
 
 	/*
-	 * Manage gast user
+	 * Manage guest user
 	 */
-	@POST
-	@Path("guestUsers/add")
-	@Produces(JSON_UTF8)
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@ApiOperation(value = "Creates a new guest users accounts.")
-	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("education.guestusers")
-	public CrxResponse addGuestUsers(
-		@ApiParam(hidden = true) @Auth Session session,
-		@FormDataParam("name")	      String  name,
-		@FormDataParam("description") String  description,
-		@FormDataParam("roomId")	  Long    roomId,
-		@FormDataParam("count")       Integer count,
-		@FormDataParam("validUntil")  Date    validUntil
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		GuestUsers guestUsers = new GuestUsers(name,description,count,roomId,validUntil);
-		CrxResponse resp = new UserService(session,em).addGuestUsers(guestUsers);
-		em.close();
-		return resp;
-	}
-
 	@POST
 	@Path("guestUsers")
 	@Produces(JSON_UTF8)
@@ -1157,7 +1052,7 @@ public class EducationResource {
 	@GET
 	@Path("guestUsers")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets all actual gast users. Systadmins get the lists all guest users. Normal users gets the own gast users.")
+	@ApiOperation(value = "Gets all actual gast users. Sysadmins get the lists all guest users. Normal users gets the owned gast users.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "User not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
