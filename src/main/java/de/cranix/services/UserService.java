@@ -43,7 +43,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.debug("getByID: " + e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -66,9 +65,8 @@ public class UserService extends Service {
             users = query.getResultList();
         } catch (Exception e) {
             logger.error("getByRole: " + e.getMessage());
-        } finally {
         }
-        //users.sort(Comparator.comparing(User::getUid));
+	//users.sort(Comparator.comparing(User::getUid));
         return users;
     }
 
@@ -85,7 +83,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("getByUid: uid=" + uid + " " + e.getMessage());
             return null;
-        } finally {
         }
         return null;
     }
@@ -98,7 +95,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("search: " + e.getMessage());
             return new ArrayList<>();
-        } finally {
         }
     }
 
@@ -112,7 +108,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("findByName: " + e.getMessage());
             return new ArrayList<>();
-        } finally {
         }
     }
 
@@ -127,7 +122,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("findByNameAndRole: " + e.getMessage());
             return new ArrayList<>();
-        } finally {
         }
     }
 
@@ -145,7 +139,6 @@ public class UserService extends Service {
             }
         } catch (Exception e) {
             logger.error("getAll: " + e.getMessage());
-        } finally {
         }
         //users.sort(Comparator.comparing(User::getUid));
         return users;
@@ -286,7 +279,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("add: " + e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         startPlugin("add_user", user);
         List<String> parameters = new ArrayList<String>();
@@ -365,7 +357,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         startPlugin("modify_user", oldUser);
         return new CrxResponse(this.getSession(), "OK", "User was modified succesfully");
@@ -490,7 +481,6 @@ public class UserService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         for (Group group : groupsToAdd) {
             changeMemberPlugin("addmembers", group, user);
@@ -518,7 +508,6 @@ public class UserService extends Service {
             }
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "The filesystem quotas was synced succesfully");
     }
@@ -540,7 +529,6 @@ public class UserService extends Service {
             }
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "The mailsystem quotas was synced succesfully");
     }
@@ -1213,7 +1201,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
     }
