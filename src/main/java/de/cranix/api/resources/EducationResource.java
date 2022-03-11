@@ -553,9 +553,6 @@ public class EducationResource {
 		return resp;
 	}
 
-	/*
-	 * Deprecated should not be used.
-	 */
 	@GET
 	@Path("users/all")
 	@Produces(JSON_UTF8)
@@ -564,19 +561,9 @@ public class EducationResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	public List<Student> getUsers( @ApiParam(hidden = true) @Auth Session session) {
+	public List<Student> getStudents( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<Student> resp = new ArrayList<Student>();
-		for( User user : new UserService(session,em).getByRole(roleStudent) ) {
-			for( Group group : user.getGroups() ) {
-				if( !group.getGroupType().equals("primary") ) {
-					Student student = new Student(user);
-					student.setGroupName(group.getName());
-					student.setGroupId(group.getId());
-					resp.add(student);
-				}
-			}
-		}
+		List<Student> resp = new EducationService(session,em).getStudents();
 		em.close();
 		return resp;
 	}

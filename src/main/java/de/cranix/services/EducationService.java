@@ -1004,4 +1004,20 @@ public class EducationService extends UserService {
         }
         return new CrxResponse(this.session, "OK", "Device was repositioned.");
     }
+
+    public List<Student> getStudents() {
+        List<Student> resp = new ArrayList<>();
+        for( User user : new UserService(session,em).getByRole(roleStudent) ) {
+            for( Group group : user.getGroups() ) {
+                if( !group.getGroupType().equals("primary") ) {
+                    Student student = new Student(user);
+                    student.setGroupName(group.getName());
+                    student.setGroupId(group.getId());
+                    student.setGroupType(group.getGroupType());
+                    resp.add(student);
+                }
+            }
+        }
+        return  resp;
+    }
 }
