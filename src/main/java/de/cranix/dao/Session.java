@@ -89,7 +89,7 @@ public class Session implements Principal {
 	private List<String> acls;
 
 	@Transient
-	private String commonName;
+	private String fullName;
 
 	@Transient
 	private String name;
@@ -277,12 +277,12 @@ public class Session implements Principal {
 		this.createDate = createDate;
 	}
 
-	public String getCommonName() {
-		return commonName;
+	public String getFullName() {
+		return fullName;
 	}
 
-	public void setCommonName(String commonName) {
-		this.commonName = commonName;
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
 	}
 
 	public Boolean getMustChange() {

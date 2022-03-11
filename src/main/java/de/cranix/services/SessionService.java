@@ -166,7 +166,7 @@ public class SessionService extends Service {
             }
         }
 
-        this.session.setCommonName(user.getGivenName() + " " + user.getSurName());
+        this.session.setFullName(user.getFullName());
         List<String> modules = Session.getUserAcls(user);
         if (!this.isSuperuser()) {
             RoomService roomService = new RoomService(this.session, this.em);
@@ -196,7 +196,7 @@ public class SessionService extends Service {
         this.session.setUserId(user.getId());
         this.session.setRole(user.getRole());
         this.session.setUser(user);
-        this.session.setCommonName(user.getGivenName() + " " + user.getSurName());
+        this.session.setFullName(user.getFullName());
         List<String> modules = Session.getUserAcls(user);
         if (!this.isSuperuser()) {
             RoomService roomService = new RoomService(this.session, this.em);
