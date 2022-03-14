@@ -1006,8 +1006,10 @@ public class EducationService extends UserService {
     }
 
     public List<Student> getStudents() {
+        boolean added = false;
         List<Student> resp = new ArrayList<>();
         for( User user : new UserService(session,em).getByRole(roleStudent) ) {
+            added = false;
             for( Group group : user.getGroups() ) {
                 if( !group.getGroupType().equals("primary") ) {
                     Student student = new Student(user);
@@ -1015,7 +1017,11 @@ public class EducationService extends UserService {
                     student.setGroupId(group.getId());
                     student.setGroupType(group.getGroupType());
                     resp.add(student);
+                    added = true;
                 }
+            }
+            if( ! added ) {
+                resp.add(new Student(user));
             }
         }
         return  resp;
