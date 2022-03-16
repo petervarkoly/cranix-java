@@ -155,7 +155,7 @@ public class PrinterService extends Service {
         if (printer != null) {
             return this.deletePrinter(printer);
         }
-        return new CrxResponse(this.getSession(), "ERROR", "Can not find printer with name %s.", null, name);
+        return new CrxResponse(this.session, "ERROR", "Can not find printer with name %s.", null, name);
     }
 
     public CrxResponse deletePrinter(Long printerId) {
@@ -163,7 +163,7 @@ public class PrinterService extends Service {
         if (printer != null) {
             return this.deletePrinter(printer);
         }
-        return new CrxResponse(this.getSession(), "ERROR", "Can not find printer with id %s.", null, String.valueOf(printerId));
+        return new CrxResponse(this.session, "ERROR", "Can not find printer with id %s.", null, String.valueOf(printerId));
     }
 
     /**
@@ -189,7 +189,7 @@ public class PrinterService extends Service {
             }
         } catch (Exception e) {
             logger.debug("deletePrinter :" + e.getMessage());
-            return null;
+            crxResponse = new CrxResponse(this.session, "ERROR", "Can not delete printer: %s", null, e.getMessage());
         } finally {
             if (this.em.getTransaction().isActive()) {
                 this.em.getTransaction().rollback();
