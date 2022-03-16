@@ -1321,6 +1321,7 @@ public class DeviceService extends Service {
             this.em.getTransaction().begin();
             device.setLoggedIn(new ArrayList<User>());
             device.getLoggedIn().add(user);
+	    device.setCounter(device.getCounter()+1);
             user.getLoggedOn().add(device);
             this.em.merge(device);
             this.em.merge(user);

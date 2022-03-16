@@ -443,6 +443,9 @@ public class Device implements Serializable {
 	}
 
 	public Long getCounter() {
+		if( counter == null ) {
+			return 0L;
+		}
 		return counter;
 	}
 
