@@ -180,13 +180,13 @@ public class PrinterService extends Service {
             tmpMap.put("name",printer.getName());
             startPlugin("delete_printer_queue", createLiteralJson(tmpMap));
             printerDevice.getPrinterQueue().remove(printer);
+            this.em.getTransaction().begin();
             this.em.remove(printer);
             this.em.merge(printerDevice);
             this.em.getTransaction().commit();
             if (printerDevice.getPrinterQueue().isEmpty()) {
                 crxResponse = new DeviceService(this.session, this.em).delete(printerDevice, true);
             }
-            this.systemctl("reload", "samba-ad");
         } catch (Exception e) {
             logger.debug("deletePrinter :" + e.getMessage());
             return null;
