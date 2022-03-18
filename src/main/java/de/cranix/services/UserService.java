@@ -737,7 +737,7 @@ public class UserService extends Service {
             User user = this.getById(id);
             if (user != null) {
                 if (!this.mayModify(user)) {
-                    logger.error("setMsQuota: Session user may not modify: %s", null, id);
+                    logger.error("setMsQuota: Session user may not modify: %s", id);
                     continue;
                 }
                 program[1] = user.getUid();
