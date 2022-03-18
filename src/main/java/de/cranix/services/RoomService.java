@@ -268,7 +268,7 @@ public class RoomService extends Service {
     public List<Room> getAllToRegister() {
         List<Room> rooms = new ArrayList<Room>();
         try {
-            if (this.isSuperuser()) {
+            if (this.isSuperuser() || this.session.getAcls().contains("device.add")) {
                 logger.debug("Is superuser" + this.session.getUser().getUid());
                 Query query = this.em.createNamedQuery("Room.findAllToRegister");
                 rooms = query.getResultList();
