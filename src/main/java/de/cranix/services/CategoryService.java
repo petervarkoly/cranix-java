@@ -118,7 +118,6 @@ public class CategoryService extends Service {
 		} catch (Exception e) {
 			logger.error("Exeption: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Category was created",category.getId());
 	}
