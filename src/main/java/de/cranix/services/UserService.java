@@ -1225,19 +1225,6 @@ public class UserService extends Service {
         }
     }
 
-    public List<Device> getUserDevicesInRoomClassRoom(String uid, String className) {
-        User user = this.getByUid(uid);
-        String roomName = className + "-adhoc";
-        List<Device> devices = new ArrayList<Device>();
-        for (Device device : user.getOwnedDevices()) {
-            if (device.getRoom().getName().equals(roomName)) {
-                devices.add(device);
-            }
-        }
-        return devices;
-    }
-
-
     public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {
         List<CrxResponse> responses = new ArrayList<>();
         logger.debug(crxActionMap.toString());

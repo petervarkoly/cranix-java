@@ -149,7 +149,7 @@ public class UserResource {
     }
 
     @PATCH
-    @Path("moveDevices")
+    @Path("moveStudentsDevices")
     @Produces(JSON_UTF8)
     @ApiOperation(
             value = "Move the devices of all students into the actual AdHocLan ClassRooms",
@@ -195,25 +195,6 @@ public class UserResource {
         final CrxResponse crxResponse = new UserService(session, em).moveUserDevices(uid);
         em.close();
         return crxResponse;
-    }
-
-    @GET
-    @Path("text/{uid}/devices/{className}")
-    @Produces(JSON_UTF8)
-    @ApiOperation(value = "Get the devices of a user from an AdHocLan ClassRoom")
-    @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.search")
-    public List<Device> getUserDevicesInRoomClassRoom(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("uid") String uid,
-            @PathParam("className") String className
-    ) {
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final List<Device> resp = new UserService(session, em).getUserDevicesInRoomClassRoom(uid, className);
-        em.close();
-        return resp;
     }
 
     @DELETE
