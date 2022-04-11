@@ -44,6 +44,19 @@ public class AdHocLanService extends Service {
 		return (( room == null ) ? null :getAdHocCategoryOfRoom(room) );
 	}
 
+	public Room getAdHocRoomOfGroup(Group group){
+		for( Category category: group.getCategories()) {
+			if(category.getCategoryType().equals("AdHocAccess")){
+				for(Room room: category.getRooms()) {
+					if(room.getRoomType().equals("AdHocAccess")){
+						return room;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	public CrxResponse add(AdHocRoom adHocRoom) {
 		Room room = new Room();
 		room.setName(adHocRoom.getName());

@@ -1297,4 +1297,49 @@ public class UserService extends Service {
         return responses;
     }
 
+    public List<CrxResponse> moveStudentsDevices(){
+        List<CrxResponse> responses = new ArrayList<>();
+        for(User user: this.getByRole(roleStudent)){
+            responses.add(this.moveUserDevices(user));
+        }
+        new DHCPConfig(this.session,this.em).Create();
+        return responses;
+    }
+    public CrxResponse moveUserDevices(String uid) {
+        return this.moveUserDevices(this.getByUid(uid));
+    }
+    public CrxResponse moveUserDevices(User user) {
+        Group userClass = null;
+        Integer counter = 0;
+        List<String> params = new ArrayList<>();
+        for ( Group group : user.getGroups() ){
+            if(group.getGroupType().equals("class")){
+                userClass = group;
+                break;
+            }
+        }
+        if(userClass == null) {
+           return new CrxResponse(this.session,"ERROR","User is not member in any classes.");
+        }
+        AdHocLanService adHocLanService = new AdHocLanService(this.session,this.em);
+        Room classRoom = adHocLanService.getAdHocRoomOfGroup(userClass);
+        for (Device device : user.getOwnedDevices()) {
+            for( Category category: device.getCategories() ){
+                if( category.getCategoryType().equals("adhocroom")) {
+                    if(! category.getGroups().contains(userClass)) {
+                        this.em.getTransaction().begin();
+                        device.getRoom().getDevices().remove(device);
+                        this.em.merge(device.getRoom());
+                        device.setRoom(classRoom);
+                        this.em.merge(classRoom);
+                        this.em.getTransaction().commit();
+                        counter++;
+                    }
+                }
+            }
+        }
+        params.add(counter.toString());
+        params.add(user.getUid());
+        return new CrxResponse(this.session,"OK","%s devices of %s was moved in the new class.",params);
+    }
 }
