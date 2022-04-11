@@ -159,6 +159,25 @@ public class DeviceResource {
 		return device;
 	}
 
+	@PUT
+        @Path("byName/{deviceName}/actions/{action}")
+        @Produces(JSON_UTF8)
+        @ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, unlockInput, lockInput, cleanUpLoggedIn.")
+        @ApiResponses(value = {
+                        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+        })
+        @RolesAllowed("device.manage")
+        public CrxResponse manageDevice(
+                        @ApiParam(hidden = true) @Auth Session session,
+                        @PathParam("deviceName") String deviceName,
+                        @PathParam("action") String action
+        ) {
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+                CrxResponse resp = new DeviceService(session, em).manageDevice(deviceName, action, null);
+                em.close();
+                return resp;
+        }
+
 	@GET
 	@Path("hostnameByIP/{IP}")
 	@Produces(TEXT)
