@@ -746,7 +746,7 @@ public class UserService extends Service {
         StringBuffer error = new StringBuffer();
         String[] program = new String[3];
         program[0] = "/usr/sbin/crx_set_mquota.pl";
-        program[2] = String.valueOf(msQuota);
+        program[2] = String.valueOf(msQuota * 1024);
         Integer quota = Integer.valueOf(program[2]);
         for (Long id : userIds) {
             User user = this.getById(id);
