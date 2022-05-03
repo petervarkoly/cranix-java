@@ -3,8 +3,8 @@ use strict;
 
 my $ROLES=`grep \@RolesAllowed *`;
 
-my @USERROLES  = ( 'students', 'teachers', 'sysadmins', 'workstations' );
-my @GROUPTYPES = ( 'primary', 'class', 'workgroup' );
+my @USERROLES  = ( 'students', 'teachers', 'sysadmins', 'workstations', 'guests' );
+my @GROUPTYPES = ( 'primary', 'class', 'workgroup', 'guests' );
 
 my $hroles = {};
 my $forTeachers = {};
@@ -46,6 +46,8 @@ foreach( @GROUPTYPES ) {
 	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','group.delete.$_',6);\n";
 	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','group.modify.$_',6);\n";
 }
+print "INSERT INTO Acls VALUES(NULL,NULL,2,'group.add.guests','Y',6);\n";
+print "INSERT INTO Acls VALUES(NULL,NULL,2,'user.add.guests','Y',6);\n";
 print "INSERT INTO Acls VALUES(NULL,NULL,2,'group.add.workgroup','Y',6);\n";
 print "INSERT INTO Acls VALUES(NULL,NULL,2,'group.delete.workgroup','Y',6);\n";
 print "INSERT INTO Acls VALUES(NULL,NULL,2,'group.modify.workgroup','Y',6);\n";

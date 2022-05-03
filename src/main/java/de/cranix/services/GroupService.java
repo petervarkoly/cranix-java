@@ -148,7 +148,7 @@ public class GroupService extends Service {
 			return new CrxResponse(
 					this.getSession(),
 					"ERROR",
-					"You must not create group with type %",
+					"You must not create group with type %s",
 					null,
 					group.getGroupType());
 		}
