@@ -7,6 +7,7 @@ import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.CrxSystemCmd;
 import de.cranix.services.GroupService;
+import de.cranix.services.GuestUserService;
 import de.cranix.services.Service;
 import de.cranix.services.UserService;
 import io.dropwizard.auth.Auth;
@@ -522,7 +523,7 @@ public class UserResource {
             @ApiParam(hidden = true) @Auth Session session
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        List<GuestUsers> resp = new UserService(session, em).getGuestUsers();
+        List<GuestUsers> resp = new GuestUserService(session, em).getAll();
         em.close();
         return resp;
     }
@@ -535,12 +536,12 @@ public class UserResource {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("user.guestusers")
-    public Category getGuestUsersCategory(
+    public GuestUsers getGuestUsersCategory(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("guestUsersId") Long guestUsersId
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        Category resp = new UserService(session, em).getGuestUsersCategory(guestUsersId);
+        GuestUsers resp = new GuestUserService(session, em).getById(guestUsersId);
         em.close();
         return resp;
     }
@@ -558,7 +559,7 @@ public class UserResource {
             @PathParam("guestUsersId") Long guestUsersId
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse resp = new UserService(session, em).deleteGuestUsers(guestUsersId);
+        CrxResponse resp = new GuestUserService(session, em).delete(guestUsersId);
         em.close();
         return resp;
     }
@@ -581,7 +582,7 @@ public class UserResource {
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         GuestUsers guestUsers = new GuestUsers(name, description, count, roomId, validUntil);
-        CrxResponse resp = new UserService(session, em).addGuestUsers(guestUsers);
+        CrxResponse resp = new GuestUserService(session, em).add(guestUsers);
         em.close();
         return resp;
     }
@@ -1204,31 +1205,6 @@ public class UserResource {
         }
         em.close();
         return new CrxResponse(session, "OK", "User was put into all classes.");
-    }
-
-    @POST
-    @Path("addUsersToGroups")
-    @Produces(JSON_UTF8)
-    @ApiOperation(value = "Add more user to more groups. The parameter ids is a list of two List<Long>:"
-            + "The first list is the list of users."
-            + "The second list is the list of groups into to user need to be added.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.manage")
-    public CrxResponse addUsersToGroups(
-            @ApiParam(hidden = true) @Auth Session session,
-            List<List<Long>> ids
-    ) {
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final GroupService groupService = new GroupService(session, em);
-        List<User> users = new UserService(session, em).getUsers(ids.get(0));
-        for (Long groupId : ids.get(1)) {
-            Group group = groupService.getById(groupId);
-            groupService.addMembers(group, users);
-        }
-        em.close();
-        return new CrxResponse(session, "OK", "Users was inserted in the required groups.");
     }
 
     @POST

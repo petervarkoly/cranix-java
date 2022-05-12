@@ -1031,13 +1031,13 @@ public class EducationResource {
 		GuestUsers guestUsers
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new UserService(session,em).addGuestUsers(guestUsers);
+		CrxResponse resp = new GuestUserService(session,em).add(guestUsers);
 		em.close();
 		return resp;
 	}
 
 	@GET
-	@Path("guestUsers")
+	@Path("guestUsers/all")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all actual gast users. Sysadmins get the lists all guest users. Normal users gets the owned gast users.")
 	@ApiResponses(value = {
@@ -1048,7 +1048,7 @@ public class EducationResource {
 		@ApiParam(hidden = true) @Auth Session session
 	) {
 	       EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-	       List<GuestUsers> resp = new UserService(session,em).getGuestUsers();
+	       List<GuestUsers> resp = new GuestUserService(session,em).getAll();
 	       em.close();
 	       return resp;
 	}
@@ -1061,12 +1061,12 @@ public class EducationResource {
 		@ApiResponse(code = 404, message = "User not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
 	@RolesAllowed("education.guestusers")
-	public Category getGuestUsersCategory(
+	public GuestUsers getGuestUsersCategory(
 		@ApiParam(hidden = true)      @Auth    Session session,
 		@PathParam("guestUsersId")     Long    guestUsersId
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		Category resp = new UserService(session,em).getGuestUsersCategory(guestUsersId);
+		GuestUsers resp = new GuestUserService(session,em).getById(guestUsersId);
 		em.close();
 		return resp;
 	}
@@ -1084,7 +1084,7 @@ public class EducationResource {
 		@PathParam("guestUsersId")     Long    guestUsersId
 	) {
 	       EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-	       CrxResponse resp = new UserService(session,em).deleteGuestUsers(guestUsersId);
+	       CrxResponse resp = new GuestUserService(session,em).delete(guestUsersId);
 	       em.close();
 	       return resp;
 	}
