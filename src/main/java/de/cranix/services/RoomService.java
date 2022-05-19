@@ -909,7 +909,7 @@ public class RoomService extends Service {
         }
         logger.debug("IPAddr" + ipAddress);
         Device device = new Device();
-        Room room = this.em.find(Room.class, roomId);
+        Room room  = this.em.find(Room.class, roomId);
         User owner = this.session.getUser();
         HWConf hwconf = room.getHwconf();
         logger.debug("DEVICE " + macAddress + " " + name);
@@ -961,19 +961,11 @@ public class RoomService extends Service {
             this.em.getTransaction().begin();
             this.em.persist(device);
             if (hwconf != null) {
-                if (hwconf.getDevices() != null) {
-                    hwconf.getDevices().add(device);
-                } else {
-                    List<Device> devices = new ArrayList<Device>();
-                    devices.add(device);
-                    hwconf.setDevices(devices);
-                }
+                device.setHwconf(hwconf);
                 this.em.merge(hwconf);
             }
-            room.getDevices().add(device);
             this.em.merge(room);
             if (!owner.getRole().contains("sysadmins")) {
-                //TODO
                 owner.getOwnedDevices().add(device);
                 this.em.merge(owner);
             }
