@@ -1071,7 +1071,6 @@ public class RoomService extends Service {
 				}
 				this.em.merge(hwconf);
 			}
-			room.getDevices().add(device);
 			this.em.merge(room);
 			if (!owner.getRole().contains("sysadmins")) {
 				//TODO
