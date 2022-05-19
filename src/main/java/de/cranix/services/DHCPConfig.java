@@ -104,7 +104,7 @@ public class DHCPConfig extends Service {
         Query query = this.em.createNamedQuery("Room.findAllToRegister");
         saltGroupFile.add("nodegroups:");
         for (Room room : (List<Room>) query.getResultList()) {
-            logger.debug("Write DHCP Room" + room.getName());
+            logger.debug("Write DHCP Room: " + room.getName());
             if (room.getDevices().isEmpty()) {
                 continue;
             }
@@ -144,7 +144,7 @@ public class DHCPConfig extends Service {
         List<String> line = new ArrayList<String>();
         for (Device device : room.getDevices()) {
             //Do not create configuration for devices without mac adress.
-            logger.debug("Write DHCP Device" + device.getName());
+            logger.debug("Write DHCP Device: " + device.getName());
             if (device.getMac().isEmpty()) {
                 continue;
             }
