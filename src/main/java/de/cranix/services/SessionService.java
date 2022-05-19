@@ -110,18 +110,10 @@ public class SessionService extends Service {
          * And the user will logg in on this device everytime
          **/
         if (!this.getConfigValue("USER_" + username + "_SESSION_IP").isEmpty()) {
-            this.getSession().setIp(this.getConfigValue("USER_" + username + "_SESSION_IP"));
+            this.session.setIp(this.getConfigValue("USER_" + username + "_SESSION_IP"));
         }
 
-        /**
-         * For debug reason.
-         * Create Variable CRANIX_USER_<USERNAME>_SESSION_IP="<IP-Of-The-Device>" in /etc/sysconfig/cranix
-         * And the user will logg in on this device everytime
-         **/
-        if (!this.getConfigValue("USER_" + username + "_SESSION_IP").isEmpty()) {
-            this.getSession().setIp(this.getConfigValue("USER_" + username + "_SESSION_IP"));
-        }
-        String IP = this.getSession().getIp();
+        String IP = this.session.getIp();
         Device device = deviceService.getByIP(IP);
         if (device != null) {
             room = device.getRoom();
@@ -188,9 +180,9 @@ public class SessionService extends Service {
         if (user == null) {
             return null;
         }
-        String token = createSessionToken("dummy");
+        String token = createSessionToken(username);
         while (this.getByToken(token) != null) {
-            token = createSessionToken("dummy");
+            token = createSessionToken(username);
         }
         this.session.setToken(token);
         this.session.setUserId(user.getId());
