@@ -62,6 +62,7 @@ public class GuestUserService extends Service{
         UserService userService = new UserService(this.session, this.em);
         final CategoryService categoryService = new CategoryService(this.session, this.em);
         final GroupService groupService = new GroupService(this.session, this.em);
+        final RoomService roomService = new RoomService(this.session, this.em);
         Category category = categoryService.getById(guestUsersId);
         if( category == null ){
             return new CrxResponse(this.session,"ERROR","Can not find category with id %s",null,guestUsersId.toString());
@@ -75,6 +76,11 @@ public class GuestUserService extends Service{
         for (Group group : category.getGroups()) {
             if (group.getGroupType().equals(roleGuest)) {
                 groupService.delete(group);
+            }
+        }
+        for (Room room : category.getRooms() ) {
+            if( room.getName().equals(category.getName() + "-adhoc")) {
+                roomService.delete(room.getId(),true);
             }
         }
         category.setGroups(new ArrayList<Group>());
@@ -112,7 +118,7 @@ public class GuestUserService extends Service{
             int roomNetMask = 32 - (int) (Math.log(guestUsers.getCount()) / Math.log(2) + 1.0);
             room = new Room();
             room.setNetMask(roomNetMask);
-            room.setName(guestUsers.getName());
+            room.setName(guestUsers.getName() + "-adhoc");
             room.setDescription(guestUsers.getDescription());
             room.setRoomControl("allTeachers");
             room.setHwconfId(3L);
