@@ -67,23 +67,35 @@ public class GuestUserService extends Service{
         if( category == null ){
             return new CrxResponse(this.session,"ERROR","Can not find category with id %s",null,guestUsersId.toString());
         }
+        ArrayList<Long> toRemove = new ArrayList<>();
         for (User user : category.getUsers()) {
             if (user.getRole().equals(roleGuest)) {
-                userService.delete(user);
+                toRemove.add(user.getId());
             }
+        }
+        for (Long id : toRemove ) {
+            userService.delete(id);
         }
         category.setUsers(new ArrayList<User>());
+        toRemove = new ArrayList<>();
         for (Group group : category.getGroups()) {
             if (group.getGroupType().equals(roleGuest)) {
-                groupService.delete(group);
+                toRemove.add(group.getId());
             }
         }
-        for (Room room : category.getRooms() ) {
-            if( room.getName().equals(category.getName() + "-adhoc")) {
-                roomService.delete(room.getId(),true);
-            }
+        for (Long id : toRemove ) {
+            groupService.delete(id);
         }
         category.setGroups(new ArrayList<Group>());
+        toRemove = new ArrayList<>();
+        for (Room room : category.getRooms() ) {
+            if( room.getName().equals(category.getName() + "-adhoc")) {
+                toRemove.add(room.getId());
+            }
+        }
+        for (Long id : toRemove ) {
+            roomService.delete(id,true);
+        }
         return categoryService.delete(category);
     }
 
@@ -115,8 +127,24 @@ public class GuestUserService extends Service{
         }
         // First we check if we can create room with the requested size
         if (guestUsers.isCreateAdHocRoom()) {
-            int roomNetMask = 32 - (int) (Math.log(guestUsers.getCount()) / Math.log(2) + 1.0);
+            String devicesProUser = this.getConfigValue("GUEST_ADHOC_DEVICE_PRO_USER");
+            if( devicesProUser.isEmpty() ) {
+                devicesProUser = this.getConfigValue("CLASS_ADHOC_DEVICE_PRO_USER");
+            }
+            if( devicesProUser.isEmpty() ) {
+                devicesProUser = "1";
+            }
+            int devicesProUserInt =guestUsers.getCount() * Integer.parseInt(devicesProUser);
+            int roomNetMask = 32 - (int) (Math.log(devicesProUserInt) / Math.log(2) + 1.0);
             room = new Room();
+            String network = this.getConfigValue("GUEST_ADHOC_NETWORK");
+            if ( network.isEmpty() ) {
+                network = this.getConfigValue("CLASS_ADHOC_NETWORK");
+            }
+            if ( !network.isEmpty() ) {
+                room.setNetwork(network);
+            }
+            room.setIgnoreNetbios(true);
             room.setNetMask(roomNetMask);
             room.setName(guestUsers.getName() + "-adhoc");
             room.setDescription(guestUsers.getDescription());
