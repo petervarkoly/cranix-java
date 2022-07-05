@@ -68,13 +68,10 @@ public class SessionService extends Service {
         UserService userService = new UserService(this.session, this.em);
         DeviceService deviceService = new DeviceService(this.session, this.em);
         Room room = null;
-        String[] program = new String[5];
+        String[] program = new String[2];
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
-        program[0] = "/usr/bin/smbclient";
-        program[1] = "-L";
-        program[2] = "admin";
-        program[3] = "-A";
+        program[0] = "/usr/share/cranix/tools/login";
         try {
             File file = File.createTempFile("login", ".cred", new File(cranixTmpDir));
             List<String> credentials = new ArrayList<String>();
@@ -82,7 +79,7 @@ public class SessionService extends Service {
             credentials.add("password=" + password);
             credentials.add("domain=" + this.getConfigValue("WORKGROUP"));
             Files.write(file.toPath(), credentials);
-            program[4] = file.getAbsolutePath();
+            program[1] = file.getAbsolutePath();
             CrxSystemCmd.exec(program, reply, error, null);
             if (!logger.isDebugEnabled()) {
                 Files.delete(file.toPath());
