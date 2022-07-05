@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 	securityDefinition = @SecurityDefinition(
 		apiKeyAuthDefinitions = {
 			@ApiKeyAuthDefinition( key = "apiKeyAuth", name = "Authorization", in = ApiKeyAuthDefinition.ApiKeyLocation.HEADER)
-		})
-	)
+	})
+)
 public class SessionsResource {
 
 	Logger logger = LoggerFactory.getLogger(SessionsResource.class);
@@ -141,7 +141,6 @@ public class SessionsResource {
 	public Session getStatus(
 		@ApiParam(hidden = true) @Auth Session session
 	) {
-		session.setAcls(session.getUserAcls());
 		return session;
 	}
 
@@ -224,20 +223,6 @@ public class SessionsResource {
 		}
 		em.close();
 		return resp;
-	}
-
-	@GET
-	@Path("allowedModules")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get the list of allowed modules for the session user.")
-	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@PermitAll
-	public List<String> allowedModules(
-		@ApiParam(hidden = true) @Auth Session session
-	) {
-		return session.getUserAcls();
 	}
 
 	@GET

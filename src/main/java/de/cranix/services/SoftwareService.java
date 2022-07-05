@@ -727,19 +727,6 @@
      }
 
      /**
-      * This is the first step to start the installation. An installation category will be created
-      *
-      * @param        category A category object containing the name and description of the category
-      * @return The result in a OssResult.
-      */
-     public CrxResponse createInstallationCategory(Category category) {
-         CategoryService categoryService = new CategoryService(this.session, this.em);
-         category.setCategoryType("installation");
-         category.setPublicAccess(false);
-         return categoryService.add(category);
-     }
-
-     /**
       * Add a software to an installation set (category with categoryType installation)
       *
       * @param softwareId The technical id of the software.

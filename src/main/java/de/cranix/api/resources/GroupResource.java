@@ -78,7 +78,7 @@ public class GroupResource {
     @ApiOperation(value = "Deletes group by id")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.delete")
     public CrxResponse delete(
             @ApiParam(hidden = true) @Auth Session session,
@@ -111,7 +111,7 @@ public class GroupResource {
     @ApiOperation(value = "Get group by id")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.search")
     public Group getById(
             @ApiParam(hidden = true) @Auth Session session,
@@ -129,7 +129,7 @@ public class GroupResource {
     @ApiOperation(value = "Get users which are member in this group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.manage")
     public List<User> getMembers(
             @ApiParam(hidden = true) @Auth Session session,
@@ -148,7 +148,7 @@ public class GroupResource {
     @ApiOperation(value = "Get users which are not member in this group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.manage")
     public List<User> getAvailableMembers(
             @ApiParam(hidden = true) @Auth Session session,
@@ -183,8 +183,9 @@ public class GroupResource {
     @Path("import")
     @Produces(JSON_UTF8)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @ApiOperation(value = "Import groups from a CSV file. This MUST have following format:\\n",
-            notes = "* Separator is the semicolon ';'.<br>" +
+    @ApiOperation(
+	value = "Import groups from a CSV file. This MUST have following format:",
+		notes = "* Separator is the semicolon ';'.<br>" +
                     "* No header line must be provided.<br>" +
                     "* Fields: name;description;group type;member.<br>" +
                     "* Group Type: San be class, primary or workgroup.<br>" +
@@ -211,7 +212,7 @@ public class GroupResource {
     @ApiOperation(value = "Sets the member of this group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.modify")
     public CrxResponse setMembers(
             @ApiParam(hidden = true) @Auth Session session,
@@ -229,7 +230,7 @@ public class GroupResource {
     @Produces(JSON_UTF8)
     @ApiOperation(value = "Deletes a member of a group by userId.")
     @ApiResponses(value = {
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.modify")
     public CrxResponse removeMember(
             @ApiParam(hidden = true) @Auth Session session,
@@ -248,7 +249,7 @@ public class GroupResource {
     @ApiOperation(value = "Add a member to a group by userId.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.modify")
     public CrxResponse addMember(
             @ApiParam(hidden = true) @Auth Session session,
@@ -271,9 +272,14 @@ public class GroupResource {
     @POST
     @Path("applyAction")
     @Produces(JSON_UTF8)
-    @ApiOperation(value = "Apply actions on selected groups.")
+    @ApiOperation(
+            value = "Apply actions on the selected groups.",
+            notes = "Valid actions are:<br>" +
+            "<li> delete Delete the groups." +
+            "<li> cleanup Clean up the group shared directory."
+    )
     @ApiResponses(value = {
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.manage")
     public List<CrxResponse> applyAction(
             @ApiParam(hidden = true) @Auth Session session,
@@ -332,7 +338,7 @@ public class GroupResource {
     @ApiOperation(value = "Get users which are member in this group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.manage")
     public String getMembersText(
             @ApiParam(hidden = true) @Auth Session session,
@@ -356,7 +362,7 @@ public class GroupResource {
     @ApiOperation(value = "Set the owner of the group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.manage")
     public String setOwner(
             @ApiParam(hidden = true) @Auth Session session,
@@ -375,7 +381,7 @@ public class GroupResource {
     @ApiOperation(value = "Get the owner of the group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("group.manage")
     public String getOwner(
             @ApiParam(hidden = true) @Auth Session session,

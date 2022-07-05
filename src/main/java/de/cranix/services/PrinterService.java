@@ -155,7 +155,7 @@ public class PrinterService extends Service {
         if (printer != null) {
             return this.deletePrinter(printer);
         }
-        return new CrxResponse(this.getSession(), "ERROR", "Can not find printer with name %s.", null, name);
+        return new CrxResponse(this.session, "ERROR", "Can not find printer with name %s.", null, name);
     }
 
     public CrxResponse deletePrinter(Long printerId) {
@@ -163,7 +163,7 @@ public class PrinterService extends Service {
         if (printer != null) {
             return this.deletePrinter(printer);
         }
-        return new CrxResponse(this.getSession(), "ERROR", "Can not find printer with id %s.", null, String.valueOf(printerId));
+        return new CrxResponse(this.session, "ERROR", "Can not find printer with id %s.", null, String.valueOf(printerId));
     }
 
     /**
@@ -180,16 +180,16 @@ public class PrinterService extends Service {
             tmpMap.put("name",printer.getName());
             startPlugin("delete_printer_queue", createLiteralJson(tmpMap));
             printerDevice.getPrinterQueue().remove(printer);
+            this.em.getTransaction().begin();
             this.em.remove(printer);
             this.em.merge(printerDevice);
             this.em.getTransaction().commit();
             if (printerDevice.getPrinterQueue().isEmpty()) {
                 crxResponse = new DeviceService(this.session, this.em).delete(printerDevice, true);
             }
-            this.systemctl("reload", "samba-ad");
         } catch (Exception e) {
             logger.debug("deletePrinter :" + e.getMessage());
-            return null;
+            crxResponse = new CrxResponse(this.session, "ERROR", "Can not delete printer: %s", null, e.getMessage());
         } finally {
             if (this.em.getTransaction().isActive()) {
                 this.em.getTransaction().rollback();
@@ -470,5 +470,37 @@ public class PrinterService extends Service {
             System.out.println(e.getMessage());
         }
         return printers;
+    }
+
+    public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {
+            List<CrxResponse> responses = new ArrayList<>();
+            logger.debug(crxActionMap.toString());
+            switch (crxActionMap.getName().toLowerCase()) {
+                case "disableprinter":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                        responses.add(this.disablePrinter(id));
+                    }
+                    break;
+                case "enableprinter":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                        responses.add(this.enablePrinter(id));
+                    }
+                    break;
+                case "activatewindowsdriver":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                        responses.add(this.activateWindowsDriver(id));
+                    }
+                    break;
+                case "reset":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                        responses.add(this.resetPrinter(id));
+                    }
+                    break;
+                case "delete":
+                    for (Long id : crxActionMap.getObjectIds()) {
+                            responses.add(this.deletePrinter(id));
+                    }
+            }
+            return responses;
     }
 }

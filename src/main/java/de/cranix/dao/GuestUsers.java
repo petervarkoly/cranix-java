@@ -13,28 +13,6 @@ import java.util.List;
  */
 public class GuestUsers {
 
-	public GuestUsers(
-			String name,
-			String description,
-			Integer count,
-			List<Long> roomIds,
-			String password,
-			boolean createAdHocRoom,
-			String roomControl,
-			boolean privateGroup,
-			Date validity) {
-		super();
-		this.name = name;
-		this.description = description;
-		this.count = count;
-		this.roomIds = roomIds;
-		this.password = password;
-		this.createAdHocRoom = createAdHocRoom;
-		this.roomControl = roomControl;
-		this.privateGroup = privateGroup;
-		this.validUntil = validity;
-	}
-
 	public GuestUsers(String name, String description, Integer count, Long room, Date validity) {
 			super();
 			this.name = name;
@@ -49,6 +27,33 @@ public class GuestUsers {
 			this.roomControl  = "allTeachers";
 		}
 
+		public GuestUsers(Category category) {
+			this.id = category.getId();
+			this.name = category.getName();
+			this.description = category.getDescription();
+			this.count = 0;
+			this.roomIds = category.getRoomIds();
+			this.password = "";
+			this.privateGroup = !category.isPublicAccess();
+			this.validUntil = category.getValidUntil();
+			Boolean adHoc = false;
+			String roomControl = "";
+			for (Room room : category.getRooms()) {
+				if (room.getRoomType().equals("adHocAccess")) {
+					adHoc = true;
+					roomControl = room.getRoomControl();
+				}
+			}
+			for (Room room : category.getRooms() ){
+				if( room.getRoomType().equals("adhocAccess")) {
+					adHoc = true;
+					roomControl = room.getRoomControl();
+				}
+			}
+			this.count = category.getUsers().size();
+			this.createAdHocRoom = adHoc;
+			this.roomControl = roomControl;
+		}
 	/**
 	 * Class for guest user accounts
 	 */

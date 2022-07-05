@@ -46,6 +46,14 @@ public class RoomService extends Service {
         put(19, 91);
     }};
 
+    static public List<Long> getDeviceIds(Room room) {
+        List<Long> ids = new ArrayList<>();
+        for( Device device : room.getDevices() ){
+                ids.add(device.getId());
+        }
+        return ids;
+    }
+
     public RoomService(Session session, EntityManager em) {
         super(session, em);
     }
@@ -260,7 +268,7 @@ public class RoomService extends Service {
     public List<Room> getAllToRegister() {
         List<Room> rooms = new ArrayList<Room>();
         try {
-            if (this.isSuperuser()) {
+            if (this.isSuperuser() || this.session.getAcls().contains("device.add")) {
                 logger.debug("Is superuser" + this.session.getUser().getUid());
                 Query query = this.em.createNamedQuery("Room.findAllToRegister");
                 rooms = query.getResultList();
@@ -381,7 +389,7 @@ public class RoomService extends Service {
         return new CrxResponse(this.session, "OK", "Room was created successfully.", room.getId());
     }
 
-    public CrxResponse delete(long roomId) {
+    public CrxResponse delete(long roomId, boolean atomic ) {
         Room room = this.getById(roomId);
         if (room == null) {
             return new CrxResponse(this.session, "ERROR", "Can not find room with id %s.", null, String.valueOf(roomId));
@@ -437,9 +445,10 @@ public class RoomService extends Service {
             logger.error("delete: " + e.getMessage());
             return new CrxResponse(this.session, "ERROR", e.getMessage());
         }
-        DHCPConfig dhcpconfig = new DHCPConfig(session, em);
-        dhcpconfig.Create();
-        new SoftwareService(this.session, this.em).rewriteTopSls();
+        if( atomic ) {
+            new DHCPConfig(session, em).Create();
+            new SoftwareService(this.session, this.em).rewriteTopSls();
+        }
         startPlugin("delete_room", room);
         return new CrxResponse(this.session, "OK", "Room was removed successfully.");
     }
@@ -900,7 +909,7 @@ public class RoomService extends Service {
         }
         logger.debug("IPAddr" + ipAddress);
         Device device = new Device();
-        Room room = this.em.find(Room.class, roomId);
+        Room room  = this.em.find(Room.class, roomId);
         User owner = this.session.getUser();
         HWConf hwconf = room.getHwconf();
         logger.debug("DEVICE " + macAddress + " " + name);
@@ -952,19 +961,11 @@ public class RoomService extends Service {
             this.em.getTransaction().begin();
             this.em.persist(device);
             if (hwconf != null) {
-                if (hwconf.getDevices() != null) {
-                    hwconf.getDevices().add(device);
-                } else {
-                    List<Device> devices = new ArrayList<Device>();
-                    devices.add(device);
-                    hwconf.setDevices(devices);
-                }
+                device.setHwconf(hwconf);
                 this.em.merge(hwconf);
             }
-            room.getDevices().add(device);
             this.em.merge(room);
             if (!owner.getRole().contains("sysadmins")) {
-                //TODO
                 owner.getOwnedDevices().add(device);
                 this.em.merge(owner);
             }
@@ -1184,7 +1185,8 @@ public class RoomService extends Service {
         CrxResponse crxResponse = null;
         List<String> errors = new ArrayList<String>();
         DeviceService dc = new DeviceService(this.session, this.em);
-        for (Device device : this.getById(roomId).getDevices()) {
+        for (Long deviceId : getDeviceIds(this.getById(roomId))) {
+            Device device = dc.getById(deviceId);
             //Do not control the own workstation
             if (this.session.getDevice() != null && this.session.getDevice().getId().equals(device.getId())) {
                 continue;
@@ -1482,13 +1484,16 @@ public class RoomService extends Service {
 
     public List<CrxResponse> applyAction(CrxActionMap actionMap) {
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
-        for (Long id : actionMap.getObjectIds()) {
-            responses.add(this.manageRoom(id, actionMap.getName(), null));
-        }
         if (actionMap.getName().equals("delete")) {
+            for (Long id : actionMap.getObjectIds()) {
+                responses.add(this.delete(id,false));
+            }
             new DHCPConfig(session, em).Create();
             new SoftwareService(session, em).rewriteTopSls();
-
+        } else {
+            for (Long id : actionMap.getObjectIds()) {
+                responses.add(this.manageRoom(id, actionMap.getName(), null));
+            }
         }
         return responses;
     }

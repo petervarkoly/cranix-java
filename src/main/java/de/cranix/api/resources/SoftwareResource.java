@@ -2,6 +2,7 @@
 package de.cranix.api.resources;
 
 import de.cranix.dao.*;
+import de.cranix.services.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.SerializationUtils;
@@ -33,12 +34,7 @@ import de.cranix.dao.Software;
 import de.cranix.dao.SoftwareLicense;
 import de.cranix.dao.SoftwareStatus;
 import de.cranix.dao.SoftwareVersion;
-import de.cranix.services.SoftwareService;
 import de.cranix.helper.CrxEntityManagerFactory;
-import de.cranix.services.CategoryService;
-import de.cranix.services.CloneToolService;
-import de.cranix.services.DeviceService;
-import de.cranix.services.RoomService;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 import static de.cranix.api.resources.Resource.TEXT;
@@ -525,42 +521,11 @@ public class SoftwareResource {
 			Category category
 	) {
                 EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-                SoftwareService sc = new SoftwareService(session,em);
-                CategoryService cc = new CategoryService(session,em);
-                Category deepCopy = (Category) SerializationUtils.clone(category);
-                CrxResponse resp  = sc.createInstallationCategory(category);
-                CrxResponse resp1;
-                logger.debug("resp" + resp);
-                if( resp.getCode().equals("OK") ) {
-                        long installationId = resp.getObjectId();
-                        if( deepCopy.getSoftwareIds() != null ) {
-                                for( long id : deepCopy.getSoftwareIds() ) {
-                                        resp1 = cc.addMember(installationId, "software", id);
-                                        logger.debug("software resp" + resp1);
-                                }
-                        }
-                        if( deepCopy.getHwconfIds() != null ) {
-                                for( long id : deepCopy.getHwconfIds() ) {
-                                        resp1 = cc.addMember(installationId, "hwconf", id);
-                                        logger.debug("hwconf resp" + resp1);
-                                }
-                        }
-                        if( deepCopy.getRoomIds() != null ) {
-                                for( long id : deepCopy.getRoomIds() ) {
-                                        resp1 = cc.addMember(installationId, "room", id);
-                                        logger.debug("room resp" + resp1);
-                                }
-                        }
-                        if( deepCopy.getDeviceIds() != null ) {
-                                for( long id : deepCopy.getDeviceIds() ) {
-                                        resp1 = cc.addMember(installationId, "device", id);
-                                        logger.debug("device resp" + resp1);
-                                }
-                        }
-                        sc.applySoftwareStateToHosts();
-                }
+                SoftwareSetService sc = new SoftwareSetService(session,em);
+                CrxResponse response = new SoftwareSetService(session,em).addSet(category);
                 em.close();
-                return resp;
+				return response;
+
 	} 
 
 	@POST
@@ -574,83 +539,12 @@ public class SoftwareResource {
 	public CrxResponse modifyInstallation(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("installationId") Long installationId,
-			Category category
+		Category category
 	) {
                 EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-                SoftwareService sc = new SoftwareService(session,em);
-                CategoryService cc = new CategoryService(session,em);
-                Category oldCategory  = cc.getById(installationId);
-                CrxResponse resp  = null;
-                CrxResponse resp1 = null;
-                logger.debug("old:" + oldCategory);
-                logger.debug("category:" + category);
-                logger.debug("resp:" + resp);
-                if( category.getSoftwareIds() == null ) {
-                        category.setSoftwareIds(new ArrayList<Long>());
-                }
-                if( category.getHwconfIds() == null ) {
-                        category.setHwconfIds(new ArrayList<Long>());
-                }
-                if( category.getRoomIds() == null ) {
-                        category.setRoomIds(new ArrayList<Long>());
-                }
-                if( category.getDeviceIds() == null ) {
-                        category.setDeviceIds(new ArrayList<Long>());
-                }
-                //First add new objects
-                for( long id : category.getSoftwareIds() ) {
-                        if( ! oldCategory.getSoftwareIds().contains(id) ) {
-                                resp1 = cc.addMember(installationId, "software", id);
-                                logger.debug("software resp" + resp1);
-                        }
-                }
-                for( long id : category.getHwconfIds() ) {
-                        if( ! oldCategory.getHwconfIds().contains(id) ) {
-                                resp1 = cc.addMember(installationId, "hwconf", id);
-                                logger.debug("hwconf resp" + resp1);
-                        }
-                }
-                for( long id : category.getRoomIds() ) {
-                        if( ! oldCategory.getHwconfIds().contains(id) ) {
-                                resp1 = cc.addMember(installationId, "room", id);
-                                logger.debug("room resp" + resp1);
-                        }
-                }
-                for( long id : category.getDeviceIds() ) {
-                        if( ! oldCategory.getDeviceIds().contains(id) ) {
-                                resp1 = cc.addMember(installationId, "device", id);
-                                logger.debug("device resp" + resp1);
-                        }
-                }
-                //Now remove objects
-                for( long id : oldCategory.getSoftwareIds() ) {
-                        if( ! category.getSoftwareIds().contains(id) ) {
-                                resp1 = cc.deleteMember(installationId, "software", id);
-                                logger.debug("software resp" + resp1);
-                        }
-                }
-                for( long id : oldCategory.getHwconfIds() ) {
-                        if( ! category.getHwconfIds().contains(id) ) {
-                                resp1 = cc.deleteMember(installationId, "hwconf", id);
-                                logger.debug("hwconf resp" + resp1);
-                        }
-                }
-                for( long id : oldCategory.getRoomIds() ) {
-                        if( ! category.getRoomIds().contains(id) ) {
-                                resp1 = cc.deleteMember(installationId, "room", id);
-                                logger.debug("room resp" + resp1);
-                        }
-                }
-                for( long id : oldCategory.getDeviceIds() ) {
-                        if( ! category.getDeviceIds().contains(id) ) {
-                                resp1 = cc.deleteMember(installationId, "device", id);
-                                logger.debug("device resp" + resp1);
-                        }
-                }
-                sc.applySoftwareStateToHosts();
-                //TODO //CrxResponse resp = cc.modify(category);
+                CrxResponse response = new SoftwareSetService(session,em).modifySet(installationId, category);
                 em.close();
-                return new CrxResponse(session,"OK","Software installation set modified successfully.");
+                return response;
         }
 
 	@DELETE

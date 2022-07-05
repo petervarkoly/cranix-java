@@ -14,8 +14,8 @@ import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-//import io.federecio.dropwizard.swagger.SwaggerBundle;
-//import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -33,7 +33,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		return "CRANIX API";
 	}
 
-	/* @Override
+	@Override
 	public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
 		bootstrap.addBundle(new SwaggerBundle<ServerConfiguration>() {
 		       @Override
@@ -41,7 +41,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 			       return configuration.swaggerBundleConfiguration;
 		       }
 	       });
-	}*/
+	}
 
 	@Override
 	public void run(ServerConfiguration configuration, Environment environment) {

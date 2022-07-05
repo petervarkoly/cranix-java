@@ -193,12 +193,12 @@ public class Service extends Config {
                 if (s.startsWith("@")) {
                     for (Group g : this.session.getUser().getGroups()) {
                         if (g.getName().equals(s.substring(1))) {
-                            logger.debug("isSuperuser by group" + s + " " + this.session.getUser().getUid());
+                            //logger.debug("isSuperuser by group" + s + " " + this.session.getUser().getUid());
                             return true;
                         }
                     }
                 } else if (s.equals(this.session.getUser().getUid())) {
-                    logger.debug("isSuperuser by uid" + this.session.getUser().getUid());
+                    //logger.debug("isSuperuser by uid" + this.session.getUser().getUid());
                     return true;
                 }
             }

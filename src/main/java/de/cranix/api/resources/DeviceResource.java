@@ -1,4 +1,4 @@
-/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2022 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.api.resources;
 
 
@@ -159,6 +159,25 @@ public class DeviceResource {
 		return device;
 	}
 
+	@PUT
+        @Path("byName/{deviceName}/actions/{action}")
+        @Produces(JSON_UTF8)
+        @ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, unlockInput, lockInput, cleanUpLoggedIn.")
+        @ApiResponses(value = {
+                        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+        })
+        @RolesAllowed("device.manage")
+        public CrxResponse manageDevice(
+                        @ApiParam(hidden = true) @Auth Session session,
+                        @PathParam("deviceName") String deviceName,
+                        @PathParam("action") String action
+        ) {
+                EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+                CrxResponse resp = new DeviceService(session, em).manageDevice(deviceName, action, null);
+                em.close();
+                return resp;
+        }
+
 	@GET
 	@Path("hostnameByIP/{IP}")
 	@Produces(TEXT)
@@ -267,12 +286,14 @@ public class DeviceResource {
 	@POST
 	@Path("{deviceId}/printers")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Modify the printers of one device.",
-			notes = "The printers object has following format<br>"
-					+ "{"
-					+ "  defaultPrinter:  [id],"
-					+ "  availablePrinters: [ id1, id2 ]"
-					+ "}")
+	@ApiOperation(
+		value = "Modify the printers of one device.",
+		notes = "The printers object has following format<br>"
+			+ "{"
+			+ "  defaultPrinter:  [id],"
+			+ "  availablePrinters: [ id1, id2 ]"
+			+ "}"
+	)
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -438,7 +459,7 @@ public class DeviceResource {
 	@DELETE
 	@Path("loggedInUsers/{IP}/{userName}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Get the logged on users on a device defined by IP.")
+	@ApiOperation(value = "Remove the logged on users from a device defined by IP.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -486,7 +507,10 @@ public class DeviceResource {
 	@PUT
 	@Path("refreshConfig")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Refresh the DHCP DNS and SALT Configuration.")
+	@ApiOperation(
+		value = "Refresh the DHCP and DNS Configuration.",
+		notes = "The SALT configuration can be refreshed by the call /softwares/saveState"
+	)
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -577,12 +601,14 @@ public class DeviceResource {
 	@Path("import")
 	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@ApiOperation(value = "Import devices from a CSV file. This MUST have following format:\\n",
-			notes = "* Separator is the semicolon ';'.<br>" +
-					"* A header line must be provided.<br>" +
-					"* The header line is case insensitive.<br>" +
-					"* The fields Room and MAC are mandatory.<br>" +
-					"* The import is only allowed in existing rooms.<br>")
+	@ApiOperation(
+		value = "Import devices from a CSV file. This MUST have following format:",
+		notes = "* Separator is the semicolon ';'.<br>" +
+			"* A header line must be provided.<br>" +
+			"* The header line is case insensitive.<br>" +
+			"* The fields Room and MAC are mandatory.<br>" +
+			"* The import is only allowed in existing rooms.<br>"
+	)
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -643,73 +669,6 @@ public class DeviceResource {
 		return responses;
 	}
 
-	/*
-	 * Deprecated use applyAction instead
-	 */
-	@PUT
-	@Path("{deviceId}/actions/{action}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, unlockInput, lockInput, cleanUpLoggedIn.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("device.manage")
-	public CrxResponse manageDevice(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("deviceId") Long deviceId,
-			@PathParam("action") String action
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new DeviceService(session, em).manageDevice(deviceId, action, null);
-		em.close();
-		return resp;
-	}
-
-	@PUT
-	@Path("byName/{deviceName}/actions/{action}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, unlockInput, lockInput, cleanUpLoggedIn.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("device.manage")
-	public CrxResponse manageDevice(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("deviceName") String deviceName,
-			@PathParam("action") String action
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new DeviceService(session, em).manageDevice(deviceName, action, null);
-		em.close();
-		return resp;
-	}
-
-	/*
-	 * Deprecated use applyAction instead
-	 */
-	@POST
-	@Path("{deviceId}/actionWithMap/{action}")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout."
-			+ "This version of call allows to send a map with some parametrs:"
-			+ "graceTime : seconds to wait befor execute action."
-			+ "message : the message to shown befor/during execute the action.")
-	@ApiResponses(value = {
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("device.manage")
-	public CrxResponse manageDevice(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("deviceId") Long deviceId,
-			@PathParam("action") String action,
-			Map<String, String> actionContent
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new DeviceService(session, em).manageDevice(deviceId, action, actionContent);
-		em.close();
-		return resp;
-	}
-
 	@DELETE
 	@Path("cleanUpLoggedIn")
 	@Produces(JSON_UTF8)
@@ -741,13 +700,14 @@ public class DeviceResource {
 	@GET
 	@Path("{deviceId}/dhcp")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the active dhcp parameter of a device:",
-			notes = "How to evaluate the CrxMConfig object:<br>"
-					+ "id: ID of the dhcp parameter object<br>"
-					+ "objectType: Device, but in this case it can be ignored.<br>"
-					+ "objectId: the device id<br>"
-					+ "keyword: this can be only dhcpOption or dhcpStatement<br>"
-					+ "value: the value of the dhcpOption or dhcpStatement."
+	@ApiOperation(
+		value = "Gets the active dhcp parameter of a device:",
+		notes = "How to evaluate the CrxMConfig object:<br>"
+			+ "id: ID of the dhcp parameter object<br>"
+			+ "objectType: Device, but in this case it can be ignored.<br>"
+			+ "objectId: the device id<br>"
+			+ "keyword: this can be only dhcpOption or dhcpStatement<br>"
+			+ "value: the value of the dhcpOption or dhcpStatement."
 	)
 	@ApiResponses(value = {
 			// TODO so oder anders? @ApiResponse(code = 404, message = "At least one device was not found"),
@@ -775,11 +735,13 @@ public class DeviceResource {
 	@POST
 	@Path("{deviceId}/dhcp")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Adds a new dhcp parameter to a device",
-			notes = "How to setup the CrxMConfig object:<br>"
-					+ "keyword: this can be dhcpOptions or dhcpStatements<br>"
-					+ "value: the value of the dhcpOption or dhcpStatement.<br>"
-					+ "Other parameter can be ignored.")
+	@ApiOperation(
+		value = "Adds a new dhcp parameter to a device",
+		notes = "How to setup the CrxMConfig object:<br>"
+			+ "keyword: this can be dhcpOptions or dhcpStatements<br>"
+			+ "value: the value of the dhcpOption or dhcpStatement.<br>"
+			+ "Other parameter can be ignored."
+	)
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})

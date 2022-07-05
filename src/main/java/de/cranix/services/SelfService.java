@@ -167,7 +167,7 @@ public class SelfService extends Service {
                         return crxResponse.getCode() + " " + crxResponse.getValue() + " " + crxResponse.getParameters();
                     }
                 } else {
-                    resp = "You can not register devices.";
+                    resp = "You are not allowed to register devices.";
                 }
             }
         } catch (Exception e) {

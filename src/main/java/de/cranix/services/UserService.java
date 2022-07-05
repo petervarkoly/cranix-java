@@ -43,7 +43,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.debug("getByID: " + e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -66,9 +65,8 @@ public class UserService extends Service {
             users = query.getResultList();
         } catch (Exception e) {
             logger.error("getByRole: " + e.getMessage());
-        } finally {
         }
-        //users.sort(Comparator.comparing(User::getUid));
+	//users.sort(Comparator.comparing(User::getUid));
         return users;
     }
 
@@ -85,7 +83,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("getByUid: uid=" + uid + " " + e.getMessage());
             return null;
-        } finally {
         }
         return null;
     }
@@ -98,7 +95,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("search: " + e.getMessage());
             return new ArrayList<>();
-        } finally {
         }
     }
 
@@ -112,7 +108,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("findByName: " + e.getMessage());
             return new ArrayList<>();
-        } finally {
         }
     }
 
@@ -127,7 +122,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("findByNameAndRole: " + e.getMessage());
             return new ArrayList<>();
-        } finally {
         }
     }
 
@@ -145,7 +139,6 @@ public class UserService extends Service {
             }
         } catch (Exception e) {
             logger.error("getAll: " + e.getMessage());
-        } finally {
         }
         //users.sort(Comparator.comparing(User::getUid));
         return users;
@@ -286,7 +279,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("add: " + e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         startPlugin("add_user", user);
         List<String> parameters = new ArrayList<String>();
@@ -365,7 +357,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         startPlugin("modify_user", oldUser);
         return new CrxResponse(this.getSession(), "OK", "User was modified succesfully");
@@ -490,7 +481,6 @@ public class UserService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         for (Group group : groupsToAdd) {
             changeMemberPlugin("addmembers", group, user);
@@ -518,7 +508,6 @@ public class UserService extends Service {
             }
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "The filesystem quotas was synced succesfully");
     }
@@ -540,33 +529,24 @@ public class UserService extends Service {
             }
         } catch (Exception e) {
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "The mailsystem quotas was synced succesfully");
     }
 
-
-    public List<User> getUsers(List<Long> userIds) {
-        List<User> users = new ArrayList<User>();
-        try {
-            logger.debug(new ObjectMapper().writeValueAsString(userIds));
-        } catch (Exception e) {
-            logger.debug("{ \"ERROR\" : \"getUsers CAN NOT MAP THE OBJECT\" }");
+    public String getGroupsOfUser(String userName, String groupType) {
+        UserService userService = new UserService(this.session, this.em);
+        User user = userService.getByUid(userName);
+        if (user == null) {
+            return "";
         }
-        if (userIds == null) {
-            return users;
-        }
-        for (Long id : userIds) {
-            if (id != null) {
-                User u = this.getById(id);
-                if (u != null) {
-                    users.add(u);
-                }
+        List<String> groups = new ArrayList<String>();
+        for (Group group : user.getGroups()) {
+            if (group.getGroupType().equals(groupType)) {
+                groups.add(group.getName());
             }
         }
-        return users;
+        return String.join(this.getNl(), groups);
     }
-
     public List<CrxResponse> resetUserPassword(List<Long> userIds, String password, boolean mustChange) {
         logger.debug("resetUserPassword: " + password);
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
@@ -743,13 +723,13 @@ public class UserService extends Service {
         StringBuffer error = new StringBuffer();
         String[] program = new String[3];
         program[0] = "/usr/sbin/crx_set_mquota.pl";
-        program[2] = String.valueOf(msQuota);
+        program[2] = String.valueOf(msQuota * 1024);
         Integer quota = Integer.valueOf(program[2]);
         for (Long id : userIds) {
             User user = this.getById(id);
             if (user != null) {
                 if (!this.mayModify(user)) {
-                    logger.error("setMsQuota: Session user may not modify: %s", null, id);
+                    logger.error("setMsQuota: Session user may not modify: %s", id);
                     continue;
                 }
                 program[1] = user.getUid();
@@ -823,221 +803,6 @@ public class UserService extends Service {
             }
         }
         return responses;
-    }
-
-    /**
-     * Get the list of created guest users categories
-     *
-     * @return The list of the guest users categories
-     */
-    public List<GuestUsers> getGuestUsers() {
-        final CategoryService categoryService = new CategoryService(this.session, this.em);
-        List<Category> categories = new ArrayList<Category>();
-        if (categoryService.isSuperuser()) {
-            categories = categoryService.getByType("guestUsers");
-        } else {
-            for (Category category : categoryService.getByType("guestUsers")) {
-                if (category.getOwner().equals(session.getUser()) ||
-                        category.isPublicAccess()) {
-                    categories.add(category);
-                }
-            }
-        }
-        List<GuestUsers> guestUsers = new ArrayList<>();
-        for (Category category : categories) {
-            Boolean adHoc = false;
-            String roomControl = "";
-            Group guestGroup = null;
-            for (Room room : category.getRooms()) {
-                if (room.getRoomType().equals("adHocAccess")) {
-                    adHoc = true;
-                    roomControl = room.getRoomControl();
-                }
-            }
-            for (Group g : category.getGroups()) {
-                if (g.getName().equals(category.getName().toUpperCase())) {
-                    guestGroup = g;
-                    break;
-                }
-            }
-            if (guestGroup == null) {
-                logger.error("Guest Users Category has no groups:" + category.getName());
-                continue;
-            }
-            GuestUsers gu = new GuestUsers(
-                    category.getName(),
-                    category.getDescription(),
-                    guestGroup.getUsers().size(),
-                    category.getRoomIds(),
-                    "",
-                    !category.isPublicAccess(),
-                    roomControl,
-                    adHoc,
-                    category.getValidUntil()
-            );
-            gu.setId(guestGroup.getId());
-            guestUsers.add(gu);
-        }
-        return guestUsers;
-    }
-
-    /**
-     * Gets a guest user category by id.
-     *
-     * @param guestUsersId The technical id of the category.
-     * @return The list of the guest users.
-     */
-    public Category getGuestUsersCategory(Long guestUsersId) {
-        return new CategoryService(this.session, this.em).getById(guestUsersId);
-    }
-
-    /**
-     * Delete a guest user category. Only the guest members will be deleted.
-     *
-     * @param guestUsersId The technical id of the category.
-     * @return The result as an CrxResponse
-     */
-    public CrxResponse deleteGuestUsers(Long guestUsersId) {
-        final CategoryService categoryService = new CategoryService(this.session, this.em);
-        final GroupService groupService = new GroupService(this.session, this.em);
-        Category category = categoryService.getById(guestUsersId);
-        for (User user : category.getUsers()) {
-            if (user.getRole().equals(roleGuest)) {
-                this.delete(user);
-            }
-        }
-        category.setUsers(new ArrayList<User>());
-        for (Group group : category.getGroups()) {
-            if (group.getGroupType().equals(roleGuest)) {
-                groupService.delete(group);
-            }
-        }
-        category.setGroups(new ArrayList<Group>());
-        return categoryService.delete(category);
-    }
-
-    public CrxResponse addGuestUsers(GuestUsers guestUsers) {
-        //String name, String description, Long roomId, Long count, Date validUntil)
-        final CategoryService categoryService = new CategoryService(this.session, this.em);
-        final GroupService groupService = new GroupService(this.session, this.em);
-        final RoomService roomService = new RoomService(this.session, this.em);
-        Room room = null;
-        //TODO make it confiugrable
-        if (guestUsers.getCount() > 255) {
-            return new CrxResponse(this.getSession(), "ERROR", "A guest group must not conains more the 255 members.");
-        }
-        // Check the password
-        boolean checkPassword = this.getConfigValue("CHECK_PASSWORD_QUALITY").equalsIgnoreCase("yes");
-        this.setConfigValue("CHECK_PASSWORD_QUALITY", "no");
-        String password = guestUsers.getName() + "01";
-        if (!guestUsers.getPassword().isEmpty()) {
-            password = guestUsers.getPassword();
-        }
-        CrxResponse crxResponse = this.checkPassword(password);
-        if (crxResponse != null) {
-            if (checkPassword) {
-                this.setConfigValue("CHECK_PASSWORD_QUALITY", "yes");
-            }
-            logger.error("Reset Password" + crxResponse);
-            return crxResponse;
-        }
-        // First we check if we can create room with the requested size
-        if (guestUsers.isCreateAdHocRoom()) {
-            int roomNetMask = 32 - (int) (Math.log(guestUsers.getCount()) / Math.log(2) + 1.0);
-            room = new Room();
-            room.setNetMask(roomNetMask);
-            room.setName(guestUsers.getName());
-            room.setDescription(guestUsers.getDescription());
-            room.setRoomControl("allTeachers");
-            room.setHwconfId(3L);
-            room.setRoomType("adHocRoom");
-            crxResponse = roomService.add(room);
-            if (crxResponse.getCode().equals("ERROR")) {
-                return crxResponse;
-            } else {
-                room = roomService.getById(crxResponse.getObjectId());
-            }
-        }
-
-        Category category = new Category();
-        category.setCategoryType("guestUsers");
-        category.setName(guestUsers.getName());
-        category.setDescription(guestUsers.getDescription());
-        category.setValidFrom(categoryService.now());
-        category.setValidUntil(guestUsers.getValidUntil());
-        crxResponse = categoryService.add(category);
-        if (crxResponse.getCode().equals("ERROR")) {
-            return crxResponse;
-        }
-        category = categoryService.getById(crxResponse.getObjectId());
-        Group group = new Group();
-        group.setGroupType(roleGuest);
-        group.setName(guestUsers.getName());
-        group.setDescription(guestUsers.getDescription());
-        crxResponse = groupService.add(group);
-        if (crxResponse.getCode().equals("ERROR")) {
-            categoryService.delete(category.getId());
-            return crxResponse;
-        }
-
-        group = groupService.getById(crxResponse.getObjectId());
-        try {
-            this.em.getTransaction().begin();
-            category.setGroups(new ArrayList<Group>());
-            category.getGroups().add(group);
-            if (room != null) {
-                category.setRooms(new ArrayList<Room>());
-                category.getRooms().add(room);
-                room.setCategories(new ArrayList<Category>());
-                room.getCategories().add(category);
-                this.em.merge(room);
-            }
-            group.setCategories(new ArrayList<Category>());
-            group.getCategories().add(category);
-            this.em.merge(category);
-            this.em.merge(group);
-            this.em.getTransaction().commit();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return null;
-        }
-        for (Long i = 1l; i < guestUsers.getCount() + 1; i++) {
-            String userName = String.format("%s%02d", guestUsers.getName(), i);
-            User user = new User();
-            user.setUid(userName);
-            user.setSurName("GuestUser");
-            user.setGivenName(userName);
-            user.setRole(roleGuest);
-            if (!guestUsers.getPassword().isEmpty()) {
-                user.setPassword(password);
-            } else {
-                user.setPassword("");
-            }
-            crxResponse = this.add(user);
-            logger.debug("Create user crxResponse:" + crxResponse);
-            user = this.getById(crxResponse.getObjectId());
-            crxResponse = groupService.addMember(group, user);
-            logger.debug("Create user " + crxResponse);
-            categoryService.addMember(category.getId(), "user", user.getId());
-        }
-        crxResponse.setObjectId(category.getId());
-        crxResponse.setValue("Guest Users were created succesfully");
-        crxResponse.setCode("OK");
-        return crxResponse;
-    }
-
-    public String getGroupsOfUser(String userName, String groupType) {
-        User user = this.getByUid(userName);
-        if (user == null) {
-            return "";
-        }
-        List<String> groups = new ArrayList<String>();
-        for (Group group : user.getGroups()) {
-            if (group.getGroupType().equals(groupType)) {
-                groups.add(group.getName());
-            }
-        }
-        return String.join(this.getNl(), groups);
     }
 
     public void inheritCreatedObjects(User creator, User newCreator) {
@@ -1213,7 +978,6 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
     }
@@ -1237,19 +1001,6 @@ public class UserService extends Service {
             }
         }
     }
-
-    public List<Device> getUserDevicesInRoomClassRoom(String uid, String className) {
-        User user = this.getByUid(uid);
-        String roomName = className + "-adhoc";
-        List<Device> devices = new ArrayList<Device>();
-        for (Device device : user.getOwnedDevices()) {
-            if (device.getRoom().getName().equals(roomName)) {
-                devices.add(device);
-            }
-        }
-        return devices;
-    }
-
 
     public List<CrxResponse> applyAction(CrxActionMap crxActionMap) {
         List<CrxResponse> responses = new ArrayList<>();
@@ -1310,4 +1061,49 @@ public class UserService extends Service {
         return responses;
     }
 
+    public List<CrxResponse> moveStudentsDevices(){
+        List<CrxResponse> responses = new ArrayList<>();
+        for(User user: this.getByRole(roleStudent)){
+            responses.add(this.moveUserDevices(user));
+        }
+        new DHCPConfig(this.session,this.em).Create();
+        return responses;
+    }
+    public CrxResponse moveUserDevices(String uid) {
+        return this.moveUserDevices(this.getByUid(uid));
+    }
+    public CrxResponse moveUserDevices(User user) {
+        Group userClass = null;
+        Integer counter = 0;
+        List<String> params = new ArrayList<>();
+        for ( Group group : user.getGroups() ){
+            if(group.getGroupType().equals("class")){
+                userClass = group;
+                break;
+            }
+        }
+        if(userClass == null) {
+           return new CrxResponse(this.session,"ERROR","User is not member in any classes.");
+        }
+        AdHocLanService adHocLanService = new AdHocLanService(this.session,this.em);
+        Room classRoom = adHocLanService.getAdHocRoomOfGroup(userClass);
+        for (Device device : user.getOwnedDevices()) {
+            for( Category category: device.getCategories() ){
+                if( category.getCategoryType().equals("adhocroom")) {
+                    if(! category.getGroups().contains(userClass)) {
+                        this.em.getTransaction().begin();
+                        device.getRoom().getDevices().remove(device);
+                        this.em.merge(device.getRoom());
+                        device.setRoom(classRoom);
+                        this.em.merge(classRoom);
+                        this.em.getTransaction().commit();
+                        counter++;
+                    }
+                }
+            }
+        }
+        params.add(counter.toString());
+        params.add(user.getUid());
+        return new CrxResponse(this.session,"OK","%s devices of %s was moved in the new class.",params);
+    }
 }

@@ -480,17 +480,21 @@ public class EducationService extends UserService {
             cleanUp = true;
         }
         UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
+        UserPrincipal owner;
         List<String> parameters = new ArrayList<String>();
         if (user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "No user defined.");
         } else {
-            logger.debug("File " + fileName + " saved to " + user.getUid());
+            logger.debug("saveFileToUserImport File " + fileName + " saved to " + user.getUid());
         }
         parameters.add(fileName);
         parameters.add(user.getUid());
+        String homeDir = this.getHomeDir(user);
+	String importDir = homeDir + "Import/";
+	File importDirF;
+	File newFile;
         try {
-            UserPrincipal owner = lookupService.lookupPrincipalByName(user.getUid());
-            String homeDir = this.getHomeDir(user);
+            owner = lookupService.lookupPrincipalByName(user.getUid());
             //For workstations users the whole home directory will be removed
             if (user.getRole().equals(roleWorkstation) && cleanUp) {
                 StringBuffer reply = new StringBuffer();
@@ -513,19 +517,42 @@ public class EducationService extends UserService {
                 program[2] = homeDir + "/Import/";
                 CrxSystemCmd.exec(program, reply, error, null);
             }
-            String importDir = homeDir + "Import/";
+        } catch (Exception e) {
+            logger.error("saveFileToUserImport 1.:" + e.getMessage());
+            parameters.add(e.getMessage());
+            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 1.", null, parameters);
+        }
+	try {
             // Create the directory first.
-            File importDirF = new File(importDir);
+            importDirF = new File(importDir);
             Files.createDirectories(importDirF.toPath(), privatDirAttribute);
+        } catch (Exception e) {
+            logger.error("saveFileToUserImport 2.:" + e.getMessage());
+            parameters.add(e.getMessage());
+            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 2.", null, parameters);
+        }
 
+	try {
             // Copy temp file to the right place
-            File newFile = new File(importDir + fileName);
+            newFile = new File(importDir + fileName);
             Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            logger.error("saveFileToUserImport 3.:" + e.getMessage());
+            parameters.add(e.getMessage());
+            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 3.", null, parameters);
+        }
 
+	try {
             // Set owner
             Files.setOwner(importDirF.toPath(), owner);
             Files.setOwner(newFile.toPath(), owner);
+        } catch (Exception e) {
+            logger.error("saveFileToUserImport 4.:" + e.getMessage());
+            parameters.add(e.getMessage());
+            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 4.", null, parameters);
+        }
 
+	try {
             //Clean up export of target
             String export = homeDir + "Export/";
             File exportDir = new File(export);
@@ -541,9 +568,9 @@ public class EducationService extends UserService {
                 }
             }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("saveFileToUserImport 5.:" + e.getMessage());
             parameters.add(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s", null, parameters);
+            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 5.", null, parameters);
         }
         return new CrxResponse(this.getSession(), "OK", "File '%s' successfully saved to user '%s'.", null, parameters);
     }
@@ -1003,5 +1030,27 @@ public class EducationService extends UserService {
             return new CrxResponse(this.session, "ERROR", e.getMessage());
         }
         return new CrxResponse(this.session, "OK", "Device was repositioned.");
+    }
+
+    public List<Student> getStudents() {
+        boolean added = false;
+        List<Student> resp = new ArrayList<>();
+        for( User user : new UserService(session,em).getByRole(roleStudent) ) {
+            added = false;
+            for( Group group : user.getGroups() ) {
+                if( !group.getGroupType().equals("primary") ) {
+                    Student student = new Student(user);
+                    student.setGroupName(group.getName());
+                    student.setGroupId(group.getId());
+                    student.setGroupType(group.getGroupType());
+                    resp.add(student);
+                    added = true;
+                }
+            }
+            if( ! added ) {
+                resp.add(new Student(user));
+            }
+        }
+        return  resp;
     }
 }
