@@ -85,7 +85,7 @@ public class DeviceService extends Service {
         try {
             for (Long deviceId : deviceIds) {
                 Device device = this.getById(deviceId);
-                if (device.getHwconf() != null && device.getHwconf().getDeviceType().equals("FatClient")) {
+                if (device.isFatClient()) {
                     needReloadSalt = true;
                 }
                 //TODO Evaluate the response
@@ -302,8 +302,7 @@ public class DeviceService extends Service {
             error.add(violation.getMessage());
         }
         logger.debug("Befor check name lenght.");
-        if (device.getHwconf().getDeviceType().equals("FatClient") &&
-                device.getName().length() > 15) {
+        if (device.isFatClient() && device.getName().length() > 15) {
             error.add("Name must not be longer then 15 characters.");
         }
         logger.debug("After check name lenght.");

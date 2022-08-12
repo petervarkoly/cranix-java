@@ -793,7 +793,7 @@ public class RoomService extends Service {
             for (Long deviceId : deviceIDs) {
                 Device device = this.em.find(Device.class, deviceId);
                 if (room.getDevices().contains(device)) {
-                    if (device.getHwconf().getDeviceType().equals("FatClient")) {
+                    if (device.isFatClient()) {
                         needWriteSalt = true;
                     }
                     deviceService.delete(device, false);

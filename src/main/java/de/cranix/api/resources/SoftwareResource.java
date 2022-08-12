@@ -891,7 +891,7 @@ public class SoftwareResource {
                 DeviceService dc = new DeviceService(session,em);
                 for( Long deviceId : new CategoryService(session,em).getAvailableMembers(installationId, "Device") ) {
                         Device device = dc.getById(deviceId);
-                        if( device != null  &&  device.getHwconf() != null && device.getHwconf().getDeviceType().equals("FatClient") ) {
+                        if( device != null && device.isFatClient() ) {
                                 objects.add(new CrxBaseObject(device.getId(),device.getName()));
                         }
                 }
