@@ -392,9 +392,7 @@ public class DeviceService extends Service {
             return new CrxResponse(this.session, "ERROR", "An error accrued during persisting the device.");
         }
         startPlugin("add_device", device);
-        if (device.getHwconf() != null &&
-                device.getHwconf().getDeviceType() != null &&
-                device.getHwconf().getDeviceType().equals("FatClient")) {
+        if (device.isFatClient()) {
             User user = new User();
             user.setUid(device.getName());
             user.setGivenName(device.getName());
