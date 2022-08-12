@@ -1261,6 +1261,11 @@
      public CrxResponse applySoftwareStateToHosts() {
          return applySoftwareStateToHosts(new DeviceService(this.session, this.em).getAll());
      }
+     public CrxResponse applySoftwareStateToHosts(Device device) {
+         List<Device> devices = new ArrayList<>();
+         devices.add(device);
+         return applySoftwareStateToHosts(devices);
+     }
 
      public CrxResponse applySoftwareStateToHosts(List<Device> devices) {
          DeviceService deviceService = new DeviceService(this.session, this.em);

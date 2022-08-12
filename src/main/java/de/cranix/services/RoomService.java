@@ -773,11 +773,14 @@ public class RoomService extends Service {
         try {
             for (Device device : devices) {
                 //Remove trailing and ending spaces.
-                device.setName(device.getName().trim().toLowerCase());
-                logger.debug("addDevices device" + device);
-                ipAddress = this.getAvailableIPAddresses(roomId, 2);
+                if (!device.getName().isEmpty()) {
+                    device.setName(device.getName().trim().toLowerCase());
+                }
+                logger.debug("addDevices device row: " + device);
+                ipAddress = this.getAvailableIPAddresses(room, 2);
                 logger.debug("addDevices ipAddress" + ipAddress);
                 if (device.getIp().isEmpty()) {
+                    logger.debug("IP is empty");
                     if (ipAddress.isEmpty()) {
                         parameters.add(device.getMac());
                         responses.add(new CrxResponse(this.session, "ERROR",
@@ -785,6 +788,7 @@ public class RoomService extends Service {
                         return responses;
                     }
                     if (device.getName().isEmpty()) {
+                        logger.debug("Name is empty");
                         device.setName(ipAddress.get(0).split(" ")[1]);
                     }
                     device.setIp(ipAddress.get(0).split(" ")[0]);
@@ -821,6 +825,7 @@ public class RoomService extends Service {
                         device.setRow(coordinates.get(1));
                     }
                 }
+                logger.debug("addDevices device prepared: " + device);
                 this.em.getTransaction().begin();
                 this.em.persist(device);
                 this.em.merge(room);

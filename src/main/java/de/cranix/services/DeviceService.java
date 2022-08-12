@@ -316,19 +316,102 @@ public class DeviceService extends Service {
     /*
      * Creates devices
      */
-    public CrxResponse add(List<Device> devices) {
-        try {
-            for (Device dev : devices) {
-                dev.setOwner(session.getUser());
-                this.em.getTransaction().begin();
-                this.em.persist(dev);
-                this.em.getTransaction().commit();
+    public CrxResponse add(Device device, boolean atomic) {
+        RoomService roomService = new RoomService(this.session, this.em);
+        CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
+        List<String> parameters = new ArrayList<String>();
+        HWConf firstFatClient = cloneToolService.getByType("FatClient").get(0);
+        Room room;
+        boolean needWriteSalt = false;
+        if (device.getRoomId() != null) {
+            room = roomService.getById(device.getRoomId());
+            if (room == null) {
+                return new CrxResponse(this.session, "ERROR", "Can not find the room");
             }
-            return new CrxResponse(this.getSession(), "OK", "Devices were created succesfully.");
-        } catch (Exception e) {
-            logger.error("add " + e.getMessage(), e);
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+        } else if (device.getRoom() != null) {
+            room = device.getRoom();
+        } else {
+            return new CrxResponse(this.session, "ERROR", "No room was defined");
         }
+        //Remove trailing and ending spaces.
+        if (!device.getName().isEmpty()) {
+            device.setName(device.getName().trim().toLowerCase());
+        }
+        logger.debug("addDevices device row: " + device);
+        List<String> ipAddress = roomService.getAvailableIPAddresses(room, 2);
+        logger.debug("addDevices ipAddress" + ipAddress);
+        if (device.getIp().isEmpty()) {
+            logger.debug("IP is empty");
+            if (ipAddress.isEmpty()) {
+                parameters.add(device.getMac());
+                return new CrxResponse(this.session, "ERROR",
+                        "There are no more free ip addresses in this room for the MAC: %s.", room.getId(), parameters);
+            }
+            if (device.getName().isEmpty()) {
+                logger.debug("Name is empty");
+                device.setName(ipAddress.get(0).split(" ")[1]);
+            }
+            device.setIp(ipAddress.get(0).split(" ")[0]);
+        }
+        if (!device.getWlanMac().isEmpty()) {
+            if (ipAddress.size() < 2) {
+                parameters.add(device.getWlanMac());
+                return new CrxResponse(this.session, "ERROR",
+                        "There are no more free ip addresses in this room for the MAC: %s.", room.getId(), parameters);
+            }
+            device.setWlanIp(ipAddress.get(1).split(" ")[0]);
+        }
+        HWConf hwconf = cloneToolService.getById(device.getHwconfId());
+        if (hwconf == null) {
+            if (room.getHwconf() != null) {
+                hwconf = room.getHwconf();
+            } else {
+                hwconf = firstFatClient;
+            }
+        }
+        device.setHwconf(hwconf);
+        CrxResponse crxResponse = this.check(device, room);
+        if (crxResponse.getCode().equals("ERROR")) {
+            return crxResponse;
+        }
+        if (hwconf.getDeviceType().equals("FatClient") && roomService.getDevicesOnMyPlace(room, device).size() > 0) {
+            List<Integer> coordinates = roomService.getNextFreePlace(room);
+            if (!coordinates.isEmpty()) {
+                device.setPlace(coordinates.get(0));
+                device.setRow(coordinates.get(1));
+            }
+        }
+        logger.debug("addDevices device prepared: " + device);
+        try {
+            this.em.getTransaction().begin();
+            this.em.persist(device);
+            this.em.merge(room);
+            this.em.merge(hwconf);
+            this.em.getTransaction().commit();
+        } catch (Error e) {
+            return new CrxResponse(this.session, "ERROR", "An error accrued during persisting the device.");
+        }
+        startPlugin("add_device", device);
+        if (device.getHwconf() != null &&
+                device.getHwconf().getDeviceType() != null &&
+                device.getHwconf().getDeviceType().equals("FatClient")) {
+            User user = new User();
+            user.setUid(device.getName());
+            user.setGivenName(device.getName());
+            user.setSurName("Workstation-User");
+            user.setRole("workstations");
+            user.setRole("workstations");
+            CrxResponse answer = new UserService(this.session, this.em).add(user);
+            logger.debug(answer.getValue());
+            needWriteSalt = true;
+        }
+        if (atomic) {
+            new DHCPConfig(session, em).Create();
+            if (needWriteSalt) {
+                new SoftwareService(this.session, this.em).applySoftwareStateToHosts(device);
+            }
+        }
+        return new CrxResponse(this.session, "OK", "Device was created successfully: %s", null, device.getName());
     }
 
     /*
@@ -497,7 +580,6 @@ public class DeviceService extends Service {
                                            FormDataContentDisposition contentDispositionHeader) {
         File file = null;
         List<String> importFile;
-        Map<Long, List<Device>> devicesToImport = new HashMap<>();
         Map<Integer, String> header = new HashMap<>();
         List<String> parameters = new ArrayList<String>();
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
@@ -514,10 +596,6 @@ public class DeviceService extends Service {
         CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
         UserService userService = new UserService(this.session, this.em);
 
-        //Initialize the the hash for the rooms
-        for (Room r : roomService.getAllToUse()) {
-            devicesToImport.put(r.getId(), new ArrayList<Device>());
-        }
         String headerLine = importFile.get(0);
         int i = 0;
         for (String field : headerLine.split(";")) {
@@ -526,7 +604,7 @@ public class DeviceService extends Service {
         }
 
         logger.debug("header" + header);
-        if (!header.containsValue("mac") || !header.containsValue("room")) {
+        if (!header.containsValue("mac") || (!header.containsValue("room") && !header.containsValue("roomid"))) {
             responses.add(new CrxResponse(this.getSession(), "ERROR", "MAC and Room are mandatory fields."));
             return responses;
         }
@@ -539,13 +617,25 @@ public class DeviceService extends Service {
             }
             logger.debug("values" + values);
             Room room = null;
-            try {
-                room = roomService.getById(Long.parseLong(values.get("room")));
-            } catch (Exception e) {
+            String roomTMP = null;
+            //Searching for room
+            if (header.containsValue("roomid")) {
+                roomTMP = values.get("roomid");
+                try {
+                    room = roomService.getById(Long.parseLong(values.get("roomid")));
+                } catch (Exception e) {
+                    logger.debug("Can Not find the Room by room_id: " + values.get("roomid"));
+                    parameters.add(values.get("room"));
+                    responses.add(new CrxResponse(this.getSession(), "ERROR", "Can not find the Room: %s", null, parameters));
+                    parameters = new ArrayList<String>();
+                    continue;
+                }
+            } else {
+                roomTMP = values.get("room");
                 room = roomService.getByName(values.get("room"));
             }
             if (room == null) {
-                logger.debug("Can Not find the Room" + values.get("room"));
+                logger.debug("Can Not find the Room: " + roomTMP);
                 parameters.add(values.get("room"));
                 responses.add(new CrxResponse(this.getSession(), "ERROR", "Can not find the Room: %s", null, parameters));
                 parameters = new ArrayList<String>();
@@ -603,14 +693,11 @@ public class DeviceService extends Service {
             } else if (room.getHwconf() != null) {
                 device.setHwconf(room.getHwconf());
             }
-            devicesToImport.get(room.getId()).add(device);
+            logger.debug(" New device to add: " + device);
+            responses.add(this.add(device,false));
         }
-
-        for (Room r : roomService.getAllToUse()) {
-            if (!devicesToImport.get(r.getId()).isEmpty()) {
-                responses.addAll(roomService.addDevices(r.getId(), devicesToImport.get(r.getId())));
-            }
-        }
+        new DHCPConfig(session, em).Create();
+        new SoftwareService(this.session, this.em).applySoftwareStateToHosts();
         return responses;
     }
 
@@ -629,13 +716,13 @@ public class DeviceService extends Service {
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
             tmpMap.put("action", "enable");
-            tmpMap.put("network", device.getIp() );
+            tmpMap.put("network", device.getIp());
             startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
-            if( device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
+            if (device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
                 tmpMap = new HashMap<>();
                 tmpMap.put("name", printer.getName());
                 tmpMap.put("action", "enable");
-                tmpMap.put("network", device.getWlanIp() );
+                tmpMap.put("network", device.getWlanIp());
                 startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
             }
         } catch (Exception e) {
@@ -660,13 +747,13 @@ public class DeviceService extends Service {
                 Map<String, String> tmpMap = new HashMap<>();
                 tmpMap.put("name", printer.getName());
                 tmpMap.put("action", "disable");
-                tmpMap.put("network", device.getIp() );
+                tmpMap.put("network", device.getIp());
                 startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
-                if( device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
+                if (device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
                     tmpMap = new HashMap<>();
                     tmpMap.put("name", printer.getName());
                     tmpMap.put("action", "disable");
-                    tmpMap.put("network", device.getWlanIp() );
+                    tmpMap.put("network", device.getWlanIp());
                     startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
                 }
             } catch (Exception e) {
@@ -694,13 +781,13 @@ public class DeviceService extends Service {
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
             tmpMap.put("action", "enable");
-            tmpMap.put("network", device.getIp() );
+            tmpMap.put("network", device.getIp());
             startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
-            if( device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
+            if (device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
                 tmpMap = new HashMap<>();
                 tmpMap.put("name", printer.getName());
                 tmpMap.put("action", "enable");
-                tmpMap.put("network", device.getWlanIp() );
+                tmpMap.put("network", device.getWlanIp());
                 startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
             }
         } catch (Exception e) {
@@ -724,13 +811,13 @@ public class DeviceService extends Service {
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
             tmpMap.put("action", "disable");
-            tmpMap.put("network", device.getIp() );
+            tmpMap.put("network", device.getIp());
             startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
-            if( device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
+            if (device.getWlanIp() != null && !device.getWlanIp().isEmpty()) {
                 tmpMap = new HashMap<>();
                 tmpMap.put("name", printer.getName());
                 tmpMap.put("action", "disable");
-                tmpMap.put("network", device.getWlanIp() );
+                tmpMap.put("network", device.getWlanIp());
                 startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
             }
         } catch (Exception e) {
@@ -1145,7 +1232,7 @@ public class DeviceService extends Service {
                     file = File.createTempFile("crx_", fileName + ".crxb", new File(cranixTmpDir));
                     Files.write(file.toPath(), fileContent);
                 } catch (IOException e) {
-                    logger.error("savefile: "+ e.getMessage(), e);
+                    logger.error("savefile: " + e.getMessage(), e);
                     return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
                 }
                 program = new String[4];
@@ -1321,7 +1408,7 @@ public class DeviceService extends Service {
             this.em.getTransaction().begin();
             device.setLoggedIn(new ArrayList<User>());
             device.getLoggedIn().add(user);
-	    device.setCounter(device.getCounter()+1);
+            device.setCounter(device.getCounter() + 1);
             user.getLoggedOn().add(device);
             this.em.merge(device);
             this.em.merge(user);
@@ -1366,7 +1453,7 @@ public class DeviceService extends Service {
             parameters.add(room.getName());
             //It is stupid but it can be:
             if (device.getRoom().equals(room)) {
-                responses.add( new CrxResponse(this.session, "OK",
+                responses.add(new CrxResponse(this.session, "OK",
                         "The device '%s' is already in room '%s'.", parameters)
                 );
                 continue;
@@ -1381,22 +1468,22 @@ public class DeviceService extends Service {
             }
             newDevices.add(newDevice);
         }
-        List<String> availableIps = roomService.getAvailableIPAddresses(room,ipCount);
-        if( availableIps.size() < ipCount ) {
-            responses.add( new CrxResponse(this.session,"ERROR","There is not enough free IP-Address in this room."));
+        List<String> availableIps = roomService.getAvailableIPAddresses(room, ipCount);
+        if (availableIps.size() < ipCount) {
+            responses.add(new CrxResponse(this.session, "ERROR", "There is not enough free IP-Address in this room."));
             return responses;
         }
-        for(Device dev: devicesToDelete) {
-            responses.add( this.delete(dev,false));
+        for (Device dev : devicesToDelete) {
+            responses.add(this.delete(dev, false));
         }
-        responses.addAll(roomService.addDevices(roomId,newDevices));
+        responses.addAll(roomService.addDevices(roomId, newDevices));
         return responses;
     }
 
     public List<CrxResponse> applyAction(CrxActionMap actionMap) {
         List<CrxResponse> responses = new ArrayList<>();
         if (actionMap.getName().equals("move")) {
-            responses = this.moveDevices(actionMap.getObjectIds(),actionMap.getLongValue());
+            responses = this.moveDevices(actionMap.getObjectIds(), actionMap.getLongValue());
         } else {
             for (Long id : actionMap.getObjectIds()) {
                 responses.add(this.manageDevice(id, actionMap.getName(), null));
@@ -1407,6 +1494,6 @@ public class DeviceService extends Service {
 
             }
         }
-        return  responses;
+        return responses;
     }
 }
