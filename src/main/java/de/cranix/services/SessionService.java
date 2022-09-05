@@ -377,7 +377,11 @@ public class SessionService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         List<String> batFile = new ArrayList<String>();
-        batFile.add("net use z: \\\\admin\\" + this.session.getUser().getUid()
+	String fileServerName = this.getConfigValue("FILESERVER_NETBIOSNAME");
+	if( fileServerName.isEmpty() ){
+	     fileServerName = this.getConfigValue("NETBIOSNAME");
+	}
+        batFile.add("net use z: \\\\" + fileServerName + "\\" + this.session.getUser().getUid()
                 + " /persisten:no /user:"
                 + this.getConfigValue("WORKGROUP") + "\\"
                 + this.session.getUser().getUid() + " \""
