@@ -1419,6 +1419,7 @@ public class RoomService extends Service {
             for (AccessInRoom air : (List<AccessInRoom>) query.getResultList()) {
                 logger.debug("AIR: " + air);
                 air.setRoomName(air.getRoom().getName());
+                air.setRoomId(air.getRoom().getId());
                 if (air.getAccessType().equals("ACT")) {
                     air.setPrinting(null);
                     air.setLogin(null);
