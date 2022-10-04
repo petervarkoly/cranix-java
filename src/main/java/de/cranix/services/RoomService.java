@@ -760,111 +760,25 @@ public class RoomService extends Service {
      * Creates new devices in the room
      */
     public List<CrxResponse> addDevices(long roomId, List<Device> devices) {
+        List<CrxResponse> responses = new ArrayList<>();
         Room room = this.getById(roomId);
-        HWConf hwconf = new HWConf();
-        DeviceService deviceService = new DeviceService(this.session, this.em);
-        CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
-        HWConf firstFatClient = cloneToolService.getByType("FatClient").get(0);
-        List<String> ipAddress;
-        List<Device> newDevices = new ArrayList<Device>();
-        List<String> parameters = new ArrayList<String>();
-        List<CrxResponse> responses = new ArrayList<CrxResponse>();
-        logger.debug("addDevices room" + room);
-        try {
-            for (Device device : devices) {
-                //Remove trailing and ending spaces.
-                device.setName(device.getName().trim().toLowerCase());
-                logger.debug("addDevices device" + device);
-                ipAddress = this.getAvailableIPAddresses(roomId, 2);
-                logger.debug("addDevices ipAddress" + ipAddress);
-                if (device.getIp().isEmpty()) {
-                    if (ipAddress.isEmpty()) {
-                        parameters.add(device.getMac());
-                        responses.add(new CrxResponse(this.session, "ERROR",
-                                "There are no more free ip addresses in this room for the MAC: %s.", room.getId(), parameters));
-                        return responses;
-                    }
-                    if (device.getName().isEmpty()) {
-                        device.setName(ipAddress.get(0).split(" ")[1]);
-                    }
-                    device.setIp(ipAddress.get(0).split(" ")[0]);
-                }
-                if (!device.getWlanMac().isEmpty()) {
-                    if (ipAddress.size() < 2) {
-                        parameters.add(device.getWlanMac());
-                        responses.add(new CrxResponse(this.session, "ERROR",
-                                "There are no more free ip addresses in this room for the MAC: %s.", room.getId(), parameters));
-                        return responses;
-                    }
-                    device.setWlanIp(ipAddress.get(1).split(" ")[0]);
-                }
-                hwconf = cloneToolService.getById(device.getHwconfId());
-                if (hwconf == null) {
-                    if (room.getHwconf() != null) {
-                        hwconf = room.getHwconf();
-                    } else {
-                        hwconf = firstFatClient;
-                    }
-                }
-                device.setHwconf(hwconf);
-                CrxResponse crxResponse = deviceService.check(device, room);
-                responses.add(crxResponse);
-                if (crxResponse.getCode().equals("ERROR")) {
-                    logger.error("addDevices addDevice:" + crxResponse);
-                    continue;
-                }
-                device.setRoom(room);
-                if (hwconf.getDeviceType().equals("FatClient") && this.getDevicesOnMyPlace(room, device).size() > 0) {
-                    List<Integer> coordinates = this.getNextFreePlace(room);
-                    if (!coordinates.isEmpty()) {
-                        device.setPlace(coordinates.get(0));
-                        device.setRow(coordinates.get(1));
-                    }
-                }
-                this.em.getTransaction().begin();
-                this.em.persist(device);
-                this.em.merge(room);
-                this.em.merge(hwconf);
-                this.em.getTransaction().commit();
-                newDevices.add(device);
-                logger.debug("Created device" + device.toString());
-                responses.add(new CrxResponse(this.session, "OK", "%s was created successfully.", null, device.getName()));
-            }
-        } catch (Exception e) {
-            logger.error("addDevices: " + e.getMessage());
-            responses.add(new CrxResponse(this.session, "ERROR", "Error by creating the device: " + e.getMessage()));
+        if(room == null){
+            responses.add(new CrxResponse(this.session,"ERROR","Can not find the room"));
             return responses;
-        } finally {
-            if (this.em.getTransaction().isActive()) {
-                this.em.getTransaction().rollback();
-            }
         }
-        UserService userService = new UserService(this.session, this.em);
         boolean needWriteSalt = false;
-        for (Device device : newDevices) {
-            startPlugin("add_device", device);
-            logger.debug("Created Device" + device);
-            logger.debug("HWCONF" + device.getHwconf());
-            // We'll create only for fatClients workstation users
-            if (device.getHwconf() != null &&
-                    device.getHwconf().getDeviceType() != null &&
-                    device.getHwconf().getDeviceType().equals("FatClient")) {
-                User user = new User();
-                user.setUid(device.getName());
-                user.setGivenName(device.getName());
-                user.setSurName("Workstation-User");
-                user.setRole("workstations");
-                user.setRole("workstations");
-                CrxResponse answer = userService.add(user);
-                responses.add(answer);
-                logger.debug(answer.getValue());
+        DeviceService deviceService = new DeviceService(this.session, this.em);
+        for( Device device : devices) {
+            device.setRoom(room);
+            responses.add(deviceService.add(device,false));
+            if(device.isFatClient()){
                 needWriteSalt = true;
             }
         }
-        new DHCPConfig(session, em).Create();
         if (needWriteSalt) {
-            new SoftwareService(this.session, this.em).applySoftwareStateToHosts(newDevices);
+            new SoftwareService(this.session, this.em).applySoftwareStateToHosts(devices);
         }
+        new DHCPConfig(session, em).Create();
         return responses;
     }
 
@@ -879,7 +793,7 @@ public class RoomService extends Service {
             for (Long deviceId : deviceIDs) {
                 Device device = this.em.find(Device.class, deviceId);
                 if (room.getDevices().contains(device)) {
-                    if (device.getHwconf().getDeviceType().equals("FatClient")) {
+                    if (device.isFatClient()) {
                         needWriteSalt = true;
                     }
                     deviceService.delete(device, false);
@@ -1505,6 +1419,7 @@ public class RoomService extends Service {
             for (AccessInRoom air : (List<AccessInRoom>) query.getResultList()) {
                 logger.debug("AIR: " + air);
                 air.setRoomName(air.getRoom().getName());
+                air.setRoomId(air.getRoom().getId());
                 if (air.getAccessType().equals("ACT")) {
                     air.setPrinting(null);
                     air.setLogin(null);

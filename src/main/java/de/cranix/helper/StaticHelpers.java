@@ -157,7 +157,7 @@ public class StaticHelpers {
 				}
 		}
 		int ret = CrxSystemCmd.exec(program, reply, error, data.toString());
-		logger.debug(pluginName + " : " + data.toString() + " : " + error + " : " + ret);
+		logger.debug(pluginName + " : " + data.toString() + " : " + reply + " : " + error + " : " + ret);
 	}
 
 	static public void changeMemberPlugin(String type, Group group, List<User> users) {

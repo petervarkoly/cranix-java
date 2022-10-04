@@ -1225,7 +1225,7 @@
          }
          for (Device device : new DeviceService(this.session, this.em).getAll()) {
              //We only create salt files for FatClients
-             if (device.getHwconf() == null || !device.getHwconf().getDeviceType().equals("FatClient")) {
+             if ( !device.isFatClient() ) {
                  continue;
              }
              StringBuilder firstLine = new StringBuilder();
@@ -1260,6 +1260,11 @@
       */
      public CrxResponse applySoftwareStateToHosts() {
          return applySoftwareStateToHosts(new DeviceService(this.session, this.em).getAll());
+     }
+     public CrxResponse applySoftwareStateToHosts(Device device) {
+         List<Device> devices = new ArrayList<>();
+         devices.add(device);
+         return applySoftwareStateToHosts(devices);
      }
 
      public CrxResponse applySoftwareStateToHosts(List<Device> devices) {
@@ -1322,7 +1327,7 @@
          //Evaluate device categories
          logger.debug("Process devices");
          for (Device device : devices) {
-             if (device.getHwconf() == null || !device.getHwconf().getDeviceType().equals("FatClient")) {
+             if ( !device.isFatClient() ) {
                  continue;
              }
              toInstall = new ArrayList<String>();
@@ -1385,7 +1390,7 @@
              }
              /* Assign result to the devices in room */
              for (Device device : room.getDevices()) {
-                 if (!devices.contains(device) || device.getHwconf() == null || !device.getHwconf().getDeviceType().equals("FatClient")) {
+                 if (!devices.contains(device) || !device.isFatClient() ) {
                      continue;
                  }
                  softwaresToInstall.get(device.getName()).addAll(toInstall);
@@ -1447,10 +1452,7 @@
          logger.debug("Process collected datas:");
          for (Device device : deviceService.getAll()) {
              //We only create salt files for FatClients
-             if (device.getHwconf() == null || !device.getHwconf().getDeviceType().equals("FatClient")) {
-                 continue;
-             }
-             if (!devices.contains(device)) {
+             if (!device.isFatClient() || !devices.contains(device)) {
                  continue;
              }
 
