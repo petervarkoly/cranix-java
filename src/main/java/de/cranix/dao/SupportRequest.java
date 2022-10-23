@@ -25,6 +25,8 @@ public class SupportRequest {
 	private String requestDate		= "";
 	private String ticketno			= "";
 	private String ticketResponseInfo	= "";
+	private String attachment	= "";
+	private String attachmentName	= "";
 
 	@Override
 	public String toString() {
@@ -36,7 +38,6 @@ public class SupportRequest {
 	}
 
 	public SupportRequest() {
-
 	}
 	public String getTicketResponseInfo() {
 		return ticketResponseInfo;
@@ -149,4 +150,19 @@ public class SupportRequest {
 		this.supporttype = supporttype;
 	}
 
+	public String getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	}
+
+	public String getAttachmentName() {
+		return attachmentName;
+	}
+
+	public void setAttachmentName(String attachmentName) {
+		this.attachmentName = attachmentName;
+	}
 }
