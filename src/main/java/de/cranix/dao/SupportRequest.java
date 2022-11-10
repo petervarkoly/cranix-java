@@ -3,9 +3,11 @@
 package de.cranix.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.Date;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SupportRequest {
 	public enum SUPPORT_TYPE {
 		Error, FeatureRequest, Feedback, ProductOrder, OfferInq, SalesInq
