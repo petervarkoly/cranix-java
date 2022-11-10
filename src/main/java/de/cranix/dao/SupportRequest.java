@@ -4,6 +4,8 @@ package de.cranix.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Date;
+
 public class SupportRequest {
 	public enum SUPPORT_TYPE {
 		Error, FeatureRequest, Feedback, ProductOrder, OfferInq, SalesInq
@@ -27,6 +29,7 @@ public class SupportRequest {
 	private String ticketResponseInfo	= "";
 	private String attachment	= "";
 	private String attachmentName	= "";
+	private Date recDate;
 
 	@Override
 	public String toString() {
@@ -164,5 +167,13 @@ public class SupportRequest {
 
 	public void setAttachmentName(String attachmentName) {
 		this.attachmentName = attachmentName;
+	}
+
+	public Date getRecDate() {
+		return recDate;
+	}
+
+	public void setRecDate(Date recDate) {
+		this.recDate = recDate;
 	}
 }
