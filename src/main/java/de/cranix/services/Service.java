@@ -81,7 +81,8 @@ public class Service extends Config {
     }
 
     public String getNl() {
-        return System.getProperty("line.separator");
+        //return System.getProperty("line.separator");
+	return lineSeparator;
     }
 
     public boolean isNameUnique(String name) {
