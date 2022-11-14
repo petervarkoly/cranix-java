@@ -471,7 +471,9 @@ public class EducationService extends UserService {
                     }
                 }
         }
-        file.delete();
+	if (!logger.isDebugEnabled()) {
+            file.delete();
+	}
         return responses;
     }
 
