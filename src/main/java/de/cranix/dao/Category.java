@@ -160,6 +160,15 @@ public class Category implements Serializable {
 	@JsonIgnore
 	private List<FAQ> faqs;
 
+	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+	@JoinTable(
+			name="ChallengeInCategories",
+			joinColumns={ @JoinColumn(name="category_id") },
+			inverseJoinColumns={ @JoinColumn(name="crxchallenge_id") }
+	)
+	@JsonIgnore
+	private List<CrxChallenge> challenges;
+
 	@Transient
 	private List<Long> deviceIds;
 
@@ -186,6 +195,9 @@ public class Category implements Serializable {
 
 	@Transient
 	private List<Long> faqIds;
+
+	@Transient
+	private List<Long> challengeIds;
 
 	@Convert(converter=BooleanToStringConverter.class)
 	boolean studentsOnly;
@@ -240,6 +252,7 @@ public class Category implements Serializable {
 		this.userIds    = new ArrayList<Long>();
 		this.validFrom  = new Date(System.currentTimeMillis());
 		this.rooms    = new ArrayList<Room>();
+		this.challenges    = new ArrayList<CrxChallenge>();
 	}
 
 	public Long getId() {
@@ -486,6 +499,30 @@ public class Category implements Serializable {
 		this.userIds = ids;
 	}
 
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	public List<CrxChallenge> getChallenges() {
+		return challenges;
+	}
+
+	public void setChallenges(List<CrxChallenge> challenges) {
+		this.challenges = challenges;
+	}
+
+	public List<Long> getChallengeIds() {
+		return challengeIds;
+	}
+
+	public void setChallengeIds(List<Long> challengeIds) {
+		this.challengeIds = challengeIds;
+	}
+
+	public boolean isStudentsOnly() {
+		return studentsOnly;
+	}
+
 	/**
 	 * Function to initialize the xxxxxIds attributes
 	 */
@@ -499,49 +536,55 @@ public class Category implements Serializable {
 		this.roomIds         = new ArrayList<Long>();
 		this.softwareIds     = new ArrayList<Long>();
 		this.userIds         = new ArrayList<Long>();
+		this.challengeIds    = new ArrayList<Long>();
 		if( this.announcements != null ) {
-			for (Announcement a : this.getAnnouncements() ) {
+			for (Announcement a : this.announcements) {
 				this.announcementIds.add(a.getId());
 			}
 		}
 		if( this.contacts != null ) {
-			for (Contact c : this.getContacts()) {
+			for (Contact c : this.contacts) {
 				this.contactIds.add(c.getId());
 			}
 		}
 		if( this.devices != null ) {
-			for (Device d : this.getDevices() ) {
+			for (Device d : this.devices) {
 				this.deviceIds.add(d.getId());
 			}
 		}
 		if( this.faqs != null ) {
-			for (FAQ f: this.getFaqs()) {
+			for (FAQ f: this.faqs) {
 				this.faqIds.add(f.getId());
 			}
 		}
 		if( this.groups != null ) {
-			for (Group g: this.getGroups()) {
+			for (Group g: this.groups) {
 				this.groupIds.add(g.getId());
 			}
 		}
 		if( this.hwconfs != null ) {
-			for (HWConf h: this.getHwconfs()) {
+			for (HWConf h: this.hwconfs) {
 				this.hwconfIds.add(h.getId());
 			}
 		}
 		if( this.rooms != null ) {
-			for (Room r: this.getRooms()) {
+			for (Room r: this.rooms) {
 				this.roomIds.add(r.getId());
 			}
 		}
 		if( this.softwares != null ) {
-			for (Software s: this.getSoftwares()) {
+			for (Software s: this.softwares) {
 				this.softwareIds.add(s.getId());
 			}
 		}
 		if( this.users != null ) {
-			for (User u: this.getUsers()) {
+			for (User u: this.users) {
 				this.userIds.add(u.getId());
+			}
+		}
+		if( this.challenges != null ) {
+			for (CrxChallenge c: this.challenges) {
+				this.challengeIds.add(c.getId());
 			}
 		}
 	}

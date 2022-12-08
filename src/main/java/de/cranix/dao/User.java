@@ -231,6 +231,10 @@ public class User implements Serializable {
 		this.taskResponses = taskResponses;
 	}
 
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	public List<CrxChallenge> challenges = new ArrayList<CrxChallenge>();
+
 	public void addTaskResponse(TaskResponse taskResponse) {
 		if( !this.taskResponses.contains(taskResponse)) {
 			this.taskResponses.add(taskResponse);
@@ -753,5 +757,13 @@ public class User implements Serializable {
 		StringBuilder fullName = new StringBuilder(this.uid);
 		fullName.append(" (").append(this.surName).append(" ").append(this.givenName).append(")");
 		return fullName.toString();
+	}
+
+	public List<CrxChallenge> getChallenges() {
+		return challenges;
+	}
+
+	public void setChallenges(List<CrxChallenge> challenges) {
+		this.challenges = challenges;
 	}
 }
