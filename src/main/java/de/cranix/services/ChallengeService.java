@@ -1,6 +1,7 @@
 package de.cranix.services;
 
 import de.cranix.dao.*;
+import org.eclipse.jetty.server.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,9 +9,7 @@ import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObjectBuilder;
 import javax.persistence.EntityManager;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ChallengeService extends Service {
 
@@ -21,9 +20,30 @@ public class ChallengeService extends Service {
     }
 
     public CrxResponse add(CrxChallenge challenge) {
+        CategoryService categoryService = new CategoryService(this.session,this.em);;
         this.em.getTransaction().begin();
         challenge.setCreator(this.session.getUser());
         this.em.persist(challenge);
+        for(CrxQuestion crxQuestion: challenge.getQuestions()) {
+            crxQuestion.setCreator(this.session.getUser());
+            crxQuestion.setChallenge(challenge);
+            this.em.merge(crxQuestion);
+            for(CrxQuestionAnswer answer: crxQuestion.getCrxQuestionAnswers()) {
+                answer.setCreator(this.session.getUser());
+                answer.setCrxQuestion(crxQuestion);
+                this.em.merge(answer);
+            }
+        }
+        Category category = challenge.getCategories().get(0);
+        for(Long id: category.getGroupIds()) {
+            categoryService.addMember(category, "Group", id);
+        }
+        for(Long id: category.getUserIds()) {
+            categoryService.addMember(category, "User", id);
+        }
+        for(Long id: category.getRoomIds()) {
+            categoryService.addMember(category, "Room", id);
+        }
         this.session.getUser().getChallenges().add(challenge);
         this.em.merge(this.session.getUser());
         this.em.getTransaction().commit();
@@ -127,5 +147,22 @@ public class ChallengeService extends Service {
             saveChallengeAnswer(answerId, answers.get(answerId));
         }
         return new CrxResponse(this.getSession(),"OK", "Answers were saved correct.");
+    }
+
+    public List<CrxChallenge> getTodos(){
+        List<CrxChallenge> result = new ArrayList<CrxChallenge>();
+        for(Category category: this.session.getUser().getCategories()){
+            for(CrxChallenge challenge: category.getChallenges()){
+                result.add(challenge);
+            }
+        }
+        for(Group group: this.session.getUser().getGroups()){
+            for(Category category: group.getCategories()) {
+                for (CrxChallenge challenge : category.getChallenges()) {
+                    result.add(challenge);
+                }
+            }
+        }
+        return result;
     }
 }

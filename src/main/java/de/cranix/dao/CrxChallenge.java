@@ -18,7 +18,6 @@ public class CrxChallenge extends AbstractEntity {
     @Lob
     @Column(name = "description")
     private String description;
-
     @NotNull
     @Column(name = "value")
     private Integer value;
@@ -27,7 +26,6 @@ public class CrxChallenge extends AbstractEntity {
     private List<CrxQuestion> questions = new ArrayList<CrxQuestion>();
 
     @ManyToMany(mappedBy="challenges", cascade=CascadeType.ALL)
-    @JsonIgnore
     private List<Category> categories = new ArrayList<Category>();
 
     public String getDescription() {
@@ -53,4 +51,13 @@ public class CrxChallenge extends AbstractEntity {
     public void setQuestions(List<CrxQuestion> questions) {
         this.questions = questions;
     }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
 }

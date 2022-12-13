@@ -335,11 +335,13 @@ public class CategoryService extends Service {
 		}
 		return objectIds;
 	}
-
 	public CrxResponse addMember(Long categoryId, String objectName,Long objectId ) {
+		Category category = this.em.find(Category.class, categoryId);
+		return this.addMember(category, objectName, objectId);
+	}
+	public CrxResponse addMember(Category category, String objectName,Long objectId ) {
 		boolean changes = false;
 		try {
-			Category category = this.em.find(Category.class, categoryId);
 			this.em.getTransaction().begin();
 			switch(objectName.toLowerCase()){
 			case("device"):
@@ -444,7 +446,6 @@ public class CategoryService extends Service {
 		} catch (Exception e) {
 			logger.error("addMember: " + e.getMessage());
 			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
-		} finally {
 		}
 		return new CrxResponse(this.getSession(),"OK","Category was modified");
 	}

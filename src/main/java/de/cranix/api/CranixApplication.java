@@ -64,6 +64,9 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final CategoryResource categoryResource = new CategoryResource();
 		environment.jersey().register(categoryResource);
 
+		final ChallengeResource challengeResource = new ChallengeResource();
+		environment.jersey().register(challengeResource);
+
 		final CloneToolResource cloneToolResource = new CloneToolResource();
 		environment.jersey().register(cloneToolResource);
 

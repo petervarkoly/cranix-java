@@ -23,6 +23,9 @@ public abstract class AbstractEntity implements Serializable {
     @JsonIgnore
     private User creator;
 
+    @Column(name = "creator_id", insertable = false, updatable = false)
+    private Long creatorId;
+
     @Column(name = "created", updatable = false, columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
     @Temporal(DATE)
     private Calendar created;
@@ -101,8 +104,18 @@ public abstract class AbstractEntity implements Serializable {
      *
      * @param creator the creator
      */
-    public void setCreator(User creator) {
+    public void setCreator(User creator)
+    {
         this.creator = creator;
+        this.creatorId = creator.getId();
+    }
+
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
     }
 
     /**

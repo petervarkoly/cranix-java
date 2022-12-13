@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The type CrxChanllengeAnswer.
+ * The type CrxChallengeAnswer.
  */
 @Entity
-@Table(name = "CrxChanllengeAnswers")
+@Table(name = "CrxChallengeAnswers")
 public class CrxChallengeAnswer extends AbstractEntity {
 
     @NotNull
