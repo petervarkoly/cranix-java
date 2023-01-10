@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,15 +19,44 @@ public class CrxChallenge extends AbstractEntity {
     @Lob
     @Column(name = "description")
     private String description;
+
     @NotNull
     @Column(name = "value")
     private Integer value;
 
-    @OneToMany(mappedBy="challenge", cascade=CascadeType.ALL )
+    @NotNull
+    @Column(name = "validFrom")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date validFrom;
+
+    @NotNull
+    @Column(name = "validUntil")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date validUntil;
+
+    @OneToMany(mappedBy="challenge", cascade=CascadeType.ALL, orphanRemoval=true )
     private List<CrxQuestion> questions = new ArrayList<CrxQuestion>();
 
-    @ManyToMany(mappedBy="challenges", cascade=CascadeType.ALL)
-    private List<Category> categories = new ArrayList<Category>();
+    @NotNull
+    @Convert(converter=BooleanToStringConverter.class)
+    @Column(name = "studentsOnly", length = 1)
+    private Boolean studentsOnly;
+
+    @ManyToMany(cascade ={CascadeType.REFRESH})
+    @JoinTable(
+            name="GroupsOfChallenges",
+            joinColumns={ @JoinColumn(name="crxchallenge_id") },
+            inverseJoinColumns={ @JoinColumn(name="group_id") }
+    )
+    private List<Group> groups = new ArrayList<Group>();
+
+    @ManyToMany(cascade ={CascadeType.REFRESH})
+    @JoinTable(
+            name="UsersOfChallenges",
+            joinColumns={ @JoinColumn(name="crxchallenge_id") },
+            inverseJoinColumns={ @JoinColumn(name="user_id") }
+    )
+    private List<User> users = new ArrayList<User>();
 
     public String getDescription() {
         return description;
@@ -52,12 +82,43 @@ public class CrxChallenge extends AbstractEntity {
         this.questions = questions;
     }
 
-    public List<Category> getCategories() {
-        return categories;
+    public Date getValidFrom() {
+        return validFrom;
     }
 
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
+    public void setValidFrom(Date validFrom) {
+        this.validFrom = validFrom;
     }
 
+    public Date getValidUntil() {
+        return validUntil;
+    }
+
+    public void setValidUntil(Date validUntil) {
+        this.validUntil = validUntil;
+    }
+
+    public Boolean getStudentsOnly() {
+        return studentsOnly;
+    }
+
+    public void setStudentsOnly(Boolean studentsOnly) {
+        this.studentsOnly = studentsOnly;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
 }

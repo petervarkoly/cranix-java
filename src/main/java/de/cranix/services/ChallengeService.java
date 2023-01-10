@@ -1,13 +1,9 @@
 package de.cranix.services;
 
 import de.cranix.dao.*;
-import org.eclipse.jetty.server.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObjectBuilder;
 import javax.persistence.EntityManager;
 import java.util.*;
 
@@ -20,10 +16,29 @@ public class ChallengeService extends Service {
     }
 
     public CrxResponse add(CrxChallenge challenge) {
-        CategoryService categoryService = new CategoryService(this.session,this.em);;
+
         this.em.getTransaction().begin();
         challenge.setCreator(this.session.getUser());
         this.em.persist(challenge);
+        this.adapt(challenge);
+        this.session.getUser().getChallenges().add(challenge);
+        this.em.merge(this.session.getUser());
+        this.em.getTransaction().commit();
+        return new CrxResponse(this.session, "OK", "Challenge was successfully added.", challenge.getId());
+    }
+
+    public CrxResponse modify(CrxChallenge challenge){
+        this.em.getTransaction().begin();
+        if( challenge.getCreator() == null ){
+            challenge.setCreator(this.session.getUser());
+        }
+        this.em.merge(challenge);
+        this.adapt(challenge);
+        this.em.getTransaction().commit();
+        return new CrxResponse(this.session, "OK", "Challenge was successfully modified.", challenge.getId());
+    }
+
+    private void adapt(CrxChallenge challenge){
         for(CrxQuestion crxQuestion: challenge.getQuestions()) {
             crxQuestion.setCreator(this.session.getUser());
             crxQuestion.setChallenge(challenge);
@@ -34,20 +49,18 @@ public class ChallengeService extends Service {
                 this.em.merge(answer);
             }
         }
-        Category category = challenge.getCategories().get(0);
-        for(Long id: category.getGroupIds()) {
-            categoryService.addMember(category, "Group", id);
+        for(User user: challenge.getUsers()) {
+            if(! user.getTodos().contains(challenge) ){
+                user.getTodos().add(challenge);
+                this.em.merge(user);
+            }
         }
-        for(Long id: category.getUserIds()) {
-            categoryService.addMember(category, "User", id);
+        for(Group group: challenge.getGroups()) {
+            if(! group.getTodos().contains(challenge) ){
+                group.getTodos().add(challenge);
+                this.em.merge(group);
+            }
         }
-        for(Long id: category.getRoomIds()) {
-            categoryService.addMember(category, "Room", id);
-        }
-        this.session.getUser().getChallenges().add(challenge);
-        this.em.merge(this.session.getUser());
-        this.em.getTransaction().commit();
-        return new CrxResponse(this.session, "OK", "Challenge was successfully added", challenge.getId());
     }
 
     public CrxChallenge getById(long id) {
@@ -151,18 +164,77 @@ public class ChallengeService extends Service {
 
     public List<CrxChallenge> getTodos(){
         List<CrxChallenge> result = new ArrayList<CrxChallenge>();
-        for(Category category: this.session.getUser().getCategories()){
-            for(CrxChallenge challenge: category.getChallenges()){
-                result.add(challenge);
+        Date now = new Date();
+        for(CrxChallenge challenge: this.session.getUser().getTodos()){
+            if(challenge.getValidFrom().before(now) && challenge.getValidUntil().after(now)){
+                result.add(clearRightResults(challenge));
             }
         }
         for(Group group: this.session.getUser().getGroups()){
-            for(Category category: group.getCategories()) {
-                for (CrxChallenge challenge : category.getChallenges()) {
-                    result.add(challenge);
+            for(CrxChallenge challenge: group.getTodos()) {
+                if (challenge.getValidFrom().before(now) && challenge.getValidUntil().after(now)) {
+                    result.add(clearRightResults(challenge));
                 }
             }
         }
         return result;
+    }
+
+    private CrxChallenge clearRightResults(CrxChallenge challenge) {
+        for(CrxQuestion question: challenge.getQuestions()){
+            for(CrxQuestionAnswer answer: question.getCrxQuestionAnswers()){
+                answer.setChallengeAnswers(null);
+                answer.setCorrect(false);
+            }
+        }
+        return challenge;
+    }
+
+    public CrxResponse deleteQuestion(Long challengeId, Long questionId) {
+        CrxChallenge challenge = this.getById(challengeId);
+        CrxQuestion question;
+        try {
+            question = this.em.find(CrxQuestion.class, questionId);
+        } catch (Exception e) {
+            return new CrxResponse(this.getSession(),"ERROR", "Can not find question.");
+        }
+        this.em.getTransaction().begin();
+        challenge.getQuestions().remove(question);
+        this.em.remove(question);
+        this.em.merge(challenge);
+        this.em.getTransaction().commit();
+        return new CrxResponse(this.getSession(),"OK", "Question was removed.");
+    }
+
+    public CrxResponse deleteAnswer(Long challengeId, Long questionId, Long answerId) {
+        CrxChallenge challenge = this.getById(challengeId);
+        CrxQuestion question;
+        CrxQuestionAnswer answer;
+        try {
+            question = this.em.find(CrxQuestion.class, questionId);
+            answer = this.em.find(CrxQuestionAnswer.class, answerId);
+        } catch (Exception e) {
+            return new CrxResponse(this.getSession(),"ERROR", "Can not find challenge.");
+        }
+        this.em.getTransaction().begin();
+        question.getCrxQuestionAnswers().remove(answer);
+        this.em.remove(answer);
+        this.em.merge(question);
+        this.em.merge(challenge);
+        this.em.getTransaction().commit();
+        return new CrxResponse(this.getSession(),"OK", "Answer was removed.");
+    }
+
+    public List<CrxChallenge> getChallenges() {
+        User user = this.em.find(User.class, this.getSession().getUserId());
+        return user.getChallenges();
+        /**
+        List<CrxChallenge> challengeList = new ArrayList<CrxChallenge>();
+        for(CrxChallenge challenge: user.getChallenges() ) {
+           challenge.setQuestions(new ArrayList<CrxQuestion>());
+           challengeList.add(challenge);
+        }
+        return challengeList;
+        **/
     }
 }

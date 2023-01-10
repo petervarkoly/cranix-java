@@ -2,6 +2,7 @@
 package de.cranix.dao;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
@@ -55,6 +56,11 @@ public class Group implements Serializable {
 	@ManyToMany(mappedBy="groups")
 	@JsonIgnore
 	private List<Category> categories;
+
+	//bi-directional many-to-many association to Challenges
+	@ManyToMany(mappedBy="groups")
+	@JsonIgnore
+	private List<CrxChallenge> todos = new ArrayList<CrxChallenge>();
 
 	//bi-directional many-to-one association to Acls
 	@OneToMany(mappedBy="group",cascade ={CascadeType.ALL})
@@ -214,5 +220,17 @@ public class Group implements Serializable {
 
 	public void setOwnerId(Long ownerId) {
 		this.ownerId = ownerId;
+	}
+
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	public List<CrxChallenge> getTodos() {
+		return todos;
+	}
+
+	public void setTodos(List<CrxChallenge> todos) {
+		this.todos = todos;
 	}
 }

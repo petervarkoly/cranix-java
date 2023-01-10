@@ -278,6 +278,11 @@ public class User implements Serializable {
 	@JsonIgnore
 	private List<Group> groups = new ArrayList<Group>();
 
+	//bi-directional many-to-many association to Challenges
+	@ManyToMany(mappedBy="users")
+	@JsonIgnore
+	private List<CrxChallenge> todos = new ArrayList<CrxChallenge>();
+
 	@Transient
 	private String classes;
 
@@ -765,5 +770,21 @@ public class User implements Serializable {
 
 	public void setChallenges(List<CrxChallenge> challenges) {
 		this.challenges = challenges;
+	}
+
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public List<CrxChallenge> getTodos() {
+		return todos;
+	}
+
+	public void setTodos(List<CrxChallenge> todos) {
+		this.todos = todos;
 	}
 }

@@ -28,7 +28,7 @@ public class CrxQuestionAnswer extends AbstractEntity {
     @JsonIgnore
     private CrxQuestion crxQuestion;
 
-    @OneToMany(mappedBy="crxQuestionAnswer", cascade=CascadeType.ALL )
+    @OneToMany(mappedBy="crxQuestionAnswer", cascade=CascadeType.ALL, orphanRemoval=true )
     private List<CrxChallengeAnswer> challengeAnswers = new ArrayList<CrxChallengeAnswer>();
 
     public String getAnswer() {

@@ -160,15 +160,6 @@ public class Category implements Serializable {
 	@JsonIgnore
 	private List<FAQ> faqs;
 
-	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JoinTable(
-			name="ChallengeInCategories",
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="crxchallenge_id") }
-	)
-	@JsonIgnore
-	private List<CrxChallenge> challenges;
-
 	@Transient
 	private List<Long> deviceIds;
 
@@ -195,9 +186,6 @@ public class Category implements Serializable {
 
 	@Transient
 	private List<Long> faqIds;
-
-	@Transient
-	private List<Long> challengeIds;
 
 	@Convert(converter=BooleanToStringConverter.class)
 	boolean studentsOnly;
@@ -252,7 +240,6 @@ public class Category implements Serializable {
 		this.userIds    = new ArrayList<Long>();
 		this.validFrom  = new Date(System.currentTimeMillis());
 		this.rooms    = new ArrayList<Room>();
-		this.challenges    = new ArrayList<CrxChallenge>();
 	}
 
 	public Long getId() {
@@ -503,22 +490,6 @@ public class Category implements Serializable {
 		return serialVersionUID;
 	}
 
-	public List<CrxChallenge> getChallenges() {
-		return challenges;
-	}
-
-	public void setChallenges(List<CrxChallenge> challenges) {
-		this.challenges = challenges;
-	}
-
-	public List<Long> getChallengeIds() {
-		return challengeIds;
-	}
-
-	public void setChallengeIds(List<Long> challengeIds) {
-		this.challengeIds = challengeIds;
-	}
-
 	public boolean isStudentsOnly() {
 		return studentsOnly;
 	}
@@ -536,7 +507,6 @@ public class Category implements Serializable {
 		this.roomIds         = new ArrayList<Long>();
 		this.softwareIds     = new ArrayList<Long>();
 		this.userIds         = new ArrayList<Long>();
-		this.challengeIds    = new ArrayList<Long>();
 		if( this.announcements != null ) {
 			for (Announcement a : this.announcements) {
 				this.announcementIds.add(a.getId());
@@ -580,11 +550,6 @@ public class Category implements Serializable {
 		if( this.users != null ) {
 			for (User u: this.users) {
 				this.userIds.add(u.getId());
-			}
-		}
-		if( this.challenges != null ) {
-			for (CrxChallenge c: this.challenges) {
-				this.challengeIds.add(c.getId());
 			}
 		}
 	}

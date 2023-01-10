@@ -7,7 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Calendar;
+import java.util.Date;
 
 import static javax.persistence.TemporalType.DATE;
 
@@ -23,23 +23,23 @@ public abstract class AbstractEntity implements Serializable {
     @JsonIgnore
     private User creator;
 
-    @Column(name = "creator_id", insertable = false, updatable = false)
+    @Column(name = "CREATOR_ID", insertable = false, updatable = false)
     private Long creatorId;
 
-    @Column(name = "created", updatable = false, columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "CREATED", updatable = false, columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
     @Temporal(DATE)
-    private Calendar created;
+    private Date created;
 
-    @Column(name = "modified", columnDefinition = "timestamp ON UPDATE CURRENT_TIMESTAMP ")
+    @Column(name = "MODIFIED", columnDefinition = "timestamp ON UPDATE CURRENT_TIMESTAMP ")
     @Temporal(DATE)
-    private Calendar modified;
+    private Date modified;
 
     /**
      * Gets created.
      *
      * @return the created
      */
-    public Calendar getCreated() {
+    public Date getCreated() {
         return created;
     }
 
@@ -48,7 +48,7 @@ public abstract class AbstractEntity implements Serializable {
      *
      * @param created the created
      */
-    public void setCreated(Calendar created) {
+    public void setCreated(Date created) {
         this.created = created;
     }
 
@@ -57,7 +57,7 @@ public abstract class AbstractEntity implements Serializable {
      *
      * @return the modified
      */
-    public Calendar getModified() {
+    public Date getModified() {
         return modified;
     }
 
@@ -66,7 +66,7 @@ public abstract class AbstractEntity implements Serializable {
      *
      * @param modified the modified
      */
-    public void setModified(Calendar modified) {
+    public void setModified(Date modified) {
         this.modified = modified;
     }
 

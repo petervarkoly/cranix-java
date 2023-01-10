@@ -23,6 +23,10 @@ public class CrxChallengeAnswer extends AbstractEntity {
     @JsonIgnore
     private CrxQuestionAnswer crxQuestionAnswer;
 
+    @Column(name = "CRXQUESTIONANSWER_ID", insertable = false, updatable = false)
+    private Long questionId;
+
+
     public Boolean getCorrect() {
         return correct;
     }
@@ -37,5 +41,13 @@ public class CrxChallengeAnswer extends AbstractEntity {
 
     public void setCrxQuestionAnswer(CrxQuestionAnswer crxQuestionAnswer) {
         this.crxQuestionAnswer = crxQuestionAnswer;
+    }
+
+    public Long getQuestionId() {
+        return this.questionId;
+    }
+
+    public void setQuestionId(Long id) {
+        this.questionId = id;
     }
 }
