@@ -17,6 +17,7 @@ import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 
+
 @Path("challenges")
 @Api(value = "challenges")
 @Produces(JSON_UTF8)
@@ -25,7 +26,7 @@ public class ChallengeResource {
     }
 
     @GET
-    @Path("all")
+    @Path("challenges/all")
     @ApiOperation(value = "Gets all challenges created by the user.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
@@ -38,7 +39,7 @@ public class ChallengeResource {
     }
 
     @GET
-    @Path("{id}")
+    @Path("challenges/{id}")
     @ApiOperation(value = "Gets all challenges created by the user.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
@@ -53,20 +54,8 @@ public class ChallengeResource {
         return resp;
     }
 
-    @GET
-    @Path("todo")
-    @ApiOperation(value = "Gets all actual challenges created the user.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @PermitAll
-    public List<CrxChallenge> todo(@ApiParam(hidden = true) @Auth Session session) {
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        List<CrxChallenge> resp = new ChallengeService(session, em).getTodos();
-        em.close();
-        return resp;
-    }
-
     @POST
+    @Path("challenges")
     @ApiOperation(value = "Creates a new challenge.")
     @RolesAllowed("challenge.manage")
     public CrxResponse add(
@@ -80,6 +69,7 @@ public class ChallengeResource {
     }
 
     @PATCH
+    @Path("challenges")
     @ApiOperation(value = "Modify a challenge.")
     @RolesAllowed("challenge.manage")
     public CrxResponse modify(
@@ -92,22 +82,8 @@ public class ChallengeResource {
         return resp;
     }
 
-    @POST
-    @Path("answers")
-    @ApiOperation(value = "Save the results of a challenge.")
-    @PermitAll
-    public CrxResponse answer(
-            @ApiParam(hidden = true) @Auth Session session,
-            Map<Long,Boolean> answers
-    ){
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse resp = new ChallengeService(session, em).saveChallengeAnswers(answers);
-        em.close();
-        return resp;
-    }
-
     @DELETE
-    @Path("{id}")
+    @Path("challenges/{id}")
     @ApiOperation(value = "Delete a challenge.")
     @RolesAllowed("challenge.manage")
     public CrxResponse delete(
@@ -121,7 +97,7 @@ public class ChallengeResource {
     }
 
     @DELETE
-    @Path("{challengeId}/{questionId}")
+    @Path("challenges/{challengeId}/{questionId}")
     @ApiOperation(value = "Delete a question.")
     @RolesAllowed("challenge.manage")
     public CrxResponse deleteQuestion(
@@ -136,7 +112,7 @@ public class ChallengeResource {
     }
 
     @DELETE
-    @Path("{challengeId}/{questionId}/{answerId}")
+    @Path("challenges/{challengeId}/{questionId}/{answerId}")
     @ApiOperation(value = "Delete an answer.")
     @RolesAllowed("challenge.manage")
     public CrxResponse deleteAnswer(
@@ -151,4 +127,33 @@ public class ChallengeResource {
         return resp;
     }
 
+    /*
+    * Functions to the challenge results
+    */
+    @GET
+    @Path("todos/all")
+    @ApiOperation(value = "Gets all actual challenges corresponding to the user.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
+    @PermitAll
+    public List<CrxChallenge> todo(@ApiParam(hidden = true) @Auth Session session) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<CrxChallenge> resp = new ChallengeService(session, em).getTodos();
+        em.close();
+        return resp;
+    }
+
+    @POST
+    @Path("todos")
+    @ApiOperation(value = "Save the results of a challenge.")
+    @PermitAll
+    public CrxResponse answer(
+            @ApiParam(hidden = true) @Auth Session session,
+            Map<Long,Boolean> answers
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new ChallengeService(session, em).saveChallengeAnswers(answers);
+        em.close();
+        return resp;
+    }
 }
