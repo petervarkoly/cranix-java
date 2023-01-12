@@ -144,6 +144,16 @@ public class ChallengeService extends Service {
 
     public CrxResponse saveChallengeAnswer(Long questionAnswerId, Boolean answer){
         CrxQuestionAnswer questionAnswer= this.em.find(CrxQuestionAnswer.class, questionAnswerId);
+        // First we search if an answer was already given. If so we will update this.
+        for(CrxChallengeAnswer challengeAnswer: questionAnswer.getChallengeAnswers() ){
+            if(challengeAnswer.getCreator().equals(this.session.getUser())) {
+                this.em.getTransaction().begin();
+                challengeAnswer.setCorrect(answer);
+                this.em.merge(challengeAnswer);
+                this.em.getTransaction().commit();
+                return new CrxResponse(this.getSession(),"OK", "Answer was saved correct.");
+            }
+        }
         CrxChallengeAnswer challengeAnswer = new CrxChallengeAnswer();
         challengeAnswer.setCreator(this.session.getUser());
         challengeAnswer.setCrxQuestionAnswer(questionAnswer);
