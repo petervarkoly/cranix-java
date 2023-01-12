@@ -142,8 +142,7 @@ public class ChallengeService extends Service {
         return results;
     }
 
-    public CrxResponse saveChallengeAnswer(Long questionAnswerId, Boolean answer){
-        CrxQuestionAnswer questionAnswer= this.em.find(CrxQuestionAnswer.class, questionAnswerId);
+    public CrxResponse saveChallengeAnswer(CrxQuestionAnswer questionAnswer, Boolean answer){
         // First we search if an answer was already given. If so we will update this.
         for(CrxChallengeAnswer challengeAnswer: questionAnswer.getChallengeAnswers() ){
             if(challengeAnswer.getCreator().equals(this.session.getUser())) {
@@ -165,9 +164,18 @@ public class ChallengeService extends Service {
         return new CrxResponse(this.getSession(),"OK", "Answer was saved correct.");
     }
 
-    public CrxResponse saveChallengeAnswers(Map<Long,Boolean> answers){
+    public CrxResponse saveChallengeAnswers(Long crxChallengeId, Map<Long,Boolean> answers){
+        CrxChallenge challenge = this.getById(crxChallengeId);
+        Date now = new Date();
+        if(!(challenge.getValidFrom().before(now) && challenge.getValidUntil().after(now))){
+            return new CrxResponse(this.getSession(),"ERROR", "Challenge is not available.");
+        }
         for( Long answerId: answers.keySet()){
-            saveChallengeAnswer(answerId, answers.get(answerId));
+            CrxQuestionAnswer questionAnswer= this.em.find(CrxQuestionAnswer.class, answerId);
+            if( !questionAnswer.getCrxQuestion().getChallenge().equals(challenge) ) {
+                return new CrxResponse(this.getSession(),"ERROR", "Answers does not belongs to challenge.");
+            }
+            saveChallengeAnswer(questionAnswer, answers.get(answerId));
         }
         return new CrxResponse(this.getSession(),"OK", "Answers were saved correct.");
     }

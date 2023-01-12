@@ -144,15 +144,30 @@ public class ChallengeResource {
     }
 
     @POST
-    @Path("todos")
+    @Path("todos/{challengeId}")
     @ApiOperation(value = "Save the results of a challenge.")
     @PermitAll
     public CrxResponse answer(
             @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId,
             Map<Long,Boolean> answers
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse resp = new ChallengeService(session, em).saveChallengeAnswers(answers);
+        CrxResponse resp = new ChallengeService(session, em).saveChallengeAnswers(challengeId,answers);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("todos/{challengeId}")
+    @ApiOperation(value = "Get the results of a challenge.")
+    @PermitAll
+    public Object evaluate(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).evaluate(challengeId);
         em.close();
         return resp;
     }

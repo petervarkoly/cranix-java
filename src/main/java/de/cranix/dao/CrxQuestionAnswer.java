@@ -62,4 +62,5 @@ public class CrxQuestionAnswer extends AbstractEntity {
     public void setChallengeAnswers(List<CrxChallengeAnswer> challengeAnswers) {
         this.challengeAnswers = challengeAnswers;
     }
+
 }
