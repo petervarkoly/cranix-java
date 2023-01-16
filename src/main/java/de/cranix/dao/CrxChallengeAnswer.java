@@ -11,7 +11,10 @@ import java.util.List;
  * The type CrxChallengeAnswer.
  */
 @Entity
-@Table(name = "CrxChallengeAnswers")
+@Table(
+        name = "CrxChallengeAnswers",
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "creator", "crxQuestionAnswer" }) }
+)
 public class CrxChallengeAnswer extends AbstractEntity {
 
     @NotNull

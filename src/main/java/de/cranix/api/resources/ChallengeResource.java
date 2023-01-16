@@ -160,6 +160,20 @@ public class ChallengeResource {
 
     @GET
     @Path("todos/{challengeId}")
+    @ApiOperation(value = "Get the saved results of a challenge of the session user.")
+    @PermitAll
+    public Object getMyResults(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).getMyResults(challengeId);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("todos/{challengeId}/results")
     @ApiOperation(value = "Get the results of a challenge.")
     @PermitAll
     public Object evaluate(
@@ -168,6 +182,21 @@ public class ChallengeResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         Object resp = new ChallengeService(session, em).evaluate(challengeId);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("todos/{challengeId}/archive/{cleanUp}")
+    @ApiOperation(value = "Get the detailed results of a challenge and archive it. If cleanUp is 1 the challenge will be deleted")
+    @PermitAll
+    public Object archive(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId,
+            @PathParam("cleanUp") Integer cleanUp
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).archiveResults(challengeId, cleanUp == 1);
         em.close();
         return resp;
     }
