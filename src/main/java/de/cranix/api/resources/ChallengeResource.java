@@ -26,7 +26,7 @@ public class ChallengeResource {
     }
 
     @GET
-    @Path("challenges/all")
+    @Path("all")
     @ApiOperation(value = "Gets all challenges created by the user.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
@@ -39,7 +39,7 @@ public class ChallengeResource {
     }
 
     @GET
-    @Path("challenges/{id}")
+    @Path("{id}")
     @ApiOperation(value = "Gets all challenges created by the user.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
@@ -55,7 +55,6 @@ public class ChallengeResource {
     }
 
     @POST
-    @Path("challenges")
     @ApiOperation(value = "Creates a new challenge.")
     @RolesAllowed("challenge.manage")
     public CrxResponse add(
@@ -69,7 +68,6 @@ public class ChallengeResource {
     }
 
     @PATCH
-    @Path("challenges")
     @ApiOperation(value = "Modify a challenge.")
     @RolesAllowed("challenge.manage")
     public CrxResponse modify(
@@ -83,7 +81,7 @@ public class ChallengeResource {
     }
 
     @DELETE
-    @Path("challenges/{id}")
+    @Path("{id}")
     @ApiOperation(value = "Delete a challenge.")
     @RolesAllowed("challenge.manage")
     public CrxResponse delete(
@@ -97,7 +95,7 @@ public class ChallengeResource {
     }
 
     @DELETE
-    @Path("challenges/{challengeId}/{questionId}")
+    @Path("{challengeId}/{questionId}")
     @ApiOperation(value = "Delete a question.")
     @RolesAllowed("challenge.manage")
     public CrxResponse deleteQuestion(
@@ -112,7 +110,7 @@ public class ChallengeResource {
     }
 
     @DELETE
-    @Path("challenges/{challengeId}/{questionId}/{answerId}")
+    @Path("{challengeId}/{questionId}/{answerId}")
     @ApiOperation(value = "Delete an answer.")
     @RolesAllowed("challenge.manage")
     public CrxResponse deleteAnswer(
@@ -123,6 +121,35 @@ public class ChallengeResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         CrxResponse resp = new ChallengeService(session, em).deleteAnswer(challengeId,questionId,answerId);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("{challengeId}/archive/{cleanUp}")
+    @ApiOperation(value = "Get the detailed results of a challenge and archive it. If cleanUp is 1 the challenge will be deleted")
+    @PermitAll
+    public Object archive(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId,
+            @PathParam("cleanUp") Integer cleanUp
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).archiveResults(challengeId, cleanUp == 1);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("{challengeId}/results")
+    @ApiOperation(value = "Get the results of a challenge.")
+    @PermitAll
+    public Object evaluate(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).evaluate(challengeId);
         em.close();
         return resp;
     }
@@ -168,35 +195,6 @@ public class ChallengeResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         Object resp = new ChallengeService(session, em).getMyResults(challengeId);
-        em.close();
-        return resp;
-    }
-
-    @GET
-    @Path("todos/{challengeId}/results")
-    @ApiOperation(value = "Get the results of a challenge.")
-    @PermitAll
-    public Object evaluate(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("challengeId") Long challengeId
-    ){
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        Object resp = new ChallengeService(session, em).evaluate(challengeId);
-        em.close();
-        return resp;
-    }
-
-    @GET
-    @Path("todos/{challengeId}/archive/{cleanUp}")
-    @ApiOperation(value = "Get the detailed results of a challenge and archive it. If cleanUp is 1 the challenge will be deleted")
-    @PermitAll
-    public Object archive(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("challengeId") Long challengeId,
-            @PathParam("cleanUp") Integer cleanUp
-    ){
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        Object resp = new ChallengeService(session, em).archiveResults(challengeId, cleanUp == 1);
         em.close();
         return resp;
     }

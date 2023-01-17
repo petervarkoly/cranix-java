@@ -9,14 +9,32 @@ import javax.persistence.EntityManager;
 import java.util.*;
 import static de.cranix.helper.CranixConstants.roleStudent;
 
+/**
+ * The type Challenge service.
+ */
 public class ChallengeService extends Service {
 
+    /**
+     * The Logger.
+     */
     Logger logger = LoggerFactory.getLogger(ChallengeService.class);
 
+    /**
+     * Instantiates a new Challenge service.
+     *
+     * @param session the session
+     * @param em      the em
+     */
     public ChallengeService(Session session, EntityManager em) {
         super(session, em);
     }
 
+    /**
+     * Add crx response.
+     *
+     * @param challenge the challenge
+     * @return the crx response
+     */
     public CrxResponse add(CrxChallenge challenge) {
         this.em.getTransaction().begin();
         challenge.setCreator(this.session.getUser());
@@ -28,6 +46,12 @@ public class ChallengeService extends Service {
         return new CrxResponse(this.session, "OK", "Challenge was successfully added.", challenge.getId());
     }
 
+    /**
+     * Modify crx response.
+     *
+     * @param challenge the challenge
+     * @return the crx response
+     */
     public CrxResponse modify(CrxChallenge challenge){
         CrxResponse resp = this.isModifiable(challenge.getId());
         if(resp != null) {
@@ -68,6 +92,91 @@ public class ChallengeService extends Service {
         }
     }
 
+    /**
+     * Gets the challenges created by the session user.
+     *
+     * @return the challenges
+     */
+    public List<CrxChallenge> getChallenges() {
+        User user = this.em.find(User.class, this.getSession().getUserId());
+        return user.getChallenges();
+        /**
+         List<CrxChallenge> challengeList = new ArrayList<CrxChallenge>();
+         for(CrxChallenge challenge: user.getChallenges() ) {
+         challenge.setQuestions(new ArrayList<CrxQuestion>());
+         challengeList.add(challenge);
+         }
+         return challengeList;
+         **/
+    }
+
+    /**
+     * Delete an CrxQuestion. Modify can not be used to remove an existing question. This method implements it.
+     *
+     * @param challengeId the challenge id
+     * @param questionId  the question id
+     * @return the crx response
+     */
+    /*
+    *
+     */
+    public CrxResponse deleteQuestion(Long challengeId, Long questionId) {
+        CrxResponse resp = this.isModifiable(challengeId);
+        if(resp != null) {
+            return resp;
+        }
+        CrxChallenge challenge = this.getById(challengeId);
+        CrxQuestion question;
+        try {
+            question = this.em.find(CrxQuestion.class, questionId);
+        } catch (Exception e) {
+            return new CrxResponse(this.getSession(),"ERROR", "Can not find question.");
+        }
+        this.em.getTransaction().begin();
+        challenge.getQuestions().remove(question);
+        this.em.remove(question);
+        this.em.merge(challenge);
+        this.em.getTransaction().commit();
+        return new CrxResponse(this.getSession(),"OK", "Question was removed.");
+    }
+
+    /**
+     * Delete an CrxQuestionAnswer. Modify can not be used to remove an existing question answer. This method implements it.
+     *
+     * @param challengeId the challenge id
+     * @param questionId  the question id
+     * @param answerId    the answer id
+     * @return the crx response
+     */
+    public CrxResponse deleteAnswer(Long challengeId, Long questionId, Long answerId) {
+        CrxResponse resp = this.isModifiable(challengeId);
+        if(resp != null) {
+            return resp;
+        }
+        CrxChallenge challenge = this.getById(challengeId);
+        CrxQuestion question;
+        CrxQuestionAnswer answer;
+        try {
+            question = this.em.find(CrxQuestion.class, questionId);
+            answer = this.em.find(CrxQuestionAnswer.class, answerId);
+        } catch (Exception e) {
+            return new CrxResponse(this.getSession(),"ERROR", "Can not find challenge.");
+        }
+        this.em.getTransaction().begin();
+        question.getCrxQuestionAnswers().remove(answer);
+        this.em.remove(answer);
+        this.em.merge(question);
+        this.em.merge(challenge);
+        this.em.getTransaction().commit();
+        return new CrxResponse(this.getSession(),"OK", "Answer was removed.");
+    }
+
+    /**
+     * Gets by id.
+     *
+     * @param id the id
+     * @return the by id
+     */
     public CrxChallenge getById(long id) {
         try {
             return this.em.find(CrxChallenge.class, id);
@@ -76,6 +185,12 @@ public class ChallengeService extends Service {
         }
     }
 
+    /**
+     * Delete CrxChallenge.
+     *
+     * @param id the id
+     * @return the crx response
+     */
     public CrxResponse delete(Long id) {
         CrxResponse resp = this.isModifiable(id);
         if(resp != null) {
@@ -88,6 +203,12 @@ public class ChallengeService extends Service {
         return new CrxResponse(this.getSession(), "OK", "Challenge was removed successfully.");
     }
 
+    /**
+     * Evaluate a challenge.
+     *
+     * @param id the id
+     * @return the object
+     */
     public Object evaluate(Long id) {
         CrxResponse resp = this.isModifiable(id);
         if(resp != null) {
@@ -128,6 +249,13 @@ public class ChallengeService extends Service {
         return results;
     }
 
+    /**
+     * Archive the results of a challenge.
+     *
+     * @param id      the id
+     * @param cleanUp the clean up
+     * @return the object
+     */
     public Object archiveResults(Long id, Boolean cleanUp){
         CrxResponse resp = this.isModifiable(id);
         if(resp != null) {
@@ -212,30 +340,13 @@ public class ChallengeService extends Service {
         }
         return  resultTable;
     }
-
-    public Object getMyResults(Long id) {
-        CrxChallenge challenge = this.getById(id);
-        if (challenge == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
-        }
-        if(!this.isAvailable(challenge)) {
-            return new CrxResponse(this.getSession(), "ERROR", "This challenge is not available now.");
-        }
-        Map<Long, Boolean> results = new HashMap<>();
-        for (CrxQuestion question : challenge.getQuestions()) {
-            for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
-                for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
-                    if( challengeAnswer.getCreator().equals(this.session.getUser()) ) {
-                        results.put(
-                                answer.getId(), challengeAnswer.getCorrect()
-                        );
-                    }
-                }
-            }
-        }
-        return results;
-    }
-
+    /**
+     * Gets result of user.
+     *
+     * @param id        the id
+     * @param creatorId the creator id
+     * @return the result of user
+     */
     public Object getResultOfUser(Long id, Long creatorId) {
         CrxChallenge challenge = this.getById(id);
         if (challenge == null) {
@@ -256,6 +367,43 @@ public class ChallengeService extends Service {
         }
         return results;
     }
+
+    /*
+    Functions to work on todos
+     */
+
+    private CrxChallenge clearRightResults(CrxChallenge challenge) {
+        for(CrxQuestion question: challenge.getQuestions()){
+            for(CrxQuestionAnswer answer: question.getCrxQuestionAnswers()){
+                answer.setChallengeAnswers(null);
+                answer.setCorrect(false);
+            }
+        }
+        return challenge;
+    }
+
+    /**
+     * Get todos list.
+     *
+     * @return the list
+     */
+    public List<CrxChallenge> getTodos(){
+        List<CrxChallenge> result = new ArrayList<CrxChallenge>();
+        for(CrxChallenge challenge: this.session.getUser().getTodos()){
+            if(this.isAvailable(challenge)) {
+                result.add(clearRightResults(challenge));
+            }
+        }
+        for(Group group: this.session.getUser().getGroups()){
+            for(CrxChallenge challenge: group.getTodos()) {
+                if(this.isAvailable(challenge)) {
+                    result.add(clearRightResults(challenge));
+                }
+            }
+        }
+        return result;
+    }
+
 
     private CrxResponse saveChallengeAnswer(CrxQuestionAnswer questionAnswer, Boolean answer){
         // First we search if an answer was already given. If so we will update this.
@@ -279,6 +427,13 @@ public class ChallengeService extends Service {
         return new CrxResponse(this.getSession(),"OK", "Answer was saved correct.");
     }
 
+    /**
+     * Save challenge answers crx response.
+     *
+     * @param crxChallengeId the crx challenge id
+     * @param answers        the answers
+     * @return the crx response
+     */
     public CrxResponse saveChallengeAnswers(Long crxChallengeId, Map<Long,Boolean> answers){
         CrxChallenge challenge = this.getById(crxChallengeId);
         if(!this.isAvailable(challenge)) {
@@ -294,99 +449,46 @@ public class ChallengeService extends Service {
         return new CrxResponse(this.getSession(),"OK", "Answers were saved correct.");
     }
 
-    public List<CrxChallenge> getTodos(){
-        List<CrxChallenge> result = new ArrayList<CrxChallenge>();
-        for(CrxChallenge challenge: this.session.getUser().getTodos()){
-            if(this.isAvailable(challenge)) {
-                result.add(clearRightResults(challenge));
-            }
+    /**
+     * Gets my results.
+     *
+     * @param id the id
+     * @return the my results
+     */
+    public Object getMyResults(Long id) {
+        CrxChallenge challenge = this.getById(id);
+        if (challenge == null) {
+            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
         }
-        for(Group group: this.session.getUser().getGroups()){
-            for(CrxChallenge challenge: group.getTodos()) {
-                if(this.isAvailable(challenge)) {
-                    result.add(clearRightResults(challenge));
+        if(!this.isAvailable(challenge)) {
+            return new CrxResponse(this.getSession(), "ERROR", "This challenge is not available now.");
+        }
+        Map<Long, Boolean> results = new HashMap<>();
+        for (CrxQuestion question : challenge.getQuestions()) {
+            for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
+                for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
+                    logger.debug("challengeAnswer" + challengeAnswer.getCreator());
+                    if( challengeAnswer.getCreator().equals(this.session.getUser()) ) {
+                        results.put(
+                                answer.getId(), challengeAnswer.getCorrect()
+                        );
+                    }
                 }
             }
         }
-        return result;
-    }
-
-    private CrxChallenge clearRightResults(CrxChallenge challenge) {
-        for(CrxQuestion question: challenge.getQuestions()){
-            for(CrxQuestionAnswer answer: question.getCrxQuestionAnswers()){
-                answer.setChallengeAnswers(null);
-                answer.setCorrect(false);
-            }
-        }
-        return challenge;
-    }
-
-    public CrxResponse deleteQuestion(Long challengeId, Long questionId) {
-        CrxResponse resp = this.isModifiable(challengeId);
-        if(resp != null) {
-            return resp;
-        }
-        CrxChallenge challenge = this.getById(challengeId);
-        CrxQuestion question;
-        try {
-            question = this.em.find(CrxQuestion.class, questionId);
-        } catch (Exception e) {
-            return new CrxResponse(this.getSession(),"ERROR", "Can not find question.");
-        }
-        this.em.getTransaction().begin();
-        challenge.getQuestions().remove(question);
-        this.em.remove(question);
-        this.em.merge(challenge);
-        this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(),"OK", "Question was removed.");
-    }
-
-    public CrxResponse deleteAnswer(Long challengeId, Long questionId, Long answerId) {
-        CrxResponse resp = this.isModifiable(challengeId);
-        if(resp != null) {
-            return resp;
-        }
-        CrxChallenge challenge = this.getById(challengeId);
-        CrxQuestion question;
-        CrxQuestionAnswer answer;
-        try {
-            question = this.em.find(CrxQuestion.class, questionId);
-            answer = this.em.find(CrxQuestionAnswer.class, answerId);
-        } catch (Exception e) {
-            return new CrxResponse(this.getSession(),"ERROR", "Can not find challenge.");
-        }
-        this.em.getTransaction().begin();
-        question.getCrxQuestionAnswers().remove(answer);
-        this.em.remove(answer);
-        this.em.merge(question);
-        this.em.merge(challenge);
-        this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(),"OK", "Answer was removed.");
-    }
-
-    public List<CrxChallenge> getChallenges() {
-        User user = this.em.find(User.class, this.getSession().getUserId());
-        return user.getChallenges();
-        /**
-        List<CrxChallenge> challengeList = new ArrayList<CrxChallenge>();
-        for(CrxChallenge challenge: user.getChallenges() ) {
-           challenge.setQuestions(new ArrayList<CrxQuestion>());
-           challengeList.add(challenge);
-        }
-        return challengeList;
-        **/
+        return results;
     }
 
     private CrxResponse isModifiable(Long challengeId){
         CrxChallenge challenge = this.getById(challengeId);
         if( challenge == null ) {
-            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge");
+            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
         }
         if( this.isAvailable(challenge)) {
-            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge");
+            return new CrxResponse(this.getSession(), "ERROR", "The challenge is now available. You must not change it.");
         }
         if( !this.session.getUser().equals(challenge.getCreator())) {
-            return new CrxResponse(this.getSession(), "ERROR", "Only the creator may evaluate a challenge");
+            return new CrxResponse(this.getSession(), "ERROR", "Only the owner may evaluate a challenge.");
         }
         return null;
     }
