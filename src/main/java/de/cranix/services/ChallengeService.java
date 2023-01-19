@@ -19,6 +19,21 @@ public class ChallengeService extends Service {
      */
     Logger logger = LoggerFactory.getLogger(ChallengeService.class);
 
+    private static final
+    String challengeTableStyle =
+            "<style>\n" +
+            "\n" +
+            ".thVertical {\n" +
+            "  writing-mode: vertical-lr;\n" +
+            "  min-width: 50px;\n" +
+            "  text-align:center;\n" +
+            "}\n" +
+            "\n" +
+            "table, th, td {\n" +
+            "  border: 1px solid black;\n" +
+            "  border-collapse: collapse;\n" +
+            "} </style>\n";
+
     /**
      * Instantiates a new Challenge service.
      *
@@ -246,16 +261,65 @@ public class ChallengeService extends Service {
                 results.get(uid).put(question.getId(), result.get(uid));
             }
         }
+        logger.debug("results: " + results);
+        for( Long uid: results.keySet() ){
+            results.get(uid).put(0L, 0);
+            for( Long questionId: results.get(uid).keySet() ){
+                logger.debug("res:" + uid + ":" + questionId);
+                Integer res = results.get(uid).get(questionId) + results.get(uid).get(0L);
+                results.get(uid).put(0L, res);
+            }
+        }
         return results;
     }
+    public String evaluateAsHtml(Long id) {
+        UserService userService = new UserService(this.session,this.em);
+        CrxResponse resp = this.isModifiable(id);
+        if (resp != null) {
+            return resp.toString();
+        }
+        StringBuilder htmlResult = new StringBuilder();
+        htmlResult.append(challengeTableStyle);
+        htmlResult.append("<table");
+        htmlResult.append("  <tr>\n");
+        htmlResult.append("    <th>Question</th>\n");
+        Map<Long, Map<Long, Integer>> results = (Map<Long, Map<Long, Integer>>) this.evaluate(id);
+        for(Long userId: results.keySet()) {
+            htmlResult.append("    <th  class=\"thVertical\">").append(
+                    userService.getById(userId).getFullName()
+            ).append("</th>\n");
+        }
+        htmlResult.append("  </tr>\n");
+        CrxChallenge challenge = this.getById(id);
+        for (CrxQuestion question : challenge.getQuestions()) {
+            htmlResult.append("  <tr>\n");
+            htmlResult.append("    <td>").append(question.getQuestion()).append("</td>\n");
+            for(Long userId: results.keySet()) {
+                htmlResult.append("    <td>").append(
+                        results.get(userId).get(question.getId())
+                ).append("</td>\n");
+            }
+            htmlResult.append("  </tr>\n");
+        }
+        htmlResult.append("  <tr>\n");
+        htmlResult.append("    <td>").append("Sum:").append("</td>\n");
+        for(Long userId: results.keySet()) {
+            htmlResult.append("    <td>").append(
+                    results.get(userId).get(0L)
+            ).append("</td>\n");
+        }
+        htmlResult.append("  </tr>\n");
+        htmlResult.append("</table>");
+        return htmlResult.toString();
+    }
 
-    /**
-     * Archive the results of a challenge.
-     *
-     * @param id      the id
-     * @param cleanUp the clean up
-     * @return the object
-     */
+        /**
+         * Archive the results of a challenge.
+         *
+         * @param id      the id
+         * @param cleanUp the clean up
+         * @return the object
+         */
     public Object archiveResults(Long id, Boolean cleanUp){
         CrxResponse resp = this.isModifiable(id);
         if(resp != null) {

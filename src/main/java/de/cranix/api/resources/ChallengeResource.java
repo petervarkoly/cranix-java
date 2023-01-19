@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
+import static de.cranix.api.resources.Resource.TEXT;
 
 
 @Path("challenges")
@@ -143,13 +144,14 @@ public class ChallengeResource {
     @GET
     @Path("{challengeId}/results")
     @ApiOperation(value = "Get the results of a challenge.")
+    @Produces(TEXT)
     @PermitAll
-    public Object evaluate(
+    public String evaluate(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("challengeId") Long challengeId
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        Object resp = new ChallengeService(session, em).evaluate(challengeId);
+        String resp = new ChallengeService(session, em).evaluateAsHtml(challengeId);
         em.close();
         return resp;
     }
