@@ -42,7 +42,7 @@ public class CrxChallenge extends AbstractEntity {
     @Column(name = "studentsOnly", length = 1)
     private Boolean studentsOnly;
 
-    @ManyToMany(cascade ={CascadeType.REFRESH})
+    @ManyToMany()
     @JoinTable(
             name="GroupsOfChallenges",
             joinColumns={ @JoinColumn(name="crxchallenge_id") },
@@ -50,7 +50,7 @@ public class CrxChallenge extends AbstractEntity {
     )
     private List<Group> groups = new ArrayList<Group>();
 
-    @ManyToMany(cascade ={CascadeType.REFRESH})
+    @ManyToMany()
     @JoinTable(
             name="UsersOfChallenges",
             joinColumns={ @JoinColumn(name="crxchallenge_id") },

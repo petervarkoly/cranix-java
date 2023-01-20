@@ -272,6 +272,13 @@ public class ChallengeService extends Service {
         }
         return results;
     }
+
+    /**
+     * Evaluate a challenge an delivers the result as html table.
+     *
+     * @param id the id
+     * @return the string
+     */
     public String evaluateAsHtml(Long id) {
         UserService userService = new UserService(this.session,this.em);
         CrxResponse resp = this.isModifiable(id);
