@@ -109,4 +109,6 @@ INSERT INTO Acls VALUES(NULL,NULL,4,'myself.search','Y',6);
 INSERT INTO Acls VALUES(NULL,NULL,1,'software.manage','Y',6);
 INSERT INTO Acls VALUES(NULL,NULL,1,'room.direct','Y',6);
 INSERT INTO Acls VALUES(NULL,NULL,2,'room.direct','Y',6);
+INSERT INTO Acls VALUES(NULL,NULL,1,'challenge.manage','Y',6);
+INSERT INTO Acls VALUES(NULL,NULL,2,'challenge.manage','Y',6);
 #Acls

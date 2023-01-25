@@ -39,6 +39,14 @@ public class CrxQuestion extends AbstractEntity {
     @OneToMany(mappedBy="crxQuestion", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<CrxQuestionAnswer> crxQuestionAnswers = new ArrayList<CrxQuestionAnswer>();
 
+    @PrePersist
+    void preInsert() {
+        if (this.value == null)
+            this.value = 1;
+        if(this.answerType == null)
+            this.answerType = ANSWER_TYPE.Multiple;
+    }
+
     public String getQuestion() {
         return question;
     }

@@ -81,7 +81,7 @@ public class User implements Serializable {
 	private List<Alias> aliases = new ArrayList<Alias>();
 
 	//bi-directional many-to-one association to Acls
-	@OneToMany(mappedBy="user", cascade ={CascadeType.ALL})
+	@OneToMany(mappedBy="user")
 	@JsonIgnore
 	private List<Acl> acls = new ArrayList<Acl>();
 

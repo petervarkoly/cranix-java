@@ -63,7 +63,7 @@ public class Group implements Serializable {
 	private List<CrxChallenge> todos = new ArrayList<CrxChallenge>();
 
 	//bi-directional many-to-one association to Acls
-	@OneToMany(mappedBy="group",cascade ={CascadeType.ALL})
+	@OneToMany(mappedBy="group")
 	@JsonIgnore
 	private List<Acl> acls;
 

@@ -1,12 +1,12 @@
 package de.cranix.services;
 
 import de.cranix.dao.*;
-import org.eclipse.jetty.server.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import java.util.*;
+
 import static de.cranix.helper.CranixConstants.roleStudent;
 
 /**
@@ -14,25 +14,38 @@ import static de.cranix.helper.CranixConstants.roleStudent;
  */
 public class ChallengeService extends Service {
 
+    private static final
+    String challengeTableStyle =
+            "<html>\n" +
+                    "  <style>\n" +
+                    "  \n" +
+                    "  .thVertical {\n" +
+                    "    writing-mode: vertical-lr;\n" +
+                    "    min-width: 50px;\n" +
+                    "    text-align:center;\n" +
+                    "  }\n" +
+                    "  \n" +
+                    "  table, th, td {\n" +
+                    "    border: 1px solid black;\n" +
+                    "    border-collapse: collapse;\n" +
+                    "  }\n" +
+                    "  .questionLine {\n" +
+                    "    background-color: gray;\n" +
+                    "  }\n" +
+                    "  .sumLine {\n" +
+                    "    background-color: green;\n" +
+                    "  }\n" +
+                    "  .resultLine {\n" +
+                    "    background-color: lightgray;\n" +
+                    "  }\n" +
+                    "  .answerLine {\n" +
+                    "    background-color: yellow;\n" +
+                    "  }\n" +
+                    "  </style>\n";
     /**
      * The Logger.
      */
     Logger logger = LoggerFactory.getLogger(ChallengeService.class);
-
-    private static final
-    String challengeTableStyle =
-            "<style>\n" +
-            "\n" +
-            ".thVertical {\n" +
-            "  writing-mode: vertical-lr;\n" +
-            "  min-width: 50px;\n" +
-            "  text-align:center;\n" +
-            "}\n" +
-            "\n" +
-            "table, th, td {\n" +
-            "  border: 1px solid black;\n" +
-            "  border-collapse: collapse;\n" +
-            "} </style>\n";
 
     /**
      * Instantiates a new Challenge service.
@@ -67,13 +80,13 @@ public class ChallengeService extends Service {
      * @param challenge the challenge
      * @return the crx response
      */
-    public CrxResponse modify(CrxChallenge challenge){
+    public CrxResponse modify(CrxChallenge challenge) {
         CrxResponse resp = this.isModifiable(challenge.getId());
-        if(resp != null) {
+        if (resp != null) {
             return resp;
         }
         this.em.getTransaction().begin();
-        if( challenge.getCreator() == null ){
+        if (challenge.getCreator() == null) {
             challenge.setCreator(this.session.getUser());
         }
         this.em.merge(challenge);
@@ -82,25 +95,27 @@ public class ChallengeService extends Service {
         return new CrxResponse(this.session, "OK", "Challenge was successfully modified.", challenge.getId());
     }
 
-    private void adapt(CrxChallenge challenge){
-        for(CrxQuestion crxQuestion: challenge.getQuestions()) {
+    private void adapt(CrxChallenge challenge) {
+        for (CrxQuestion crxQuestion : challenge.getQuestions()) {
             crxQuestion.setCreator(this.session.getUser());
             crxQuestion.setChallenge(challenge);
             this.em.merge(crxQuestion);
-            for(CrxQuestionAnswer answer: crxQuestion.getCrxQuestionAnswers()) {
+            for (CrxQuestionAnswer answer : crxQuestion.getCrxQuestionAnswers()) {
                 answer.setCreator(this.session.getUser());
                 answer.setCrxQuestion(crxQuestion);
                 this.em.merge(answer);
             }
         }
-        for(User user: challenge.getUsers()) {
-            if(! user.getTodos().contains(challenge) ){
+        for (User u : challenge.getUsers()) {
+            User user = this.em.find(User.class, u.getId());
+            if (!user.getTodos().contains(challenge)) {
                 user.getTodos().add(challenge);
                 this.em.merge(user);
             }
         }
-        for(Group group: challenge.getGroups()) {
-            if(! group.getTodos().contains(challenge) ){
+        for (Group g : challenge.getGroups()) {
+            Group group = this.em.find(Group.class, g.getId());
+            if (!group.getTodos().contains(challenge)) {
                 group.getTodos().add(challenge);
                 this.em.merge(group);
             }
@@ -133,11 +148,11 @@ public class ChallengeService extends Service {
      * @return the crx response
      */
     /*
-    *
+     *
      */
     public CrxResponse deleteQuestion(Long challengeId, Long questionId) {
         CrxResponse resp = this.isModifiable(challengeId);
-        if(resp != null) {
+        if (resp != null) {
             return resp;
         }
         CrxChallenge challenge = this.getById(challengeId);
@@ -145,14 +160,14 @@ public class ChallengeService extends Service {
         try {
             question = this.em.find(CrxQuestion.class, questionId);
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(),"ERROR", "Can not find question.");
+            return new CrxResponse(this.getSession(), "ERROR", "Can not find question.");
         }
         this.em.getTransaction().begin();
         challenge.getQuestions().remove(question);
         this.em.remove(question);
         this.em.merge(challenge);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(),"OK", "Question was removed.");
+        return new CrxResponse(this.getSession(), "OK", "Question was removed.");
     }
 
     /**
@@ -165,7 +180,7 @@ public class ChallengeService extends Service {
      */
     public CrxResponse deleteAnswer(Long challengeId, Long questionId, Long answerId) {
         CrxResponse resp = this.isModifiable(challengeId);
-        if(resp != null) {
+        if (resp != null) {
             return resp;
         }
         CrxChallenge challenge = this.getById(challengeId);
@@ -175,7 +190,7 @@ public class ChallengeService extends Service {
             question = this.em.find(CrxQuestion.class, questionId);
             answer = this.em.find(CrxQuestionAnswer.class, answerId);
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(),"ERROR", "Can not find challenge.");
+            return new CrxResponse(this.getSession(), "ERROR", "Can not find challenge.");
         }
         this.em.getTransaction().begin();
         question.getCrxQuestionAnswers().remove(answer);
@@ -183,7 +198,7 @@ public class ChallengeService extends Service {
         this.em.merge(question);
         this.em.merge(challenge);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(),"OK", "Answer was removed.");
+        return new CrxResponse(this.getSession(), "OK", "Answer was removed.");
     }
 
     /**
@@ -208,7 +223,7 @@ public class ChallengeService extends Service {
      */
     public CrxResponse delete(Long id) {
         CrxResponse resp = this.isModifiable(id);
-        if(resp != null) {
+        if (resp != null) {
             return resp;
         }
         CrxChallenge challenge = this.getById(id);
@@ -226,26 +241,27 @@ public class ChallengeService extends Service {
      */
     public Object evaluate(Long id) {
         CrxResponse resp = this.isModifiable(id);
-        if(resp != null) {
+        if (resp != null) {
             return resp;
         }
         CrxChallenge challenge = this.getById(id);
         Map<Long, Map<Long, Integer>> results = new HashMap<>();
         for (CrxQuestion question : challenge.getQuestions()) {
             Map<Long, Integer> result = new HashMap<>();
+            logger.debug("question" + question);
             for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
                 for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
                     Long creatorId = challengeAnswer.getCreator().getId();
                     if (!result.containsKey(creatorId)) {
                         result.put(creatorId, 0);
                     }
-                    if( question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.One)) {
+                    if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.One)) {
                         if (challengeAnswer.getCorrect() && answer.getCorrect()) {
                             result.put(creatorId, question.getValue());
                         }
                     }
-                    if( question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
-                        Integer actualValue = result.get(answer.getCreator().getId());
+                    if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
+                        Integer actualValue = result.get(creatorId);
                         if (challengeAnswer.getCorrect() ^ answer.getCorrect()) {
                             result.put(creatorId, actualValue - question.getValue());
                         } else {
@@ -254,17 +270,17 @@ public class ChallengeService extends Service {
                     }
                 }
             }
-            for( Long uid: result.keySet() ){
-                if( !results.containsKey(uid) ){
-                    results.put(uid, new HashMap<Long, Integer>() );
+            for (Long uid : result.keySet()) {
+                if (!results.containsKey(uid)) {
+                    results.put(uid, new HashMap<Long, Integer>());
                 }
                 results.get(uid).put(question.getId(), result.get(uid));
             }
         }
         logger.debug("results: " + results);
-        for( Long uid: results.keySet() ){
+        for (Long uid : results.keySet()) {
             results.get(uid).put(0L, 0);
-            for( Long questionId: results.get(uid).keySet() ){
+            for (Long questionId : results.get(uid).keySet()) {
                 logger.debug("res:" + uid + ":" + questionId);
                 Integer res = results.get(uid).get(questionId) + results.get(uid).get(0L);
                 results.get(uid).put(0L, res);
@@ -280,18 +296,18 @@ public class ChallengeService extends Service {
      * @return the string
      */
     public String evaluateAsHtml(Long id) {
-        UserService userService = new UserService(this.session,this.em);
+        UserService userService = new UserService(this.session, this.em);
         CrxResponse resp = this.isModifiable(id);
         if (resp != null) {
             return resp.toString();
         }
         StringBuilder htmlResult = new StringBuilder();
         htmlResult.append(challengeTableStyle);
-        htmlResult.append("<table");
+        htmlResult.append("<table>\n");
         htmlResult.append("  <tr>\n");
         htmlResult.append("    <th>Question</th>\n");
         Map<Long, Map<Long, Integer>> results = (Map<Long, Map<Long, Integer>>) this.evaluate(id);
-        for(Long userId: results.keySet()) {
+        for (Long userId : results.keySet()) {
             htmlResult.append("    <th  class=\"thVertical\">").append(
                     userService.getById(userId).getFullName()
             ).append("</th>\n");
@@ -301,7 +317,7 @@ public class ChallengeService extends Service {
         for (CrxQuestion question : challenge.getQuestions()) {
             htmlResult.append("  <tr>\n");
             htmlResult.append("    <td>").append(question.getQuestion()).append("</td>\n");
-            for(Long userId: results.keySet()) {
+            for (Long userId : results.keySet()) {
                 htmlResult.append("    <td>").append(
                         results.get(userId).get(question.getId())
                 ).append("</td>\n");
@@ -310,50 +326,33 @@ public class ChallengeService extends Service {
         }
         htmlResult.append("  <tr>\n");
         htmlResult.append("    <td>").append("Sum:").append("</td>\n");
-        for(Long userId: results.keySet()) {
+        for (Long userId : results.keySet()) {
             htmlResult.append("    <td>").append(
                     results.get(userId).get(0L)
             ).append("</td>\n");
         }
         htmlResult.append("  </tr>\n");
-        htmlResult.append("</table>");
+        htmlResult.append("</table>\n</html>");
         return htmlResult.toString();
     }
 
-        /**
-         * Archive the results of a challenge.
-         *
-         * @param id      the id
-         * @param cleanUp the clean up
-         * @return the object
-         */
-    public Object archiveResults(Long id, Boolean cleanUp){
+    /**
+     * Archive the results of a challenge.
+     *
+     * @param id      the id
+     * @param cleanUp the clean up
+     * @return the object
+     */
+    public Object archiveResults(Long id, Boolean cleanUp) {
         CrxResponse resp = this.isModifiable(id);
-        if(resp != null) {
+        if (resp != null) {
             return resp;
         }
         CrxChallenge challenge = this.getById(id);
-        if (challenge == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge");
-        }
-        if( !this.session.getUser().equals(challenge.getCreator())) {
-            return new CrxResponse(this.getSession(), "ERROR", "Only the creator may evaluate a challenge");
-        }
-        if(cleanUp) {
-            // We start a transaction if the challenge have to be cleaned up.
+        if (cleanUp) {
             this.em.getTransaction().begin();
         }
-        List<User> testUsers = new ArrayList<User>();
-        for(User user: challenge.getUsers()){
-            testUsers.add(user);
-        }
-        for(Group group: challenge.getGroups()){
-            for(User user: group.getUsers()){
-                if(!testUsers.contains(user) && ( !challenge.getStudentsOnly() || user.getRole().equals(roleStudent))){
-                    testUsers.add(user);
-                }
-            }
-        }
+        List<User> testUsers = challenge.getTestUsers();
         Map<Long, Map<Long, Integer>> results = (Map<Long, Map<Long, Integer>>) this.evaluate(id);
         Map<Integer, Long> placeToId = new HashMap<Integer, Long>();
         Map<Long, Integer> idToPlace = new HashMap<Long, Integer>();
@@ -362,55 +361,109 @@ public class ChallengeService extends Service {
         Integer i = 2;
         line.add("Question/Answer Text");
         line.add("Correct answer");
-        for(User user: testUsers){
+        for (User user : testUsers) {
             idToPlace.put(user.getId(), i);
             placeToId.put(i, user.getId());
             i++;
             line.add(user.getFullName() + " " + user.getBirthDay() + " " + user.getClasses());
         }
         resultTable.add(line);
+        Integer resultValue = 0;
         for (CrxQuestion question : challenge.getQuestions()) {
             line = new ArrayList<String>();
             line.add(question.getQuestion());
+            Integer questionValue = 0;
+            if(question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.One)) {
+                questionValue = question.getValue();
+            } else if(question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
+                questionValue = question.getValue() * question.getCrxQuestionAnswers().size();
+            }
             line.add(question.getAnswerType().toString());
-            for(i = 0; i < testUsers.size(); i++) {
-                Long userId = placeToId.get(i+2);
-                if( results.containsKey(userId)) {
+            resultTable.add(line);
+            for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
+                line = new ArrayList<String>();
+                for (i = 0; i < testUsers.size() + 2; i++) {
+                    line.add("");
+                }
+                line.set(0, answer.getAnswer());
+                line.set(1, answer.getCorrect() ? "Y" : "N");
+                for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
+                    logger.debug("challengeAnswer" + challengeAnswer);
+                    line.set(
+                            idToPlace.get(challengeAnswer.getCreator().getId()),
+                            challengeAnswer.getCorrect() ? "Y" : "N"
+                    );
+                    if (cleanUp) {
+                        answer.getChallengeAnswers().remove(challengeAnswer);
+                        this.em.remove(challengeAnswer);
+                    }
+                }
+                resultTable.add(line);
+                if (cleanUp) {
+                    this.em.merge(answer);
+                }
+            }
+            line = new ArrayList<String>();
+            line.add("");
+            line.add(questionValue.toString());
+            resultValue += questionValue;
+            for (i = 0; i < testUsers.size(); i++) {
+                Long userId = placeToId.get(i + 2);
+                if (results.containsKey(userId)) {
                     line.add(results.get(userId).get(question.getId()).toString());
                 } else {
                     line.add("");
                 }
             }
             resultTable.add(line);
-            for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
-                line = new ArrayList<String>();
-                for(i = 0; i < testUsers.size() +2 ; i++) {
-                    line.add("");
-                }
-                line.set(0,answer.getAnswer());
-                line.set(1,answer.getCorrect() ? "Y":"N");
-                for( CrxChallengeAnswer challengeAnswer: answer.getChallengeAnswers()) {
-                    logger.debug("challengeAnswer" + challengeAnswer);
-                    line.set(
-                            idToPlace.get(challengeAnswer.getCreator().getId()),
-                            challengeAnswer.getCorrect() ? "Y":"N"
-                    );
-                    if(cleanUp) {
-                        answer.getChallengeAnswers().remove(challengeAnswer);
-                        this.em.remove(challengeAnswer);
-                    }
-                }
-                resultTable.add(line);
-                if(cleanUp) {
-                    this.em.merge(answer);
-                }
+        }
+        line = new ArrayList<String>();
+        line.add("Sum:");
+        line.add(resultValue.toString());
+        for (i = 0; i < testUsers.size(); i++) {
+            Long userId = placeToId.get(i + 2);
+            if (results.containsKey(userId)) {
+                line.add(results.get(userId) .get(0L).toString());
+            } else {
+                line.add("");
             }
         }
-        if(cleanUp) {
+        resultTable.add(line);
+        if (cleanUp) {
             this.em.getTransaction().commit();
         }
-        return  resultTable;
+        return arrayToHtml(resultTable);
     }
+
+    private Object arrayToHtml(List<List<String>> resultTable){
+        StringBuilder htmlResult = new StringBuilder();
+        htmlResult.append(challengeTableStyle);
+        htmlResult.append("<table>\n");
+        htmlResult.append("  <tr>\n");
+        for(String header : resultTable.get(0)){
+            htmlResult.append("    <th>").append(header).append("</th>\n");
+        }
+        htmlResult.append("  </tr>\n");
+        for(Integer i = 1; i< resultTable.size(); i++) {
+            if(resultTable.get(i).get(1).equals("One") || resultTable.get(i).get(1).equals("Multiple")) {
+                htmlResult.append("  <tr class=\"questionLine\">\n");
+            } else if ( resultTable.get(i).get(0).equals("Sum:")) {
+                htmlResult.append("  <tr class=\"sumLine\">\n");
+            } else if ( resultTable.get(i).get(0).isEmpty()) {
+                htmlResult.append("  <tr class=\"resultLine\">\n");
+            } else {
+                htmlResult.append("  <tr class=\"answerLine\">\n");
+            }
+            for(String field : resultTable.get(i)){
+                htmlResult.append("    <td>").append(field).append("</td>\n");
+            }
+            htmlResult.append("  </tr>\n");
+        }
+        htmlResult.append("</table>\n");
+        htmlResult.append("</html>\n");
+        return htmlResult.toString();
+    }
+
     /**
      * Gets result of user.
      *
@@ -428,7 +481,7 @@ public class ChallengeService extends Service {
             results.put(question.getId(), new HashMap<Long, Boolean>());
             for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
                 for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
-                    if( challengeAnswer.getCreator().getId().equals(creatorId) ) {
+                    if (challengeAnswer.getCreator().getId().equals(creatorId)) {
                         results.get(question.getId()).put(
                                 answer.getId(), challengeAnswer.getCorrect()
                         );
@@ -444,8 +497,8 @@ public class ChallengeService extends Service {
      */
 
     private CrxChallenge clearRightResults(CrxChallenge challenge) {
-        for(CrxQuestion question: challenge.getQuestions()){
-            for(CrxQuestionAnswer answer: question.getCrxQuestionAnswers()){
+        for (CrxQuestion question : challenge.getQuestions()) {
+            for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
                 answer.setChallengeAnswers(null);
                 answer.setCorrect(false);
             }
@@ -458,16 +511,16 @@ public class ChallengeService extends Service {
      *
      * @return the list
      */
-    public List<CrxChallenge> getTodos(){
+    public List<CrxChallenge> getTodos() {
         List<CrxChallenge> result = new ArrayList<CrxChallenge>();
-        for(CrxChallenge challenge: this.session.getUser().getTodos()){
-            if(this.isAvailable(challenge)) {
+        for (CrxChallenge challenge : this.session.getUser().getTodos()) {
+            if (this.isAvailable(challenge)) {
                 result.add(clearRightResults(challenge));
             }
         }
-        for(Group group: this.session.getUser().getGroups()){
-            for(CrxChallenge challenge: group.getTodos()) {
-                if(this.isAvailable(challenge)) {
+        for (Group group : this.session.getUser().getGroups()) {
+            for (CrxChallenge challenge : group.getTodos()) {
+                if (this.isAvailable(challenge)) {
                     result.add(clearRightResults(challenge));
                 }
             }
@@ -476,15 +529,15 @@ public class ChallengeService extends Service {
     }
 
 
-    private CrxResponse saveChallengeAnswer(CrxQuestionAnswer questionAnswer, Boolean answer){
+    private CrxResponse saveChallengeAnswer(CrxQuestionAnswer questionAnswer, Boolean answer) {
         // First we search if an answer was already given. If so we will update this.
-        for(CrxChallengeAnswer challengeAnswer: questionAnswer.getChallengeAnswers() ){
-            if(challengeAnswer.getCreator().equals(this.session.getUser())) {
+        for (CrxChallengeAnswer challengeAnswer : questionAnswer.getChallengeAnswers()) {
+            if (challengeAnswer.getCreator().equals(this.session.getUser())) {
                 this.em.getTransaction().begin();
                 challengeAnswer.setCorrect(answer);
                 this.em.merge(challengeAnswer);
                 this.em.getTransaction().commit();
-                return new CrxResponse(this.getSession(),"OK", "Answer was saved correct.");
+                return new CrxResponse(this.getSession(), "OK", "Answer was saved correct.");
             }
         }
         CrxChallengeAnswer challengeAnswer = new CrxChallengeAnswer();
@@ -495,7 +548,7 @@ public class ChallengeService extends Service {
         this.em.persist(challengeAnswer);
         questionAnswer.getChallengeAnswers().add(challengeAnswer);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(),"OK", "Answer was saved correct.");
+        return new CrxResponse(this.getSession(), "OK", "Answer was saved correct.");
     }
 
     /**
@@ -505,19 +558,19 @@ public class ChallengeService extends Service {
      * @param answers        the answers
      * @return the crx response
      */
-    public CrxResponse saveChallengeAnswers(Long crxChallengeId, Map<Long,Boolean> answers){
+    public CrxResponse saveChallengeAnswers(Long crxChallengeId, Map<Long, Boolean> answers) {
         CrxChallenge challenge = this.getById(crxChallengeId);
-        if(!this.isAvailable(challenge)) {
+        if (!this.isAvailable(challenge)) {
             return new CrxResponse(this.getSession(), "ERROR", "This challenge is not available now.");
         }
-        for( Long answerId: answers.keySet()){
-            CrxQuestionAnswer questionAnswer= this.em.find(CrxQuestionAnswer.class, answerId);
-            if( !questionAnswer.getCrxQuestion().getChallenge().equals(challenge) ) {
-                return new CrxResponse(this.getSession(),"ERROR", "Answers does not belongs to challenge.");
+        for (Long answerId : answers.keySet()) {
+            CrxQuestionAnswer questionAnswer = this.em.find(CrxQuestionAnswer.class, answerId);
+            if (!questionAnswer.getCrxQuestion().getChallenge().equals(challenge)) {
+                return new CrxResponse(this.getSession(), "ERROR", "Answers does not belongs to challenge.");
             }
             saveChallengeAnswer(questionAnswer, answers.get(answerId));
         }
-        return new CrxResponse(this.getSession(),"OK", "Answers were saved correct.");
+        return new CrxResponse(this.getSession(), "OK", "Answers were saved correct.");
     }
 
     /**
@@ -531,7 +584,7 @@ public class ChallengeService extends Service {
         if (challenge == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
         }
-        if(!this.isAvailable(challenge)) {
+        if (!this.isAvailable(challenge)) {
             return new CrxResponse(this.getSession(), "ERROR", "This challenge is not available now.");
         }
         Map<Long, Boolean> results = new HashMap<>();
@@ -539,7 +592,7 @@ public class ChallengeService extends Service {
             for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
                 for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
                     logger.debug("challengeAnswer" + challengeAnswer.getCreator());
-                    if( challengeAnswer.getCreator().equals(this.session.getUser()) ) {
+                    if (challengeAnswer.getCreator().equals(this.session.getUser())) {
                         results.put(
                                 answer.getId(), challengeAnswer.getCorrect()
                         );
@@ -550,21 +603,21 @@ public class ChallengeService extends Service {
         return results;
     }
 
-    private CrxResponse isModifiable(Long challengeId){
+    private CrxResponse isModifiable(Long challengeId) {
         CrxChallenge challenge = this.getById(challengeId);
-        if( challenge == null ) {
+        if (challenge == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
         }
-        if( this.isAvailable(challenge)) {
+        if (this.isAvailable(challenge)) {
             return new CrxResponse(this.getSession(), "ERROR", "The challenge is now available. You must not change it.");
         }
-        if( !this.session.getUser().equals(challenge.getCreator())) {
+        if (!this.session.getUser().equals(challenge.getCreator())) {
             return new CrxResponse(this.getSession(), "ERROR", "Only the owner may evaluate a challenge.");
         }
         return null;
     }
 
-    private Boolean isAvailable(CrxChallenge challenge){
+    private Boolean isAvailable(CrxChallenge challenge) {
         Date now = new Date();
         return (challenge.getValidFrom().before(now) && challenge.getValidUntil().after(now));
     }

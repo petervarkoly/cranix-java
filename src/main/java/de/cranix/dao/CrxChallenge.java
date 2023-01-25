@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static de.cranix.helper.CranixConstants.roleStudent;
+
 /**
  * The type CrxChallenge.
  */
@@ -120,5 +122,20 @@ public class CrxChallenge extends AbstractEntity {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    public List<User> getTestUsers() {
+        List<User> testUsers = new ArrayList<User>();
+        for (User user : this.users) {
+            testUsers.add(user);
+        }
+        for (Group group : this.groups) {
+            for (User user : group.getUsers()) {
+                if (!testUsers.contains(user) && (!this.studentsOnly || user.getRole().equals(roleStudent))) {
+                    testUsers.add(user);
+                }
+            }
+        }
+        return testUsers;
     }
 }
