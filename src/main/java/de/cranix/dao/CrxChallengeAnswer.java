@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Table(
         name = "CrxChallengeAnswers",
-        uniqueConstraints = { @UniqueConstraint(columnNames = { "creator", "crxQuestionAnswer" }) }
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "CREATOR_ID", "CRXQUESTIONANSWER_ID" }) }
 )
 public class CrxChallengeAnswer extends AbstractEntity {
 
