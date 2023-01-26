@@ -4,17 +4,24 @@ import de.cranix.dao.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import javax.persistence.EntityManager;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
-
-import static de.cranix.helper.CranixConstants.roleStudent;
+import static de.cranix.helper.CranixConstants.*;
 
 /**
  * The type Challenge service.
  */
 public class ChallengeService extends Service {
 
-    private static final
+    private static final Path challengeStylePath = Paths.get(cranixBaseDir + "templates/challengeStyle.html");
+    private static
     String challengeTableStyle =
             "<html>\n" +
                     "  <style>\n" +
@@ -51,10 +58,16 @@ public class ChallengeService extends Service {
      * Instantiates a new Challenge service.
      *
      * @param session the session
-     * @param em      the em
+     * @param em      the EntityManager
      */
-    public ChallengeService(Session session, EntityManager em) {
+    public ChallengeService(Session session, EntityManager em)
+    {
         super(session, em);
+        try {
+            challengeTableStyle = Files.readString(challengeStylePath);
+        } catch (Exception e) {
+            logger.error("ChallengeService no challengeTableStyle");
+        }
     }
 
     /**
@@ -404,7 +417,7 @@ public class ChallengeService extends Service {
                 }
             }
             line = new ArrayList<String>();
-            line.add("");
+            line.add("Result:");
             line.add(questionValue.toString());
             resultValue += questionValue;
             for (i = 0; i < testUsers.size(); i++) {
@@ -432,10 +445,26 @@ public class ChallengeService extends Service {
         if (cleanUp) {
             this.em.getTransaction().commit();
         }
+        StringBuilder challengeFile = new StringBuilder(cranixAdm);
+        challengeFile.append("challenges");
+        try {
+            Files.createDirectories(Paths.get(challengeFile.toString()),privatDirAttribute);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        challengeFile.append("/").append(this.nowString()).append("-")
+                .append(challenge.getDescription().replace(" ","_"));
+        Path challengePath = Paths.get(challengeFile.toString());
+        try {
+            Files.write(challengePath, resultTable.toString().getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return arrayToHtml(resultTable);
     }
 
     private Object arrayToHtml(List<List<String>> resultTable){
+        Boolean isAnswer = false;
         StringBuilder htmlResult = new StringBuilder();
         htmlResult.append(challengeTableStyle);
         htmlResult.append("<table>\n");
@@ -445,17 +474,29 @@ public class ChallengeService extends Service {
         }
         htmlResult.append("  </tr>\n");
         for(Integer i = 1; i< resultTable.size(); i++) {
+            isAnswer = false;
             if(resultTable.get(i).get(1).equals("One") || resultTable.get(i).get(1).equals("Multiple")) {
                 htmlResult.append("  <tr class=\"questionLine\">\n");
-            } else if ( resultTable.get(i).get(0).equals("Sum:")) {
+            } else if (resultTable.get(i).get(0).equals("Sum:")) {
                 htmlResult.append("  <tr class=\"sumLine\">\n");
-            } else if ( resultTable.get(i).get(0).isEmpty()) {
+            } else if (resultTable.get(i).get(0).equals("Result:")) {
                 htmlResult.append("  <tr class=\"resultLine\">\n");
             } else {
                 htmlResult.append("  <tr class=\"answerLine\">\n");
+                isAnswer = true;
             }
+            Integer j = 0;
             for(String field : resultTable.get(i)){
-                htmlResult.append("    <td>").append(field).append("</td>\n");
+                if(isAnswer && (j > 1)) {
+                    if(resultTable.get(i).get(1).equals(field)) {
+                        htmlResult.append("    <td class=\"okTd\">").append(field).append("</td>\n");
+                    } else {
+                        htmlResult.append("    <td class=\"badTd\">").append(field).append("</td>\n");
+                    }
+                } else {
+                    htmlResult.append("    <td class=\"center\">").append(field).append("</td>\n");
+                }
+                j++;
             }
             htmlResult.append("  </tr>\n");
         }

@@ -124,6 +124,7 @@ public class CrxChallenge extends AbstractEntity {
         this.users = users;
     }
 
+    @JsonIgnore
     public List<User> getTestUsers() {
         List<User> testUsers = new ArrayList<User>();
         for (User user : this.users) {
