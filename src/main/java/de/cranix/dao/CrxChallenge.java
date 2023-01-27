@@ -27,14 +27,9 @@ public class CrxChallenge extends AbstractEntity {
     private Integer value;
 
     @NotNull
-    @Column(name = "validFrom")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validFrom;
-
-    @NotNull
-    @Column(name = "validUntil")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date validUntil;
+    @Convert(converter=BooleanToStringConverter.class)
+    @Column(name = "released", length = 1)
+    private Boolean released;
 
     @OneToMany(mappedBy="challenge", cascade=CascadeType.ALL, orphanRemoval=true )
     private List<CrxQuestion> questions = new ArrayList<CrxQuestion>();
@@ -60,6 +55,14 @@ public class CrxChallenge extends AbstractEntity {
     )
     private List<User> users = new ArrayList<User>();
 
+    @PrePersist
+    void preInsert() {
+        if (this.value == null)
+            this.value = 1;
+        if(this.released == null)
+            this.released = false;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -76,28 +79,20 @@ public class CrxChallenge extends AbstractEntity {
         this.value = value;
     }
 
+    public Boolean isReleased() {
+        return released;
+    }
+
+    public void setReleased(Boolean released) {
+        this.released = released;
+    }
+
     public List<CrxQuestion> getQuestions() {
         return questions;
     }
 
     public void setQuestions(List<CrxQuestion> questions) {
         this.questions = questions;
-    }
-
-    public Date getValidFrom() {
-        return validFrom;
-    }
-
-    public void setValidFrom(Date validFrom) {
-        this.validFrom = validFrom;
-    }
-
-    public Date getValidUntil() {
-        return validUntil;
-    }
-
-    public void setValidUntil(Date validUntil) {
-        this.validUntil = validUntil;
     }
 
     public Boolean getStudentsOnly() {
