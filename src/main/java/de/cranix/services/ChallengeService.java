@@ -1,11 +1,14 @@
 package de.cranix.services;
 
 import de.cranix.dao.*;
+import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import javax.persistence.EntityManager;
+import javax.persistence.OrderBy;
+import javax.persistence.Query;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -99,26 +102,31 @@ public class ChallengeService extends Service {
             return resp;
         }
         this.em.getTransaction().begin();
-        if (challenge.getCreator() == null) {
-            challenge.setCreator(this.session.getUser());
-        }
+        challenge.setCreator(this.session.getUser());
         this.em.merge(challenge);
         this.adapt(challenge);
         this.em.getTransaction().commit();
         return new CrxResponse(this.session, "OK", "Challenge was successfully modified.", challenge.getId());
     }
 
-    private void adapt(CrxChallenge challenge) {
-        for (CrxQuestion crxQuestion : challenge.getQuestions()) {
-            crxQuestion.setCreator(this.session.getUser());
-            crxQuestion.setChallenge(challenge);
-            this.em.merge(crxQuestion);
-            for (CrxQuestionAnswer answer : crxQuestion.getCrxQuestionAnswers()) {
-                answer.setCreator(this.session.getUser());
-                answer.setCrxQuestion(crxQuestion);
-                this.em.merge(answer);
-            }
+    public CrxResponse assignAndStart(CrxChallenge challenge) {
+        CrxResponse resp = this.isManagable(challenge.getId());
+        if (resp != null) {
+            return resp;
         }
+        this.em.getTransaction().begin();
+        challenge.setCreator(this.session.getUser());
+        this.assign(challenge);
+        challenge.setReleased(true);
+        this.em.merge(challenge);
+        this.em.getTransaction().commit();
+        return new CrxResponse(this.session, "OK", "Challenge was successfully assigned and stated.");
+    }
+
+    /*
+    * Assign challenge to the groups and users.
+     */
+    private void assign(CrxChallenge challenge) {
         for (User u : challenge.getUsers()) {
             User user = this.em.find(User.class, u.getId());
             if (!user.getTodos().contains(challenge)) {
@@ -132,6 +140,49 @@ public class ChallengeService extends Service {
                 group.getTodos().add(challenge);
                 this.em.merge(group);
             }
+        }
+    }
+
+    private void deAssign(CrxChallenge challenge) {
+        challenge.setReleased(false);
+        for (User u : challenge.getUsers()) {
+            User user = this.em.find(User.class, u.getId());
+            if (user.getTodos().contains(challenge)) {
+                user.getTodos().remove(challenge);
+                this.em.merge(user);
+            }
+        }
+        for (Group g : challenge.getGroups()) {
+            Group group = this.em.find(Group.class, g.getId());
+            if (group.getTodos().contains(challenge)) {
+                group.getTodos().remove(challenge);
+                this.em.merge(group);
+            }
+        }
+        challenge.setGroups(new ArrayList<Group>());
+        challenge.setUsers(new ArrayList<User>());
+    }
+    private void adapt(CrxChallenge challenge) {
+        for (CrxQuestion crxQuestion : challenge.getQuestions()) {
+            crxQuestion.setCreator(this.session.getUser());
+            crxQuestion.setChallenge(challenge);
+            this.em.merge(crxQuestion);
+            for (CrxQuestionAnswer answer : crxQuestion.getCrxQuestionAnswers()) {
+                answer.setCreator(this.session.getUser());
+                answer.setCrxQuestion(crxQuestion);
+                this.em.merge(answer);
+            }
+        }
+        this.assign(challenge);
+    }
+
+    public List<CrxChallenge> getAll() {
+        try {
+            Query query = this.em.createNamedQuery("Challenges.findAll");
+            return (List<CrxChallenge>) query.getResultList();
+        } catch (Exception e) {
+            logger.error("getAll: " + e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -252,7 +303,7 @@ public class ChallengeService extends Service {
      * @param id the id
      * @return the object
      */
-    public Object evaluate(Long id) {
+    private Object evaluate(Long id) {
         CrxChallenge challenge = this.getById(id);
         Map<Long, Map<Long, Integer>> results = new HashMap<>();
         for (CrxQuestion question : challenge.getQuestions()) {
@@ -305,11 +356,12 @@ public class ChallengeService extends Service {
      * @return the string
      */
     public String evaluateAsHtml(Long id) {
+        CrxResponse resp = this.isManagable(id);
+        if (resp != null) {
+            return resp.getValue();
+        }
         UserService userService = new UserService(this.session, this.em);
         CrxChallenge challenge = this.getById(id);
-        if (challenge == null) {
-            return "Could not find the challenge.";
-        }
         StringBuilder htmlResult = new StringBuilder();
         htmlResult.append(challengeTableStyle);
         htmlResult.append("<table>\n");
@@ -345,21 +397,18 @@ public class ChallengeService extends Service {
     }
 
     /**
-     * Archive the results of a challenge.
+     * Archive the results of a challenge and clean up in the database.
      *
      * @param id      the id
-     * @param cleanUp the clean up
      * @return the object
      */
-    public Object archiveResults(Long id, Boolean cleanUp) {
-        CrxResponse resp = this.isModifiable(id);
+    public Object stopAndArchive(Long id) {
+        CrxResponse resp = this.isManagable(id);
         if (resp != null) {
             return resp;
         }
         CrxChallenge challenge = this.getById(id);
-        if (cleanUp) {
-            this.em.getTransaction().begin();
-        }
+        this.em.getTransaction().begin();
         List<User> testUsers = challenge.getTestUsers();
         Map<Long, Map<Long, Integer>> results = (Map<Long, Map<Long, Integer>>) this.evaluate(id);
         Map<Integer, Long> placeToId = new HashMap<Integer, Long>();
@@ -401,15 +450,11 @@ public class ChallengeService extends Service {
                             idToPlace.get(challengeAnswer.getCreator().getId()),
                             challengeAnswer.getCorrect() ? "Y" : "N"
                     );
-                    if (cleanUp) {
-                        answer.getChallengeAnswers().remove(challengeAnswer);
-                        this.em.remove(challengeAnswer);
-                    }
+                    this.em.remove(challengeAnswer);
                 }
+                answer.setChallengeAnswers(new ArrayList<>());
                 resultTable.add(line);
-                if (cleanUp) {
-                    this.em.merge(answer);
-                }
+                this.em.merge(answer);
             }
             line = new ArrayList<String>();
             line.add("Result:");
@@ -437,41 +482,52 @@ public class ChallengeService extends Service {
             }
         }
         resultTable.add(line);
-        if (cleanUp) {
+        try {
+            Object res = this.createArchive(challenge, resultTable);
+            this.deAssign(challenge);
             this.em.getTransaction().commit();
+            return res;
+        }catch(IOException e) {
+            this.em.getTransaction().rollback();
+            return new CrxResponse(this.session,"ERROR", e.getMessage());
         }
-        StringBuilder challengeFile = new StringBuilder(cranixAdm);
-        challengeFile.append("challenges/").append(challenge.getId().toString());
-        try {
-            Files.createDirectories(Paths.get(challengeFile.toString()),privatDirAttribute);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        challengeFile.append("/").append(this.nowString());
-        Path challengePath = Paths.get(challengeFile.toString() + ".json");
-        try {
-            Files.write(challengePath, resultTable.toString().getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String res = (String)arrayToHtml(resultTable);
-        challengePath = Paths.get(challengeFile.toString() + ".html");
-        try {
-            Files.write(challengePath, res.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            e.printStackTrace();
+    }
+
+    /*
+    * Creates the archive files for the challenge.
+     */
+    private Object createArchive(CrxChallenge challenge, List<List<String>> resultTable) throws IOException {
+        //Create base directory: /var/adm/cranix/challenges/<challengeId>
+        String nowString = this.nowString();
+        StringBuilder challengeFile = getArhivePath(challenge.getId()).append("/").append(nowString);
+        Files.createDirectories(Paths.get(challengeFile.toString()),privatDirAttribute);
+        //Save the result table as json: /var/adm/cranix/challenges/<challengeId>/<NOW.STRING>/results.json
+        Path challengePath = Paths.get(challengeFile.toString() + "/RESULTS.json");
+        Files.write(challengePath, resultTable.toString().getBytes(StandardCharsets.UTF_8));
+
+        //Save the results of all user as html: /var/adm/cranix/challenges/<challengeId>/<NOW.STRING>/results.html
+        String res = (String)arrayToHtml(resultTable,0, nowString);
+        challengePath = Paths.get(challengeFile.toString() + "/RESULTS.html");
+        Files.write(challengePath, res.getBytes(StandardCharsets.UTF_8));
+        for(int i = 2; i < resultTable.get(0).size(); i++) {
+            String res1 = (String)arrayToHtml(resultTable,i, nowString);
+            String user = resultTable.get(0).get(i).split(" ")[0];
+            challengePath = Paths.get(challengeFile.toString() + "/" + user + ".html");
+            Files.write(challengePath, res1.getBytes(StandardCharsets.UTF_8));
         }
         return res;
     }
-
-    private Object arrayToHtml(List<List<String>> resultTable){
+    private Object arrayToHtml(List<List<String>> resultTable, int columnIndex, String nowString){
         Boolean isAnswer = false;
         StringBuilder htmlResult = new StringBuilder();
         htmlResult.append(challengeTableStyle);
+        htmlResult.append("<input type=\"text\" id=\"dateOfArchive\" readonly value=\"").append(nowString).append("\">\n");
         htmlResult.append("<table>\n");
         htmlResult.append("  <tr>\n");
-        for(String header : resultTable.get(0)){
-            htmlResult.append("    <th>").append(header).append("</th>\n");
+        for(int j = 0; j < resultTable.get(0).size(); j++) {
+            if( j < 2 || columnIndex == 0 || j == columnIndex) {
+                htmlResult.append("    <th>").append(resultTable.get(0).get(j)).append("</th>\n");
+            }
         }
         htmlResult.append("  </tr>\n");
         for(Integer i = 1; i< resultTable.size(); i++) {
@@ -486,18 +542,19 @@ public class ChallengeService extends Service {
                 htmlResult.append("  <tr class=\"answerLine\">\n");
                 isAnswer = true;
             }
-            Integer j = 0;
-            for(String field : resultTable.get(i)){
-                if(isAnswer && (j > 1)) {
-                    if(resultTable.get(i).get(1).equals(field)) {
-                        htmlResult.append("    <td class=\"okTd\">").append(field).append("</td>\n");
+            for(int j = 0; j < resultTable.get(i).size(); j++) {
+                if (j < 2 || columnIndex == 0 || j == columnIndex) {
+                    String field = resultTable.get(i).get(j);
+                    if(isAnswer && (j > 1)) {
+                        if(resultTable.get(i).get(1).equals(field)) {
+                            htmlResult.append("    <td class=\"okTd\">").append(field).append("</td>\n");
+                        } else {
+                            htmlResult.append("    <td class=\"badTd\">").append(field).append("</td>\n");
+                        }
                     } else {
-                        htmlResult.append("    <td class=\"badTd\">").append(field).append("</td>\n");
+                        htmlResult.append("    <td class=\"center\">").append(field).append("</td>\n");
                     }
-                } else {
-                    htmlResult.append("    <td class=\"center\">").append(field).append("</td>\n");
                 }
-                j++;
             }
             htmlResult.append("  </tr>\n");
         }
@@ -506,6 +563,19 @@ public class ChallengeService extends Service {
         return htmlResult.toString();
     }
 
+    public List<String> getListOfArchives(Long challengeId) {
+        //Create base directory: /var/adm/cranix/challenges/<challengeId>
+        StringBuilder challengeFile = getArhivePath(challengeId);
+        List<String> archives = new ArrayList<String>();
+        for(String file : new File(challengeFile.toString()).list()) {
+            archives.add(file);
+        }
+        return archives;
+    }
+
+    public static StringBuilder getArhivePath(Long channelId) {
+        return new StringBuilder(cranixAdm).append("challenges/").append(channelId.toString());
+    }
     /**
      * Gets result of user.
      *
@@ -653,6 +723,19 @@ public class ChallengeService extends Service {
         if (challenge.isReleased()) {
             return new CrxResponse(this.getSession(), "ERROR", "The challenge is now available. You must not change it.");
         }
+        if (!this.session.getUser().equals(challenge.getCreator())) {
+            return new CrxResponse(this.getSession(), "ERROR", "Only the owner may evaluate a challenge.");
+        }
+        return null;
+    }
+
+
+    private CrxResponse isManagable(Long challengeId) {
+        CrxChallenge challenge = this.getById(challengeId);
+        if (challenge == null) {
+            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
+        }
+        logger.debug("isManagable" + this.session.getUser() + challenge.getCreator());
         if (!this.session.getUser().equals(challenge.getCreator())) {
             return new CrxResponse(this.getSession(), "ERROR", "Only the owner may evaluate a challenge.");
         }

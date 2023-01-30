@@ -4,6 +4,7 @@ import de.cranix.dao.CrxChallenge;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.helper.CrxEntityManagerFactory;
+import de.cranix.helper.CrxSystemCmd;
 import de.cranix.services.ChallengeService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
@@ -12,6 +13,8 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +98,20 @@ public class ChallengeResource {
         return resp;
     }
 
+    @POST
+    @Path("start")
+    @ApiOperation(value = "Assign and start a challenge.")
+    @RolesAllowed("challenge.manage")
+    public CrxResponse assignAndStart(
+            @ApiParam(hidden = true) @Auth Session session,
+            CrxChallenge crxChallenge
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new ChallengeService(session, em).assignAndStart(crxChallenge);
+        em.close();
+        return resp;
+    }
+
     @DELETE
     @Path("{challengeId}/{questionId}")
     @ApiOperation(value = "Delete a question.")
@@ -126,26 +143,63 @@ public class ChallengeResource {
         return resp;
     }
 
+    @PUT
+    @Path("{challengeId}/archives")
+    @ApiOperation(value = "Stop the challenge. Get the detailed results of a challenge and archive it. " +
+            "The results of the challenge will be deleted from database." +
+            "The challenge will be deassigned from the groups and users.")
+    @RolesAllowed("challenge.manage")
+    public Object stopAndArchive(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).stopAndArchive(challengeId);
+        em.close();
+        return resp;
+    }
+
     @GET
-    @Path("{challengeId}/archive/{cleanUp}")
-    @ApiOperation(value = "Get the detailed results of a challenge and archive it. If cleanUp is 1 the challenge will be deleted")
-    @PermitAll
+    @Path("{challengeId}/archives")
+    @ApiOperation(value = "Get the list of the archives corresponding to the challenge.")
+    @RolesAllowed("challenge.manage")
+    public List<String> getListOfArchives(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<String> resp = new ChallengeService(session, em).getListOfArchives(challengeId);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("{challengeId}/archives/{date}")
+    @ApiOperation(value = "Gets the archived results of a challenge.")
+    @RolesAllowed("challenge.manage")
     public Object archive(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("challengeId") Long challengeId,
-            @PathParam("cleanUp") Integer cleanUp
+            @PathParam("date") String date
     ){
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        Object resp = new ChallengeService(session, em).archiveResults(challengeId, cleanUp == 1);
-        em.close();
-        return resp;
+        //TODO CHECK owner
+        String[] program = new String[2];
+        program[0] = "/usr/share/cranix/tools/pack_challenge.py";
+        program[1] = ChallengeService.getArhivePath(challengeId).append("/").append(date).toString();
+        StringBuffer reply = new StringBuffer();
+        StringBuffer stderr = new StringBuffer();
+        CrxSystemCmd.exec(program, reply, stderr, null);
+        File challengeFile = new File(reply.toString());
+        Response.ResponseBuilder response = Response.ok(challengeFile);
+        response = response.header("Content-Disposition", "attachment; filename=" + challengeFile.getName());
+        return response.build();
     }
 
     @GET
     @Path("{challengeId}/results")
     @ApiOperation(value = "Get the results of a challenge.")
     @Produces(TEXT)
-    @PermitAll
+    @RolesAllowed("challenge.manage")
     public String evaluate(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("challengeId") Long challengeId

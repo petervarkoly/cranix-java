@@ -15,6 +15,9 @@ import static de.cranix.helper.CranixConstants.roleStudent;
  */
 @Entity
 @Table(name = "CrxChallenges")
+@NamedQueries({
+        @NamedQuery(name="Challenge.findAll", query="SELECT c FROM CrxChallenge c")
+})
 public class CrxChallenge extends AbstractEntity {
 
     @NotNull

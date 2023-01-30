@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -19,6 +18,7 @@ public abstract class AbstractEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
+    @NotNull
     @ManyToOne()
     @JsonIgnore
     private User creator;
