@@ -22,6 +22,7 @@ public class CrxChallengeAnswer extends AbstractEntity {
     @Column(name = "correct", length = 1)
     private Boolean correct;
 
+    @NotNull
     @ManyToOne
     @JsonIgnore
     private CrxQuestionAnswer crxQuestionAnswer;

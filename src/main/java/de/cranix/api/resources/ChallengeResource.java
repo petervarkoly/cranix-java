@@ -8,6 +8,8 @@ import de.cranix.helper.CrxSystemCmd;
 import de.cranix.services.ChallengeService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -26,6 +28,9 @@ import static de.cranix.api.resources.Resource.TEXT;
 @Api(value = "challenges")
 @Produces(JSON_UTF8)
 public class ChallengeResource {
+
+    Logger logger = LoggerFactory.getLogger(UserResource.class);
+
     public ChallengeResource() {
     }
 
@@ -37,7 +42,7 @@ public class ChallengeResource {
     @PermitAll
     public List<CrxChallenge> getAll(@ApiParam(hidden = true) @Auth Session session) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        List<CrxChallenge> resp = new ChallengeService(session, em).getChallenges();
+        List<CrxChallenge> resp = new ChallengeService(session, em).getAll();
         em.close();
         return resp;
     }
@@ -175,9 +180,10 @@ public class ChallengeResource {
 
     @GET
     @Path("{challengeId}/archives/{date}")
+    @Produces("*/*")
     @ApiOperation(value = "Gets the archived results of a challenge.")
     @RolesAllowed("challenge.manage")
-    public Object archive(
+    public Response getArchive(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("challengeId") Long challengeId,
             @PathParam("date") String date
@@ -189,7 +195,8 @@ public class ChallengeResource {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
-        File challengeFile = new File(reply.toString());
+        File challengeFile = new File(reply.toString().strip());
+        logger.debug("challengeFile" + challengeFile.length() + "   " + challengeFile.getName());
         Response.ResponseBuilder response = Response.ok(challengeFile);
         response = response.header("Content-Disposition", "attachment; filename=" + challengeFile.getName());
         return response.build();

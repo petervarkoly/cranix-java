@@ -24,6 +24,7 @@ public class CrxQuestionAnswer extends AbstractEntity {
     @Column(name = "correct", length = 1)
     private Boolean correct;
 
+    @NotNull
     @ManyToOne
     @JsonIgnore
     private CrxQuestion crxQuestion;
@@ -31,6 +32,12 @@ public class CrxQuestionAnswer extends AbstractEntity {
     @OneToMany(mappedBy="crxQuestionAnswer", cascade=CascadeType.REMOVE, orphanRemoval=true)
     @JsonIgnore
     private List<CrxChallengeAnswer> challengeAnswers = new ArrayList<CrxChallengeAnswer>();
+
+    @PrePersist
+    void preInsert() {
+        if (this.correct == null)
+            this.correct = false;
+    }
 
     public String getAnswer() {
         return answer;
@@ -63,5 +70,4 @@ public class CrxQuestionAnswer extends AbstractEntity {
     public void setChallengeAnswers(List<CrxChallengeAnswer> challengeAnswers) {
         this.challengeAnswers = challengeAnswers;
     }
-
 }

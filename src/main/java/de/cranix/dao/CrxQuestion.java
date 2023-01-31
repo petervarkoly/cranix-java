@@ -32,6 +32,7 @@ public class CrxQuestion extends AbstractEntity {
     @Column(name = "answerType")
     private ANSWER_TYPE answerType;
 
+    @NotNull
     @ManyToOne
     @JsonIgnore
     private CrxChallenge challenge;

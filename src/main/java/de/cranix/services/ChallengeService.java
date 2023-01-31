@@ -119,6 +119,7 @@ public class ChallengeService extends Service {
         this.assign(challenge);
         challenge.setReleased(true);
         this.em.merge(challenge);
+        this.adapt(challenge);
         this.em.getTransaction().commit();
         return new CrxResponse(this.session, "OK", "Challenge was successfully assigned and stated.");
     }
@@ -161,7 +162,9 @@ public class ChallengeService extends Service {
         }
         challenge.setGroups(new ArrayList<Group>());
         challenge.setUsers(new ArrayList<User>());
+        this.em.merge(challenge);
     }
+
     private void adapt(CrxChallenge challenge) {
         for (CrxQuestion crxQuestion : challenge.getQuestions()) {
             crxQuestion.setCreator(this.session.getUser());
@@ -173,12 +176,11 @@ public class ChallengeService extends Service {
                 this.em.merge(answer);
             }
         }
-        this.assign(challenge);
     }
 
     public List<CrxChallenge> getAll() {
         try {
-            Query query = this.em.createNamedQuery("Challenges.findAll");
+            Query query = this.em.createNamedQuery("Challenge.findAll");
             return (List<CrxChallenge>) query.getResultList();
         } catch (Exception e) {
             logger.error("getAll: " + e.getMessage());
