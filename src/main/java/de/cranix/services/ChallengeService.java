@@ -358,6 +358,9 @@ public class ChallengeService extends Service {
         for (Long uid : results.keySet()) {
             results.get(uid).put(0L, 0);
             for (Long questionId : results.get(uid).keySet()) {
+                if (questionId == 0L) {
+                    continue;
+                }
                 logger.debug("res:" + uid + ":" + questionId);
                 Integer res = results.get(uid).get(questionId) + results.get(uid).get(0L);
                 results.get(uid).put(0L, res);
