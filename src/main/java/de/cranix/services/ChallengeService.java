@@ -1,6 +1,7 @@
 package de.cranix.services;
 
 import de.cranix.dao.*;
+import de.cranix.helper.CrxSystemCmd;
 import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,8 @@ import static de.cranix.helper.CranixConstants.*;
  */
 public class ChallengeService extends Service {
 
+
+    private static final Path customChallengeStylePath = Paths.get(cranixBaseDir + "templates/customChallengeStyle.html");
     private static final Path challengeStylePath = Paths.get(cranixBaseDir + "templates/challengeStyle.html");
     private static
     String challengeTableStyle =
@@ -67,7 +70,12 @@ public class ChallengeService extends Service {
     {
         super(session, em);
         try {
-            challengeTableStyle = Files.readString(challengeStylePath);
+            challengeTableStyle = Files.readString(customChallengeStylePath);
+            try {
+                challengeTableStyle = Files.readString(challengeStylePath);
+            } catch (Exception e) {
+                logger.debug("ChallengeService no customChallengeTableStyle");
+            }
         } catch (Exception e) {
             logger.error("ChallengeService no challengeTableStyle");
         }
@@ -293,6 +301,13 @@ public class ChallengeService extends Service {
             return resp;
         }
         CrxChallenge challenge = this.getById(id);
+        String[] program = new String[3];
+        program[0] = "rm";
+        program[1] = "-rf";
+        program[2] = getArhivePath(id).toString();
+        StringBuffer reply = new StringBuffer();
+        StringBuffer stderr = new StringBuffer();
+        CrxSystemCmd.exec(program, reply, stderr, null);
         this.em.getTransaction().begin();
         this.em.remove(challenge);
         this.em.getTransaction().commit();
@@ -627,12 +642,13 @@ public class ChallengeService extends Service {
      */
     public List<CrxChallenge> getTodos() {
         List<CrxChallenge> result = new ArrayList<CrxChallenge>();
-        for (CrxChallenge challenge : this.session.getUser().getTodos()) {
+        User user = this.em.find(User.class, this.session.getUser().getId());
+        for (CrxChallenge challenge : user.getTodos()) {
             if (challenge.isReleased()) {
                 result.add(clearRightResults(challenge));
             }
         }
-        for (Group group : this.session.getUser().getGroups()) {
+        for (Group group : user.getGroups()) {
             for (CrxChallenge challenge : group.getTodos()) {
                 if (challenge.isReleased()) {
                     result.add(clearRightResults(challenge));
