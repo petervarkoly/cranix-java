@@ -13,6 +13,9 @@ import java.util.List;
  */
 @Entity
 @Table(name = "CrxQuestions")
+@NamedQueries({
+        @NamedQuery(name="Question.findAll", query="SELECT q FROM CrxQuestion q")
+})
 public class CrxQuestion extends AbstractEntity {
     public enum ANSWER_TYPE {
                 Text, Multiple, One

@@ -1,6 +1,7 @@
 package de.cranix.api.resources;
 
 import de.cranix.dao.CrxChallenge;
+import de.cranix.dao.CrxQuestion;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.helper.CrxEntityManagerFactory;
@@ -213,6 +214,19 @@ public class ChallengeResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         String resp = new ChallengeService(session, em).evaluateAsHtml(challengeId);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("questions")
+    @ApiOperation(value = "Get all questions.")
+    @RolesAllowed("challenge.manage")
+    public List<CrxQuestion> getAllQuestions(
+            @ApiParam(hidden = true) @Auth Session session
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<CrxQuestion> resp = new ChallengeService(session, em).getAllQuestion();
         em.close();
         return resp;
     }

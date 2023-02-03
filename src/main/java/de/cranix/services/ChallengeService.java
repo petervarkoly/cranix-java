@@ -196,6 +196,16 @@ public class ChallengeService extends Service {
         }
     }
 
+    public List<CrxQuestion> getAllQuestion() {
+        try {
+            Query query = this.em.createNamedQuery("Question.findAll");
+            return (List<CrxQuestion>) query.getResultList();
+        } catch (Exception e) {
+            logger.error("getAllQuestion: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
     /**
      * Gets the challenges created by the session user.
      *
