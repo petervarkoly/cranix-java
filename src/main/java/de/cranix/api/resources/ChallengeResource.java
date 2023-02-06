@@ -37,10 +37,10 @@ public class ChallengeResource {
 
     @GET
     @Path("all")
-    @ApiOperation(value = "Gets all challenges created by the user.")
+    @ApiOperation(value = "Gets all challenges.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @PermitAll
+    @RolesAllowed("challenge.manage")
     public List<CrxChallenge> getAll(@ApiParam(hidden = true) @Auth Session session) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         List<CrxChallenge> resp = new ChallengeService(session, em).getAll();
@@ -50,16 +50,32 @@ public class ChallengeResource {
 
     @GET
     @Path("{id}")
-    @ApiOperation(value = "Gets all challenges created by the user.")
+    @ApiOperation(value = "Gets a challenge by id.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @PermitAll
+    @RolesAllowed("challenge.manage")
     public CrxChallenge getById(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("id") Long id
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         CrxChallenge resp = new ChallengeService(session, em).getById(id);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("subjects/{id}")
+    @ApiOperation(value = "Gets a challenge by teaching subject.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
+    @RolesAllowed("challenge.manage")
+    public List<CrxChallenge> getBySubject(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<CrxChallenge> resp = new ChallengeService(session, em).getBySubject(id);
         em.close();
         return resp;
     }

@@ -26,6 +26,13 @@ public class CrxChallenge extends AbstractEntity {
     private String description;
 
     @NotNull
+    @ManyToOne(cascade = CascadeType.MERGE)
+    private TeachingSubject teachingSubject;
+
+    @ManyToMany(mappedBy = "challenges", cascade = CascadeType.MERGE)
+    private List<SubjectArea> subjectAreaList;
+
+    @NotNull
     @Column(name = "value")
     private Integer value;
 
@@ -88,6 +95,18 @@ public class CrxChallenge extends AbstractEntity {
 
     public void setReleased(Boolean released) {
         this.released = released;
+    }
+
+    public TeachingSubject getTeachingSubject() { return teachingSubject; }
+
+    public void setTeachingSubject(TeachingSubject teachingSubject) {
+        this.teachingSubject = teachingSubject;
+    }
+
+    public List<SubjectArea> getSubjectAreaList() { return subjectAreaList; }
+
+    public void setSubjectAreaList(List<SubjectArea> subjectAreaList) {
+        this.subjectAreaList = subjectAreaList;
     }
 
     public List<CrxQuestion> getQuestions() {
