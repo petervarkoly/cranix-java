@@ -247,6 +247,20 @@ public class ChallengeResource {
         return resp;
     }
 
+    @GET
+    @Path("subjects/{id}/questions")
+    @ApiOperation(value = "Get all questions from a subject.")
+    @RolesAllowed("challenge.manage")
+    public List<CrxQuestion> getQuestionsOfSubject(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<CrxQuestion> resp = new ChallengeService(session, em).getQuestionsOfSubject(id);
+        em.close();
+        return resp;
+    }
+
     /*
     * Functions to the challenge results
     */

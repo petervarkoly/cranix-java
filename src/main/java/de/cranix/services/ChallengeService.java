@@ -93,6 +93,7 @@ public class ChallengeService extends Service {
      */
     public CrxResponse add(CrxChallenge challenge) {
         this.em.getTransaction().begin();
+        this.adaptSubject(challenge);
         challenge.setCreator(this.session.getUser());
         this.em.persist(challenge);
         this.adapt(challenge);
@@ -114,6 +115,7 @@ public class ChallengeService extends Service {
             return resp;
         }
         this.em.getTransaction().begin();
+        this.adaptSubject(challenge);
         challenge.setCreator(this.session.getUser());
         this.em.merge(challenge);
         this.adapt(challenge);
@@ -136,15 +138,25 @@ public class ChallengeService extends Service {
         return new CrxResponse(this.session, "OK", "Challenge was successfully assigned and stated.");
     }
 
+    private void adaptSubject(CrxChallenge challenge) {
+        CrxChallenge oldChallenge = this.getById(challenge.getId());
+        if( oldChallenge != null) {
+            TeachingSubject teachingSubject = oldChallenge.getTeachingSubject();
+            if(!teachingSubject.equals(challenge.getTeachingSubject())) {
+                teachingSubject.getCrxChallenges().remove(oldChallenge);
+                this.em.merge(teachingSubject);
+            }
+        }
+        TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,challenge.getTeachingSubject().getId());
+        if( teachingSubject != null && !teachingSubject.getCrxChallenges().contains(challenge) ) {
+            teachingSubject.getCrxChallenges().add(challenge);
+            this.em.merge(teachingSubject);
+        }
+    }
     /*
      * Assign challenge to the groups and users.
      */
     private void assign(CrxChallenge challenge) {
-        TeachingSubject myTeachingSubject = challenge.getTeachingSubject();
-        if( !challenge.getTeachingSubject().getCrxChallenges().contains(challenge)) {
-            challenge.getTeachingSubject().getCrxChallenges().add(challenge);
-
-        }
         for (User u : challenge.getUsers()) {
             User user = this.em.find(User.class, u.getId());
             if (!user.getTodos().contains(challenge)) {
@@ -215,6 +227,19 @@ public class ChallengeService extends Service {
         }
     }
 
+    public List<CrxQuestion> getQuestionsOfSubject(Long subjectId) {
+        try {
+            TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,subjectId);
+            ArrayList<CrxQuestion> questions = new ArrayList<>();
+            for(CrxChallenge challenge: teachingSubject.getCrxChallenges()) {
+                questions.addAll(challenge.getQuestions());
+            }
+            return questions;
+        } catch (Exception e) {
+            logger.error("getAllQuestion: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
     /**
      * Gets the challenges created by the session user.
      *
