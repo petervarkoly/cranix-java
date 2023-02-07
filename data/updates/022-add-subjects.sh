@@ -16,6 +16,9 @@ Physik
 Religion
 Sport
 Technik"
+
+/usr/share/cranix/tools/wait-for-api.sh
+
 for i in ${SUBJECTS}
 do
      	echo "{\"id\":null,\"name\":\"${i}\"}" > /tmp/add_subject.json
