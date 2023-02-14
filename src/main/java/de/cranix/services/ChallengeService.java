@@ -139,12 +139,14 @@ public class ChallengeService extends Service {
     }
 
     private void adaptSubject(CrxChallenge challenge) {
-        CrxChallenge oldChallenge = this.getById(challenge.getId());
-        if( oldChallenge != null) {
-            TeachingSubject teachingSubject = oldChallenge.getTeachingSubject();
-            if(!teachingSubject.equals(challenge.getTeachingSubject())) {
+        if(challenge.getId() != null){
+            CrxChallenge oldChallenge = this.getById(challenge.getId());
+            if( oldChallenge != null) {
+                TeachingSubject teachingSubject = oldChallenge.getTeachingSubject();
+                if(!teachingSubject.equals(challenge.getTeachingSubject())) {
                 teachingSubject.getCrxChallenges().remove(oldChallenge);
                 this.em.merge(teachingSubject);
+                }
             }
         }
         TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,challenge.getTeachingSubject().getId());
