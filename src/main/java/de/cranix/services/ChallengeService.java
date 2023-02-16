@@ -92,6 +92,10 @@ public class ChallengeService extends Service {
      * @return the crx response
      */
     public CrxResponse add(CrxChallenge challenge) {
+        logger.debug("add:" + challenge);
+	if( challenge.getTeachingSubject() == null ){
+           return new CrxResponse(this.session, "ERROR", "You have to define the subject the challenge belongs to.");
+	}
         this.em.getTransaction().begin();
         this.adaptSubject(challenge);
         challenge.setCreator(this.session.getUser());
