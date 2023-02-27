@@ -49,7 +49,7 @@ public class ObjectResource {
 	@POST
 	@Path("config")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Create a new mconfig for an object request.")
+	@ApiOperation(value = "Create a new config for an object request.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
@@ -65,7 +65,7 @@ public class ObjectResource {
 	}
 
 	@DELETE
-	@Path("mconfig")
+	@Path("mconfig/{id}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new mconfig for an object request.")
 	@ApiResponses(value = {
@@ -74,16 +74,16 @@ public class ObjectResource {
 	@RolesAllowed("objects.manage")
 	public CrxResponse deleteMconfig(
 			@ApiParam(hidden = true) @Auth Session session,
-			CrxMConfig mConfig)
+			@PathParam("id") Long id)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new Service(session,em).deleteMConfig(mConfig);
+		CrxResponse resp = new Service(session,em).deleteMConfig(id);
 		em.close();
 		return resp;
 	}
 
 	@DELETE
-	@Path("config")
+	@Path("config/{id}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new mconfig for an object request.")
 	@ApiResponses(value = {
@@ -92,10 +92,10 @@ public class ObjectResource {
 	@RolesAllowed("objects.manage")
 	public CrxResponse deleteConfig(
 			@ApiParam(hidden = true) @Auth Session session,
-			CrxConfig config)
+			@PathParam("id") Long id)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new Service(session,em).deleteConfig(config);
+		CrxResponse resp = new Service(session,em).deleteConfig(id);
 		em.close();
 		return resp;
 	}
