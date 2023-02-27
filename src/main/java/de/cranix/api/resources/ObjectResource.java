@@ -3,6 +3,7 @@ package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.*;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
@@ -149,7 +150,7 @@ public class ObjectResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("objects.manage")
+	@PermitAll
 	public List<TeachingSubject> getSubjects(
 			@ApiParam(hidden = true) @Auth Session session)
 	{
@@ -166,7 +167,7 @@ public class ObjectResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("objects.manage")
+	@RolesAllowed("subject.manage")
 	public CrxResponse addSubject(
 			@ApiParam(hidden = true) @Auth Session session,
 			TeachingSubject teachingSubject)
@@ -184,7 +185,7 @@ public class ObjectResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("objects.manage")
+	@RolesAllowed("subject.manage")
 	public CrxResponse modifySubject(
 			@ApiParam(hidden = true) @Auth Session session,
 			TeachingSubject teachingSubject)
@@ -198,11 +199,11 @@ public class ObjectResource {
 	@GET
 	@Path("subjects/{id}")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Gets the subject areas of a teaching object.")
+	@ApiOperation(value = "Gets the subject areas of a teaching subject.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("objects.manage")
+	@PermitAll
 	public List<SubjectArea> getSubjectAreas(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("id") Long id
@@ -221,7 +222,7 @@ public class ObjectResource {
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("objects.manage")
+	@RolesAllowed("subject.manage")
 	public CrxResponse addSubjectArea(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("id") Long id,

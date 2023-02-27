@@ -14,6 +14,9 @@
 /usr/sbin/crx_api.sh POST system/acls/groups/2 '{"acl":"challenge.manage","allowed":true,"userId":null,"groupId":2}'
 /usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/objects.manage
 /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"objects.manage","allowed":true,"userId":null,"groupId":1}'
+/usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/subject.manage
+/usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"subject.manage","allowed":true,"userId":null,"groupId":1}'
+/usr/sbin/crx_api.sh POST system/acls/groups/2 '{"acl":"subject.manage","allowed":true,"userId":null,"groupId":2}'
 if [ -e /usr/lib/systemd/system/cranix-api.service ]; then
   /usr/bin/systemctl restart cranix-api
 else
