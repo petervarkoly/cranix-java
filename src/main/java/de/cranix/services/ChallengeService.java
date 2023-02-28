@@ -128,7 +128,7 @@ public class ChallengeService extends Service {
     }
 
     public CrxResponse assignAndStart(CrxChallenge challenge) {
-        CrxResponse resp = this.isManagable(challenge.getId());
+        CrxResponse resp = this.isModifiable(challenge.getId());
         if (resp != null) {
             return resp;
         }
@@ -791,8 +791,8 @@ public class ChallengeService extends Service {
         if (challenge.isReleased()) {
             return new CrxResponse(this.getSession(), "ERROR", "The challenge is now available. You must not change it.");
         }
-        if (!this.session.getUser().equals(challenge.getCreator())) {
-            return new CrxResponse(this.getSession(), "ERROR", "Only the owner may evaluate a challenge.");
+        if (!this.session.getUser().equals(challenge.getCreator()) && !this.isSuperuser()) {
+            return new CrxResponse(this.getSession(), "ERROR", "Only the owner may modify a challenge.");
         }
         return null;
     }
@@ -804,8 +804,8 @@ public class ChallengeService extends Service {
             return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
         }
         logger.debug("isManagable" + this.session.getUser() + challenge.getCreator());
-        if (!this.session.getUser().equals(challenge.getCreator())) {
-            return new CrxResponse(this.getSession(), "ERROR", "Only the owner may evaluate a challenge.");
+        if (!this.session.getUser().equals(challenge.getCreator()) && !this.isSuperuser()) {
+            return new CrxResponse(this.getSession(), "ERROR", "Only the owner may manage a challenge.");
         }
         return null;
     }
