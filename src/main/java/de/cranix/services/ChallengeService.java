@@ -358,7 +358,12 @@ public class ChallengeService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
+	TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,challenge.getTeachingSubject().getId());
         this.em.getTransaction().begin();
+        if( teachingSubject != null && teachingSubject.getCrxChallenges().contains(challenge) ) {
+            teachingSubject.getCrxChallenges().remove(challenge);
+            this.em.merge(teachingSubject);
+        }
         this.em.remove(challenge);
         this.em.getTransaction().commit();
         return new CrxResponse(this.getSession(), "OK", "Challenge was removed successfully.");
