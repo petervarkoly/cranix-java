@@ -1,5 +1,7 @@
 #!/bin/bash
-SUBJECTS="Chemie
+SUBJECTS="Allgemeinwissen
+Biologie
+Chemie
 Deutsch
 English
 Ethik
@@ -14,8 +16,10 @@ Musik
 Philosophie
 Physik
 Religion
+Soziologie
 Sport
-Technik"
+Technik
+Wirtschaft"
 
 /usr/share/cranix/tools/wait-for-api.sh
 
