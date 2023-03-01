@@ -93,16 +93,28 @@ public class ChallengeService extends Service {
      */
     public CrxResponse add(CrxChallenge challenge) {
         logger.debug("add:" + challenge);
-	if( challenge.getTeachingSubject() == null ){
-           return new CrxResponse(this.session, "ERROR", "You have to define the subject the challenge belongs to.");
-	}
+        if (challenge.getTeachingSubject() == null) {
+            return new CrxResponse(this.session, "ERROR", "You have to define the subject the challenge belongs to.");
+        }
+        User owner = this.em.find(User.class, this.session.getUserId());
+        //First we persist the challenge
         this.em.getTransaction().begin();
-        this.adaptSubject(challenge);
-        challenge.setCreator(this.session.getUser());
         this.em.persist(challenge);
+        challenge.setCreator(owner);
+        this.em.getTransaction().commit();
+        logger.debug("new id" + challenge.getId());
+        logger.debug("new challenge" + challenge);
+
+        //Add to teaching subject
+        TeachingSubject subject = this.em.find(TeachingSubject.class, challenge.getTeachingSubject().getId());
+        subject.getCrxChallenges().add(challenge);
+        //Now we adapt the questions and answers of the challenge
+        this.em.getTransaction().begin();
+        this.em.merge(subject);
         this.adapt(challenge);
-        this.session.getUser().getChallenges().add(challenge);
-        this.em.merge(this.session.getUser());
+        this.em.merge(challenge);
+        owner.getChallenges().add(challenge);
+        this.em.merge(owner);
         this.em.getTransaction().commit();
         return new CrxResponse(this.session, "OK", "Challenge was successfully added.", challenge.getId());
     }
@@ -119,7 +131,6 @@ public class ChallengeService extends Service {
             return resp;
         }
         this.em.getTransaction().begin();
-        this.adaptSubject(challenge);
         challenge.setCreator(this.session.getUser());
         this.em.merge(challenge);
         this.adapt(challenge);
@@ -142,23 +153,6 @@ public class ChallengeService extends Service {
         return new CrxResponse(this.session, "OK", "Challenge was successfully assigned and stated.");
     }
 
-    private void adaptSubject(CrxChallenge challenge) {
-        if(challenge.getId() != null){
-            CrxChallenge oldChallenge = this.getById(challenge.getId());
-            if( oldChallenge != null) {
-                TeachingSubject teachingSubject = oldChallenge.getTeachingSubject();
-                if(!teachingSubject.equals(challenge.getTeachingSubject())) {
-                teachingSubject.getCrxChallenges().remove(oldChallenge);
-                this.em.merge(teachingSubject);
-                }
-            }
-        }
-        TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,challenge.getTeachingSubject().getId());
-        if( teachingSubject != null && !teachingSubject.getCrxChallenges().contains(challenge) ) {
-            teachingSubject.getCrxChallenges().add(challenge);
-            this.em.merge(teachingSubject);
-        }
-    }
     /*
      * Assign challenge to the groups and users.
      */
@@ -235,9 +229,9 @@ public class ChallengeService extends Service {
 
     public List<CrxQuestion> getQuestionsOfSubject(Long subjectId) {
         try {
-            TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,subjectId);
+            TeachingSubject teachingSubject = this.em.find(TeachingSubject.class, subjectId);
             ArrayList<CrxQuestion> questions = new ArrayList<>();
-            for(CrxChallenge challenge: teachingSubject.getCrxChallenges()) {
+            for (CrxChallenge challenge : teachingSubject.getCrxChallenges()) {
                 questions.addAll(challenge.getQuestions());
             }
             return questions;
@@ -246,6 +240,7 @@ public class ChallengeService extends Service {
             return new ArrayList<>();
         }
     }
+
     /**
      * Gets the challenges created by the session user.
      *
@@ -358,9 +353,9 @@ public class ChallengeService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
-	TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,challenge.getTeachingSubject().getId());
+        TeachingSubject teachingSubject = this.em.find(TeachingSubject.class, challenge.getTeachingSubject().getId());
         this.em.getTransaction().begin();
-        if( teachingSubject != null && teachingSubject.getCrxChallenges().contains(challenge) ) {
+        if (teachingSubject != null && teachingSubject.getCrxChallenges().contains(challenge)) {
             teachingSubject.getCrxChallenges().remove(challenge);
             this.em.merge(teachingSubject);
         }
@@ -817,9 +812,19 @@ public class ChallengeService extends Service {
 
     public List<CrxChallenge> getBySubject(Long id) {
         TeachingSubject teachingSubject = this.em.find(TeachingSubject.class, id);
-        if( teachingSubject != null ) {
+        if (teachingSubject != null) {
+            this.em.refresh(teachingSubject);
             return teachingSubject.getCrxChallenges();
+            /**
+            try {
+                Query query = this.em.createNamedQuery("Challenge.findBySubject");
+                query.setParameter("subject", teachingSubject);
+                return (TeachingSubject)query.getResultList();
+            } catch (Exception e) {
+                logger.error("findBySubject: " + e.getMessage());
+            }
+             **/
         }
-        return new ArrayList<CrxChallenge>();
+        return new ArrayList<>();
     }
 }
