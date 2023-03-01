@@ -18,8 +18,8 @@ public abstract class AbstractEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
-    @ManyToOne()
+    @ManyToOne(optional = false)
+    @JoinColumn(name="CREATOR_ID",nullable = false,updatable = false)
     @JsonIgnore
     private User creator;
 
