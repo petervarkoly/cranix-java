@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import static de.cranix.helper.CranixConstants.roleStudent;
+import static org.checkerframework.checker.units.UnitsTools.m;
 
 /**
  * The type CrxChallenge.
@@ -26,10 +27,11 @@ public class CrxChallenge extends AbstractEntity {
     private String description;
 
     @NotNull
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(optional = false)
+    @JoinColumn(name="TEACHINGSUBJECT_ID",nullable = false)
     private TeachingSubject teachingSubject;
 
-    @ManyToMany(mappedBy = "challenges", cascade = CascadeType.MERGE)
+    @ManyToMany(mappedBy = "challenges")
     private List<SubjectArea> subjectAreaList;
 
     @NotNull
