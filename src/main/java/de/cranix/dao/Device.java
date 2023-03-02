@@ -27,15 +27,10 @@ import java.util.List;
         @NamedQuery(name = "Device.search", query = "SELECT d FROM Device d where d.name LIKE :search OR d.ip LIKE :search OR d.wlanIp LIKE :search OR d.mac LIKE :search OR d.wlanMac LIKE :search"),
 })
 @SequenceGenerator(name = "seq", initialValue = 1, allocationSize = 100)
-public class Device implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
-    private Long id;
+public class Device extends AbstractEntity {
 
     @Column(name = "name", updatable = false, length = 32)
-    @Size(max = 32)
+    @Size(max = 32, message = "name must not be longer then 32 characters.")
     @Pattern.List({
 		/*@Pattern(
                  regexp = "^[^,~:@#$%\\^'\\.\\(\\)/\\\\\\{\\}_\\s\\*\\?<>\\|]+$",
@@ -57,10 +52,10 @@ public class Device implements Serializable {
     private String name;
 
     @Column(name = "place")
-    private int place;
+    private Integer place;
 
     @Column(name = "roomRow")
-    private int row;
+    private Integer row;
 
     @Column(name = "IP", length = 16)
     @Size(max = 16, message = "IP must not be longer then 16 characters.")
@@ -161,18 +156,13 @@ public class Device implements Serializable {
     @Column(name = "owner_id", insertable = false, updatable = false)
     private Long ownerId;
 
-    @Transient
-    private String ownerName;
-
-    //bi-directional many-to-one association to TestUser
-    @OneToMany(mappedBy = "device")
-    @JsonIgnore
-    private List<TestUser> testUsers;
-
     //bi-directional many-to-many association to User
     @ManyToMany(mappedBy = "loggedOn")
     @JsonIgnore
     private List<User> loggedIn = new ArrayList<User>();
+
+    @Transient
+    private String ownerName;
 
     @Transient
     private Long loggedInId = 0L;
@@ -190,52 +180,6 @@ public class Device implements Serializable {
         this.mac = "";
         this.wlanIp = "";
         this.wlanMac = "";
-    }
-
-    public static long getSerialversionuid() {
-        return serialVersionUID;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        try {
-            return new ObjectMapper().writeValueAsString(this);
-        } catch (Exception e) {
-            return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Device other = (Device) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
     }
 
     public Long getHwconfId() {
@@ -350,14 +294,6 @@ public class Device implements Serializable {
         }
     }
 
-    public User getOwner() {
-        return this.owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
     public List<TestUser> getTestUsers() {
         return this.testUsers;
     }
@@ -461,14 +397,6 @@ public class Device implements Serializable {
 
     public void setSessions(List<Session> sessions) {
         this.sessions = sessions;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
     }
 
     public String getOwnerName() {

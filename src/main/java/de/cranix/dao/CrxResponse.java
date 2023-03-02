@@ -15,14 +15,10 @@ import java.util.List;
 @Entity
 @Table(name = "Responses")
 @NamedQuery(name = "CrxResponse.findAll", query = "SELECT r FROM CrxResponse r")
-public class CrxResponse implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class CrxResponse extends AbstractEntity {
     @ManyToOne
     Session session;
-    @Id
-    @SequenceGenerator(name = "RESPONSES_ID_GENERATOR", sequenceName = "SEQ")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RESPONSES_ID_GENERATOR")
-    private Long id;
+
     /*
      * The error code for machine work
      */

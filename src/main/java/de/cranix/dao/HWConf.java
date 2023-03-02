@@ -17,7 +17,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  */
 @Entity
-@Table(name="HWConfs")
+@Table(
+	name="HWConfs",
+	uniqueConstraints = { @UniqueConstraint(columnNames = { "hwconf_id", "name" }) }
+)
 @NamedQueries({
 	@NamedQuery(name="HWConf.findAll",   query="SELECT h FROM HWConf h"),
 	@NamedQuery(name="HWConf.findAllId", query="SELECT h.id FROM HWConf h"),

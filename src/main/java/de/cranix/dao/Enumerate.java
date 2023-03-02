@@ -20,56 +20,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	@NamedQuery(name="Enumerate.get", query="SELECT e FROM Enumerate e WHERE e.name = :name AND e.value = :value" )
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class Enumerate implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class Enumerate extends AbstractEntity {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-	private Long id;
-
+	@Column(name = "name")
 	@Size(max=32, message="Name must not be longer then 32 characters.")
 	private String name;
 
+	@Column(name = "value")
 	@Size(max=32, message="Value must not be longer then 32 characters.")
 	private String value;
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Enumerate other = (Enumerate) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
 
 	public Enumerate() {
 	}
@@ -78,14 +37,6 @@ public class Enumerate implements Serializable {
 		this.name	= type;
 		this.value	= value;
 		this.creator	= user;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getName() {
@@ -102,13 +53,5 @@ public class Enumerate implements Serializable {
 
 	public void setValue(String value) {
 		this.value = value;
-	}
-
-	public User getCreator() {
-		return this.creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
 	}
 }

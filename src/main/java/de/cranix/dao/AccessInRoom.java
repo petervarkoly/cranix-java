@@ -20,14 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
     @NamedQuery(name="AccessInRoom.findByType",         query="SELECT a FROM AccessInRoom a WHERE a.accessType = :accessType"),
     @NamedQuery(name="AccessInRoom.findActualAccesses", query="SELECT a FROM AccessInRoom a WHERE a.pointInTime = :time")
 })
-
-public class AccessInRoom implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@SequenceGenerator(name="ACCESSINROOM_ID_GENERATOR", sequenceName="SEQ")
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ACCESSINROOM_ID_GENERATOR")
-	private Long id;
+public class AccessInRoom   extends AbstractEntity{
 
 	//uni-directional many-to-one association to Room
 	@ManyToOne
@@ -37,103 +30,116 @@ public class AccessInRoom implements Serializable {
 	/*
 	 * The type of the access control. This can be ACT (action) or FWC or firewall access control
 	 */
+	@Column(name = "accessType")
+	@Size(max=3, message="accessType must not be longer then 3 characters.")
 	private String accessType;
 
 	/*
 	 * The action to be executed when accesType is ACT
 	 */
+	@Column(name = "action")
+	@Size(max=32, message="action must not be longer then 32 characters.")
 	private String action;
 
 	@Column(name="room_id", insertable = false, updatable = false)
 	private Long roomId;
 
-	@Transient
-	private String roomName;
-
 	/*
 	 * If the corresponding access should be applied Mondays
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "monday", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean monday;
 
 	/*
 	 * If the corresponding access should be applied Tuesdays
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "tuesday", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean tuesday;
 
 	/*
 	 * If the corresponding access should be applied Wednesdays
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "wednesday", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean wednesday;
 
 	/*
 	 * If the corresponding access should be applied Thursdays
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "thursday", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean thursday;
 
 	/*
 	 * If the corresponding access should be applied Fridays
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "friday", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean friday;
 
 	/*
 	 * If the corresponding access should be applied Saturdays
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "saturday", columnDefinition = "CHAR(1) DEFAULT 'N'")
 	private Boolean saturday;
 
 	/*
 	 * If the corresponding access should be applied Sundays
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "sunday", columnDefinition = "CHAR(1) DEFAULT 'N'")
 	private Boolean sunday;
 
 	/*
 	 * If the corresponding access should be applied on holidays
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "holiday", columnDefinition = "CHAR(1) DEFAULT 'N'")
 	private Boolean holiday;
 
 	/*
 	 * If the direct internet access is allowed or should be allowed.
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "direct", columnDefinition = "CHAR(1) DEFAULT 'N'")
 	private Boolean direct;
 
 	/*
 	 * If is allowed log in or should be allowed.
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "login", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean login;
 
 	/*
 	 * If the access to the portal and mailserver is allowed or should be allowed.
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "portal", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean portal;
 
 	/*
 	 * If the access to the printserver is allowed or should be allowed.
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "printing", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean printing;
 
 	/*
 	 * If the direct internet access via proxy is allowed or should be allowed.
 	 */
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "proxy", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean proxy;
 
+	@Column(name = "pointInTime", columnDefinition = "CHAR(5) DEFAULT '06:00'")
 	private String  pointInTime;
 
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
+	@Transient
+	private String roomName;
 
 	@Transient
 	private Boolean allowSessionIp = false;
@@ -196,55 +202,12 @@ public class AccessInRoom implements Serializable {
 		room.addAccessInRoom(this);
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AccessInRoom other = (AccessInRoom) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-
-
 	public Room getRoom() {
 		return this.room;
 	}
 
 	public void setRoom(Room room) {
 		this.room = room;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getAccessType() {
@@ -385,14 +348,6 @@ public class AccessInRoom implements Serializable {
 
 	public void setWednesday(Boolean wednesday) {
 		this.wednesday = wednesday;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
 	}
 
 	public void correctTime() {

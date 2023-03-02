@@ -17,16 +17,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	@NamedQuery(name="Acl.findAll", query="SELECT a FROM Acl a")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class Acl implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class Acl extends AbstractEntity {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-	private Long id;
-
+	@Column(name = "acl")
+	@Size(max=32, message="acl must not be longer then 32 characters.")
 	private String acl;
 	
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "allowed", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean allowed;
 	
 	//bi-directional many-to-one association to User
@@ -45,60 +43,12 @@ public class Acl implements Serializable {
 	@Column(name = "group_id", insertable = false, updatable = false)
 	private Long groupId;
 
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
-		
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Acl other = (Acl) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-	
-
 	public Acl() {
 	}
 
 	public Acl(String name, boolean allowed) {
 		this.acl     = name;
 		this.allowed = allowed;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getAcl() {
@@ -131,14 +81,6 @@ public class Acl implements Serializable {
 	
 	public Group getGroup(){
 		return this.group;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
 	}
 
 	public Long getUserId() {

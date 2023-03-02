@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The persistent class for the Categories database table.
- * 
+ *
  */
 @Entity
 @Table(name="Categories")
@@ -26,137 +26,128 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	@NamedQuery(name="Category.getByDescription", query="SELECT c FROM Category c where c.description = :description"),
 	@NamedQuery(name="Category.getByType",        query="SELECT c FROM Category c where c.categoryType = :type"),
 	@NamedQuery(name="Category.search",           query="SELECT c FROM Category c WHERE c.name LIKE :search OR c.description = :search"),
-	@NamedQuery(name="Category.expired",		  query="SELECT c FROM Category c WHERE c.validUntil < CURRENT_TIMESTAMP"),
-	@NamedQuery(name="Category.expiredByType",	  query="SELECT c FROM Category c WHERE c.validUntil < CURRENT_TIMESTAMP AND c.categoryType = :type")
+	@NamedQuery(name="Category.expired",	      query="SELECT c FROM Category c WHERE c.validUntil < CURRENT_TIMESTAMP"),
+	@NamedQuery(name="Category.expiredByType",    query="SELECT c FROM Category c WHERE c.validUntil < CURRENT_TIMESTAMP AND c.categoryType = :type")
 })
+public class Category extends AbstractEntity {
 
-public class Category implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@SequenceGenerator(name="CATEGORIES_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CATEGORIES_ID_GENERATOR")
-	private Long id;
-
-	@Size(max=64, message="Uid must not be longer then 64 characters..")
+	@Column(name="description")
+	@Size(max=64, message="Description must not be longer then 64 characters..")
 	private String description;
 
+	@Column(name="name")
 	@Size(max=32, message="Name must not be longer then 32 characters..")
 	private String name;
 
+	@Column(name="categoryType")
+	@Size(max=64, message="categoryType must not be longer then 64 characters..")
 	private String categoryType;
 	
+	@Column(name="validFrom")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date validFrom;
 
+	@Column(name="validUntil")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date validUntil;
-
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User owner;
-
-	@Column(name="owner_id", insertable=false, updatable=false)
-	private Long ownerId;
 
 	//bi-directional many-to-many association to Device
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JoinTable(        
-			name="DeviceInCategories",
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="device_id") }
-			)
+	@JoinTable(
+		name="DeviceInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="device_id") }
+	)
 	private List<Device> devices;
 
 	//bi-directional many-to-many association to Group
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="GroupInCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="group_id") }
-			)
+		name="GroupInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="group_id") }
+	)
 	private List<Group> groups = new ArrayList<Group>();
 
 	//bi-directional many-to-many association to Group
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="HWConfInCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="hwconf_id") }
-			)
+		name="HWConfInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="hwconf_id") }
+	)
 	private List<HWConf> hwconfs;
 
 	//bi-directional many-to-many association to Room
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="RoomInCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="room_id") }
-			)
+		name="RoomInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="room_id") }
+	)
 	private List<Room> rooms;
 
 	//bi-directional many-to-many association to Software
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="SoftwareInCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="software_id") }
-			)
+		name="SoftwareInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="software_id") }
+	)
 	private List<Software> softwares;
 
 	//bi-directional many-to-many association to Software
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="SoftwareRemovedFromCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="software_id") }
-			)
+		name="SoftwareRemovedFromCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="software_id") }
+	)
 	private List<Software> removedSoftwares;
 
 	//bi-directional many-to-many association to User
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="UserInCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="user_id") }
-			)
+		name="UserInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="user_id") }
+	)
 	private List<User> users = new ArrayList<User>();
 
 	//bi-directional many-to-many association to Announcement
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="AnnouncementInCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="announcement_id") }
-			)
+		name="AnnouncementInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="announcement_id") }
+	)
 	@JsonIgnore
 	private List<Announcement> announcements;
 
 	//bi-directional many-to-many association to Contact
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="ContactInCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="contact_id") }
-			)
+		name="ContactInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="contact_id") }
+	)
 	@JsonIgnore
 	private List<Contact> contacts;
 
 	//bi-directional many-to-many association to FAQ
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
-			name="FAQInCategories", 
-			joinColumns={ @JoinColumn(name="category_id") },
-			inverseJoinColumns={ @JoinColumn(name="faq_id") }
-			)
+		name="FAQInCategories",
+		joinColumns={ @JoinColumn(name="category_id") },
+		inverseJoinColumns={ @JoinColumn(name="faq_id") }
+	)
 	@JsonIgnore
 	private List<FAQ> faqs;
 
@@ -187,47 +178,14 @@ public class Category implements Serializable {
 	@Transient
 	private List<Long> faqIds;
 
+	@Column(name = "studentsOnly", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	@Convert(converter=BooleanToStringConverter.class)
 	boolean studentsOnly;
 
+	@Column(name = "publicAccess", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	@Convert(converter=BooleanToStringConverter.class)
 	boolean publicAccess;
 	
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Category other = (Category) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
 	public Category() {
 		this.announcementIds = new ArrayList<Long>();
 		this.contactIds = new ArrayList<Long>();
@@ -240,14 +198,6 @@ public class Category implements Serializable {
 		this.userIds    = new ArrayList<Long>();
 		this.validFrom  = new Date(System.currentTimeMillis());
 		this.rooms    = new ArrayList<Room>();
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getName() {
@@ -272,22 +222,6 @@ public class Category implements Serializable {
 
 	public void setCategoryType(String categoryType) {
 		this.categoryType = categoryType;
-	}
-
-	public User getOwner() {
-		return this.owner;
-	}
-
-	public void setOwner(User owner) {
-		this.owner = owner;
-	}
-
-	public Long getOwnerId() {
-		return ownerId;
-	}
-
-	public void setOwnerId(Long ownerId) {
-		this.ownerId = ownerId;
 	}
 
 	public boolean getStudentsOnly() {

@@ -23,34 +23,29 @@ import javax.validation.constraints.Size;
 @NamedQueries({
 	@NamedQuery(name="Announcement.findAll", query="SELECT a FROM Announcement a")
 })
-public class Announcement implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * The technical id of the announcement
-	 */
-	@Id
-	@SequenceGenerator(name="ANNOUNCEMENTS_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ANNOUNCEMENTS_ID_GENERATOR")
-	private Long id;
+public class Announcement extends AbstractEntity  {
 
 	/**
 	 * The issue of the announcement. The maximal length is 128
 	 */
+	@Column(name = "issue")
 	@Size(max=128, message="Issue must not be longer then 128 characters.")
 	private String issue;
 
-	/*+
+	/**
 	 * Keywords to the announcement.
 	 */
+	@Column(name = "keywords")
 	@Size(max=128, message="Keywords must not be longer then 128 characters.")
 	private String keywords;
 
 	/**
 	 * The content of the announcement. Maximal length is 16MB
 	 */
+	@Column(name = "text", columnDefinition = "MEDIUMTEXT")
 	private String text;
 
+	@Column(name = "title")
 	@Size(max=128, message="Title must not be longer then 128 characters.")
 	private String title;
 
@@ -60,6 +55,11 @@ public class Announcement implements Serializable {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date validUntil;
+
+	//bi-directional many-to-many association to Category
+	@JsonIgnore
+	@OneToMany(mappedBy="parent",cascade ={CascadeType.ALL})
+	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
 
 	//bi-directional many-to-many association to User
 	@ManyToMany(mappedBy="readAnnouncements",cascade ={CascadeType.MERGE, CascadeType.REFRESH})
@@ -72,40 +72,11 @@ public class Announcement implements Serializable {
 	@Transient
 	private List<Long> categoryIds;
 
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	private User owner;
-
-	@Column(name="owner_id", insertable=false, updatable=false)
-	private Long ownerId;
-
-
-	public Boolean getSeenByMe() {
-		return seenByMe;
-	}
-
-	public void setSeenByMe(Boolean seenByMe) {
-		this.seenByMe = seenByMe;
-	}
-
 	@Transient
 	private Boolean seenByMe = false;
 
-	//bi-directional many-to-many association to Category
-	@JsonIgnore
-	@OneToMany(mappedBy="parent",cascade ={CascadeType.ALL})
-	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
-
 	public Announcement() {
 		this.haveSeenUsers = new ArrayList<User>();
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getIssue() {
@@ -172,28 +143,12 @@ public class Announcement implements Serializable {
 		this.categories = categories;
 	}
 
-	public User getOwner() {
-		return this.owner;
-	}
-
-	public void setOwner(User owner) {
-		this.owner = owner;
-	}
-
 	public List<Long> getCategoryIds() {
 		return categoryIds;
 	}
 
 	public void setCategoryIds(List<Long> categoryIds) {
 		this.categoryIds = categoryIds;
-	}
-
-	public Long getOwnerId() {
-		return ownerId;
-	}
-
-	public void setOwnerId(Long ownerId) {
-		this.ownerId = ownerId;
 	}
 
 	public List<TaskResponse> getTaskResponses() {
@@ -215,37 +170,12 @@ public class Announcement implements Serializable {
 			this.taskResponses.remove(taskResponse);
 		}
 	}
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
+
+	public Boolean getSeenByMe() {
+		return seenByMe;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Announcement other = (Announcement) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
+	public void setSeenByMe(Boolean seenByMe) {
+		this.seenByMe = seenByMe;
 	}
 }
