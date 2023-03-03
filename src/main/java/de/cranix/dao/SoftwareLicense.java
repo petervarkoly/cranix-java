@@ -18,24 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Table(name="SoftwareLicenses")
 @NamedQuery(name="SoftwareLicense.findAll", query="SELECT s FROM SoftwareLicense s")
 public class SoftwareLicense implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@SequenceGenerator(name="SOFTWARELICENSES_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SOFTWARELICENSES_ID_GENERATOR")
-	private Long id;
 
 	/**
 	 * The amount of the devices the license can be used for.
 	 */
 	@Column(name = "count")
-	private int count;
-
-	/**
-	 * The amount of the devices the license can be used for.
-	 */
-	@Transient
-	private int used;
+	private Integer count;
 
 	/**
 	 * The type of the license. This can be F for licenses saved in files or C for Licenses passed by command line.
@@ -64,64 +52,23 @@ public class SoftwareLicense implements Serializable {
 	//bi-directional many-to-one association to Software
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="software_id")
 	private Software software;
 	
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-	
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SoftwareLicense other = (SoftwareLicense) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
+	/**
+	 * The amount of the devices the license can be used for.
+	 */
+	@Transient
+	private Integer used;
 
 	public SoftwareLicense() {
 	}
 
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public int getCount() {
+	public Integer getCount() {
 		return this.count;
 	}
 
-	public void setCount(int count) {
+	public void setCount(Integer count) {
 		this.count = count;
 	}
 
@@ -166,25 +113,16 @@ public class SoftwareLicense implements Serializable {
 		this.devices.remove(device);
 	}
 
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
 	public void setDevices(List<Device> devices) {
 		this.devices = devices;
 	}
 
 
-	public int getUsed() {
+	public Integer getUsed() {
 		return used;
 	}
 
-
-	public void setUsed(int used) {
+	public void setUsed(Integer used) {
 		this.used = used;
 	}
 }

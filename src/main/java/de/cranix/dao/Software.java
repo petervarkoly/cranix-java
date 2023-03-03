@@ -24,74 +24,57 @@ import java.util.List;
 	@NamedQuery(name="Software.getByNameOrDescription", query="SELECT s FROM Software s WHERE s.name = :name OR s.description = :desc")
 })
 public class Software implements Serializable {
-	private static final long serialVersionUID = 1L;
 
-	@Id
-	@SequenceGenerator(name="SOFTWARE_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SOFTWARE_ID_GENERATOR")
-	private Long id;
+	@Size(min = 1, message="Name must not be shorter then 1 character.")
+	@Column(name = "name", length = 128)
+	private String name;
 
-	@Size(max=128, message="Description must not be longer then 128 characters.")
-	@Size(min = 1, max = 128)
-    @Column(name = "description", length = 128)
+	@Size(min = 1, message="Description must not be shorter then 1 character.")
+	@Column(name = "description", length = 128)
 	private String description;
 
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "manually", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean manually;
-
-	@Size(max=128, message="Name must not be longer then 128 characters.")
-	@Size(min = 1, max = 128)
-	@Column(name = "name", length = 128)
-	private String name;
 
 	@Column(name = "weight")
 	private Integer weight;
 
-	@Transient
-	private boolean sourceAvailable = true;
-
-	//bi-directional many-to-one association to SoftwareLicens
+	/* bi-directional many-to-one associations */
 	@OneToMany(mappedBy="software")
 	@JsonIgnore
 	private List<SoftwareLicense> softwareLicenses;
 
-	//bi-directional many-to-one association to SoftwareVersion
 	@OneToMany(mappedBy="software", cascade = CascadeType.ALL)
 	private List<SoftwareVersion> softwareVersions;
 
-	//bi-directional many-to-one association to SoftwareVersion
 	@OneToMany(mappedBy="software", cascade = CascadeType.ALL)
 	private List<SoftwareFullName> softwareFullNames;
 
-	//bi-directional many-to-many association to Category
+	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="softwares")
 	@JsonIgnore
 	private List<Category> categories;
 
-	//bi-directional many-to-many association to Category
 	@ManyToMany(mappedBy="removedSoftwares")
 	@JsonIgnore
 	private List<Category> removedFromCategories;
 
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
-
-	//bi-directional many-to-many association to Device
 	@ManyToMany()
 	@JoinTable(
-			name="SoftwareRequirements",
-			joinColumns={ @JoinColumn(name="software_id")	},
-			inverseJoinColumns={ @JoinColumn(name="requirement_id") }
+		name="SoftwareRequirements",
+		joinColumns={ @JoinColumn(name="software_id")	},
+		inverseJoinColumns={ @JoinColumn(name="requirement_id") }
 	)
 	@JsonIgnore
 	private List<Software> softwareRequirements = new ArrayList<Software>();
 
-	//bi-directional many-to-many association to Device
 	@ManyToMany(mappedBy="softwareRequirements")
 	@JsonIgnore
 	private List<Software> requiredBy = new ArrayList<Software>();
+
+	@Transient
+	private boolean sourceAvailable = true;
 
 	public Software() {
 		this.manually = false;
@@ -102,46 +85,20 @@ public class Software implements Serializable {
 		this.softwareVersions     = new ArrayList<SoftwareVersion>();
 	}
 
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
+	public String getName() {
+		return this.name;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+	public void setName(String name) {
+		this.name = name.length() > 128 ? name.substring(0,128) : name;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Software other = (Software) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
+	public String getDescription() {
+		return this.description;
 	}
 
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
+	public void setDescription(String description) {
+		this.description = description.length() > 128 ? description.substring(0,128) : description;
 	}
 
 	public Integer getWeight() {
@@ -152,28 +109,12 @@ public class Software implements Serializable {
 		this.weight = weight;
 	}
 
-	public String getDescription() {
-		return this.description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description.length() > 128 ? description.substring(0,128) : description;;
-	}
-
 	public Boolean getManually() {
 		return this.manually;
 	}
 
 	public void setManually(Boolean manually) {
 		this.manually = manually;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name.length() > 128 ? name.substring(0,128) : name;;
 	}
 
 	public List<SoftwareLicense> getSoftwareLicenses() {
@@ -207,14 +148,12 @@ public class Software implements Serializable {
 	public SoftwareVersion addSoftwareVersion(SoftwareVersion softwareVersion) {
 		getSoftwareVersions().add(softwareVersion);
 		softwareVersion.setSoftware(this);
-
 		return softwareVersion;
 	}
 
 	public SoftwareVersion removeSoftwareVersion(SoftwareVersion softwareVersion) {
 		getSoftwareVersions().remove(softwareVersion);
 		softwareVersion.setSoftware(null);
-
 		return softwareVersion;
 	}
 

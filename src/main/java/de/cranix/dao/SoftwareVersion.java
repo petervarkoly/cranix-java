@@ -18,18 +18,13 @@ import java.util.List;
 @Table(name = "SoftwareVersions")
 @NamedQueries({
 	@NamedQuery(name="SoftwareVersion.findAll",       query="SELECT s FROM SoftwareVersion s"),
-	@NamedQuery(name="SoftwareVersion.get",			  query="SELECT s FROM SoftwareVersion s WHERE s.softwareId = :SOFTWARE and s.version = :VERSION"),
+	@NamedQuery(name="SoftwareVersion.get",		  query="SELECT s FROM SoftwareVersion s WHERE s.softwareId = :SOFTWARE and s.version = :VERSION"),
 	@NamedQuery(name="SoftwareVersion.getBySoftware", query="SELECT s FROM SoftwareVersion s WHERE s.softwareId = :SOFTWARE"),
 	
 })
-public class SoftwareVersion implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class SoftwareVersion extends AbstractEntity {
 
-	@Id
-	@SequenceGenerator(name="SOFTWAREVERSION_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SOFTWAREVERSION_ID_GENERATOR")
-	private Long id;
-
+	@Column(name = "version", length = 128)
 	private String version;
 
 	//bi-directional many-to-one association, cascade=CascadeType.REMOVEn to SoftwareStatus
@@ -40,6 +35,7 @@ public class SoftwareVersion implements Serializable {
 	//bi-directional many-to-one association to Software
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="software_id")
 	private Software software;
 	
 	@Column(name = "software_id", insertable = false, updatable = false)
@@ -51,43 +47,10 @@ public class SoftwareVersion implements Serializable {
 	 * D -> deprecated this is an older version which does exists on the server and can be installed
 	 * U -> unknown this version of software was not installed from the cranix
 	 */
+	@Column(name = "status", length = 1)
+        @Size(max=1, message="status must not be longer then 1 characters.")
 	private String status;
 	
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-	
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SoftwareVersion other = (SoftwareVersion) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
 	public SoftwareVersion() {
 	}
 
@@ -98,20 +61,12 @@ public class SoftwareVersion implements Serializable {
 		software.getSoftwareVersions().add(this);
 	}
 
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public String getVersion() {
 		return this.version;
 	}
 
 	public void setVersion(String version) {
-		this.version = version;
+		this.version = version.length() > 128 ? version.substring(0,128) : version;
 	}
 
 	public List<SoftwareStatus> getSoftwareStatuses() {

@@ -46,10 +46,6 @@ import de.cranix.helper.SslCrypto;
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class User extends AbstractEntity {
 
-	/* Simple attributes */
-	@Size(max=64, message="Surname must not be longer then 64 characters.")
-	private String surName;
-
 	@Column(name="uid", updatable=false)
 	@Pattern.List({
 		@Pattern(
@@ -64,15 +60,20 @@ public class User extends AbstractEntity {
 	@Size(max=32, message="Uid must not be longer then 32 characters.")
 	private String uid;
 
-	@Size(max=64, message="UUID must not be longer then 64 characters.")
 	@Column(name="uuid", updatable=false)
+	@Size(max=64, message="UUID must not be longer then 64 characters.")
 	private String uuid;
 
+	@Column(name="givenName")
 	@Size(max=64, message="Givenname must not be longer then 64 characters.")
 	private String givenName;
 
-	@Size(max=16, message="Role must not be longer then 16 characters.")
+	@Column(name="surName")
+	@Size(max=64, message="Surname must not be longer then 64 characters.")
+	private String surName;
+
 	@Column(name="role")
+	@Size(max=16, message="Role must not be longer then 16 characters.")
 	private String role;
 
 	@Column(name="birthDay", columnDefinition = "DATE NOT NULL")
@@ -226,7 +227,6 @@ public class User extends AbstractEntity {
 
 	@Transient
 	String fullName;
-
 
 	@Transient
 	private String password ="";

@@ -27,27 +27,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 	@NamedQuery(name="Printer.getByName", query="SELECT p FROM Printer p WHERE p.name = :name")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class Printer implements Serializable  {
-	private static final long serialVersionUID = 1L;
+public class Printer extends AbstractEntity  {
 
-	/*
-	 * Variables required for creating a printer
-	 */
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-	private Long      id;
-
+	@Column(name = "name")
+        @Size(max=32, message="name must not be longer then 32 characters.")
 	private String    name;
 
 	//bi-directional many-to-one association to HWConf
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="device_id")
 	private Device    device;
-
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
 
 	//bi-directional many-to-many association to Device
 	@ManyToMany(mappedBy="availablePrinters",cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -155,14 +145,6 @@ public class Printer implements Serializable  {
 		this.device = device;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public String getManufacturer() {
 		return manufacturer;
 	}
@@ -201,14 +183,6 @@ public class Printer implements Serializable  {
 
 	public void setWindowsDriver(boolean windowsDriver) {
 		this.windowsDriver = windowsDriver;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
 	}
 
 	public List<Device> getAvailableForDevices() {

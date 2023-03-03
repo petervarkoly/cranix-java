@@ -28,92 +28,41 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	@NamedQuery(name="HWConf.getByType", query="SELECT h FROM HWConf h WHERE h.deviceType = :deviceType")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class HWConf implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class HWConf extends AbstractEntity {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-	private Long id;
-
-	@Size(max=64, message="Description must not be longer then 64 characters.")
-	private String description;
-
-	@Size(max=32, message="Name must not be longer then 32 characters.")
+	@Column(name = "name")
+	@Size(max=32, message="name must not be longer then 32 characters.")
 	private String name;
 
+	@Column(name = "description")
+	@Size(max=64, message="description must not be longer then 64 characters.")
+	private String description;
+
+	@Column(name = "deviceType")
+	@Size(max=16, message="deviceType must not be longer then 64 characters.")
 	private String deviceType;
 
-	//bi-directional many-to-one association to Device
+	/* bi-directional many-to-one associations */
 	@OneToMany(mappedBy="hwconf")
 	@JsonIgnore
 	private List<Device> devices = new ArrayList();
 
-	//bi-directional many-to-one association to Partition
 	@OneToMany(mappedBy="hwconf", cascade={CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true )
 	private List<Partition> partitions = new ArrayList();
 
-	//bi-directional many-to-one association to Room
 	@OneToMany(mappedBy="hwconf")
 	@JsonIgnore
 	private List<Room> rooms;
 
-	//bi-directional many-to-many association to Category
+	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="hwconfs")
 	@JsonIgnore
 	private List<Category> categories;
-
-    //bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		HWConf other = (HWConf) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
 
 	public HWConf() {
 		this.categories = new ArrayList<Category>();
 		this.devices    = new ArrayList<Device>();
 		this.rooms      = new ArrayList<Room>();
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getDescription() {

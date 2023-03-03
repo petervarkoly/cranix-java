@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
     @NamedQuery(name="AccessInRoom.findByType",         query="SELECT a FROM AccessInRoom a WHERE a.accessType = :accessType"),
     @NamedQuery(name="AccessInRoom.findActualAccesses", query="SELECT a FROM AccessInRoom a WHERE a.pointInTime = :time")
 })
-public class AccessInRoom   extends AbstractEntity{
+public class AccessInRoom extends AbstractEntity{
 
 	//uni-directional many-to-one association to Room
 	@ManyToOne

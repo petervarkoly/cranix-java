@@ -37,8 +37,7 @@ import java.util.Map;
 	@NamedQuery(name="Room.getDeviceCount",	           query="SELECT COUNT( d ) FROM  Device d WHERE d.room.id = :id")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class Room implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class Room extends AbstractEntity {
 
 	@SuppressWarnings("serial")
 	public static Map<Integer, Integer> nmToCount = new HashMap<Integer, Integer>() {{
@@ -76,19 +75,17 @@ public class Room implements Serializable {
 		put(8192,19);
 	}};
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-	private Long id;
-
 	@Column(name = "name", updatable = false)
-	@Size(max=32, message="Name must not be longer then 10 characters.")
+	@Size(max=32, message="Name must not be longer then 32 characters.")
 	private String name;
 
+	@Column(name = "places")
 	private Integer places;
 
 	@Column(name = "roomRows")
 	private Integer rows;
 
+	@Column(name = "description")
 	@Size(max=64, message="Description must not be longer then 64 characters.")
 	private String description;
 
@@ -98,134 +95,73 @@ public class Room implements Serializable {
 	@Column(name = "startIP", updatable = false)
 	private String startIP = "";
 
+	@Column(name = "roomType")
+	@Size(max=16, message="roomType must not be longer then 16 characters.")
 	private String roomType = "ComputerRoom";
 
+	@Column(name = "roomControl")
+	@Size(max=16, message="roomControl must not be longer then 16 characters.")
 	private String roomControl = "inRoom";
 
-	//bi-directional many-to-many association to Category
-	@ManyToMany(mappedBy="rooms")
-	@JsonIgnore
-	private List<Category> categories = new ArrayList<Category>();
-
-	//bi-directional many-to-one association to AccessInRoom
-	@OneToMany(mappedBy="room", cascade=CascadeType.ALL )
-	@JsonIgnore
-	private List<AccessInRoom> accessInRooms = new ArrayList<AccessInRoom>();
-
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="room", cascade=CascadeType.ALL )
-	@JsonIgnore
-	private List<Device> devices = new ArrayList<Device>();
-
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="room",cascade=CascadeType.ALL )
-	@JsonIgnore
-	private List<Session> sessions = new ArrayList<Session>();
-
-	//bi-directional many-to-many association to Device
-	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
-	@JoinTable(
-		name="AvailablePrinters",
-		joinColumns={ @JoinColumn(name="room_id") },
-		inverseJoinColumns={@JoinColumn(name="printer_id")}
-		)
-	private List<Printer> availablePrinters = new ArrayList<Printer>();
-
-	//bi-directional many-to-one association to Device
-	@ManyToOne( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
-	@JoinTable(
-		name="DefaultPrinter",
-		joinColumns={ @JoinColumn(name="room_id") },
-		inverseJoinColumns={ @JoinColumn(name="printer_id") }
-		)
-	private Printer defaultPrinter;
-
-	//bi-directional many-to-one association to Test
-	@OneToMany(mappedBy="room")
-	@JsonIgnore
-	private List<Test> tests = new ArrayList<Test>();
-
-	//bi-directional many-to-one association to RoomSmartControl
-	@OneToMany(mappedBy="room")
-	@JsonIgnore
-	private List<RoomSmartControl> smartControls = new ArrayList<RoomSmartControl>();
-
-	@Transient
-	private String network = "";
-
-	//bi-directional many-to-one association to HWConf
+	/* bi-directional many-to-one associations */
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="hwconf_id")
 	private HWConf hwconf;
 
 	@Column(name="hwconf_id", insertable=false, updatable=false)
 	private Long hwconfId;
 
-	//bi-directional many-to-one association to User
-	@ManyToOne
+	/* bi-directional many-to-one associations */
+	@OneToMany(mappedBy="room")
 	@JsonIgnore
-	private User creator;
+	private List<RoomSmartControl> smartControls = new ArrayList<RoomSmartControl>();
+
+	@OneToMany(mappedBy="room", cascade=CascadeType.ALL )
+	@JsonIgnore
+	private List<Device> devices = new ArrayList<Device>();
+
+	@OneToMany(mappedBy="room",cascade=CascadeType.ALL )
+	@JsonIgnore
+	private List<Session> sessions = new ArrayList<Session>();
+
+	@OneToMany(mappedBy="room", cascade=CascadeType.ALL )
+	@JsonIgnore
+	private List<AccessInRoom> accessInRooms = new ArrayList<AccessInRoom>();
+
+	/* bi-directional many-to-many associations */
+	@ManyToMany(mappedBy="rooms")
+	@JsonIgnore
+	private List<Category> categories = new ArrayList<Category>();
+
+	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
+	@JoinTable(
+		name="AvailablePrinters",
+		joinColumns={ @JoinColumn(name="room_id") },
+		inverseJoinColumns={@JoinColumn(name="printer_id")}
+	)
+	private List<Printer> availablePrinters = new ArrayList<Printer>();
+
+	@ManyToOne( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
+	@JoinTable(
+		name="DefaultPrinter",
+		joinColumns={ @JoinColumn(name="room_id") },
+		inverseJoinColumns={ @JoinColumn(name="printer_id") }
+	)
+	private Printer defaultPrinter;
+
+	/* Transient variables */
+	@Transient
+	private String network = "";
 
 	@Transient
 	private Integer devCount;
-
-	//If this is set netbios conventions will be ignored.
-	public boolean isIgnoreNetbios() {
-		return ignoreNetbios;
-	}
-
-	public void setIgnoreNetbios(boolean ignoreNetbios) {
-		this.ignoreNetbios = ignoreNetbios;
-	}
 
 	@Transient
 	private boolean ignoreNetbios = false;
 
 	public Room() {
 		this.convertNmToCount();
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Room other = (Room) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
 	}
 
 	public void convertNmToCount() {
@@ -360,26 +296,6 @@ public class Room implements Serializable {
 		this.hwconf   = hwconf;
 	}
 
-	public List<Test> getTests() {
-		return this.tests;
-	}
-
-	public void setTests(List<Test> tests) {
-		this.tests = tests;
-	}
-
-	public Test addTest(Test test) {
-		getTests().add(test);
-		test.setRoom(this);
-		return test;
-	}
-
-	public Test removeTest(Test test) {
-		getTests().remove(test);
-		test.setRoom(null);
-		return test;
-	}
-
 	public String getNetwork() {
 		return this.network;
 	}
@@ -398,14 +314,6 @@ public class Room implements Serializable {
 
 	public List<RoomSmartControl> getSmartControls() {
 		return this.smartControls;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
 	}
 
 	public void setAccessInRooms(List<AccessInRoom> accessInRooms) {
@@ -456,10 +364,12 @@ public class Room implements Serializable {
 		this.devCount = devCount;
 	}
 
-	/**
-	 * @return the serialversionuid
-	 */
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	public boolean isIgnoreNetbios() {
+		return ignoreNetbios;
 	}
+
+	public void setIgnoreNetbios(boolean ignoreNetbios) {
+		this.ignoreNetbios = ignoreNetbios;
+	}
+
 }

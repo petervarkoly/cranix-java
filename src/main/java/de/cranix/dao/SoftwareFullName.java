@@ -19,23 +19,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 	@NamedQuery(name="SoftwareFullName.getByName",  query="SELECT s FROM SoftwareFullName s WHERE s.fullName = :fullName"),
 	@NamedQuery(name="SoftwareFullName.findByName", query="SELECT s FROM SoftwareFullName s WHERE s.fullName LIKE :fullName")
 })
-public class SoftwareFullName implements Serializable {
+public class SoftwareFullName extends AbstractEntity {
 
-	@Id
-	@SequenceGenerator(name="SOFTWARELICENSES_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SOFTWARELICENSES_ID_GENERATOR")
-	private Long id;
+	@Size(min = 1, max = 128)
+	@Column(name = "fullName", length = 128)
+	private String fullName;
 
 	//bi-directional many-to-one association to Software
 	@ManyToOne
 	@JsonIgnore
 	private Software software;
-
-	@Size(min = 1, max = 128)
-    @Column(name = "fullName", length = 128)
-	private String fullName;
-
-	private static final long serialVersionUID = 1L;
 
 	public SoftwareFullName() {
 		super();
@@ -45,14 +38,6 @@ public class SoftwareFullName implements Serializable {
 		super();
 		this.software = software;
 		this.fullName = fullName.length() > 128 ? fullName.substring(0,128) : fullName;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public Software getSoftware() {
