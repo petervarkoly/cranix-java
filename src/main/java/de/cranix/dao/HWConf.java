@@ -156,14 +156,6 @@ public class HWConf extends AbstractEntity {
 	    this.categories = categories;
 	}
 
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
 	public boolean isDomainjoin() {
 		for( Partition partition : this.partitions ) {
 			if( partition.getJoinType() != null && ( partition.getJoinType().equals("Domain") || partition.getJoinType().equals("Simple")) ) {

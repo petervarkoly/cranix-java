@@ -20,7 +20,7 @@ import java.util.List;
 @NamedQueries({
 	@NamedQuery(name="FAQ.findAll", query="SELECT f FROM FAQ f")
 })
-public class FAQ implements Serializable {
+public class FAQ extends AbstractEntity {
 
 	@Column(name = "issue")
 	@Size(max=128, message="Issue must not be longer then 128 characters.")

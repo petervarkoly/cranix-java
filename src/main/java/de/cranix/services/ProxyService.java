@@ -252,13 +252,13 @@ public class ProxyService extends Service {
 		logger.debug(positiveList.toString());
 		PositiveList oldPositiveList = this.getPositiveListById(positiveList.getId());
 		try {
-			positiveList.setOwner(session.getUser());
+			positiveList.setCreator(session.getUser());
 			this.em.getTransaction().begin();
 			if( oldPositiveList == null ) {
 				User user = this.session.getUser();
 				int count = user.getOwnedPositiveLists().size();
 				positiveList.setName(user.getUid() + String.valueOf(count));
-				positiveList.setOwner(user);
+				positiveList.setCreator(user);
 				if( positiveList.getSubject() == null || positiveList.getSubject().isEmpty() ) {
 					positiveList.setSubject(positiveList.getName());
 				}

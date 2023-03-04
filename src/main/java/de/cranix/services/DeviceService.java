@@ -142,8 +142,8 @@ public class DeviceService extends Service {
                     needReloadSalt = true;
                 }
             }
-            if (device.getOwner() != null) {
-                User owner = device.getOwner();
+            if (device.getCreator() != null) {
+                User owner = device.getCreator();
                 logger.debug("Deleting private device owner:" + owner + " device " + device);
                 owner.getOwnedDevices().remove(device);
                 if (session.getUser().equals(owner)) {
@@ -674,7 +674,7 @@ public class DeviceService extends Service {
             if (values.containsKey("owner") && !values.get("owner").isEmpty()) {
                 User user = userService.getByUid(values.get("owner"));
                 if (user != null) {
-                    device.setOwner(user);
+                    device.setCreator(user);
                 }
             }
             if (values.containsKey("hwconf") && !values.get("hwconf").isEmpty()) {
@@ -976,7 +976,7 @@ public class DeviceService extends Service {
         try {
             device.setRoom(this.em.find(Room.class, device.getRoomId()));
             device.setHwconf(this.em.find(HWConf.class, device.getHwconfId()));
-            device.setOwner(this.em.find(User.class, device.getOwnerId()));
+            device.setCreator(this.em.find(User.class, device.getCreatorId()));
             this.em.getTransaction().begin();
             this.em.merge(device);
             this.em.getTransaction().commit();

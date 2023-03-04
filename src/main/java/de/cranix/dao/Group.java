@@ -72,14 +72,14 @@ public class Group extends AbstractEntity {
 	private List<User> users;
 
 	public Group() {
-		this.id   = null;
+		this.setId(null);
 		this.name = "";
 		this.description = "";
 		this.groupType = "";
 	}
 
 	public Group(String name, String description, String groupType) {
-		this.id   = null;
+		this.setId(null);
 		this.name = name;
 		this.description = description;
 		this.groupType = groupType;
@@ -150,10 +150,6 @@ public class Group extends AbstractEntity {
 
 	public void setCategories(List<Category> categories) {
 		this.categories = categories;
-	}
-
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
 	}
 
 	public List<CrxChallenge> getTodos() {

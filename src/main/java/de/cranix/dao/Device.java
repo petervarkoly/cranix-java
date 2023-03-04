@@ -16,7 +16,13 @@ import java.util.List;
  * The persistent class for the Devices database table.
  */
 @Entity
-@Table(name = "Devices")
+@Table(
+	name = "Devices",
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "name" }),
+		@UniqueConstraint(columnNames = { "IP" })
+	}
+)
 @NamedQueries({
         @NamedQuery(name = "Device.findAll", query = "SELECT d FROM Device d"),
         @NamedQuery(name = "Device.findAllId", query = "SELECT d.id FROM Device d"),
@@ -292,28 +298,6 @@ public class Device extends AbstractEntity {
         if (!room.getDevices().contains(this)) {
             room.getDevices().add(this);
         }
-    }
-
-    public List<TestUser> getTestUsers() {
-        return this.testUsers;
-    }
-
-    public void setTestUsers(List<TestUser> testUsers) {
-        this.testUsers = testUsers;
-    }
-
-    public TestUser addTestUser(TestUser testUser) {
-        getTestUsers().add(testUser);
-        testUser.setDevice(this);
-
-        return testUser;
-    }
-
-    public TestUser removeTestUser(TestUser testUser) {
-        getTestUsers().remove(testUser);
-        testUser.setDevice(null);
-
-        return testUser;
     }
 
     public List<User> getLoggedIn() {

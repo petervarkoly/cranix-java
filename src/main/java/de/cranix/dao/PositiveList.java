@@ -17,40 +17,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	@NamedQuery(name="PositiveList.findAll", query="SELECT p FROM PositiveList p"),
 	@NamedQuery(name="PositiveList.byName",  query="SELECT p FROM PositiveList p WHERE p.name = :name")
 })
-public class PositiveList implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class PositiveList extends AbstractEntity {
 
-	@Id
-	@SequenceGenerator(name="POSITIVELIST_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="POSITIVELIST_ID_GENERATOR")
-	private Long id;
-
+	@Column(name="description", length=64)
 	@Size(max=64, message="Description must not be longer then 64 characters.")
 	private String description;
 
+	@Column(name="name", length=32)
 	@Size(max=32, message="Name must not be longer then 32 characters.")
 	private String name;
 		
+	@Column(name="subject", length=32)
 	@Size(max=32, message="Subject must not be longer then 32 characters.")
 	private String subject;
 
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User owner;
-	
 	@Transient
 	private String domains;
 	
 	public PositiveList() {
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getDescription() {
@@ -77,55 +61,12 @@ public class PositiveList implements Serializable {
 		this.subject = subject;
 	}
 
-	public User getOwner() {
-		return owner;
-	}
-
-	public void setOwner(User owner) {
-		this.owner = owner;
-	}
-
-	public String getDomains() {
-		return domains;
-	}
-
 	public void setDomains(String domains) {
 		this.domains = domains;
 	}
 
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-	
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PositiveList other = (PositiveList) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
+	public String getDomains() {
+		return this.domains;
 	}
 
 }

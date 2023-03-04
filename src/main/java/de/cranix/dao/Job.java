@@ -23,20 +23,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	@NamedQuery(name="Job.getSucceeded",            query="SELECT j FROM Job j WHERE j.exitCode = 0"),
 	@NamedQuery(name="Job.getFailed",               query="SELECT j FROM Job j WHERE j.exitCode > 0")
 })
-public class Job implements Serializable {
+public class Job extends AbstractEntity {
 
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@SequenceGenerator(name="CEPHALIXJOBS_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CEPHALIXJOBS_ID_GENERATOR")
-	private Long id;
-
+	@Column(name="description", length=128)
 	private String description;
 
-	private Timestamp startTime;
+	//TODO rename startTime CREATED
+	//private Timestamp startTime;
 	
-	private Timestamp endTime;
+	//TODO rename endTime MODIFIED
+	//private Timestamp endTime;
 
 	private Integer exitCode;
 	
@@ -55,17 +51,9 @@ public class Job implements Serializable {
 	public Job(String description, Timestamp startTime, String command, boolean promptly) {
 		super();
 		this.description = description;
-		this.startTime   = startTime;
+		this.setCreated(startTime);
 		this.command     = command;
 		this.promptly    = promptly;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getDescription() {
@@ -73,15 +61,7 @@ public class Job implements Serializable {
 	}
 
 	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public Timestamp getStartTime() {
-		return this.startTime;
-	}
-
-	public void setStartTime(Timestamp startTime) {
-		this.startTime = startTime;
+		this.description = description.length() > 128 ? description.substring(0,128) : description;
 	}
 
 	public String getCommand() {
@@ -114,48 +94,5 @@ public class Job implements Serializable {
 
 	public void setExitCode(Integer exitCode) {
 		this.exitCode = exitCode;
-	}
-
-	public Timestamp getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(Timestamp endTime) {
-		this.endTime = endTime;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-	
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Job other = (Job) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
 	}
 }

@@ -821,25 +821,25 @@ public class UserService extends Service {
             creator.setCreatedAccessInRoom(null);
             //Announcement
             for (Announcement o : creator.getMyAnnouncements()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setMyAnnouncements(null);
             //Categories
             for (Category o : creator.getOwnedCategories()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setOwnedCategories(null);
             //Contacts
             for (Contact o : creator.getMyContacts()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setMyContacts(null);
             //Groups
             for (Group o : creator.getOwnedGroups()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setOwnedGroups(null);
@@ -851,7 +851,7 @@ public class UserService extends Service {
             creator.setCreatedHWConfs(null);
             //PositiveList
             for (PositiveList o : creator.getOwnedPositiveLists()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setOwnedPositiveLists(null);

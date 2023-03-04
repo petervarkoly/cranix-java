@@ -18,7 +18,10 @@ import java.util.Map;
  *
  */
 @Entity
-@Table(name="Rooms")
+@Table(
+	name="Rooms",
+	uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) }
+)
 @NamedQueries ({
 	@NamedQuery(name="Room.findAll",		   query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom'"),
 	@NamedQuery(name="Room.findAllWithControl",	   query="SELECT r FROM Room r WHERE r.roomType != 'smartRoom' AND r.roomControl != 'no'"),
@@ -294,6 +297,7 @@ public class Room extends AbstractEntity {
 
 	public void setHwconf(HWConf hwconf) {
 		this.hwconf   = hwconf;
+		this.hwconfId = hwconf.getId();
 	}
 
 	public String getNetwork() {
@@ -322,10 +326,6 @@ public class Room extends AbstractEntity {
 
 	public void setSmartControls(List<RoomSmartControl> smartControls) {
 		this.smartControls = smartControls;
-	}
-
-	public void setHwconfId(Long hwconfId) {
-		this.hwconfId = hwconfId;
 	}
 
 	public List<Session> getSessions() {

@@ -26,7 +26,7 @@ public class GuestUserService extends Service{
             categories = categoryService.getByType("guestUsers");
         } else {
             for (Category category : categoryService.getByType("guestUsers")) {
-                if (category.getOwner().equals(session.getUser()) || category.isPublicAccess()) {
+                if (category.getCreator().equals(session.getUser()) || category.isPublicAccess()) {
                     categories.add(category);
                 }
             }
@@ -149,7 +149,7 @@ public class GuestUserService extends Service{
             room.setName(guestUsers.getName() + "-adhoc");
             room.setDescription(guestUsers.getDescription());
             room.setRoomControl("allTeachers");
-            room.setHwconfId(3L);
+            room.setHwconf(roomService.getBYODHwconf());
             room.setRoomType("adHocRoom");
             crxResponse = roomService.add(room);
             if (crxResponse.getCode().equals("ERROR")) {

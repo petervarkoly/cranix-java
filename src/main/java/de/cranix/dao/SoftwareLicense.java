@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2017-2023 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Entity
 @Table(name="SoftwareLicenses")
 @NamedQuery(name="SoftwareLicense.findAll", query="SELECT s FROM SoftwareLicense s")
-public class SoftwareLicense implements Serializable {
+public class SoftwareLicense extends AbstractEntity {
 
 	/**
 	 * The amount of the devices the license can be used for.

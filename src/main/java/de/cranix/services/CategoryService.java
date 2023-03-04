@@ -27,7 +27,6 @@ public class CategoryService extends Service {
 		try {
 			Query query = this.em.createNamedQuery("Category.findAll"); 
 			for( Category cat : (List<Category>) query.getResultList() ) {
-				cat.setIds();
 				res.add(cat);
 			}
 			return res;
@@ -41,7 +40,6 @@ public class CategoryService extends Service {
 	public Category getById(long categoryId) {
 		try {
 			 Category cat = this.em.find(Category.class, categoryId);
-			 cat.setIds();
 			 return cat;
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -67,7 +65,6 @@ public class CategoryService extends Service {
 		try {
 			Query query = this.em.createNamedQuery("Category.getByType").setParameter("type", search);
 			for( Category c :  (List<Category>) query.getResultList() ) {
-				c.setIds();
 				categories.add(c);
 			}
 		} catch (Exception e) {
@@ -110,7 +107,7 @@ public class CategoryService extends Service {
 					return new CrxResponse(this.getSession(),"ERROR","Category description is not unique.");
 				}
 			}
-			category.setOwner(this.session.getUser());
+			category.setCreator(this.session.getUser());
 			this.em.getTransaction().begin();
 			this.em.persist(category);
 			this.em.getTransaction().commit();

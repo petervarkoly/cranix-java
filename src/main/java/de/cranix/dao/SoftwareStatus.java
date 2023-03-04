@@ -4,6 +4,7 @@ package de.cranix.dao;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +35,7 @@ public class SoftwareStatus extends AbstractEntity {
 	 * FR -> installed version is frozen: This must not be updated.<br>
 	 */
 	@Column(name = "status")
-	@Size(max = "2", message = "status must not be longer the 2 characters")
+	@Size(max = 2, message = "status must not be longer the 2 characters")
 	private String status;
 
 	/**
@@ -179,13 +180,5 @@ public class SoftwareStatus extends AbstractEntity {
 	 */
 	public void setRoomName(String roomName) {
 		this.roomName = roomName;
-	}
-
-
-	/**
-	 * @return the serialversionuid
-	 */
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 }

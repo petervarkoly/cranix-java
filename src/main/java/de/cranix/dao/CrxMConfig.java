@@ -1,8 +1,9 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2023 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 /**
@@ -23,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         @NamedQuery(name="CrxMConfig.check",       query="SELECT c FROM CrxMConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword AND c.value = :value")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class CrxMConfig implements Serializable {
+public class CrxMConfig extends AbstractEntity {
 
 	@Column(name = "objectType")
         @Size(max=12, message="objectType must not be longer then 12 characters.")

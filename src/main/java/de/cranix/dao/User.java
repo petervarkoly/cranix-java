@@ -236,7 +236,7 @@ public class User extends AbstractEntity {
 
 	public User() {
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-		this.id  = null;
+		this.setId(null);
 		this.uid = "";
 		this.uuid = "";
 		this.surName = "";
@@ -489,14 +489,6 @@ public class User extends AbstractEntity {
 		this.myFAQs = values;
 	}
 
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
 	public void setOwnedCategories(List<Category> ownedCategories) {
 		this.ownedCategories = ownedCategories;
 	}
@@ -600,10 +592,6 @@ public class User extends AbstractEntity {
 
 	public void setChallenges(List<CrxChallenge> challenges) {
 		this.challenges = challenges;
-	}
-
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
 	}
 
 	public void setFullName(String fullName) {

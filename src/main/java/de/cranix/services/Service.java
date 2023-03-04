@@ -320,32 +320,32 @@ public class Service extends Config {
                 break;
             case "de.cranix.dao.Announcement":
                 Announcement an = (Announcement) object;
-                owner = an.getOwner();
+                owner = an.getCreator();
                 neededRights.add("information.modify");
                 break;
             case "de.cranix.dao.Category":
                 Category cat = (Category) object;
-                owner = cat.getOwner();
+                owner = cat.getCreator();
                 neededRights.add("category.modify");
                 break;
             case "de.cranix.dao.Contact":
                 Contact con = (Contact) object;
-                owner = con.getOwner();
+                owner = con.getCreator();
                 neededRights.add("information.modify");
                 break;
             case "de.cranix.dao.FAQ":
                 FAQ faq = (FAQ) object;
-                owner = faq.getOwner();
+                owner = faq.getCreator();
                 neededRights.add("information.modify");
                 break;
             case "de.cranix.dao.Device":
                 Device Device = (Device) object;
-                owner = Device.getOwner();
+                owner = Device.getCreator();
                 neededRights.add("device.modify");
                 break;
             case "de.cranix.dao.Group":
                 Group group = (Group) object;
-                owner = group.getOwner();
+                owner = group.getCreator();
                 neededRights.add("group.modify");
                 neededRights.add("group.modify." + group.getGroupType());
                 break;
@@ -371,7 +371,7 @@ public class Service extends Config {
                 break;
             case "de.cranix.dao.RoomSmartControl":
                 RoomSmartControl rsc = (RoomSmartControl) object;
-                owner = rsc.getOwner();
+                owner = rsc.getCreator();
                 break;
             case "de.cranix.dao.Partition":
                 Partition partition = (Partition) object;
@@ -449,32 +449,32 @@ public class Service extends Config {
                 break;
             case "de.cranix.dao.Announcement":
                 Announcement an = (Announcement) object;
-                owner = an.getOwner();
+                owner = an.getCreator();
                 neededRights.add("information.delete");
                 break;
             case "de.cranix.dao.Category":
                 Category cat = (Category) object;
-                owner = cat.getOwner();
+                owner = cat.getCreator();
                 neededRights.add("category.delete");
                 break;
             case "de.cranix.dao.Contact":
                 Contact con = (Contact) object;
-                owner = con.getOwner();
+                owner = con.getCreator();
                 neededRights.add("information.delete");
                 break;
             case "de.cranix.dao.FAQ":
                 FAQ faq = (FAQ) object;
-                owner = faq.getOwner();
+                owner = faq.getCreator();
                 neededRights.add("information.delete");
                 break;
             case "de.cranix.dao.Device":
                 Device Device = (Device) object;
-                owner = Device.getOwner();
+                owner = Device.getCreator();
                 neededRights.add("device.delete");
                 break;
             case "de.cranix.dao.Group":
                 Group group = (Group) object;
-                owner = group.getOwner();
+                owner = group.getCreator();
                 neededRights.add("group.delete");
                 neededRights.add("group.delete." + group.getGroupType());
                 break;
@@ -500,7 +500,7 @@ public class Service extends Config {
                 break;
             case "de.cranix.dao.RoomSmartControl":
                 RoomSmartControl rsc = (RoomSmartControl) object;
-                owner = rsc.getOwner();
+                owner = rsc.getCreator();
                 break;
             case "de.cranix.dao.Partition":
                 Partition partition = (Partition) object;

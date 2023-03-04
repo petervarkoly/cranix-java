@@ -3,24 +3,16 @@ package de.cranix.dao;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name="Printers")
+@Table(
+	name="Printers",
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) }
+)
 @NamedQueries({
 	@NamedQuery(name="Printer.findAll",   query="SELECT p FROM Printer p"),
 	@NamedQuery(name="Printer.findAllId", query="SELECT p.id FROM Printer p"),

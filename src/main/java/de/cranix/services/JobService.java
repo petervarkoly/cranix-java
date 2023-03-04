@@ -72,9 +72,9 @@ public class JobService extends Service {
 		 */
 		String scheduledTime = "now";
 		if( job.isPromptly() ) {
-			job.setStartTime(new Timestamp(System.currentTimeMillis()));
+			job.setCreated(new Timestamp(System.currentTimeMillis()));
 		} else {
-			Date date = new Date(job.getStartTime().getTime());
+			Date date = new Date(job.getCreated().getTime());
 			scheduledTime        = simpleDateFormat.format(date);
 		}
 
@@ -131,7 +131,7 @@ public class JobService extends Service {
 		try {
 			Job job = this.em.find(Job.class, jobId);
 			job.setExitCode(exitCode);
-			job.setEndTime(new Timestamp(System.currentTimeMillis()));
+			job.setModified(new Timestamp(System.currentTimeMillis()));
 			this.em.getTransaction().begin();
 			this.em.merge(job);
 			this.em.getTransaction().commit();
@@ -145,7 +145,7 @@ public class JobService extends Service {
 	public CrxResponse restartJob(Long jobId) {
 		try {
 			Job job = this.em.find(Job.class, jobId);
-			job.setStartTime(new Timestamp(System.currentTimeMillis()));
+			job.setCreated(new Timestamp(System.currentTimeMillis()));
 			this.em.getTransaction().begin();
 			this.em.merge(job);
 			this.em.getTransaction().commit();
@@ -165,15 +165,15 @@ public class JobService extends Service {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Job> searchJobs(String description, Timestamp after, Timestamp befor) {
+	public List<Job> searchJobs(Job job) {
 		Query query = null;
-		if( after.equals(befor) ) {
-			query = this.em.createNamedQuery("Job.getByDescription").setParameter("description", description);
+		if( job.getCreated().equals(job.getModified()) ) {
+			query = this.em.createNamedQuery("Job.getByDescription").setParameter("description", job.getDescription());
 		} else {
 			query = this.em.createNamedQuery("Job.getByDescriptionAndTime")
-					.setParameter("description", description)
-					.setParameter("after", after)
-					.setParameter("befor", befor);
+					.setParameter("description", job.getDescription())
+					.setParameter("after", job.getCreated())
+					.setParameter("befor", job.getModified());
 		}
 		List<Job> jobs =  query.getResultList();
 		return jobs;

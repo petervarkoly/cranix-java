@@ -152,20 +152,18 @@ public class GroupService extends Service {
 					null,
 					group.getGroupType());
 		}
-		group.setOwner(this.session.getUser());
+		group.setCreator(this.session.getUser());
 		try {
+			User user = this.em.find(User.class, this.session.getUser().getId());
+			group.setCreator(user);
+			user.getOwnedGroups().add(group);
 			this.em.getTransaction().begin();
 			if( group.getGroupType().equals("primary")) {
 				Enumerate enumerate = new Enumerate("role",group.getName().toLowerCase(),this.session.getUser());
 				this.em.persist(enumerate);
 			}
 			this.em.persist(group);
-			if( group.getGroupType().equals("workgroup") || group.getGroupType().equals(roleGuest)) {
-				this.session.getUser().getOwnedGroups().add(group);
-				User user = this.em.find(User.class, this.session.getUser().getId());
-				group.setOwnerId(user.getId());
-				user.getOwnedGroups().add(group);
-			}
+			this.session.getUser().getOwnedGroups().add(group);
 			this.em.getTransaction().commit();
 			logger.debug("Created Group:" + group);
 		} catch (Exception e) {
@@ -247,7 +245,7 @@ public class GroupService extends Service {
 							this.em.remove(room);
 						}
 					}
-					User owner = category.getOwner();
+					User owner = category.getCreator();
 					if( owner != null ) {
 						owner.getCategories().remove(category);
 						this.em.merge(owner);
@@ -489,7 +487,7 @@ public class GroupService extends Service {
 		if( user.getRole().equals(group.getName()) ) {
 			return new CrxResponse(this.getSession(),"ERROR","User must not be removed from it's primary group.");
 		}
-		if( group.getOwner().equals(user) ) {
+		if( group.getCreator().equals(user) ) {
 			return new CrxResponse(this.getSession(),"ERROR","You must not remove yourself from your owned groups.");
 		}
 		group.removeUser(user);
@@ -515,35 +513,6 @@ public class GroupService extends Service {
 			groups.add(this.getById(id));
 		}
 		return groups;
-	}
-
-	public CrxResponse setOwner(Group group, User user) {
-		if( group.getOwner() != null && group.getOwner().equals(user)) {
-			return new CrxResponse(this.getSession(),"OK","Group owner need not be changed.");
-		}
-		try {
-			this.em.getTransaction().begin();
-			if( group.getOwner() != null ) {
-				User oldUser = group.getOwner();
-				oldUser.getOwnedGroups().remove(group);
-				this.em.merge(oldUser);
-			}
-			group.setOwner(user);
-			group.setOwnerId(user.getId());
-			user.getOwnedGroups().add(group);
-			this.em.merge(user);
-			this.em.merge(group);
-			this.em.getTransaction().commit();
-		} catch (Exception e) {
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
-		}
-		return new CrxResponse(this.getSession(),"OK","Group owner was changed.");
-	}
-
-	public CrxResponse setOwner(String groupName, String userName) {
-		Group group = this.getByName(groupName);
-		User user = new UserService(this.session, this.em).getByUid(userName);
-		return this.setOwner(group,user);
 	}
 
 	public CrxResponse cleanGroupDirectory(Group group) {
@@ -629,14 +598,4 @@ public class GroupService extends Service {
 		return responses;
 	}
 
-	public User getOwner(Group group) {
-		return group.getOwner();
-	}
-	public String getOwner(String groupName) {
-		Group group = this.getByName(groupName);
-		if( group != null && group.getOwner() != null) {
-			return group.getOwner().getUid();
-		}
-		return "";
-	}
 }

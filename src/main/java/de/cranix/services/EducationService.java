@@ -43,7 +43,6 @@ public class EducationService extends UserService {
         } catch (Exception e) {
             logger.error(e.getMessage());
             return null;
-        } finally {
         }
         for (Category category : room.getCategories()) {
             if (room.getName().equals(category.getName()) && category.getCategoryType().equals("smartRoom")) {
@@ -56,8 +55,7 @@ public class EducationService extends UserService {
     public List<Room> getMySmartRooms() {
         List<Room> smartRooms = new ArrayList<Room>();
         for (Category category : new CategoryService(this.session, this.em).getByType("smartRoom")) {
-            if (category.getOwner() != null && category.getOwner().equals(session.getUser())
-            ) {
+            if (category.getCreator() != null && category.getCreator().equals(session.getUser())) {
                 logger.debug("getMySamrtRooms" + category);
                 if (category.getRooms() != null && category.getRooms().size() > 0) {
                     smartRooms.add(category.getRooms().get(0));
@@ -134,7 +132,7 @@ public class EducationService extends UserService {
         room.getCategories().add(smartRoom);
         smartRoom.setRooms(new ArrayList<Room>());
         smartRoom.getRooms().add(room);
-        smartRoom.setOwner(owner);
+        smartRoom.setCreator(owner);
         smartRoom.setCategoryType("smartRoom");
         owner.getCategories().add(smartRoom);
 
@@ -215,7 +213,7 @@ public class EducationService extends UserService {
             Room room = this.em.find(Room.class, roomId);
             for (Category category : room.getCategories()) {
                 if (category.getCategoryType().equals("smartRoom") && category.getName().equals(room.getName())) {
-                    User owner = category.getOwner();
+                    User owner = category.getCreator();
                     if (owner != null) {
                         owner.getCategories().remove(category);
                         this.em.merge(owner);
@@ -581,14 +579,14 @@ public class EducationService extends UserService {
     public CrxResponse createGroup(Group group) {
         GroupService groupService = new GroupService(this.session, this.em);
         group.setGroupType("workgroup");
-        group.setOwner(session.getUser());
+        group.setCreator(session.getUser());
         return groupService.add(group);
     }
 
     public CrxResponse modifyGroup(long groupId, Group group) {
         GroupService groupService = new GroupService(this.session, this.em);
         Group emGroup = groupService.getById(groupId);
-        if (this.session.getUser().equals(emGroup.getOwner())) {
+        if (this.session.getUser().equals(emGroup.getCreator())) {
             return groupService.modify(group);
         } else {
             return new CrxResponse(this.getSession(), "ERROR", "You are not the owner of this group.");
@@ -598,7 +596,7 @@ public class EducationService extends UserService {
     public CrxResponse deleteGroup(long groupId) {
         GroupService groupService = new GroupService(this.session, this.em);
         Group emGroup = groupService.getById(groupId);
-        if (this.session.getUser().equals(emGroup.getOwner())) {
+        if (this.session.getUser().equals(emGroup.getCreator())) {
             return groupService.delete(groupId);
         } else {
             return new CrxResponse(this.getSession(), "ERROR", "You are not the owner of this group.");
@@ -733,11 +731,10 @@ public class EducationService extends UserService {
                 return null;
             }
             RoomSmartControl rsc = (RoomSmartControl) query.getResultList().get(0);
-            return rsc.getOwner().getId();
+            return rsc.getCreator().getId();
         } catch (Exception e) {
             logger.error(e.getMessage());
             return null;
-        } finally {
         }
     }
 
@@ -778,7 +775,9 @@ public class EducationService extends UserService {
         program[4] = controllers.toString();
         CrxSystemCmd.exec(program, reply, stderr, null);
 
-        RoomSmartControl roomSmartControl = new RoomSmartControl(roomId, this.session.getUserId(), minutes);
+        RoomSmartControl roomSmartControl = new RoomSmartControl(
+			new RoomService(this.session, this.em).getById(roomId),
+		       	this.session.getUser(), minutes);
         try {
             this.em.getTransaction().begin();
             this.em.persist(roomSmartControl);
@@ -786,7 +785,6 @@ public class EducationService extends UserService {
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse(this.getSession(), "OK", "Now you have the control for the selected room.");
     }
@@ -930,7 +928,7 @@ public class EducationService extends UserService {
         List<User> users = new ArrayList<User>();
         Group group = em.find(Group.class, groupId);
         if (group != null) {
-            Boolean myGroup = group.getOwner().equals(this.session.getUser());
+            Boolean myGroup = group.getCreator().equals(this.session.getUser());
             for (User user : group.getUsers()) {
                 if (myGroup || user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest)) {
                     users.add(user);

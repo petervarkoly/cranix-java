@@ -95,8 +95,8 @@ public class CrxMdmService extends Service {
         Map<String, String> enrollment = new HashMap<>();
         enrollment.put("organizationUuid", getConfigValue("ORG_UUID"));
         enrollment.put("user", "");
-        if (device.getOwner() != null) {
-            enrollment.put("user", getConfig(device.getOwner(), "mdmUuid"));
+        if (device.getCreator() != null) {
+            enrollment.put("user", getConfig(device.getCreator(), "mdmUuid"));
             enrollment.put("ownership", "BYOD");
         } else {
             enrollment.put("ownership", "COD");

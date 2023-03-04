@@ -32,7 +32,7 @@ public class AdHocLanService extends Service {
 		for( Category category : room.getCategories() ) {
 			logger.debug("getAdHocCategoryOfRoom" + category);
 			if( category.getCategoryType().equals("AdHocAccess")) {
-				category.setIds();
+				//category.setIds();
 				return category;
 			}
 		}
@@ -75,8 +75,7 @@ public class AdHocLanService extends Service {
 		room.setRoomControl(adHocRoom.getRoomControl());
 		//Search the BYOD HwConf
 		if( room.getHwconf() == null ) {
-			HWConf hwconf = new CloneToolService(this.session,this.em).getByName("BYOD");
-			room.setHwconfId(hwconf.getId());
+			room.setHwconf(new CloneToolService(this.session,this.em).getByName("BYOD"));
 		}
 		logger.debug("Add AdHocLan: " + room);
 		RoomService roomService = new RoomService(this.session,this.em);;
@@ -90,7 +89,7 @@ public class AdHocLanService extends Service {
 		category.setCategoryType("AdHocAccess");
 		category.setName(room.getName());
 		category.setDescription(room.getDescription());
-		category.setOwner(this.session.getUser());
+		category.setCreator(this.session.getUser());
 		category.setPublicAccess(false);
 		category.setStudentsOnly(adHocRoom.isStudentsOnly());
 		logger.debug("Add AdHocLan category: " + category);
@@ -128,7 +127,7 @@ public class AdHocLanService extends Service {
 	public CrxResponse delete(Long adHocRoomId) {
 		try {
 			Category category = this.getAdHocCategoryOfRoom(adHocRoomId);
-			category.setIds();
+			//category.setIds();
 			logger.debug("Delete adHocRoom:" + category);
 			RoomService roomService = new RoomService(this.session,this.em);
 			for( Long roomId : category.getRoomIds() ) {
@@ -209,7 +208,7 @@ public class AdHocLanService extends Service {
 		AdHocRoom adHocRoom = new AdHocRoom(room);
 		Category cat = this.getAdHocCategoryOfRoom(room);
 		if( cat != null ) {
-			cat.setIds();
+			//cat.setIds();
 			adHocRoom.setStudentsOnly(cat.getStudentsOnly());
 			adHocRoom.setGroupIds(cat.getGroupIds());
 			adHocRoom.setUserIds(cat.getUserIds());

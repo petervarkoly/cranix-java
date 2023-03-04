@@ -811,6 +811,12 @@ public class RoomService extends Service {
         return new CrxResponse(this.session, "OK ", "Devices were deleted successfully.");
     }
 
+    public HWConf getBYODHwconf() {
+                Query query = this.em.createNamedQuery("HWConf.getByName");
+                query.setParameter("name", "BYOD");
+                return (HWConf) query.getResultList().get(0);
+    }
+
     public List<Device> getDevices(long roomId) {
         return this.getById(roomId).getDevices();
     }
@@ -845,13 +851,13 @@ public class RoomService extends Service {
             if (hwconf == null) {
                 Query query = this.em.createNamedQuery("HWConf.getByName");
                 query.setParameter("name", "BYOD");
-                hwconf = (HWConf) query.getResultList().get(0);
+                hwconf = this.getBYODHwconf();
             }
             device.setMac(macAddress);
             device.setName(owner.getUid().replaceAll("_", "-").replaceAll("\\.", "") + "-" + name.toLowerCase().trim());
             device.setIp(ipAddress.get(0).split(" ")[0]);
             device.setHwconf(hwconf);
-            device.setOwner(owner);
+            device.setCreator(owner);
         } else {
             device.setMac(macAddress);
             device.setIp(ipAddress.get(0).split(" ")[0]);
@@ -922,7 +928,6 @@ public class RoomService extends Service {
         HWConf hwconf = new CloneToolService(this.session, this.em).getById(room.getHwconfId());
         oldRoom.setDescription(room.getDescription());
         oldRoom.setHwconf(hwconf);
-        oldRoom.setHwconfId(room.getHwconfId());
         oldRoom.setRoomType(room.getRoomType());
         oldRoom.setRows(room.getRows());
         oldRoom.setRoomControl(room.getRoomControl());
@@ -1283,6 +1288,7 @@ public class RoomService extends Service {
             return new CrxResponse(this.session, "ERROR", e.getMessage());
         }
         CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
+	HWConf defHwconf = cloneToolService.getById(4l);
         Map<String, Integer> header = new HashMap<>();
         CrxResponse crxResponse;
         String headerLine = importFile.get(0);
@@ -1347,9 +1353,9 @@ public class RoomService extends Service {
             if (header.containsKey("hwconf") && !values[header.get("hwconf")].isEmpty()) {
                 HWConf hwconf = cloneToolService.getByName(values[header.get("hwconf")]);
                 if (hwconf == null) {
-                    room.setHwconfId(4l);
+                    room.setHwconf(defHwconf);
                 } else {
-                    room.setHwconfId(hwconf.getId());
+                    room.setHwconf(hwconf);
                 }
             }
             crxResponse = this.add(room);

@@ -41,7 +41,7 @@ public class InformationService extends Service {
 			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
-		announcement.setOwner(user);
+		announcement.setCreator(user);
 		announcement.setCategories( new ArrayList<Category>() );
 		Category category;
 		try {
@@ -87,7 +87,7 @@ public class InformationService extends Service {
 			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
-		contact.setOwner(user);
+		contact.setCreator(user);
 		Category category;
 		try {
 			this.em.getTransaction().begin();
@@ -132,7 +132,7 @@ public class InformationService extends Service {
 			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
-		faq.setOwner(user);
+		faq.setCreator(user);
 		Category category;
 		try {
 			this.em.getTransaction().begin();
@@ -459,7 +459,7 @@ public class InformationService extends Service {
 				}
 			}
 			this.em.merge(oldAnnouncement);
-			this.em.merge(announcement.getOwner());
+			this.em.merge(announcement.getCreator());
 			this.em.getTransaction().commit();
 			return new CrxResponse(this.getSession(),"OK", "Announcement was modified succesfully.");
 		} catch (Exception e) {
@@ -514,7 +514,7 @@ public class InformationService extends Service {
 				}
 			}
 			this.em.merge(oldContact);
-			this.em.merge(oldContact.getOwner());
+			this.em.merge(oldContact.getCreator());
 			this.em.getTransaction().commit();
 			return new CrxResponse(this.getSession(),"OK", "Contact was modified succesfully.");
 		} catch (Exception e) {
@@ -567,7 +567,7 @@ public class InformationService extends Service {
 				}
 			}
 			this.em.merge(oldFaq);
-			this.em.merge(oldFaq.getOwner());
+			this.em.merge(oldFaq.getCreator());
 			this.em.getTransaction().commit();
 			return new CrxResponse(this.getSession(),"OK", "FAQ was modified succesfully.");
 		} catch (Exception e) {
@@ -690,7 +690,7 @@ public class InformationService extends Service {
 		boolean isSuperuser = this.isSuperuser();
 		List<Category> categories = new ArrayList<Category>();
 		for(Category category : categoryService.getByType("informations") ) {
-			if(isSuperuser ||  category.isPublicAccess() || this.session.getUser().equals(category.getOwner())) {
+			if(isSuperuser ||  category.isPublicAccess() || this.session.getUser().equals(category.getCreator())) {
 				if( !categories.contains(category) ) {
 					categories.add(category);
 				}
@@ -698,7 +698,7 @@ public class InformationService extends Service {
 		}
 		for(Category category : categoryService.getByType("smartRoom") ) {
 			logger.debug("getInfoCategories smartRoom:" + category );
-			if( isSuperuser ||  category.isPublicAccess() || this.session.getUser().equals(category.getOwner())) {
+			if( isSuperuser ||  category.isPublicAccess() || this.session.getUser().equals(category.getCreator())) {
 				if( !categories.contains(category) ) {
 					categories.add(category);
 				}
@@ -713,7 +713,7 @@ public class InformationService extends Service {
 		try {
 			this.em.getTransaction().begin();
 			taskResponse.setRating("");
-			taskResponse.setOwner(owner);
+			taskResponse.setCreator(owner);
 			announcement.addTasksResponses(taskResponse);
 			if( ! announcement.getHaveSeenUsers().contains(owner) ) {
 				announcement.getHaveSeenUsers().add(owner);
@@ -731,7 +731,7 @@ public class InformationService extends Service {
 
     public CrxResponse modifyTaskResponse(TaskResponse taskResponse) {
 		TaskResponse oldResponse = this.em.find(TaskResponse.class,taskResponse.getId());
-		if( ! this.session.getUser().equals(oldResponse.getOwner()) ) {
+		if( ! this.session.getUser().equals(oldResponse.getCreator()) ) {
 			return new CrxResponse(this.getSession(),"ERROR", "You are not allowed to modify this task response");
 		}
 		oldResponse.setText(taskResponse.getText());
@@ -748,7 +748,7 @@ public class InformationService extends Service {
 
 	public CrxResponse rateTaskResponse(TaskResponse taskResponse) {
 		TaskResponse oldResponse = this.em.find(TaskResponse.class,taskResponse.getId());
-		if( ! this.session.getUser().equals(oldResponse.getParent().getOwner()) ) {
+		if( ! this.session.getUser().equals(oldResponse.getParent().getCreator()) ) {
 			return new CrxResponse(this.getSession(),"ERROR", "You are not allowed to rate this task response");
 		}
 		oldResponse.setRating(taskResponse.getRating());
@@ -767,7 +767,7 @@ public class InformationService extends Service {
 	public TaskResponse findTaskResponseById(Long id) {
 		try {
 			TaskResponse taskResponse = this.em.find(TaskResponse.class, id);
-			if( this.session.getUser().equals(taskResponse.getOwner()) ) {
+			if( this.session.getUser().equals(taskResponse.getCreator()) ) {
 				return  taskResponse;
 			}
 		} catch (Exception e) {

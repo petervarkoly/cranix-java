@@ -4,6 +4,7 @@ package de.cranix.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,22 +23,29 @@ public class CrxResponse extends AbstractEntity {
     /*
      * The error code for machine work
      */
+    @Column(name = "code")
+    @Size(max = 64, message = "code must not be longer then 64 characters")
     private String code;
     /*
      * Human readable code. Can contains '%s' as place holder.
      */
+    @Column(name = "value")
+    @Size(max = 1024, message = "value must not be longer then 64 characters")
     private String value;
     /*
      * The values for the place holders.
      */
     @Transient
     private List<String> parameters;
+
     /*
      * This id will be set to the id of a object which was created or deleted or manipulated if any
      */
+    @Transient
     private Long objectId;
+
     @Column(name = "session_id", insertable = false, updatable = false)
-    private java.math.BigInteger sessionId;
+    private Long sessionId;
 
     public CrxResponse() {
     }
@@ -84,45 +92,6 @@ public class CrxResponse extends AbstractEntity {
         this.objectId = objectId;
     }
 
-    @Override
-    public String toString() {
-        try {
-            return new ObjectMapper().writeValueAsString(this);
-        } catch (Exception e) {
-            return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        CrxResponse other = (CrxResponse) obj;
-        if (id == null) {
-			return other.id == null;
-        } else return id.equals(other.id);
-	}
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getObjectId() {
         return this.objectId;
     }
@@ -139,11 +108,11 @@ public class CrxResponse extends AbstractEntity {
         this.code = code;
     }
 
-    public java.math.BigInteger getSessionId() {
+    public Long getSessionId() {
         return this.sessionId;
     }
 
-    public void setSessionId(java.math.BigInteger sessionId) {
+    public void setSessionId(Long sessionId) {
         this.sessionId = sessionId;
     }
 

@@ -4,6 +4,7 @@ package de.cranix.dao;
 import java.io.Serializable;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -198,7 +199,7 @@ public class AccessInRoom extends AbstractEntity{
 		this.proxy    = true;
 		this.action   = "";
 		this.room     = room;
-		this.creator  = room.getCreator();
+		this.setCreator(room.getCreator());
 		room.addAccessInRoom(this);
 	}
 
@@ -370,9 +371,5 @@ public class AccessInRoom extends AbstractEntity{
 
 	public void setAllowSessionIp(Boolean allowSessionIp) {
 		this.allowSessionIp = allowSessionIp;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 }

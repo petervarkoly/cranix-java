@@ -19,7 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Entity
-@Table(name="Categories")
+@Table(
+	name="Categories",
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "name","categroyType" }) }
+)
 @NamedQueries({
 	@NamedQuery(name="Category.findAll",          query="SELECT c FROM Category c"),
 	@NamedQuery(name="Category.getByName",        query="SELECT c FROM Category c where c.name = :name"),
@@ -31,15 +34,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 })
 public class Category extends AbstractEntity {
 
-	@Column(name="description")
+	@Column(name="description", length=64)
 	@Size(max=64, message="Description must not be longer then 64 characters..")
 	private String description;
 
-	@Column(name="name")
+	@Column(name="name", length=32)
 	@Size(max=32, message="Name must not be longer then 32 characters..")
 	private String name;
 
-	@Column(name="categoryType")
+	@Column(name="categoryType", length=64)
 	@Size(max=64, message="categoryType must not be longer then 64 characters..")
 	private String categoryType;
 	

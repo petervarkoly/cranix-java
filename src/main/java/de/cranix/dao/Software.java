@@ -16,14 +16,17 @@ import java.util.List;
  *
  */
 @Entity
-@Table(name = "Softwares")
+@Table(
+	name = "Softwares",
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) }
+)
 @NamedQueries({
 	@NamedQuery(name="Software.findAll",   query="SELECT s FROM Software s"),
 	@NamedQuery(name="Software.findAllId", query="SELECT s.id FROM Software s"),
 	@NamedQuery(name="Software.getByName", query="SELECT s FROM Software s WHERE s.name = :name"),
 	@NamedQuery(name="Software.getByNameOrDescription", query="SELECT s FROM Software s WHERE s.name = :name OR s.description = :desc")
 })
-public class Software implements Serializable {
+public class Software extends AbstractEntity {
 
 	@Size(min = 1, message="Name must not be shorter then 1 character.")
 	@Column(name = "name", length = 128)
@@ -171,14 +174,6 @@ public class Software implements Serializable {
 
 	public void setRemovedFromCategories(List<Category> categories) {
 	    this.removedFromCategories = categories;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
 	}
 
 	public boolean isSourceAvailable() {

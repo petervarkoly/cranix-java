@@ -845,7 +845,7 @@ public class SystemResource {
 		Job job
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<Job>   resp = new JobService(session,em).searchJobs(job.getDescription(), job.getStartTime(), job.getEndTime());
+		List<Job>   resp = new JobService(session,em).searchJobs(job);
 		em.close();
 		return resp;
 	}

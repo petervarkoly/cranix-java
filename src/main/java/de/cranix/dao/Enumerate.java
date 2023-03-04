@@ -36,7 +36,7 @@ public class Enumerate extends AbstractEntity {
 	public Enumerate(String type, String value, User user) {
 		this.name	= type;
 		this.value	= value;
-		this.creator	= user;
+		this.setCreator(user);
 	}
 
 	public String getName() {
