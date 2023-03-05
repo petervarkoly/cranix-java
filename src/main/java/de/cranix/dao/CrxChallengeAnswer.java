@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Table(
         name = "CrxChallengeAnswers",
-        uniqueConstraints = { @UniqueConstraint(columnNames = { "CREATOR_ID", "CRXQUESTIONANSWER_ID" }) }
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "creator_id", "crxquestionanswer_id" }) }
 )
 public class CrxChallengeAnswer extends AbstractEntity {
 
@@ -25,6 +25,7 @@ public class CrxChallengeAnswer extends AbstractEntity {
     @NotNull
     @ManyToOne
     @JsonIgnore
+    @JoinColumn(name="crxquestionanswer_id")
     private CrxQuestionAnswer crxQuestionAnswer;
 
     public Boolean getCorrect() {

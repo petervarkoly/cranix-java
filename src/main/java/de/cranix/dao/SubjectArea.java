@@ -22,14 +22,15 @@ public class SubjectArea extends AbstractEntity{
     @NotNull
     @ManyToOne
     @JsonIgnore
+    @JoinColumn(name="teachingsubject_id")
     private TeachingSubject teachingSubject;
 
     @ManyToMany
     @JsonIgnore
     @JoinTable(
             name="ChallengesInArea",
-            joinColumns={ @JoinColumn(name="SUBJECTAREA_ID") },
-            inverseJoinColumns={ @JoinColumn(name="CRXCHALLENGE_ID") }
+            joinColumns={ @JoinColumn(name="subjectarea_id") },
+            inverseJoinColumns={ @JoinColumn(name="crxchallenge_id") }
     )
     private ArrayList<CrxChallenge> challenges;
 
@@ -37,8 +38,8 @@ public class SubjectArea extends AbstractEntity{
     @JsonIgnore
     @JoinTable(
             name="QuestionInArea",
-            joinColumns={ @JoinColumn(name="SUBJECTAREA_ID") },
-            inverseJoinColumns={ @JoinColumn(name="CRXQUESTION_ID") }
+            joinColumns={ @JoinColumn(name="subjectarea_id") },
+            inverseJoinColumns={ @JoinColumn(name="crxquestion_id") }
     )
     private ArrayList<CrxQuestion> questions;
 
