@@ -51,9 +51,11 @@ public class Announcement extends AbstractEntity  {
 
 
 	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "validFrom")
 	private Date validFrom;
 
 	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "validUntil")
 	private Date validUntil;
 
 	//bi-directional many-to-many association to Category

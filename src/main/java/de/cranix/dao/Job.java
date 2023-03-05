@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Table(name="Jobs")
 @NamedQueries({
 	@NamedQuery(name="Job.findAll",                 query="SELECT j FROM Job j"),
-	@NamedQuery(name="Job.findAllByTime",           query="SELECT j FROM Job j WHERE j.startTime > :after AND j.startTime < :befor"),
-	@NamedQuery(name="Job.getByDescriptionAndTime", query="SELECT j FROM Job j WHERE j.description LIKE :description AND j.startTime > :after AND j.startTime < :befor"),
+	@NamedQuery(name="Job.findAllByTime",           query="SELECT j FROM Job j WHERE j.created > :after AND j.created < :befor"),
+	@NamedQuery(name="Job.getByDescriptionAndTime", query="SELECT j FROM Job j WHERE j.description LIKE :description AND j.created > :after AND j.created < :befor"),
 	@NamedQuery(name="Job.getByDescription",        query="SELECT j FROM Job j WHERE j.description LIKE :description"),
 	@NamedQuery(name="Job.getRunning",              query="SELECT j FROM Job j WHERE j.exitCode = NULL"),
 	@NamedQuery(name="Job.getSucceeded",            query="SELECT j FROM Job j WHERE j.exitCode = 0"),
@@ -34,6 +34,7 @@ public class Job extends AbstractEntity {
 	//TODO rename endTime MODIFIED
 	//private Timestamp endTime;
 
+	@Column(name="exitCode")
 	private Integer exitCode;
 	
 	@Transient

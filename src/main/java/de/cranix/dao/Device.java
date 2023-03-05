@@ -136,6 +136,7 @@ public class Device extends AbstractEntity {
     //bi-directional many-to-one association to HWConf
     @ManyToOne
     @JsonIgnore
+    @JoinColumn(name = "hwconf_id")
     private HWConf hwconf;
 
     @Column(name = "hwconf_id", insertable = false, updatable = false)
@@ -144,6 +145,7 @@ public class Device extends AbstractEntity {
     //bi-directional many-to-one association to Room
     @ManyToOne
     @JsonIgnore
+    @JoinColumn(name = "room_id")
     private Room room;
 
     //bi-directional many-to-one association to Device
@@ -153,14 +155,6 @@ public class Device extends AbstractEntity {
 
     @Column(name = "room_id", insertable = false, updatable = false)
     private Long roomId;
-
-    //bi-directional many-to-one association to User
-    @ManyToOne
-    @JsonIgnore
-    private User owner;
-
-    @Column(name = "owner_id", insertable = false, updatable = false)
-    private Long ownerId;
 
     //bi-directional many-to-many association to User
     @ManyToMany(mappedBy = "loggedOn")
@@ -384,6 +378,10 @@ public class Device extends AbstractEntity {
     }
 
     public String getOwnerName() {
+        User owner = this.getCreator();
+        if( owner != null ) {
+            return owner.getFullName();
+        }
         return ownerName;
     }
 

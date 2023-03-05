@@ -28,6 +28,7 @@ public class SoftwareFullName extends AbstractEntity {
 	//bi-directional many-to-one association to Software
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="software_id")
 	private Software software;
 
 	public SoftwareFullName() {

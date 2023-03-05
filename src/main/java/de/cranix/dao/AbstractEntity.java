@@ -20,19 +20,19 @@ public abstract class AbstractEntity implements Serializable {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name="CREATOR_ID",nullable = false,updatable = false)
+    @JoinColumn(name="creator_id",nullable = false,updatable = false)
     @JsonIgnore
     private User creator;
 
-    @Column(name = "CREATOR_ID", insertable = false, updatable = false)
+    @Column(name = "creator_id", insertable = false, updatable = false)
     private Long creatorId;
 
-    @Column(name = "CREATED", updatable = false, columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created", updatable = false, columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
     @JsonIgnore
     @Temporal(DATE)
     private Date created;
 
-    @Column(name = "MODIFIED", columnDefinition = "timestamp ON UPDATE CURRENT_TIMESTAMP ")
+    @Column(name = "modified", columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ")
     @JsonIgnore
     @Temporal(DATE)
     private Date modified;

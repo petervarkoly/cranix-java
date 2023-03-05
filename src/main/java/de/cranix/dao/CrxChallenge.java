@@ -28,7 +28,7 @@ public class CrxChallenge extends AbstractEntity {
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name="TEACHINGSUBJECT_ID",nullable = false)
+    @JoinColumn(name="teachingsubject_id",nullable = false)
     private TeachingSubject teachingSubject;
 
     @ManyToMany(mappedBy = "challenges")

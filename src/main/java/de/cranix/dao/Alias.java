@@ -24,6 +24,7 @@ public class Alias extends AbstractEntity {
 	private String alias;
 
 	@JsonIgnore
+	@JoinColumn(name = "user_id")
 	private User user;
 
 	public Alias() {

@@ -38,6 +38,7 @@ public class CrxQuestion extends AbstractEntity {
     @NotNull
     @ManyToOne
     @JsonIgnore
+    @JoinColumn(name="challenge_id")
     private CrxChallenge challenge;
 
     @OneToMany(mappedBy="crxQuestion", cascade=CascadeType.ALL, orphanRemoval=true)

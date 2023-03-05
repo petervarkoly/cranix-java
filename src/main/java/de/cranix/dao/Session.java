@@ -36,6 +36,7 @@ public class Session implements Principal {
 	//@OneToOne
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="device_id")
 	private Device device;
 
 	@Column(name = "user_id", insertable = false, updatable = false )
@@ -43,6 +44,7 @@ public class Session implements Principal {
 
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="user_id")
 	private User user;
 
 	@Column(name = "room_id", insertable = false, updatable = false)
@@ -50,6 +52,7 @@ public class Session implements Principal {
 
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="room_id")
 	private Room room;
 
 	@Column(name = "ip")

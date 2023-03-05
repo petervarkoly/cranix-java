@@ -36,7 +36,7 @@ public class Partition extends AbstractEntity {
 	@Column(name="format", length=16)
 	private String format;
 
-	@Column(name="description", length=16)
+	@Column(name="joinType", length=16)
 	private String joinType;
 
 	@Column(name="OS", length=16)
