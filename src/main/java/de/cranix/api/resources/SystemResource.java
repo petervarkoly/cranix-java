@@ -654,7 +654,7 @@ public class SystemResource {
 	@ApiOperation(value = "Install all updates on the system.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.update")
-	public CrxResponse reboot( @ApiParam(hidden = true) @Auth Session session)
+	public CrxResponse shutDown( @ApiParam(hidden = true) @Auth Session session)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new SystemService(session,em).shutDown();
