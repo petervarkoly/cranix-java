@@ -333,7 +333,7 @@ public void setNetmaskNumeric(int netmaskNumeric) {
 */
 
     public String getWildcardMask() {
-        Integer wildcardMask = getNetmaskNumeric() ^ 0xffffffff;
+        Integer wildcardMask = ~getNetmaskNumeric();
 
         StringBuffer sb = new StringBuffer(15);
         for (int shift = 24; shift > 0; shift -= 8) {

@@ -783,7 +783,6 @@ public class Service extends Config {
         } catch (Exception e) {
             logger.error("checkEnumerate: " + e.getMessage());
             return false;
-        } finally {
         }
     }
 
@@ -791,8 +790,7 @@ public class Service extends Config {
      * Returns the list of the member of an enumerate.
      *
      * @param name Name of the enumerates: roomType, groupType, deviceType ...
-     * @return The list of the member of the enumerate
-     * @see addEnumerate
+     * @return The list of the member of the enumerates
      */
     public List<String> getEnumerates(String name) {
         try {
