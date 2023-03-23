@@ -674,6 +674,40 @@ public class SystemService extends Service {
     }
 
     /**
+     * Update all packages
+     *
+     * @return The result of Update as CrxResponse object
+     */
+    public CrxResponse reboot() {
+        String[] program = new String[1];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/sbin/reboot";
+        if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
+            return new CrxResponse(this.getSession(), "OK", "System will be rebooted.");
+        } else {
+            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+        }
+    }
+
+    /**
+     * Update all packages
+     *
+     * @return The result of Update as CrxResponse object
+     */
+    public CrxResponse shutDown() {
+        String[] program = new String[1];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/sbin/shutdown";
+        if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
+            return new CrxResponse(this.getSession(), "OK", "System will be turned off.");
+        } else {
+            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+        }
+    }
+
+    /**
      * Returns an ACL searched by the technical id.
      *
      * @param aclId

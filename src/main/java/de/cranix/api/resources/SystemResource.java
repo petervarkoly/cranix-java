@@ -635,6 +635,33 @@ public class SystemResource {
 		return resp;
 	}
 
+	@PUT
+	@Path("reboot")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Install all updates on the system.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.update")
+	public CrxResponse reboot( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).reboot();
+		em.close();
+		return resp;
+	}
+	@PUT
+	@Path("shutDown")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Install all updates on the system.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.update")
+	public CrxResponse reboot( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).shutDown();
+		em.close();
+		return resp;
+	}
+
 	/*
 	 * Proxy default handling
 	 */
