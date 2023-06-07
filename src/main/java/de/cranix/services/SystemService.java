@@ -480,15 +480,16 @@ public class SystemService extends Service {
                 Long.parseLong(remoteRule.get("id"))
         );
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not set.");
+            return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not be deleted.");
         }
         program[3] = String.format("--remove-forward-port=port=%s:proto=tcp:toport=%s:toaddr=%s",
-                remoteRule.get("extport"), remoteRule.get("port"), device.getIp()
+                remoteRule.get("ext"), remoteRule.get("port"), device.getIp()
         );
+        logger.debug(program[0] + " " + program[1] + " " + program[2] + " " + program[3] );
         CrxSystemCmd.exec(program, reply, error, null);
         logger.debug("deleteFirewallRemoteAccessRule error:", error.toString());
         reloadFirewall();
-        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule was add successfully.");
+        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule was removed successfully.");
     }
 
     /*
