@@ -14,6 +14,7 @@ public interface CranixConstants {
 	static String roleAdministratrion = "administration";
 	static String roleWorkstation = "workstations";
 	static String winLineSeparator = "\r\n";
+	static String lineSeparator    = "\n";
 	static String cranixConfDir    = "/opt/cranix-java/conf/";
 	static String cranixPropFile   = "/opt/cranix-java/conf/cranix-api.properties";
 	static String cranixTmpDir     = "/opt/cranix-java/tmp/";

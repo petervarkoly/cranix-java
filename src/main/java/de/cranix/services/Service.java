@@ -81,7 +81,8 @@ public class Service extends Config {
     }
 
     public String getNl() {
-        return System.getProperty("line.separator");
+        //return System.getProperty("line.separator");
+	return lineSeparator;
     }
 
     public boolean isNameUnique(String name) {
@@ -1091,9 +1092,9 @@ public class Service extends Config {
         return new CrxResponse(this.getSession(), "OK", "Config was updated");
     }
 
-    public CrxResponse deleteConfig(CrxConfig config) {
+    public CrxResponse deleteConfig(Long id) {
         try {
-            CrxConfig crxConfig = this.getConfigObject(config);
+            CrxConfig crxConfig = this.em.find(CrxConfig.class, id);
             this.em.getTransaction().begin();
             this.em.remove(crxConfig);
             this.em.getTransaction().commit();
@@ -1104,23 +1105,9 @@ public class Service extends Config {
         return new CrxResponse(this.getSession(), "OK", "Config was deleted");
     }
 
-    public CrxResponse deleteMConfig(Object object, Long configId) {
+    public CrxResponse deleteMConfig(Long id) {
         try {
-            CrxMConfig config = this.em.find(CrxMConfig.class, configId);
-            this.em.getTransaction().begin();
-            this.em.merge(config);
-            this.em.remove(config);
-            this.em.getTransaction().commit();
-        } catch (Exception e) {
-            logger.error("deleteConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
-        }
-        return new CrxResponse(this.getSession(), "OK", "Config was deleted");
-    }
-
-    public CrxResponse deleteMConfig(CrxMConfig config) {
-        try {
-            CrxMConfig crxConfig = this.getMConfigObject(config);
+            CrxMConfig crxConfig = this.em.find(CrxMConfig.class, id);
             this.em.getTransaction().begin();
             this.em.remove(crxConfig);
             this.em.getTransaction().commit();
@@ -1165,6 +1152,20 @@ public class Service extends Config {
             logger.error("deleteMConfig: " + e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
         } finally {
+        }
+        return new CrxResponse(this.getSession(), "OK", "Config was deleted");
+    }
+
+    public CrxResponse deleteMConfig(Object object, Long configId) {
+        try {
+            CrxMConfig config = this.em.find(CrxMConfig.class, configId);
+            this.em.getTransaction().begin();
+            this.em.merge(config);
+            this.em.remove(config);
+            this.em.getTransaction().commit();
+        } catch (Exception e) {
+            logger.error("deleteConfig: " + e.getMessage());
+            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
         }
         return new CrxResponse(this.getSession(), "OK", "Config was deleted");
     }

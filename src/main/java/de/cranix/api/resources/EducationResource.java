@@ -3,7 +3,6 @@ package de.cranix.api.resources;
 
 
 import static de.cranix.api.resources.Resource.*;
-import static de.cranix.helper.CranixConstants.*;
 
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
@@ -11,9 +10,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

@@ -3,17 +3,16 @@ package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.*;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 
-import de.cranix.dao.CrxConfig;
-import de.cranix.dao.CrxMConfig;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.Session;
+import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.services.Service;
 
+import de.cranix.services.TeachingSubjectService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -50,7 +49,7 @@ public class ObjectResource {
 	@POST
 	@Path("config")
 	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Create a new mconfig for an object request.")
+	@ApiOperation(value = "Create a new config for an object request.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
@@ -66,7 +65,7 @@ public class ObjectResource {
 	}
 
 	@DELETE
-	@Path("mconfig")
+	@Path("mconfig/{id}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new mconfig for an object request.")
 	@ApiResponses(value = {
@@ -75,16 +74,16 @@ public class ObjectResource {
 	@RolesAllowed("objects.manage")
 	public CrxResponse deleteMconfig(
 			@ApiParam(hidden = true) @Auth Session session,
-			CrxMConfig mConfig)
+			@PathParam("id") Long id)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new Service(session,em).deleteMConfig(mConfig);
+		CrxResponse resp = new Service(session,em).deleteMConfig(id);
 		em.close();
 		return resp;
 	}
 
 	@DELETE
-	@Path("config")
+	@Path("config/{id}")
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new mconfig for an object request.")
 	@ApiResponses(value = {
@@ -93,10 +92,10 @@ public class ObjectResource {
 	@RolesAllowed("objects.manage")
 	public CrxResponse deleteConfig(
 			@ApiParam(hidden = true) @Auth Session session,
-			CrxConfig config)
+			@PathParam("id") Long id)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new Service(session,em).deleteConfig(config);
+		CrxResponse resp = new Service(session,em).deleteConfig(id);
 		em.close();
 		return resp;
 	}
@@ -137,6 +136,100 @@ public class ObjectResource {
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxConfig resp = new Service(session,em).getConfig(type,id,key);
+		em.close();
+		return resp;
+	}
+
+	/*
+	Functions to manage teaching subjects and areas
+	 */
+	@GET
+	@Path("subjects")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets the values of mconfig for an object.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Missing data for request"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@PermitAll
+	public List<TeachingSubject> getSubjects(
+			@ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<TeachingSubject> resp = new TeachingSubjectService(session,em).getTeachingSubjects();
+		em.close();
+		return resp;
+	}
+
+	@POST
+	@Path("subjects")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a teaching subject.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Missing data for request"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@RolesAllowed("subject.manage")
+	public CrxResponse addSubject(
+			@ApiParam(hidden = true) @Auth Session session,
+			TeachingSubject teachingSubject)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new TeachingSubjectService(session,em).addTeachingSubjects(teachingSubject);
+		em.close();
+		return resp;
+	}
+
+	@PATCH
+	@Path("subjects")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Modify a teaching subject.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Missing data for request"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@RolesAllowed("subject.manage")
+	public CrxResponse modifySubject(
+			@ApiParam(hidden = true) @Auth Session session,
+			TeachingSubject teachingSubject)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new TeachingSubjectService(session,em).addTeachingSubjects(teachingSubject);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("subjects/{id}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Gets the subject areas of a teaching subject.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Missing data for request"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@PermitAll
+	public List<SubjectArea> getSubjectAreas(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("id") Long id
+			)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<SubjectArea> resp = new TeachingSubjectService(session,em).getTeachingSubjectById(id).getSubjectAreaList();
+		em.close();
+		return resp;
+	}
+
+	@POST
+	@Path("subjects/{id}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a subject area to a teaching subject.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Missing data for request"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@RolesAllowed("subject.manage")
+	public CrxResponse addSubjectArea(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("id") Long id,
+			SubjectArea subjectArea)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new TeachingSubjectService(session,em).addSubjectArea(id,subjectArea);
 		em.close();
 		return resp;
 	}

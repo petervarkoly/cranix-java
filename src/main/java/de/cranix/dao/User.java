@@ -81,7 +81,7 @@ public class User implements Serializable {
 	private List<Alias> aliases = new ArrayList<Alias>();
 
 	//bi-directional many-to-one association to Acls
-	@OneToMany(mappedBy="user", cascade ={CascadeType.ALL})
+	@OneToMany(mappedBy="user")
 	@JsonIgnore
 	private List<Acl> acls = new ArrayList<Acl>();
 
@@ -231,6 +231,10 @@ public class User implements Serializable {
 		this.taskResponses = taskResponses;
 	}
 
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	public List<CrxChallenge> challenges = new ArrayList<CrxChallenge>();
+
 	public void addTaskResponse(TaskResponse taskResponse) {
 		if( !this.taskResponses.contains(taskResponse)) {
 			this.taskResponses.add(taskResponse);
@@ -273,6 +277,11 @@ public class User implements Serializable {
 	)
 	@JsonIgnore
 	private List<Group> groups = new ArrayList<Group>();
+
+	//bi-directional many-to-many association to Challenges
+	@ManyToMany(mappedBy="users")
+	@JsonIgnore
+	private List<CrxChallenge> todos = new ArrayList<CrxChallenge>();
 
 	@Transient
 	private String classes;
@@ -753,5 +762,29 @@ public class User implements Serializable {
 		StringBuilder fullName = new StringBuilder(this.uid);
 		fullName.append(" (").append(this.surName).append(" ").append(this.givenName).append(")");
 		return fullName.toString();
+	}
+
+	public List<CrxChallenge> getChallenges() {
+		return challenges;
+	}
+
+	public void setChallenges(List<CrxChallenge> challenges) {
+		this.challenges = challenges;
+	}
+
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public List<CrxChallenge> getTodos() {
+		return todos;
+	}
+
+	public void setTodos(List<CrxChallenge> todos) {
+		this.todos = todos;
 	}
 }
