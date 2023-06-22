@@ -331,10 +331,10 @@ public class EducationService extends UserService {
     }
 
     public List<CrxResponse> uploadFileToUsers(
-            String sUserIds,
-            Boolean cleanUp,
-            InputStream fileInputStream,
-            FormDataContentDisposition contentDispositionHeader) {
+        String sUserIds,
+        Boolean cleanUp,
+        InputStream fileInputStream,
+        FormDataContentDisposition contentDispositionHeader) {
         List<Long> userIds = new ArrayList<Long>();
         for (String id : sUserIds.split(",")) {
             userIds.add(Long.valueOf(id));
@@ -345,12 +345,13 @@ public class EducationService extends UserService {
     }
 
     public List<CrxResponse> uploadFileToGroups(
-            String groupIds,
-            Boolean cleanUp,
-            Boolean studentsOnly,
-            InputStream fileInputStream,
-            FormDataContentDisposition contentDispositionHeader) {
+        String groupIds,
+        Boolean cleanUp,
+        Boolean studentsOnly,
+        InputStream fileInputStream,
+        FormDataContentDisposition contentDispositionHeader) {
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
+	logger.debug("uploadFileToGroups:" + groupIds + " cleanUp:" + cleanUp + " studentsOnly:" + studentsOnly);
         for (String sgroupId : groupIds.split(",")) {
             Long groupId = Long.valueOf(sgroupId);
             if (groupId != null) {
@@ -361,11 +362,11 @@ public class EducationService extends UserService {
     }
 
     public List<CrxResponse> uploadFileToDevices(
-            String objectIds,
-            Boolean cleanUp,
-            Boolean studentsOnly,
-            InputStream fileInputStream,
-            FormDataContentDisposition contentDispositionHeader) {
+        String objectIds,
+        Boolean cleanUp,
+        Boolean studentsOnly,
+        InputStream fileInputStream,
+        FormDataContentDisposition contentDispositionHeader) {
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
         for (String sObjectId : objectIds.split(",")) {
             Long objectId = Long.valueOf(sObjectId);
@@ -377,11 +378,11 @@ public class EducationService extends UserService {
     }
 
     public List<CrxResponse> uploadFileToRooms(
-            String objectIds,
-            Boolean cleanUp,
-            Boolean studentsOnly,
-            InputStream fileInputStream,
-            FormDataContentDisposition contentDispositionHeader) {
+        String objectIds,
+        Boolean cleanUp,
+        Boolean studentsOnly,
+        InputStream fileInputStream,
+        FormDataContentDisposition contentDispositionHeader) {
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
         for (String sObjectId : objectIds.split(",")) {
             Long objectId = Long.valueOf(sObjectId);
@@ -485,7 +486,7 @@ public class EducationService extends UserService {
         if (user == null) {
             return new CrxResponse(this.getSession(), "ERROR", "No user defined.");
         } else {
-            logger.debug("saveFileToUserImport File " + fileName + " saved to " + user.getUid());
+            logger.debug("saveFileToUserImport File " + fileName + " saved to " + user.getUid() + " cleanUp:" + cleanUp);
         }
         parameters.add(fileName);
         parameters.add(user.getUid());
@@ -497,6 +498,7 @@ public class EducationService extends UserService {
             owner = lookupService.lookupPrincipalByName(user.getUid());
             //For workstations users the whole home directory will be removed
             if (user.getRole().equals(roleWorkstation) && cleanUp) {
+		logger.debug("saveFileToUserImport cleanUp workstations home dir");
                 StringBuffer reply = new StringBuffer();
                 StringBuffer error = new StringBuffer();
                 String[] program = new String[3];
@@ -509,6 +511,7 @@ public class EducationService extends UserService {
                 Files.setOwner(homeDirF.toPath(), owner);
             } else if ((user.getRole().equals(roleStudent) || user.getRole().equals(roleGuest)) && cleanUp) {
                 //For students and guest users only the Import directory will be removed
+		logger.debug("saveFileToUserImport cleanUp students Import dir");
                 StringBuffer reply = new StringBuffer();
                 StringBuffer error = new StringBuffer();
                 String[] program = new String[3];
@@ -516,6 +519,7 @@ public class EducationService extends UserService {
                 program[1] = "-rf";
                 program[2] = homeDir + "/Import/";
                 CrxSystemCmd.exec(program, reply, error, null);
+		logger.debug("saveFileToUserImport error:" + error.toString());
             }
         } catch (Exception e) {
             logger.error("saveFileToUserImport 1.:" + e.getMessage());

@@ -124,7 +124,7 @@ public class StaticHelpers {
 				data.append(String.format("name: %s%n", device.getName()));
 				data.append(String.format("ip: %s%n", device.getIp()));
 				data.append(String.format("mac: %s%n", device.getMac()));
-				if (!device.getWlanIp().isEmpty()) {
+				if (device.getWlanIp() != null  && !device.getWlanIp().isEmpty()) {
 					data.append(String.format("wlanip: %s%n", device.getWlanIp()));
 					data.append(String.format("wlanmac: %s%n", device.getWlanMac()));
 				}
