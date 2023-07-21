@@ -1,9 +1,6 @@
 package de.cranix.api.resources;
 
-import de.cranix.dao.CrxChallenge;
-import de.cranix.dao.CrxQuestion;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.Session;
+import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.CrxSystemCmd;
 import de.cranix.services.ChallengeService;
@@ -66,7 +63,7 @@ public class ChallengeResource {
 
     @GET
     @Path("subjects/{id}")
-    @ApiOperation(value = "Gets a challenge by teaching subject.")
+    @ApiOperation(value = "Gets challenges by teaching subject.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("challenge.manage")
@@ -92,6 +89,7 @@ public class ChallengeResource {
         em.close();
         return resp;
     }
+
 
     @PATCH
     @ApiOperation(value = "Modify a challenge.")
@@ -257,6 +255,46 @@ public class ChallengeResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         List<CrxQuestion> resp = new ChallengeService(session, em).getQuestionsOfSubject(id);
+        em.close();
+        return resp;
+    }
+    @POST
+    @Path("cephalix/get")
+    @ApiOperation(value = "Gets challenges from the CEPHALIX Server to the sent subject.")
+    @RolesAllowed("challenge.manage")
+    public Object getChallengesFromCephalix(
+            @ApiParam(hidden = true) @Auth Session session,
+            TeachingSubject teachingSubject
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).getFromCephalix(teachingSubject,"challenges");
+        em.close();
+        return resp;
+    }
+
+    @POST
+    @Path("cephalix/getQuestions")
+    @ApiOperation(value = "Gets questions from the CEPHALIX Server to the sent subject.")
+    @RolesAllowed("challenge.manage")
+    public Object getQuestionsFromCephalix(
+            @ApiParam(hidden = true) @Auth Session session,
+            TeachingSubject teachingSubject
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).getFromCephalix(teachingSubject,"challengeQuestions");
+        em.close();
+        return resp;
+    }
+    @POST
+    @Path("cephalix/add")
+    @ApiOperation(value = "Gets challenges from the CEPHALIX Server.")
+    @RolesAllowed("challenge.manage")
+    public Object getFromCephalix(
+            @ApiParam(hidden = true) @Auth Session session,
+            CrxChallenge crxChallenge
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new ChallengeService(session, em).addToCephalix(crxChallenge);
         em.close();
         return resp;
     }
