@@ -133,10 +133,11 @@ public class ChallengeService extends Service {
         if (resp != null) {
             return resp;
         }
+        User owner = this.em.find(User.class, this.session.getUserId());
         this.em.getTransaction().begin();
-        challenge.setCreator(this.session.getUser());
+        challenge.setCreator(owner);
         this.em.merge(challenge);
-        this.adapt(challenge);
+        this.adapt(challenge, owner);
         this.em.getTransaction().commit();
         return new CrxResponse(this.session, "OK", "Challenge was successfully modified.", challenge.getId());
     }
@@ -724,7 +725,8 @@ public class ChallengeService extends Service {
             }
         }
         CrxChallengeAnswer challengeAnswer = new CrxChallengeAnswer();
-        challengeAnswer.setCreator(this.session.getUser());
+        User owner = this.em.find(User.class, this.session.getUserId());
+        challengeAnswer.setCreator(owner);
         challengeAnswer.setCrxQuestionAnswer(questionAnswer);
         challengeAnswer.setCorrect(answer);
         this.em.getTransaction().begin();
