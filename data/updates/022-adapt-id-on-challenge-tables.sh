@@ -26,7 +26,7 @@ unit="cranix-api"
 if [ "$CRANIX_TYPE" == 'cephalix' ]; then
         unit="cephalix-api"
 fi
-
+/usr/bin/systemctl stop ${unit}
 for i in ${TABLES}
 do
         mysqldump --no-create-info CRX $i > /${BACKUP}/$i.sql
@@ -36,8 +36,9 @@ do
         fi
 done
 sed -i s/English/Englisch/ ${BACKUP}/TeachingSubjects.sql
+sed -i 's/,NULL)/)/g' ${BACKUP}/CrxQuestions.sql
+sed -i 's/1,NULL/1/g' ${BACKUP}/CrxQuestions.sql
 
-/usr/bin/systemctl stop ${unit}
 for i in ${TABLES}
 do
         echo "DROP TABLE $i" | mysql CRX
