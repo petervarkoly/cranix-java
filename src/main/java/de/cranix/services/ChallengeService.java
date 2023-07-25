@@ -114,7 +114,7 @@ public class ChallengeService extends Service {
         //Now we adapt the questions and answers of the challenge
         this.em.getTransaction().begin();
         this.em.merge(subject);
-        this.adapt(challenge);
+        this.adapt(challenge, owner);
         this.em.merge(challenge);
         owner.getChallenges().add(challenge);
         this.em.merge(owner);
@@ -146,12 +146,13 @@ public class ChallengeService extends Service {
         if (resp != null) {
             return resp;
         }
+        User owner = this.em.find(User.class, this.session.getUserId());
         this.em.getTransaction().begin();
-        challenge.setCreator(this.session.getUser());
+        challenge.setCreator(owner);
         this.assign(challenge);
         challenge.setReleased(true);
         this.em.merge(challenge);
-        this.adapt(challenge);
+        this.adapt(challenge, owner);
         this.em.getTransaction().commit();
         return new CrxResponse(this.session, "OK", "Challenge was successfully assigned and stated.");
     }
@@ -197,13 +198,13 @@ public class ChallengeService extends Service {
         this.em.merge(challenge);
     }
 
-    private void adapt(CrxChallenge challenge) {
+    private void adapt(CrxChallenge challenge, User owner) {
         for (CrxQuestion crxQuestion : challenge.getQuestions()) {
-            crxQuestion.setCreator(this.session.getUser());
+            crxQuestion.setCreator(owner);
             crxQuestion.setChallenge(challenge);
             this.em.merge(crxQuestion);
             for (CrxQuestionAnswer answer : crxQuestion.getCrxQuestionAnswers()) {
-                answer.setCreator(this.session.getUser());
+                answer.setCreator(owner);
                 answer.setCrxQuestion(crxQuestion);
                 this.em.merge(answer);
             }
