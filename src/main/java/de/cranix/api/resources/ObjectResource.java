@@ -12,6 +12,7 @@ import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.services.Service;
 
+import de.cranix.services.SubjectAreaService;
 import de.cranix.services.TeachingSubjectService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
@@ -155,7 +156,7 @@ public class ObjectResource {
 			@ApiParam(hidden = true) @Auth Session session)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<TeachingSubject> resp = new TeachingSubjectService(session,em).getTeachingSubjects();
+		List<TeachingSubject> resp = new TeachingSubjectService(session,em).getAll();
 		em.close();
 		return resp;
 	}
@@ -173,7 +174,7 @@ public class ObjectResource {
 			TeachingSubject teachingSubject)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new TeachingSubjectService(session,em).addTeachingSubjects(teachingSubject);
+		CrxResponse resp = new TeachingSubjectService(session,em).add(teachingSubject);
 		em.close();
 		return resp;
 	}
@@ -191,7 +192,7 @@ public class ObjectResource {
 			TeachingSubject teachingSubject)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new TeachingSubjectService(session,em).addTeachingSubjects(teachingSubject);
+		CrxResponse resp = new TeachingSubjectService(session,em).add(teachingSubject);
 		em.close();
 		return resp;
 	}
@@ -210,7 +211,7 @@ public class ObjectResource {
 			)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<SubjectArea> resp = new TeachingSubjectService(session,em).getTeachingSubjectById(id).getSubjectAreaList();
+		List<SubjectArea> resp = new TeachingSubjectService(session,em).getById(id).getSubjectAreaList();
 		em.close();
 		return resp;
 	}
@@ -229,7 +230,7 @@ public class ObjectResource {
 			SubjectArea subjectArea)
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new TeachingSubjectService(session,em).addSubjectArea(id,subjectArea);
+		CrxResponse resp = new SubjectAreaService(session,em).add(id,subjectArea);
 		em.close();
 		return resp;
 	}

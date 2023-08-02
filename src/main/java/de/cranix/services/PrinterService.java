@@ -19,10 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,13 +104,22 @@ public class PrinterService extends Service {
         }
     }
 
+    public List<Printer> getAll() {
+        try {
+            Query query = this.em.createNamedQuery("Printer.findAll");
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("getAll " + e.getMessage(), e);
+        }
+        return new ArrayList<Printer>();
+    }
     /**
      * Delivers a list of all available printer
      *
      * @return
      */
     public List<Printer> getPrinters() {
-        List<JsonObject> printers = new ArrayList<JsonObject>();
+        List<JsonObject> printers;
         List<Printer> printers2 = new ArrayList<Printer>();
         String[] program = new String[1];
         StringBuffer reply = new StringBuffer();
@@ -147,6 +153,12 @@ public class PrinterService extends Service {
                 logger.error("Can not find printer:" + p.getString("name"));
             }
         }
+        for(Printer printer: this.getAll()){
+            if(!printers2.contains(printer)){
+                printers2.add(this.getByName(printer.getName()));
+            }
+        }
+        printers2.sort(Comparator.comparing(Printer::getName));
         return printers2;
     }
 
@@ -181,6 +193,23 @@ public class PrinterService extends Service {
             startPlugin("delete_printer_queue", createLiteralJson(tmpMap));
             printerDevice.getPrinterQueue().remove(printer);
             this.em.getTransaction().begin();
+            //Remove this printer from rooms and devices as default or available printer
+            for(Room room: printer.getDefaultInRooms() ){
+                room.setDefaultPrinter(null);
+                this.em.merge(room);
+            }
+            for(Device device: printer.getDefaultForDevices() ){
+                device.setDefaultPrinter(null);
+                this.em.merge(device);
+            }
+            for(Room room: printer.getAvailableInRooms() ){
+                room.getAvailablePrinters().remove(printer);
+                this.em.merge(room);
+            }
+            for(Device device: printer.getAvailableForDevices() ){
+                device.getAvailablePrinters().remove(printer);
+                this.em.merge(device);
+            }
             this.em.remove(printer);
             this.em.merge(printerDevice);
             this.em.getTransaction().commit();
@@ -277,6 +306,7 @@ public class PrinterService extends Service {
         //Find the driver file
         String driverFile = "/usr/share/cups/model/Postscript.ppd.gz";
         if (fileInputStream != null) {
+            // A driver file was uploaded
             File file = null;
             try {
                 file = File.createTempFile("crx_driverFile", name, new File(cranixTmpDir));
@@ -287,6 +317,7 @@ public class PrinterService extends Service {
             }
             driverFile = file.toPath().toString();
         } else {
+            // A driver model was selected
             try {
                 for (String line : Files.readAllLines(DRIVERS)) {
                     String[] fields = line.split("###");

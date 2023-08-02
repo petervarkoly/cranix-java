@@ -22,7 +22,7 @@ public class TeachingSubjectService extends Service {
         super(session, em);
     }
 
-    public List<TeachingSubject> getTeachingSubjects() {
+    public List<TeachingSubject> getAll() {
         try {
             Query query = this.em.createNamedQuery("TeachingSubject.findAll");
             return (List<TeachingSubject>) query.getResultList();
@@ -32,7 +32,7 @@ public class TeachingSubjectService extends Service {
         }
     }
 
-    public TeachingSubject getTeachingSubjectByName(String name) {
+    public TeachingSubject getByName(String name) {
         try {
             Query query = this.em.createNamedQuery("TeachingSubject.findByName").setParameter("name", name);
             return (TeachingSubject)query.getSingleResult();
@@ -42,7 +42,7 @@ public class TeachingSubjectService extends Service {
         return null;
     }
 
-    public TeachingSubject getTeachingSubjectById(Long id) {
+    public TeachingSubject getById(Long id) {
         try {
             return this.em.find(TeachingSubject.class,id);
         } catch (Exception e) {
@@ -50,9 +50,9 @@ public class TeachingSubjectService extends Service {
         }
     }
 
-    public CrxResponse addTeachingSubjects(TeachingSubject subject) {
+    public CrxResponse add(TeachingSubject subject) {
         this.em.getTransaction().begin();
-        if( this.getTeachingSubjectByName(subject.getName()) != null) {
+        if( this.getByName(subject.getName()) != null) {
             return new CrxResponse(this.session,"ERROR","Teaching Subject does already exist.");
         }
         subject.setCreator(this.session.getUser());
@@ -61,47 +61,4 @@ public class TeachingSubjectService extends Service {
         return new CrxResponse(this.session,"OK","Teaching Subject was created.",subject.getId());
     }
 
-    public List<SubjectArea> getSubjectAreas() {
-        try {
-            Query query = this.em.createNamedQuery("SubjectArea.findAll");
-            return (List<SubjectArea>) query.getResultList();
-        } catch (Exception e) {
-            logger.error("getTeachingSubjects: " + e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-
-    public SubjectArea getSubjectAreaById(Long id) {
-        try {
-            return this.em.find(SubjectArea.class,id);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public SubjectArea getSubjectAreaByName(String name) {
-        try {
-            Query query = this.em.createNamedQuery("SubjectArea.findByName").setParameter("name", name);
-            return (SubjectArea)query.getSingleResult();
-        } catch (Exception e) {
-            logger.error("getSubjectAreaByName" + e.getMessage());
-        }
-        return null;
-    }
-
-    public CrxResponse addSubjectArea(Long subjectId, SubjectArea subjectArea) {
-        this.em.getTransaction().begin();
-        TeachingSubject teachingSubject = this.getTeachingSubjectById(subjectId);
-        if( this.getSubjectAreaByName(subjectArea.getName()) != null) {
-            return new CrxResponse(this.session,"ERROR","Teaching Subject does already exist.");
-        }
-        subjectArea.setTeachingSubject(teachingSubject);
-        subjectArea.setCreator(this.session.getUser());
-        this.em.persist(subjectArea);
-        teachingSubject.getSubjectAreaList().add(subjectArea);
-        this.em.merge(subjectArea);
-        this.em.getTransaction().commit();
-        return new CrxResponse(this.session,"OK","Teaching Subject was created.",subjectArea.getId());
-    }
 }
