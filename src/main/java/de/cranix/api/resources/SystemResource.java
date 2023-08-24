@@ -635,6 +635,33 @@ public class SystemResource {
 		return resp;
 	}
 
+	@PUT
+	@Path("reboot")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Install all updates on the system.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.update")
+	public CrxResponse reboot( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).reboot();
+		em.close();
+		return resp;
+	}
+	@PUT
+	@Path("shutDown")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Install all updates on the system.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.update")
+	public CrxResponse shutDown( @ApiParam(hidden = true) @Auth Session session)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new SystemService(session,em).shutDown();
+		em.close();
+		return resp;
+	}
+
 	/*
 	 * Proxy default handling
 	 */
@@ -1323,13 +1350,13 @@ public class SystemResource {
 
 	@GET
 	@Path("addon/{name}/{key}")
-	@Produces(JSON_UTF8)
+	@Produces(TEXT)
 	@ApiOperation(value = "Gets some data from an addon.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
 	@RolesAllowed("system.addons")
-	public String[] getDataFromAddon(
+	public String getDataFromAddon(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("name")	String name,
 			@PathParam("key")	String key
@@ -1340,6 +1367,6 @@ public class SystemResource {
 		program[0] = cranixBaseDir + "addons/" + name + "/getvalue.sh";
 		program[1] = key;
 		CrxSystemCmd.exec(program, reply, stderr, null);
-		return reply.toString().split("\\s");
+		return reply.toString();
 	}
 }

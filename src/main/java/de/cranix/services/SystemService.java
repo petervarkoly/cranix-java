@@ -480,15 +480,16 @@ public class SystemService extends Service {
                 Long.parseLong(remoteRule.get("id"))
         );
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not set.");
+            return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not be deleted.");
         }
         program[3] = String.format("--remove-forward-port=port=%s:proto=tcp:toport=%s:toaddr=%s",
-                remoteRule.get("extport"), remoteRule.get("port"), device.getIp()
+                remoteRule.get("ext"), remoteRule.get("port"), device.getIp()
         );
+        logger.debug(program[0] + " " + program[1] + " " + program[2] + " " + program[3] );
         CrxSystemCmd.exec(program, reply, error, null);
         logger.debug("deleteFirewallRemoteAccessRule error:", error.toString());
         reloadFirewall();
-        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule was add successfully.");
+        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule was removed successfully.");
     }
 
     /*
@@ -668,6 +669,40 @@ public class SystemService extends Service {
         program[0] = "/usr/sbin/crx_update.sh";
         if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
             return new CrxResponse(this.getSession(), "OK", "System was updated succesfully.");
+        } else {
+            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+        }
+    }
+
+    /**
+     * Update all packages
+     *
+     * @return The result of Update as CrxResponse object
+     */
+    public CrxResponse reboot() {
+        String[] program = new String[1];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/sbin/reboot";
+        if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
+            return new CrxResponse(this.getSession(), "OK", "System will be rebooted.");
+        } else {
+            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+        }
+    }
+
+    /**
+     * Update all packages
+     *
+     * @return The result of Update as CrxResponse object
+     */
+    public CrxResponse shutDown() {
+        String[] program = new String[1];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer error = new StringBuffer();
+        program[0] = "/sbin/shutdown";
+        if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
+            return new CrxResponse(this.getSession(), "OK", "System will be turned off.");
         } else {
             return new CrxResponse(this.getSession(), "ERROR", error.toString());
         }

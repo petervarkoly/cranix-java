@@ -1,9 +1,10 @@
 #!/bin/bash
+export HOME="/root/"
 SUBJECTS="Allgemeinwissen
 Biologie
 Chemie
 Deutsch
-English
+Englisch
 Ethik
 Französisch
 Geschichte
@@ -20,9 +21,6 @@ Soziologie
 Sport
 Technik
 Wirtschaft"
-
-/usr/share/cranix/tools/wait-for-api.sh
-
 for i in ${SUBJECTS}
 do
      	echo "{\"id\":null,\"name\":\"${i}\"}" > /tmp/add_subject.json
