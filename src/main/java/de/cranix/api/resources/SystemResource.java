@@ -1350,7 +1350,7 @@ public class SystemResource {
 
 	@GET
 	@Path("addon/{name}/{key}")
-	@Produces(JSON_UTF8)
+	@Produces(TEXT)
 	@ApiOperation(value = "Gets some data from an addon.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
