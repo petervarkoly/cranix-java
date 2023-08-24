@@ -1356,7 +1356,7 @@ public class SystemResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
 	@RolesAllowed("system.addons")
-	public String[] getDataFromAddon(
+	public String getDataFromAddon(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("name")	String name,
 			@PathParam("key")	String key
@@ -1367,6 +1367,6 @@ public class SystemResource {
 		program[0] = cranixBaseDir + "addons/" + name + "/getvalue.sh";
 		program[1] = key;
 		CrxSystemCmd.exec(program, reply, stderr, null);
-		return reply.toString().split("\\s");
+		return reply.toString();
 	}
 }
