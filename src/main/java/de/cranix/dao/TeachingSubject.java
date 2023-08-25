@@ -16,15 +16,15 @@ import java.util.List;
 public class TeachingSubject extends AbstractEntity {
 
     @NotNull
-    @Column(name = "name", length = 64)
+    @Column(name = "name", length = 64, unique=true)
     @Size(max = 64, message = "Name of a teaching subject must not be longer then 64 characters")
     private String name;
 
-    @OneToMany(mappedBy="teachingSubject", cascade=CascadeType.ALL )
+    @OneToMany(mappedBy="teachingSubject", cascade=CascadeType.ALL)
     private List<SubjectArea> subjectAreaList;
 
     @JsonIgnore
-    @OneToMany(mappedBy="teachingSubject", cascade=CascadeType.ALL )
+    @OneToMany(mappedBy="teachingSubject", cascade=CascadeType.MERGE)
     private List<CrxChallenge> crxChallenges;
 
     public String getName() {

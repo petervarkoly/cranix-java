@@ -1,7 +1,9 @@
 package de.cranix.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import static de.cranix.helper.CranixConstants.*;
+import static de.cranix.helper.StaticHelpers.createLiteralJson;
 
 /**
  * The type Challenge service.
@@ -111,7 +114,7 @@ public class ChallengeService extends Service {
         //Now we adapt the questions and answers of the challenge
         this.em.getTransaction().begin();
         this.em.merge(subject);
-        this.adapt(challenge);
+        this.adapt(challenge, owner);
         this.em.merge(challenge);
         owner.getChallenges().add(challenge);
         this.em.merge(owner);
@@ -130,10 +133,11 @@ public class ChallengeService extends Service {
         if (resp != null) {
             return resp;
         }
+        User owner = this.em.find(User.class, this.session.getUserId());
         this.em.getTransaction().begin();
-        challenge.setCreator(this.session.getUser());
+        challenge.setCreator(owner);
         this.em.merge(challenge);
-        this.adapt(challenge);
+        this.adapt(challenge, owner);
         this.em.getTransaction().commit();
         return new CrxResponse(this.session, "OK", "Challenge was successfully modified.", challenge.getId());
     }
@@ -143,12 +147,13 @@ public class ChallengeService extends Service {
         if (resp != null) {
             return resp;
         }
+        User owner = this.em.find(User.class, this.session.getUserId());
         this.em.getTransaction().begin();
-        challenge.setCreator(this.session.getUser());
+        challenge.setCreator(owner);
         this.assign(challenge);
         challenge.setReleased(true);
         this.em.merge(challenge);
-        this.adapt(challenge);
+        this.adapt(challenge, owner);
         this.em.getTransaction().commit();
         return new CrxResponse(this.session, "OK", "Challenge was successfully assigned and stated.");
     }
@@ -194,13 +199,13 @@ public class ChallengeService extends Service {
         this.em.merge(challenge);
     }
 
-    private void adapt(CrxChallenge challenge) {
+    private void adapt(CrxChallenge challenge, User owner) {
         for (CrxQuestion crxQuestion : challenge.getQuestions()) {
-            crxQuestion.setCreator(this.session.getUser());
+            crxQuestion.setCreator(owner);
             crxQuestion.setChallenge(challenge);
             this.em.merge(crxQuestion);
             for (CrxQuestionAnswer answer : crxQuestion.getCrxQuestionAnswers()) {
-                answer.setCreator(this.session.getUser());
+                answer.setCreator(owner);
                 answer.setCrxQuestion(crxQuestion);
                 this.em.merge(answer);
             }
@@ -720,7 +725,8 @@ public class ChallengeService extends Service {
             }
         }
         CrxChallengeAnswer challengeAnswer = new CrxChallengeAnswer();
-        challengeAnswer.setCreator(this.session.getUser());
+        User owner = this.em.find(User.class, this.session.getUserId());
+        challengeAnswer.setCreator(owner);
         challengeAnswer.setCrxQuestionAnswer(questionAnswer);
         challengeAnswer.setCorrect(answer);
         this.em.getTransaction().begin();
@@ -826,5 +832,64 @@ public class ChallengeService extends Service {
              **/
         }
         return new ArrayList<>();
+    }
+
+    public Object getFromCephalix(TeachingSubject teachingSubject, String objectType) {
+        String cephalixUrl = this.getConfigValue("CEPHALIX_URL");
+        String regCode = this.getConfigValue("REG_CODE");
+        if ( cephalixUrl.isEmpty() ) {
+            cephalixUrl = "https://admin.cephalix.eu/api/";
+        }
+        StringBuilder url = new StringBuilder();
+        url.append(cephalixUrl).append("customers/regcodes/").append(regCode).append("/").append(objectType);
+        String jSon = createLiteralJson(teachingSubject);
+        String[] program = new String[12];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer stderr = new StringBuffer();
+        program[0] = "/usr/bin/curl";
+        program[1] = "--insecure";
+        program[2] = "-s";
+        program[3] = "-X";
+        program[4] = "POST";
+        program[5] = "--header";
+        program[6] = "Content-Type: application/json";
+        program[7] = "--header";
+        program[8] = "Accept: application/json";
+        program[9] = "-d";
+        program[10] = jSon;
+        program[11] = url.toString();
+        logger.debug("getFromCephalix url:" + url.toString());
+        CrxSystemCmd.exec(program, reply, stderr, null);
+        logger.debug("getFromCephalix error:" + stderr.toString());
+        logger.debug("getFromCephalix error:" + reply.toString());
+        return reply.toString();
+    }
+
+    public Object addToCephalix(CrxChallenge crxChallenge) {
+        String cephalixUrl = this.getConfigValue("CEPHALIX_URL");
+        String regCode = this.getConfigValue("REG_CODE");
+        if ( cephalixUrl.isEmpty() ) {
+            cephalixUrl = "https://admin.cephalix.eu";
+        }
+        StringBuilder url = new StringBuilder();
+        url.append(cephalixUrl).append("customers/regcodes/").append(regCode).append("/challenges/add");
+        String jSon = createLiteralJson(crxChallenge);
+        String[] program = new String[12];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer stderr = new StringBuffer();
+        program[0] = "/usr/bin/curl";
+        program[1] = "--insecure";
+        program[2] = "-s";
+        program[3] = "-X";
+        program[4] = "POST";
+        program[5] = "--header";
+        program[6] = "Content-Type: application/json";
+        program[7] = "--header";
+        program[8] = "Accept: application/json";
+        program[9] = "-d";
+        program[10] = jSon;
+        program[11] = url.toString();
+        CrxSystemCmd.exec(program, reply, stderr, null);
+        return reply.toString();
     }
 }
