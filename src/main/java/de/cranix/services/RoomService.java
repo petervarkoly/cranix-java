@@ -230,7 +230,7 @@ public class RoomService extends Service {
         List<Room> rooms = new ArrayList<Room>();
         for (Category category : user.getCategories()) {
             if (category.getCategoryType().equals("AdHocAccess") &&
-                    (!category.getStudentsOnly() || this.session.getUser().getRole().equals(roleStudent)) &&
+                    (!category.getStudentsOnly() || user.getRole().equals(roleStudent)) &&
                     !category.getRooms().isEmpty()) {
                 rooms.add(category.getRooms().get(0));
             }
@@ -239,7 +239,7 @@ public class RoomService extends Service {
             for (Category category : group.getCategories()) {
                 logger.debug("getAllToRegister: " + category);
                 if (category.getCategoryType().equals("AdHocAccess") &&
-                        (!category.getStudentsOnly() || this.session.getUser().getRole().equals(roleStudent)) &&
+                        (!category.getStudentsOnly() || user.getRole().equals(roleStudent)) &&
                         !category.getRooms().isEmpty()) {
                     rooms.add(category.getRooms().get(0));
                 }

@@ -754,4 +754,14 @@ public class User implements Serializable {
 		fullName.append(" (").append(this.surName).append(" ").append(this.givenName).append(")");
 		return fullName.toString();
 	}
+
+	@JsonIgnore
+	public  Group getFirstClass() {
+		for( Group group : this.getGroups()) {
+			if (group.getGroupType().equals("class")) {
+				return group;
+			}
+		}
+		return null;
+	}
 }
