@@ -787,4 +787,14 @@ public class User implements Serializable {
 	public void setTodos(List<CrxChallenge> todos) {
 		this.todos = todos;
 	}
+
+	@JsonIgnore
+	public  Group getFirstClass() {
+		for( Group group : this.getGroups()) {
+			if (group.getGroupType().equals("class")) {
+				return group;
+			}
+		}
+		return null;
+	}
 }
