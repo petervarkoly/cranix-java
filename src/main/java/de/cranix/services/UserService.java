@@ -1091,7 +1091,7 @@ public class UserService extends Service {
             this.em.merge(user);
             this.em.getTransaction().commit();
             startPlugin("add_device", device);
-            return new CrxResponse(session,"OK","Device was registered for student:" + user.getUid());
+            return new CrxResponse(session,"OK","Device was registered for user: " + user.getUid());
         } else {
             logger.debug("User has no room to register:" + user.getUid());
             return new CrxResponse(session,"ERR","No adhoc room for student:" + user.getUid());
