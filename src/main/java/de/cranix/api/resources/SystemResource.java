@@ -874,16 +874,17 @@ public class SystemResource {
 		String[] program;
 		for( SafeSearch safeSearch: safeSearchList) {
 			if( safeSearch.getActive()) {
-				program   = new String[4];
+				program   = new String[5];
 				program[0] = "/usr/bin/ln";
 				program[1] = "-s";
-				program[2] = cranixBaseDir + "/templates/unbound/safesearch/" +safeSearch + ".conf";
-				program[3] = "/etc/unbound/local.d/";
+				program[2] = "-f";
+				program[3] = cranixBaseDir + "templates/unbound/safesearch/" +safeSearch.getName() + ".conf";
+				program[4] = "/etc/unbound/local.d/";
 			} else {
 				program   = new String[3];
 				program[0] = "/usr/bin/rm";
 				program[1] = "-f";
-				program[2] = "/etc/unbound/local.d/" + safeSearch + ".conf" ;
+				program[2] = "/etc/unbound/local.d/" + safeSearch.getName() + ".conf" ;
 			}
 			CrxSystemCmd.exec(program, reply, error, "");
 		}
