@@ -839,7 +839,57 @@ public class SystemResource {
 		StringBuffer error = new StringBuffer();
 		CrxSystemCmd.exec(program, reply, error, "");
 		//TODO check error
-		return new CrxResponse(session,"OK","DNS server configuration was written succesfully.");
+		return new CrxResponse(session,"OK","DNS server configuration was written successfully.");
+	}
+
+	@GET
+	@Path("unbound/safesearch")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Reads the safe search configuration.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.unbound")
+	public Object getSafeSearch( @ApiParam(hidden = true) @Auth Session session)
+	{
+		String[] program   = new String[1];
+		program[0] = cranixBaseDir + "tools/unbound/report_safesearch_status.sh";
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		CrxSystemCmd.exec(program, reply, error, "");
+		return reply.toString();
+	}
+
+	@POST
+	@Path("unbound/safesearch")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Saves the safe search configuration.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.unbound")
+	public CrxResponse setSafeSearch(
+			@ApiParam(hidden = true) @Auth Session session,
+			List<SafeSearch> safeSearchList
+	)
+	{
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		String[] program;
+		for( SafeSearch safeSearch: safeSearchList) {
+			if( safeSearch.getActive()) {
+				program   = new String[4];
+				program[0] = "/usr/bin/ln";
+				program[1] = "-s";
+				program[2] = cranixBaseDir + "/templates/unbound/safesearch/" +safeSearch + ".conf";
+				program[3] = "/etc/unbound/local.d/";
+			} else {
+				program   = new String[3];
+				program[0] = "/usr/bin/rm";
+				program[1] = "-f";
+				program[2] = "/etc/unbound/local.d/" + safeSearch + ".conf" ;
+			}
+			CrxSystemCmd.exec(program, reply, error, "");
+		}
+
+		//TODO check error
+		return new CrxResponse(session,"OK","Safe Search configuration was written successfully.");
 	}
 
 	/*
