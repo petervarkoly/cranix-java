@@ -91,10 +91,10 @@ public class StaticHelpers {
 						data.append(String.format("role: %s%n", user.getRole()));
 						data.append(String.format("fsquota: %d%n", user.getFsQuota()));
 						data.append(String.format("msquota: %d%n", user.getMsQuota()));
-						if (user.isMustChange()) {
-							data.append("mpassword: yes");
-						}
 						data.append(String.format("groups: %s%n", myGroups));
+						if (user.isMustChange()) {
+							data.append(String.format("mpassword: yes%n"));
+						}
 						break;
 					case "delete_user":
 						data.append(String.format("uid: %s%n", user.getUid()));

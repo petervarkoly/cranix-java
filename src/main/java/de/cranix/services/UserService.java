@@ -322,6 +322,7 @@ public class UserService extends Service {
         oldUser.setPassword(user.getPassword());
         oldUser.setFsQuota(user.getFsQuota());
         oldUser.setMsQuota(user.getMsQuota());
+        oldUser.setMustChange(user.isMustChange());
         List<Alias> newAliases = new ArrayList<Alias>();
         if (user.getMailAliases() != null) {
             ArrayList<String> oldAliases = new ArrayList<String>();
