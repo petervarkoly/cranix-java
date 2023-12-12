@@ -13,8 +13,13 @@ import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -317,6 +322,7 @@ public class UserService extends Service {
         oldUser.setPassword(user.getPassword());
         oldUser.setFsQuota(user.getFsQuota());
         oldUser.setMsQuota(user.getMsQuota());
+        oldUser.setMustChange(user.isMustChange());
         List<Alias> newAliases = new ArrayList<Alias>();
         if (user.getMailAliases() != null) {
             ArrayList<String> oldAliases = new ArrayList<String>();
@@ -1061,49 +1067,84 @@ public class UserService extends Service {
         return responses;
     }
 
-    public List<CrxResponse> moveStudentsDevices(){
+    CrxResponse registerUserDevice(String MAC, User user){
+        this.em.refresh(user);
+        RoomService roomService = new RoomService(session, em);
+        List<Room> rooms = roomService.getRoomToRegisterForUser(user);
+        if(!rooms.isEmpty()) {
+            Room room  = rooms.get(0);
+            List<String> ipAddress = roomService.getAvailableIPAddresses(room.getId(), 1);
+            String devName = user.getUid().replaceAll("_", "-")
+                    .replaceAll("\\.", "") +
+                    "-" + MAC.substring(8).replaceAll(":", "").toLowerCase();
+            Device device = new Device();
+            HWConf hwconf = room.getHwconf();
+            device.setName(devName);
+            device.setMac(MAC);
+            device.setOwner(user);
+            device.setIp(ipAddress.get(0).split(" ")[0]);
+            device.setHwconf(hwconf);
+            device.setRoom(room);
+            this.em.getTransaction().begin();
+            this.em.persist(device);
+            this.em.merge(room);
+            user.getOwnedDevices().add(device);
+            this.em.merge(user);
+            this.em.getTransaction().commit();
+            startPlugin("add_device", device);
+            return new CrxResponse(session,"OK","Device was registered for user: " + user.getUid());
+        } else {
+            logger.debug("User has no room to register:" + user.getUid());
+            return new CrxResponse(session,"ERR","No adhoc room for student:" + user.getUid());
+        }
+    }
+    public List<CrxResponse> moveUsersDevices(String role){
         List<CrxResponse> responses = new ArrayList<>();
-        for(User user: this.getByRole(roleStudent)){
-            responses.add(this.moveUserDevices(user));
+        List<Long> deviceIdsToDelete = new ArrayList<>();
+        List<String> devices = new ArrayList<>();
+        Map<String,User> newDevices = new HashMap<>();
+        DeviceService deviceService = new DeviceService(this.session, this.em);
+        for(User user: this.getByRole(role)){
+            for (Device device : user.getOwnedDevices()) {
+                deviceIdsToDelete.add(device.getId());
+                newDevices.put(device.getMac(),user);
+                devices.add(user.getUid() +";" + device.getMac());
+            }
+        }
+        try {
+            File file = File.createTempFile("moveUserDevices", ".json", new File(cranixTmpDir));
+            Files.write(file.toPath(),devices);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+        for(Long deviceId : deviceIdsToDelete ) {
+            responses.add(deviceService.delete(deviceId,false));
+        }
+        for(String mac: newDevices.keySet()){
+            responses.add(registerUserDevice(mac, newDevices.get(mac)));
         }
         new DHCPConfig(this.session,this.em).Create();
         return responses;
     }
-    public CrxResponse moveUserDevices(String uid) {
-        return this.moveUserDevices(this.getByUid(uid));
-    }
-    public CrxResponse moveUserDevices(User user) {
-        Group userClass = null;
-        Integer counter = 0;
-        List<String> params = new ArrayList<>();
-        for ( Group group : user.getGroups() ){
-            if(group.getGroupType().equals("class")){
-                userClass = group;
-                break;
-            }
-        }
-        if(userClass == null) {
-           return new CrxResponse(this.session,"ERROR","User is not member in any classes.");
-        }
-        AdHocLanService adHocLanService = new AdHocLanService(this.session,this.em);
-        Room classRoom = adHocLanService.getAdHocRoomOfGroup(userClass);
+
+    public List<CrxResponse> moveUserDevices(String uid){
+        User user = this.getByUid(uid);
+        List<CrxResponse> responses = new ArrayList<>();
+        List<Long> deviceIdsToDelete = new ArrayList<>();
+        Map<String,User> newDevices = new HashMap<>();
+        DeviceService deviceService = new DeviceService(this.session, this.em);
         for (Device device : user.getOwnedDevices()) {
-            for( Category category: device.getCategories() ){
-                if( category.getCategoryType().equals("adhocroom")) {
-                    if(! category.getGroups().contains(userClass)) {
-                        this.em.getTransaction().begin();
-                        device.getRoom().getDevices().remove(device);
-                        this.em.merge(device.getRoom());
-                        device.setRoom(classRoom);
-                        this.em.merge(classRoom);
-                        this.em.getTransaction().commit();
-                        counter++;
-                    }
-                }
-            }
+            deviceIdsToDelete.add(device.getId());
+            newDevices.put(device.getMac(),user);
         }
-        params.add(counter.toString());
-        params.add(user.getUid());
-        return new CrxResponse(this.session,"OK","%s devices of %s was moved in the new class.",params);
+        for(Long deviceId : deviceIdsToDelete ) {
+            responses.add(deviceService.delete(deviceId,false));
+        }
+        for(String mac: newDevices.keySet()){
+            responses.add(registerUserDevice(mac, newDevices.get(mac)));
+        }
+        new DHCPConfig(this.session,this.em).Create();
+        return responses;
     }
 }

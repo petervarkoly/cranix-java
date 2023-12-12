@@ -642,5 +642,13 @@ public class User extends AbstractEntity {
 			this.taskResponses.remove(taskResponse);
 			taskResponse.setCreator(null);
 		}
+	@JsonIgnore
+	public  Group getFirstClass() {
+		for( Group group : this.getGroups()) {
+			if (group.getGroupType().equals("class")) {
+				return group;
+			}
+		}
+		return null;
 	}
 }

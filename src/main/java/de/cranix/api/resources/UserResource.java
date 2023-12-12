@@ -39,6 +39,7 @@ import java.util.List;
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 import static de.cranix.api.resources.Resource.TEXT;
 import static de.cranix.helper.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.CranixConstants.roleStudent;
 
 @Path("users")
 @Api(value = "users")
@@ -168,11 +169,35 @@ public class UserResource {
             @ApiParam(hidden = true) @Auth Session session
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final List<CrxResponse> crxResponses = new UserService(session, em).moveStudentsDevices();
+        final List<CrxResponse> crxResponses = new UserService(session, em).moveUsersDevices(roleStudent);
         em.close();
         return crxResponses;
     }
 
+    @PATCH
+    @Path("moveUserDevices/{role}")
+    @Produces(JSON_UTF8)
+    @ApiOperation(
+            value = "Move the devices of all students into the actual AdHocLan ClassRooms",
+            notes = "This call works under certain circumstances." +
+                    "<li>Global variable MAINTAIN_ADHOC_ROOM_FOR_CLASSES is set to yes." +
+                    "<li>The class adhoc-rooms were already created." +
+                    "<li>The students are only member in one class." +
+                    "<li>There are no other adhoc room where students can register devices only dhe Class-Adhoc-Rooms."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "User not found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
+    @RolesAllowed("user.manage")
+    public List<CrxResponse> moveStudentsDevices(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("role") String role
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final List<CrxResponse> crxResponses = new UserService(session, em).moveUsersDevices(role);
+        em.close();
+        return crxResponses;
+    }
     @PATCH
     @Path("text/{uid}/devices")
     @Produces(JSON_UTF8)
@@ -188,14 +213,14 @@ public class UserResource {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("user.manage")
-    public CrxResponse moveUserDevices(
+    public List<CrxResponse> moveUserDevices(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("uid") String uid
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final CrxResponse crxResponse = new UserService(session, em).moveUserDevices(uid);
+        final List<CrxResponse> crxResponses = new UserService(session, em).moveUserDevices(uid);
         em.close();
-        return crxResponse;
+        return crxResponses;
     }
 
     @DELETE
