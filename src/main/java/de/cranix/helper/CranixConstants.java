@@ -48,4 +48,8 @@ public interface CranixConstants {
 	static Set<PosixFilePermission> worldWriteFilePermission = PosixFilePermissions.fromString("rw-rw-rw-");
 	static Set<PosixFilePermission> worldReadDirPermission   = PosixFilePermissions.fromString("rwxr-xr-x");
 	static Set<PosixFilePermission> worldWriteDirePermission = PosixFilePermissions.fromString("rwxrwxrwx");
+
+	static enum Crx2faTypes {
+		SMS
+	}
 }

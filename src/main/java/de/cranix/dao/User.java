@@ -297,8 +297,35 @@ public class User implements Serializable {
 	@JsonIgnore
 	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();
 
+	@OneToMany( mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
+	@JsonIgnore
+	private List<Crx2fa> crx2fas = new ArrayList<>();
+	public List<Crx2fa> getCrx2fas() {
+		return crx2fas;
+	}
 
+	public void addCrx2fas(Crx2fa crx2fa) {
+		if( !this.crx2fas.contains(crx2fa)) {
+			this.crx2fas.add(crx2fa);
+			crx2fa.setCreator(this);
+			crx2fa.setCreatorId(this.id);
+		}
+	}
+	@OneToMany( mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
+	@JsonIgnore
+	private List<Crx2faSession> crx2faSessions = new ArrayList<>();
 
+	public List<Crx2faSession> getCrx2faSessions() {
+		return this.crx2faSessions;
+	}
+
+	public void addCrx2faSession(Crx2faSession crx2faSession){
+		if(!this.crx2faSessions.contains(crx2faSession)){
+			this.crx2faSessions.add(crx2faSession);
+			crx2faSession.setCreator(this);
+			crx2faSession.setCreatorId(this.id);
+		}
+	}
 	private Integer fsQuotaUsed;
 	private Integer fsQuota;
 	private Integer msQuotaUsed;
