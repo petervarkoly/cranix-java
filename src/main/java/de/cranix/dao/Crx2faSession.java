@@ -6,8 +6,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.xml.crypto.Data;
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
 @Entity
@@ -18,13 +18,6 @@ import java.util.UUID;
         @NamedQuery(name="Crx2faSessions.findByToken", query="SELECT c FROM Crx2faSessions c WHERE c.token = :token")
 })
 public class Crx2faSession extends AbstractEntity{
-
-    @JsonIgnore
-    @NotNull
-    @NotEmpty
-    @Column(name="code", length =  6)
-    @Size(max=6)
-    String code;
 
     @NotNull
     @NotEmpty
@@ -41,11 +34,15 @@ public class Crx2faSession extends AbstractEntity{
     @ManyToOne
     Crx2fa myCrx2fa;
 
-    public void Crx2faSession(User user, String clientIPAddress) {
-        this.setCreator(user);
+    public  Crx2faSession() {}
+    public Crx2faSession(Crx2fa crx2fa, String clientIPAddress) {
+        Random rand = new Random();
+        this.setCreator(crx2fa.getCreator());
         this.clientIP = clientIPAddress;
-        this.token =  user.getUid() + "_" + UUID.randomUUID();
+        this.token =  crx2fa.getCreator().getUid() + "_" + UUID.randomUUID();
         this.token = this.token.length() > 64 ? this.token.substring(0, 63) : this.token;
+        this.myCrx2fa = crx2fa;
+        this.setCreated(new Date());
     }
 
     public String getCode() {
@@ -80,14 +77,22 @@ public class Crx2faSession extends AbstractEntity{
         this.myCrx2fa = myCrx2fa;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Transient
     public Date getValidUntil(){
-        return new Date(this.myCrx2fa.getCreated().getTime() + this.myCrx2fa.getValidMinutes() * 60000L);
+        return new Date(this.myCrx2fa.getCreated().getTime() + this.myCrx2fa.getValidHours() * 360000L);
     }
     @Transient
-    public boolean isValid() {
+    public boolean getValid() {
         return (
-                (this.myCrx2fa.getCreated().getTime() + this.myCrx2fa.getValidMinutes() * 60000L) >
+                (this.myCrx2fa.getCreated().getTime() + this.myCrx2fa.getValidHours() * 360000L) >
                         System.currentTimeMillis()
         );
     }

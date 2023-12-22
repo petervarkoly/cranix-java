@@ -1,54 +1,52 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 
 public class Crx2fa extends AbstractEntity {
 
-    // Type of the Crx2fa. At the moment only SMS and EMAIL is provided.
-    @NotNull
-    @Column(name = "type", length = 10)
-    @Pattern(regexp = "^SMS|EMAIL$")
-    @Enumerated(EnumType.STRING)
-    String crx2faType = "SMS";
 
     /* The address where the auth code should be sent.
     * In case of SMS it is the telephone number
     */
-    @Column(name = "address", length = 255)
-    String crx2faAddress = "";
+    @Column(name = "qrcode", length = 2000)
+    String qrcode = "";
 
     /*
-    * Who long is an authorization valid in munutes
+    * Who long is an authorization valid in minutes
     * */
     @Column(name = "valid")
-    Integer validMinutes = 1440;
+    @Max(value = 24, message = "A TOTP session must not be longer valid then 24.")
+    Integer validHours = 24;
 
-    public String getCrx2faType() {
-        return crx2faType;
+    @NotNull
+    @Column(name = "serial", length = 40)
+    String serial;
+
+    public Integer getValidHours() {
+        return validHours;
     }
 
-    public void setCrx2faType(String crx2faType) {
-        this.crx2faType = crx2faType;
+    public void setValidHours(Integer validHours) {
+        this.validHours = validHours;
+    }
+    public String getCrqode() {
+        return qrcode;
     }
 
-    public String getCrx2faAddress() {
-        return crx2faAddress;
+    public void setCrqode(String crqode) {
+        this.qrcode = crqode;
     }
 
-    public void setCrx2faAddress(String crx2faAddress) {
-        this.crx2faAddress = crx2faAddress;
+    public String getSerial() {
+        return serial;
     }
 
-    public Integer getValidMinutes() {
-        return validMinutes;
-    }
-
-    public void setValidMinutes(Integer validMinutes) {
-        this.validMinutes = validMinutes;
+    public void setSerial(String serial) {
+        this.serial = serial;
     }
 }
