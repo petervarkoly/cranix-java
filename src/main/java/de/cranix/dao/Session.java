@@ -82,9 +82,6 @@ public class Session implements Principal {
 	@Transient
 	private String dnsName;
 
-	@JsonIgnore
-	private transient Object temporaryUploadData;
-
 	@Transient
 	private List<String> acls;
 
@@ -93,14 +90,6 @@ public class Session implements Principal {
 
 	@Transient
 	private String name;
-
-	public Object getTemporaryUploadData() {
-		return temporaryUploadData;
-	}
-
-	public void setTemporaryUploadData(Object temporaryUploadData) {
-		this.temporaryUploadData = temporaryUploadData;
-	}
 
 	public Session(String name) {
 		this.name = name;

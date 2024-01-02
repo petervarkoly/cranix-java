@@ -73,6 +73,24 @@ public class Crx2faService extends Service{
         return new CrxResponse(this.getSession(), "OK", "CRANIX 2FA was deleted successfully.");
     }
 
+    public CrxResponse modify(Crx2fa crx2fa){
+        User user = this.em.find(User.class, this.session.getUser().getId());
+        Crx2fa oldCrx2fa = user.getCrx2fa();
+        if( oldCrx2fa == null) {
+            return new CrxResponse(this.getSession(), "ERROR", "Can not find the CRANIX CFA");
+        }
+        try {
+            oldCrx2fa.setValidHours(crx2fa.getValidHours());
+            this.em.getTransaction().begin();
+            this.em.merge(oldCrx2fa);
+            this.em.getTransaction().commit();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+        }
+        return new CrxResponse(this.getSession(), "OK", "CRANIX 2FA was modified successfully.");
+    }
+
     public Crx2faSession createSession(String remoteIp){
         Crx2fa crx2fa = this.session.getUser().getCrx2fa();
         Crx2faSession crx2faSession = new Crx2faSession(crx2fa, remoteIp);
@@ -123,7 +141,6 @@ public class Crx2faService extends Service{
     public Crx2faSession checkSession(Crx2faSession crx2faSession, String remoteIp){
 
     }
-
 
     private String send2fa(Crx2faSession crx2faSession) {
 

@@ -1,5 +1,8 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.validation.constraints.Max;
+
 import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 
@@ -26,20 +29,34 @@ public class Crx2fa extends AbstractEntity {
     @Column(name="serial", length = 32)
     String serial ="";
 
-    public String getCrx2faType() {
-        return crx2faType;
+    /*
+    * Who long is an authorization valid in minutes
+    * */
+    @Column(name = "valid")
+    @Max(value = 24, message = "A TOTP session must not be longer valid then 24.")
+    Integer validHours = 24;
+
+    @NotNull
+    @Column(name = "serial", length = 40)
+    String serial;
+
+    public Integer getValidHours() {
+        return validHours;
     }
 
-    public void setCrx2faType(String crx2faType) {
-        this.crx2faType = crx2faType;
+    public void setValidHours(Integer validHours) {
+        this.validHours = validHours;
+    }
+    public String getCrqode() {
+        return qrcode;
     }
 
-    public String getCrx2faAddress() {
-        return crx2faAddress;
+    public void setCrqode(String crqode) {
+        this.qrcode = crqode;
     }
 
-    public void setCrx2faAddress(String crx2faAddress) {
-        this.crx2faAddress = crx2faAddress;
+    public String getSerial() {
+        return serial;
     }
 
     public String getSerial() { return serial; }

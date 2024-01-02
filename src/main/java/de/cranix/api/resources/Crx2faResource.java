@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
+import static de.cranix.api.resources.Resource.TEXT;
 
 @Path("2fa")
 @Api(value = "2fa")
@@ -40,15 +41,73 @@ public class Crx2faResource {
             @ApiParam(hidden = true) @Auth Session session,
             Crx2fa crx2fa
     ){
-
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new Crx2faService(session,em).add(crx2fa);
+        em.close();
+        return resp;
     }
-    @GET
+
+    @PATCH
     @RolesAllowed("2fa.use")
-    List<Crx2fa> get(
+    CrxResponse add(
             @ApiParam(hidden = true) @Auth Session session,
             Crx2fa crx2fa
     ){
-        return  session.getUser().getCrx2fas();
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new Crx2faService(session,em).modify(crx2fa);
+        em.close();
+        return resp;
+    }
+    @GET
+    @RolesAllowed("2fa.use")
+    Crx2fa get(
+            @ApiParam(hidden = true) @Auth Session session,
+            Crx2fa crx2fa
+    ){
+        return  session.getUser().getCrx2fa();
+    }
+
+    @DELETE
+    @Path("{id}")
+    @RolesAllowed("2fa.use")
+    CrxResponse delete(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new Crx2faService(session,em).delete(id);
+        em.close();
+        return resp;
+    }
+
+    /* Functions to handle CRANIX 2FA sessions */
+    @POST
+    @Path("sessions")
+    @RolesAllowed("2fa.use")
+    Crx2faSession addSession(
+            @ApiParam(hidden = true) @Auth Session session,
+            @Context HttpServletRequest req,
+            Crx2fa crx2fa
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Crx2faSession resp = new Crx2faService(session,em).addSession(crx2fa, req.getRemoteAddr());
+        em.close();
+        return resp;
+    }
+
+    @POST
+    @Path("sessions")
+    @RolesAllowed("2fa.use")
+    Crx2faSession checkSession(
+            @ApiParam(hidden = true) @Auth Session session,
+            @Context HttpServletRequest req,
+            Crx2faSession crx2faSession
+
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Crx2faSession resp = new Crx2faService(session,em).checkSession(crx2faSession, req.getRemoteAddr());
+        em.close();
+        return resp;
     }
 
     @POST

@@ -46,7 +46,7 @@ public class Crx2faSession extends AbstractEntity{
         this.setCreator(user);
         this.myCrx2fa = crx2fa;
         this.clientIP = clientIPAddress;
-        this.token =  user.getUid() + "_" + UUID.randomUUID();
+        this.token =  crx2fa.getCreator().getUid() + "_" + UUID.randomUUID();
         this.token = this.token.length() > 64 ? this.token.substring(0, 63) : this.token;
         if(!this.myCrx2fa.getCrx2faType().equals("TOTP")) {
             int rand = new Random().nextInt(900000) + 100000;
@@ -87,12 +87,20 @@ public class Crx2faSession extends AbstractEntity{
         this.myCrx2fa = myCrx2fa;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Transient
     public Date getValidUntil(){
         return new Date(this.getCreated().getTime() + this.validHours * 360000L);
     }
     @Transient
-    public boolean isValid() {
+    public boolean getValid() {
         return (
                 (this.getCreated().getTime() + this.validHours * 360000L) >
                         System.currentTimeMillis()

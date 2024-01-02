@@ -297,19 +297,15 @@ public class User implements Serializable {
 	@JsonIgnore
 	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();
 
-	@OneToMany( mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
+	@OneToOne( mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
 	@JsonIgnore
-	private List<Crx2fa> crx2fas = new ArrayList<>();
-	public List<Crx2fa> getCrx2fas() {
-		return crx2fas;
+	private Crx2fa crx2fa;
+	public Crx2fa getCrx2fa() {
+		return crx2fa;
 	}
 
-	public void addCrx2fas(Crx2fa crx2fa) {
-		if( !this.crx2fas.contains(crx2fa)) {
-			this.crx2fas.add(crx2fa);
-			crx2fa.setCreator(this);
-			crx2fa.setCreatorId(this.id);
-		}
+	public void setCrx2fa(Crx2fa crx2fa) {
+		this.crx2fa = crx2fa;
 	}
 	@OneToMany( mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
 	@JsonIgnore
