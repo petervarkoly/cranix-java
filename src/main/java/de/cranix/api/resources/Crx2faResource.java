@@ -2,8 +2,11 @@ package de.cranix.api.resources;
 
 
 import de.cranix.dao.Crx2fa;
+import de.cranix.dao.Crx2faSession;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
+import de.cranix.helper.CrxEntityManagerFactory;
+import de.cranix.services.Crx2faService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -11,12 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 
 import java.util.List;
+import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 
@@ -45,5 +49,20 @@ public class Crx2faResource {
             Crx2fa crx2fa
     ){
         return  session.getUser().getCrx2fas();
+    }
+
+    @POST
+    @Path("checkpin")
+    Crx2faSession checkPin(
+            @Context HttpServletRequest req,
+            Map<String ,String> pinCheck
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Crx2faSession res = new Crx2faService(null,em).checkPin(req.getRemoteAddr(),pinCheck.get("pin"),pinCheck.get("token"));
+        em.close();
+        if(res == null) {
+            throw new WebApplicationException(401);
+        }
+        return res;
     }
 }

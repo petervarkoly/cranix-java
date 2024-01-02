@@ -1,32 +1,30 @@
 package de.cranix.dao;
 
 import javax.persistence.Column;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 
 public class Crx2fa extends AbstractEntity {
 
-    // Type of the Crx2fa. At the moment only SMS and EMAIL is provided.
+    /*
+     Type of the Crx2fa:
+     This can be TOTP, SMS, EMAIL
+     At the moment only TOTP is provided.
+     */
     @NotNull
-    @Column(name = "type", length = 10)
-    @Pattern(regexp = "^SMS|EMAIL$")
-    @Enumerated(EnumType.STRING)
-    String crx2faType = "SMS";
+    @Column(name = "type", length = 5)
+    String crx2faType = "TOTP";
 
     /* The address where the auth code should be sent.
     * In case of SMS it is the telephone number
+    * In case of EMAIL it is a email-address
+    * In case of TOTP it is a qrCode
     */
-    @Column(name = "address", length = 255)
+    @Column(name = "address", length = 2000)
     String crx2faAddress = "";
 
-    /*
-    * Who long is an authorization valid in munutes
-    * */
-    @Column(name = "valid")
-    Integer validMinutes = 1440;
+    @Column(name="serial", length = 32)
+    String serial ="";
 
     public String getCrx2faType() {
         return crx2faType;
@@ -44,11 +42,7 @@ public class Crx2fa extends AbstractEntity {
         this.crx2faAddress = crx2faAddress;
     }
 
-    public Integer getValidMinutes() {
-        return validMinutes;
-    }
+    public String getSerial() { return serial; }
 
-    public void setValidMinutes(Integer validMinutes) {
-        this.validMinutes = validMinutes;
-    }
+    public void setSerial(String serial) { this.serial = serial; }
 }

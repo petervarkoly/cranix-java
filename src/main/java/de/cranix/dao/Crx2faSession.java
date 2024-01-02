@@ -1,30 +1,30 @@
 package de.cranix.dao;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.xml.crypto.Data;
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
 @Entity
 @Table(name = "Crx2faSessions")
 @NamedQueries({
         @NamedQuery(name="Crx2faSessions.findAll", query="SELECT c FROM Crx2faSessions c"),
-        @NamedQuery(name="Crx2faSessions.findByCode", query="SELECT c FROM Crx2faSessions c WHERE c.code = :code"),
         @NamedQuery(name="Crx2faSessions.findByToken", query="SELECT c FROM Crx2faSessions c WHERE c.token = :token")
 })
 public class Crx2faSession extends AbstractEntity{
 
-    @JsonIgnore
-    @NotNull
-    @NotEmpty
-    @Column(name="code", length =  6)
+    /*
+     * Who long is an authorization valid in hours
+     * */
+    @Column(name = "valid")
+    Integer validHours = 24;
+
+    @Column(name="pin", length =  6)
     @Size(max=6)
-    String code;
+    String pin;
 
     @NotNull
     @NotEmpty
@@ -41,19 +41,26 @@ public class Crx2faSession extends AbstractEntity{
     @ManyToOne
     Crx2fa myCrx2fa;
 
-    public void Crx2faSession(User user, String clientIPAddress) {
+    public Crx2faSession(){}
+    public Crx2faSession(User user, Crx2fa crx2fa, String clientIPAddress) {
         this.setCreator(user);
+        this.myCrx2fa = crx2fa;
         this.clientIP = clientIPAddress;
         this.token =  user.getUid() + "_" + UUID.randomUUID();
         this.token = this.token.length() > 64 ? this.token.substring(0, 63) : this.token;
+        if(!this.myCrx2fa.getCrx2faType().equals("TOTP")) {
+            int rand = new Random().nextInt(900000) + 100000;
+            this.pin = String.valueOf(rand);
+        }
+        this.setCreated(new Date(System.currentTimeMillis()));
     }
 
-    public String getCode() {
-        return code;
+    public String getPin() {
+        return pin;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 
     public String getToken() {
@@ -82,12 +89,12 @@ public class Crx2faSession extends AbstractEntity{
 
     @Transient
     public Date getValidUntil(){
-        return new Date(this.myCrx2fa.getCreated().getTime() + this.myCrx2fa.getValidMinutes() * 60000L);
+        return new Date(this.getCreated().getTime() + this.validHours * 360000L);
     }
     @Transient
     public boolean isValid() {
         return (
-                (this.myCrx2fa.getCreated().getTime() + this.myCrx2fa.getValidMinutes() * 60000L) >
+                (this.getCreated().getTime() + this.validHours * 360000L) >
                         System.currentTimeMillis()
         );
     }
