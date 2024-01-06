@@ -91,6 +91,11 @@ public class Session implements Principal {
 	@Transient
 	private String name;
 
+	@Transient
+	private Crx2faSession crx2faSession;
+
+	@Transient List<String> crx2fas = new ArrayList<>();
+
 	public Session(String name) {
 		this.name = name;
 	}
@@ -323,6 +328,16 @@ public class Session implements Principal {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
+
+	public Crx2faSession getCrx2faSession() { return crx2faSession;	}
+
+	public void setCrx2faSession(Crx2faSession crx2faSession) {
+		this.crx2faSession = crx2faSession;
+	}
+
+	public List<String> getCrx2fas() { return crx2fas; }
+
+	public void setCrx2fas(List<String> crx2fas) {this.crx2fas = crx2fas;}
 
 	public static List<String> getUserAcls(User user){
 		List<String> modules = new ArrayList<String>();

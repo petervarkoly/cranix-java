@@ -1,17 +1,19 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class Crx2faRequest {
-    String uid;
+    String uid ="";
 
     Long userId;
 
     Integer timeStep;
 
-    String regCode;
+    String regCode = "";
 
-    String qrCode;
+    String qrCode = "";
 
-    String serial;
+    String serial = "";
 
     public String getUid() {
         return uid;
@@ -59,5 +61,14 @@ public class Crx2faRequest {
 
     public void setSerial(String serial) {
         this.serial = serial;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception e) {
+            return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
+        }
     }
 }

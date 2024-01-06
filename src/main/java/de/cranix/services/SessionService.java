@@ -1,12 +1,7 @@
 /* 2022 (C) Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.services;
 
-import de.cranix.dao.Acl;
-import de.cranix.dao.Device;
-import de.cranix.dao.Group;
-import de.cranix.dao.Room;
-import de.cranix.dao.Session;
-import de.cranix.dao.User;
+import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
 import de.cranix.helper.IPv4;
 import io.dropwizard.auth.AuthenticationException;
@@ -166,6 +161,19 @@ public class SessionService extends Service {
 
         this.session.setAcls(modules);
         this.session.setPassword(password);
+
+        //Handle CRANIX 2FA
+        if(this.isAllowed(user,"2fa.use")){
+            for(Crx2fa crx2fa: user.getCrx2fas()) {
+                this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
+            }
+            for(Crx2faSession crx2faSession: user.getCrx2faSessions() ){
+                if(crx2faSession.getClientIP().equals(IP) && crx2faSession.isValid()) {
+                    this.session.setCrx2faSession(crx2faSession);
+                    break;
+                }
+            }
+        }
         sessions.put(token, this.session);
         save(session);
         return this.session;

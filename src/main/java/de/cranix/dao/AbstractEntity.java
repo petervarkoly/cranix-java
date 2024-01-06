@@ -27,12 +27,10 @@ public abstract class AbstractEntity implements Serializable {
     private Long creatorId;
 
     @Column(name = "created", updatable = false, columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
-    @JsonIgnore
     @Temporal(DATE)
     private Date created;
 
     @Column(name = "modified", columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ")
-    @JsonIgnore
     @Temporal(DATE)
     private Date modified;
 

@@ -20,6 +20,7 @@ import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
+import static de.cranix.helper.CranixConstants.cranix2faConfig;
 import static de.cranix.helper.CranixConstants.cranixMdmConfig;
 
 public class CranixApplication extends Application<ServerConfiguration> {
@@ -115,13 +116,17 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final ObjectResource objectResource = new ObjectResource();
 		environment.jersey().register(objectResource);
 
-		//Start mdm api only if it is configured.
-		File mdm_config = new File(cranixMdmConfig);
-		if( mdm_config.exists() ) {
+		//Start some APIs only if they are configured.
+		File config_file = new File(cranixMdmConfig);
+		if( config_file.exists() ) {
 			final MdmResource mdmResource = new MdmResource();
 			environment.jersey().register(mdmResource);
 		}
-
+		config_file = new File(cranix2faConfig);
+		if( config_file.exists() ) {
+			final Crx2faResource crx2faResource = new Crx2faResource();
+			environment.jersey().register(crx2faResource);
+		}
 		final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
 		environment.healthChecks().register("template", healthCheck);
 
