@@ -48,6 +48,11 @@ public class Session implements Principal {
 	@Column(name = "room_id", insertable = false, updatable = false)
 	private Long roomId;
 
+
+	@OneToOne
+	@JoinColumn(name="crx2fasession_id")
+	private Crx2faSession crx2faSession;
+
 	@ManyToOne
 	@JsonIgnore
 	private Room room;
@@ -91,8 +96,6 @@ public class Session implements Principal {
 	@Transient
 	private String name;
 
-	@Transient
-	private Crx2faSession crx2faSession;
 
 	@Transient List<String> crx2fas = new ArrayList<>();
 

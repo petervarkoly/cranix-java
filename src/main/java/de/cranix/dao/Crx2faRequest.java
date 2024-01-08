@@ -3,17 +3,34 @@ package de.cranix.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Crx2faRequest {
-    String uid ="";
+    private String uid ="";
 
-    Long userId;
+    private Long userId;
 
-    Integer timeStep;
+    private Integer timeStep;
 
-    String regCode = "";
+    private String regCode = "";
 
-    String qrCode = "";
+    private String address = "";
 
-    String serial = "";
+    private String serial = "";
+
+    /**
+     * The type of the crx2fa to be created:
+     * TOTP
+     * SMS send an SMS
+     * MAIL send an e-mail
+     */
+    private String type = "";
+
+    /**
+     * The action which have to be executed.
+     * This can be:
+     * CREATE
+     * DELETE
+     * RESET
+     */
+    private String action = "";
 
     public String getUid() {
         return uid;
@@ -47,12 +64,12 @@ public class Crx2faRequest {
         this.regCode = regCode;
     }
 
-    public String getQrCode() {
-        return qrCode;
+    public String getAddress() {
+        return address;
     }
 
-    public void setQrCode(String qrCode) {
-        this.qrCode = qrCode;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getSerial() {
@@ -61,6 +78,22 @@ public class Crx2faRequest {
 
     public void setSerial(String serial) {
         this.serial = serial;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 
     @Override

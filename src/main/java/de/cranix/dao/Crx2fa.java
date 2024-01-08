@@ -22,7 +22,7 @@ public class Crx2fa extends AbstractEntity {
      */
     @NotNull
     @Column(name = "type", length = 5)
-    String crx2faType = "TOTP";
+    private String crx2faType = "TOTP";
 
     /** The address where the auth code should be sent.
     * In case of SMS it is the telephone number
@@ -30,10 +30,13 @@ public class Crx2fa extends AbstractEntity {
     * In case of TOTP it is a qrCode
     */
     @Column(name = "address", length = 2000)
-    String crx2faAddress = "";
+    private String crx2faAddress = "";
 
+    /**
+     * The serial of the TOTP entry.
+     */
     @Column(name="serial", length = 40)
-    String serial ="";
+    private String serial = "";
 
     /**
      * How long is a pin valid
@@ -42,13 +45,13 @@ public class Crx2fa extends AbstractEntity {
      * Value is in seconds
      */
     @Column(name = "timeStep")
-    Integer timeStep;
+    private Integer timeStep;
     /**
     * Who long is an authorization valid in hours
     */
     @Column(name = "validHours")
     @Max(value = 24, message = "A TOTP session must not be longer valid then 24.")
-    Integer validHours = 24;
+    private Integer validHours = 24;
 
     public String getCrx2faType() {
         return crx2faType;

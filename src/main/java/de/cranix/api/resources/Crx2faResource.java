@@ -1,6 +1,7 @@
 package de.cranix.api.resources;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.Crx2fa;
 import de.cranix.dao.Crx2faSession;
 import de.cranix.dao.CrxResponse;
@@ -154,13 +155,18 @@ public class Crx2faResource {
     @Path("sendpin")
     public CrxResponse sendPin(
             @Context HttpServletRequest req,
-            Map<String ,Object> pinSend
+            Map<String ,String> pinSend
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        try {
+            logger.debug(new ObjectMapper().writeValueAsString(pinSend));
+        } catch (Exception e) {
+            logger.debug("ERROR" + pinSend);
+        }
         CrxResponse res = new Crx2faService(null,em).sendPin(
-                (Long) pinSend.get("crx2faId"),
+                Long.parseLong(pinSend.get("crx2faId")),
                 req.getRemoteAddr(),
-                (String) pinSend.get("token"));
+                pinSend.get("token"));
         em.close();
         return res;
     }
@@ -175,14 +181,19 @@ public class Crx2faResource {
     @Path("checkpin")
     public Crx2faSession checkPin(
             @Context HttpServletRequest req,
-            Map<String ,Object> pinCheck
+            Map<String ,String> pinCheck
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        try {
+            logger.debug(new ObjectMapper().writeValueAsString(pinCheck));
+        } catch (Exception e) {
+            logger.debug("ERROR" + pinCheck);
+        }
         Crx2faSession res = new Crx2faService(null,em).checkPin(
-                (Long) pinCheck.get("crx2faId"),
+                Long.parseLong(pinCheck.get("crx2faId")),
                 req.getRemoteAddr(),
-                (String) pinCheck.get("pin"),
-                (String) pinCheck.get("token"));
+                pinCheck.get("pin"),
+                pinCheck.get("token"));
         em.close();
         if(res == null) {
             throw new WebApplicationException(401);

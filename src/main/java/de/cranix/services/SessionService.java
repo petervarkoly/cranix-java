@@ -168,7 +168,7 @@ public class SessionService extends Service {
                 this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
             }
             for(Crx2faSession crx2faSession: user.getCrx2faSessions() ){
-                if(crx2faSession.getClientIP().equals(IP) && crx2faSession.isValid()) {
+                if(crx2faSession.getClientIP().equals(IP) && crx2faSession.getChecked() && crx2faSession.isValid()) {
                     this.session.setCrx2faSession(crx2faSession);
                     break;
                 }
@@ -197,7 +197,6 @@ public class SessionService extends Service {
         List<String> modules = Session.getUserAcls(user);
         if (!this.isSuperuser()) {
             RoomService roomService = new RoomService(this.session, this.em);
-            ;
             if (!roomService.getAllToRegister().isEmpty()) {
                 modules.add("adhoclan.mydevices");
             }
@@ -208,7 +207,7 @@ public class SessionService extends Service {
         return this.session;
     }
 
-    private void save(Session obj) {
+    public void save(Session obj) {
         if (em != null) {
             try {
                 this.em.getTransaction().begin();
@@ -300,6 +299,10 @@ public class SessionService extends Service {
                 return null;
             }
         }
+        if(token.equals(this.getProperty("de.cranix.api.auth.localhost"))){
+            return session;
+        }
+
         if (!isSuperuser(session)) {
             Long timeout = 90L;
             try {
@@ -339,6 +342,27 @@ public class SessionService extends Service {
     }
 
     public boolean authorize(Session session, String requiredRole) {
+        if(session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost"))){
+            return true;
+        }
+
+        /**
+         * Handle 2FA
+         */
+        if(session.getAcls().contains("2fa.use")){
+            if(
+                    !requiredRole.equals("2fa.use") && (
+                    session.getCrx2faSession() == null ||
+                            !session.getCrx2faSession().isValid() ||
+                            !session.getCrx2faSession().getChecked() )
+            ) {
+                logger.info("Token without required CRX2FA session");
+                return false;
+            }
+        } else {
+            //This is 2FA first session TODO make it safer
+            return true;
+        }
 
         /**
          * If the required role is the role of the user then he is authorized.
