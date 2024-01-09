@@ -11,36 +11,37 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.List;
 
+import static de.cranix.helper.CranixConstants.cranix2faConfig;
+
 public class Crx2faService extends Service {
     Logger logger = LoggerFactory.getLogger(Crx2faService.class);
-    Integer timeStep;
-    String crx2faUrl = "https://admin.cephalix.eu/api/customers/crx2fa";
-    String crx2faCheck = "https://crx2fa.cephalix.eu/validate/check?serial=%s&otponly=1&pass=%s";
+    String crx2faUrl;
+    String crx2faCheck;
 
     public Crx2faService(Session session, EntityManager em) {
         super(session, em);
-        try {
-            this.timeStep = Integer.valueOf(this.getConfigValue("2FA_TIME_STEP"));
-        } catch (NumberFormatException e) {
-            this.timeStep = 30;
-        }
+        Config config = new Config(cranix2faConfig, "CRX2FA_");
+        this.crx2faUrl = config.getConfigValue("URL");
+        this.crx2faCheck = config.getConfigValue("CHECK_URL");
     }
 
     public CrxResponse add(Crx2fa crx2fa) {
         User user = this.em.find(User.class, this.session.getUser().getId());
         try {
-            Crx2faRequest crx2faRequest = new Crx2faRequest();
-            crx2faRequest.setRegCode(this.getConfigValue("REG_CODE"));
-            crx2faRequest.setUid(user.getUid());
-            crx2faRequest.setUserId(user.getId());
-            crx2faRequest.setTimeStep(crx2fa.getTimeStep());
-            crx2faRequest.setAction("CREATE");
-            this.logger.debug("request:" + crx2faRequest);
-            JSONObject response = sendRequest(crx2faRequest);
-            this.logger.debug("response:" + response);
-            crx2fa.setCrx2faAddress(response.getString("qrcode"));
+            if(crx2fa.getCrx2faType().equals("TOTP")) {
+                Crx2faRequest crx2faRequest = new Crx2faRequest();
+                crx2faRequest.setRegCode(this.getConfigValue("REG_CODE"));
+                crx2faRequest.setUid(user.getUid());
+                crx2faRequest.setUserId(user.getId());
+                crx2faRequest.setTimeStep(crx2fa.getTimeStep());
+                crx2faRequest.setAction("CREATE");
+                this.logger.debug("request:" + crx2faRequest);
+                JSONObject response = sendRequest(crx2faRequest);
+                this.logger.debug("response:" + response);
+                crx2fa.setCrx2faAddress(response.getString("qrcode"));
+                crx2fa.setSerial(response.getString("serial"));
+            }
             crx2fa.setCreator(user);
-            crx2fa.setSerial(response.getString("serial"));
             this.em.getTransaction().begin();
             this.em.persist(crx2fa);
             user.addCrx2fa(crx2fa);
@@ -90,6 +91,7 @@ public class Crx2faService extends Service {
             oldCrx2fa.setValidHours(crx2fa.getValidHours());
             if (!oldCrx2fa.getCrx2faType().equals("TOTP")) {
                 oldCrx2fa.setTimeStep(crx2fa.getTimeStep());
+                oldCrx2fa.setCrx2faAddress(crx2fa.getCrx2faAddress());
             }
             this.em.getTransaction().begin();
             this.em.merge(oldCrx2fa);
@@ -129,6 +131,7 @@ public class Crx2faService extends Service {
         crx2faRequest.setType(crx2fa.getCrx2faType());
         crx2faRequest.setAddress(crx2fa.getCrx2faAddress());
         crx2faRequest.setSerial(crx2faSession.getPin());
+        crx2faRequest.setUid(session1.getUser().getUid());
         crx2faRequest.setAction("SEND");
         //TODO check response
         sendRequest(crx2faRequest);
@@ -183,7 +186,6 @@ public class Crx2faService extends Service {
                 crx2faSession = new Crx2faSession(user, crx2fa, ip);
                 this.em.getTransaction().begin();
                 this.em.persist(crx2faSession);
-                this.em.merge(user);
                 this.em.getTransaction().commit();
                 break;
             case "SMS":
@@ -199,10 +201,10 @@ public class Crx2faService extends Service {
                     //tmp.isAvailable() &&
                     if (
                             tmp.getMyCrx2fa().equals(crx2fa) &&
-                            tmp.getPin() != null &&
-                            tmp.getClientIP().equals(ip) &&
-                            tmp.isValid() &&
-                            tmp.getPin().equals(pin)
+                                    tmp.getPin() != null &&
+                                    tmp.getClientIP().equals(ip) &&
+                                    tmp.isValid() &&
+                                    tmp.getPin().equals(pin)
                     ) {
                         crx2faSession = tmp;
                         crx2faSession.setChecked(true);
@@ -218,6 +220,7 @@ public class Crx2faService extends Service {
             sessionService.sessions.put(token, session1);
             this.em.getTransaction().begin();
             this.em.merge(session1);
+            this.em.refresh(user);
             this.em.getTransaction().commit();
         }
         return crx2faSession;
