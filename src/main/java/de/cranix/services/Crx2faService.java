@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
 
 import static de.cranix.helper.CranixConstants.cranix2faConfig;
@@ -23,6 +24,11 @@ public class Crx2faService extends Service {
         Config config = new Config(cranix2faConfig, "CRX2FA_");
         this.crx2faUrl = config.getConfigValue("URL");
         this.crx2faCheck = config.getConfigValue("CHECK_URL");
+    }
+
+    public List<Crx2fa> geAll(){
+        Query query = this.em.createNamedQuery("Crx2fa.findAll");
+        return query.getResultList();
     }
 
     public CrxResponse add(Crx2fa crx2fa) {
@@ -56,8 +62,9 @@ public class Crx2faService extends Service {
     }
 
     public CrxResponse delete(Long id) {
-        User user = this.em.find(User.class, this.session.getUser().getId());
         Crx2fa crx2fa = this.em.find(Crx2fa.class, id);
+        //TODO check if it is allowed
+        User user = crx2fa.getCreator();
         if (crx2fa == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Can not find the CRANIX CFA");
         }
@@ -79,8 +86,9 @@ public class Crx2faService extends Service {
     }
 
     public CrxResponse modify(Crx2fa crx2fa) {
-        User user = this.em.find(User.class, this.session.getUser().getId());
         Crx2fa oldCrx2fa = this.em.find(Crx2fa.class, crx2fa.getId());
+        //TODO check if it is allowed
+        User user = oldCrx2fa.getCreator();
         if (oldCrx2fa == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Can not find the CRANIX 2fa");
         }
@@ -260,5 +268,19 @@ public class Crx2faService extends Service {
         } catch (Exception e) {
             logger.error("getByRole: " + e.getMessage());
         }
+    }
+
+    public List<CrxResponse> applyAction(CrxActionMap actionMap) {
+        List<CrxResponse> responses = new ArrayList<>();
+        for(Long id: actionMap.getObjectIds()){
+            switch (actionMap.getName()){
+                case "RESET":
+                    responses.add(this.reset(id));
+                    break;
+                case "DELETE":
+                    responses.add(this.delete(id));
+            }
+        }
+        return responses;
     }
 }

@@ -2,10 +2,7 @@ package de.cranix.api.resources;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.cranix.dao.Crx2fa;
-import de.cranix.dao.Crx2faSession;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.Session;
+import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.services.Config;
 import de.cranix.services.Crx2faService;
@@ -39,6 +36,8 @@ public class Crx2faResource {
     public Crx2faResource() {
     }
 
+
+
     /**
      * Delivers a CRANIX 2FA to be able to scan it.
      * @param session
@@ -54,6 +53,23 @@ public class Crx2faResource {
         Config config = new Config(cranix2faConfig,"CRX2FA_");
         String[] resp = config.getConfigValue("TYPES").split(" ");
         return  resp;
+    }
+
+    /**
+     * Delivers all CRX2FAs for the sysadmins.
+     * @param session
+     * @return
+     */
+    @GET
+    @Path("all")
+    @RolesAllowed("2fa.manage")
+    public List<Crx2fa> getAll(
+            @ApiParam(hidden = true) @Auth Session session
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<Crx2fa> resp = new Crx2faService(session,em).geAll();
+        em.close();
+        return resp;
     }
 
     /**
@@ -81,7 +97,7 @@ public class Crx2faResource {
      * @return
      */
     @PATCH
-    @RolesAllowed("2fa.use")
+    @RolesAllowed({"2fa.use","2fa.manage"})
     public CrxResponse modify(
             @ApiParam(hidden = true) @Auth Session session,
             Crx2fa crx2fa
@@ -141,6 +157,19 @@ public class Crx2faResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         CrxResponse resp = new Crx2faService(session,em).reset(id);
+        em.close();
+        return resp;
+    }
+
+    @POST
+    @Path("applyAction")
+    @RolesAllowed("2fa.manage")
+    public List<CrxResponse> applyAction(
+            @ApiParam(hidden = true) @Auth Session session,
+            CrxActionMap actionMap
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<CrxResponse> resp = new Crx2faService(session,em).applyAction(actionMap);
         em.close();
         return resp;
     }
