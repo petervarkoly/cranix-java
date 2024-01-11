@@ -26,8 +26,8 @@ import static de.cranix.api.resources.Resource.JSON_UTF8;
 import static de.cranix.api.resources.Resource.TEXT;
 import static de.cranix.helper.CranixConstants.cranix2faConfig;
 
-@Path("2fa")
-@Api(value = "2fa")
+@Path("2fas")
+@Api(value = "2fas")
 @Produces(JSON_UTF8)
 public class Crx2faResource {
 

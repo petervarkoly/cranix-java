@@ -273,7 +273,7 @@ public class Crx2faService extends Service {
     public List<CrxResponse> applyAction(CrxActionMap actionMap) {
         List<CrxResponse> responses = new ArrayList<>();
         for(Long id: actionMap.getObjectIds()){
-            switch (actionMap.getName()){
+            switch (actionMap.getName().toUpperCase()){
                 case "RESET":
                     responses.add(this.reset(id));
                     break;
