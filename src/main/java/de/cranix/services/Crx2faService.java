@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static de.cranix.helper.CranixConstants.cranix2faConfig;
@@ -33,6 +34,7 @@ public class Crx2faService extends Service {
 
     public CrxResponse add(Crx2fa crx2fa) {
         User user = this.em.find(User.class, this.session.getUser().getId());
+        crx2fa.setCreated(new Date(System.currentTimeMillis()));
         try {
             if(crx2fa.getCrx2faType().equals("TOTP")) {
                 Crx2faRequest crx2faRequest = new Crx2faRequest();
@@ -46,6 +48,8 @@ public class Crx2faService extends Service {
                 this.logger.debug("response:" + response);
                 crx2fa.setCrx2faAddress(response.getString("qrcode"));
                 crx2fa.setSerial(response.getString("serial"));
+            } else {
+                crx2fa.setSerial("");
             }
             crx2fa.setCreator(user);
             this.em.getTransaction().begin();
@@ -68,21 +72,27 @@ public class Crx2faService extends Service {
         if (crx2fa == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Can not find the CRANIX CFA");
         }
-        Crx2faRequest crx2faRequest = new Crx2faRequest();
-        crx2faRequest.setRegCode(this.getConfigValue("REG_CODE"));
-        crx2faRequest.setSerial(crx2fa.getSerial());
-        crx2faRequest.setAction("DELETE");
-        try {
+        if(this.session.getCrx2faSession().getMyCrx2fa().equals(crx2fa)) {
+            return new CrxResponse(this.getSession(), "ERROR", "You must not remove this CFA you are just using it.");
+        }
+        if( crx2fa.getCrx2faType().equals("TOTP")) {
+            Crx2faRequest crx2faRequest = new Crx2faRequest();
+            crx2faRequest.setRegCode(this.getConfigValue("REG_CODE"));
+            crx2faRequest.setSerial(crx2fa.getSerial());
+            crx2faRequest.setAction("DELETE");
             sendRequest(crx2faRequest);
+        }
+        try {
+            user.getCrx2fas().remove(crx2fa);
             this.em.getTransaction().begin();
             this.em.remove(crx2fa);
+            this.em.merge(user);
             this.em.getTransaction().commit();
-            this.em.refresh(user);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "CRANIX 2FA was deleted successfully.");
+        return new CrxResponse(this.session, "OK", "CRANIX 2FA was deleted successfully.");
     }
 
     public CrxResponse modify(Crx2fa crx2fa) {

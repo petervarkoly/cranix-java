@@ -10,7 +10,9 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "Crx2fas")
+@Table(name = "Crx2fas",
+      uniqueConstraints = { @UniqueConstraint(columnNames = { "creator_id", "crx2faType" }) }
+)
 @NamedQueries({
         @NamedQuery(name="Crx2fa.findAll", query="SELECT c FROM Crx2fa c")
 })
@@ -22,7 +24,7 @@ public class Crx2fa extends AbstractEntity {
      * At the moment only TOTP is provided.
      */
     @NotNull
-    @Column(name = "type", length = 5)
+    @Column(name = "crx2faType", length = 5)
     private String crx2faType = "TOTP";
 
     /** The address where the auth code should be sent.
