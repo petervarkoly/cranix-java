@@ -109,7 +109,7 @@ public class Crx2faResource {
     }
 
     /**
-     * Delivers a CRANIX 2FA to be able to scan it.
+     * Delivers the users CRX2FAs
      * @param session
      * @param crx2fa
      * @return
@@ -117,10 +117,12 @@ public class Crx2faResource {
     @GET
     @RolesAllowed("2fa.use")
     public List<Crx2fa> get(
-            @ApiParam(hidden = true) @Auth Session session,
-            Crx2fa crx2fa
+            @ApiParam(hidden = true) @Auth Session session
     ){
-        return  session.getUser().getCrx2fas();
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<Crx2fa> resp = new Crx2faService(session,em).getMyCrx2fas();
+        em.close();
+        return resp;
     }
 
     /**

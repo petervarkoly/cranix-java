@@ -293,4 +293,9 @@ public class Crx2faService extends Service {
         }
         return responses;
     }
+
+    public List<Crx2fa> getMyCrx2fas() {
+        User user = this.em.find(User.class,this.session.getUser().getId());
+        return user.getCrx2fas();
+    }
 }
