@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Max;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 
 @Entity
@@ -53,6 +54,10 @@ public class Crx2fa extends AbstractEntity {
     @Max(value = 24, message = "A TOTP session must not be longer valid then 24.")
     private Integer validHours = 24;
 
+    @OneToMany(mappedBy="myCrx2fa", cascade ={CascadeType.ALL}, orphanRemoval=true)
+    @JsonIgnore
+    List<Crx2faSession> crx2faSessionList;
+
     public String getCrx2faType() {
         return crx2faType;
     }
@@ -91,5 +96,13 @@ public class Crx2fa extends AbstractEntity {
 
     public void setValidHours(Integer validHours) {
         this.validHours = validHours;
+    }
+
+    public List<Crx2faSession> getCrx2faSessionList() {
+        return crx2faSessionList;
+    }
+
+    public void setCrx2faSessionList(List<Crx2faSession> crx2faSessionList) {
+        this.crx2faSessionList = crx2faSessionList;
     }
 }

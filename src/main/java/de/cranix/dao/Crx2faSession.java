@@ -54,6 +54,10 @@ public class Crx2faSession extends AbstractEntity {
     @JoinColumn(name = "crx2fa_id")
     private Crx2fa myCrx2fa;
 
+    @OneToOne(mappedBy = "crx2faSession", cascade ={CascadeType.ALL}, orphanRemoval=true)
+    @JsonIgnore
+    Session session;
+
     public Crx2faSession() {
     }
 
@@ -110,6 +114,14 @@ public class Crx2faSession extends AbstractEntity {
 
     public void setChecked(Boolean checked) {
         this.checked = checked;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
     }
 
     @Transient
