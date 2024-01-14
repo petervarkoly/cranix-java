@@ -56,7 +56,7 @@ public class Crx2fa extends AbstractEntity {
     @Max(value = 24, message = "A TOTP session must not be longer valid then 24.")
     private Integer validHours = 24;
 
-    @OneToMany(mappedBy="myCrx2fa", cascade ={CascadeType.ALL}, orphanRemoval=true)
+    @OneToMany(mappedBy="myCrx2fa", cascade ={CascadeType.REMOVE}, orphanRemoval=true)
     @JsonIgnore
     List<Crx2faSession> crx2faSessionList;
 

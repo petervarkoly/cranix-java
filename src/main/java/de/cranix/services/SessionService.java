@@ -163,12 +163,12 @@ public class SessionService extends Service {
         this.session.setPassword(password);
 
         //Handle CRANIX 2FA
-        if(this.isAllowed(user,"2fa.use")){
-            for(Crx2fa crx2fa: user.getCrx2fas()) {
+        if (this.isAllowed(user, "2fa.use")) {
+            for (Crx2fa crx2fa : user.getCrx2fas()) {
                 this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
             }
-            for(Crx2faSession crx2faSession: user.getCrx2faSessions() ){
-                if(crx2faSession.getClientIP().equals(IP) && crx2faSession.getChecked() && crx2faSession.isValid()) {
+            for (Crx2faSession crx2faSession : user.getCrx2faSessions()) {
+                if (crx2faSession.getClientIP().equals(IP) && crx2faSession.getChecked() && crx2faSession.isValid()) {
                     this.session.setCrx2faSession(crx2faSession);
                     break;
                 }
@@ -299,7 +299,7 @@ public class SessionService extends Service {
                 return null;
             }
         }
-        if(token.equals(this.getProperty("de.cranix.api.auth.localhost"))){
+        if (token.equals(this.getProperty("de.cranix.api.auth.localhost"))) {
             return session;
         }
 
@@ -342,26 +342,25 @@ public class SessionService extends Service {
     }
 
     public boolean authorize(Session session, String requiredRole) {
-        if(session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost"))){
+        if (session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost"))) {
             return true;
         }
 
         /**
-         * Handle 2FA
+         * User have to use 2FA, and he is configuring 2FA. This is allowed.
          */
-        if(session.getAcls().contains("2fa.use")){
-            if(
-                    !requiredRole.equals("2fa.use") && (
-                    session.getCrx2faSession() == null ||
-                            !session.getCrx2faSession().isValid() ||
-                            !session.getCrx2faSession().getChecked() )
-            ) {
-                logger.info("Token without required CRX2FA session");
-                return false;
-            }
-        } else {
-            //This is 2FA first session TODO make it safer
+        if (session.getAcls().contains("2fa.use") && requiredRole.equals("2fa.user")) {
             return true;
+        }
+        /**
+         * User have to use 2FA but has no checked 2FA session.
+         * Only 2FA setup is allowed.
+         */
+        if (session.getAcls().contains("2fa.use") &&
+                (session.getCrx2faSession() == null || !session.getCrx2faSession().getChecked())
+        ) {
+            logger.info("Token without checked CRX2FA session");
+            return false;
         }
 
         /**
@@ -376,22 +375,6 @@ public class SessionService extends Service {
                 return true;
             }
         }
-        /**
-         * A required role can be allowed or denied by the user
-         for( Acl acl : session.getUser().getAcls() ){
-         if( acl.getAcl().startsWith(requiredRole)) {
-         return acl.getAllowed();
-         }
-         }
-         *
-         * A required role can be allowed or denied by one of the groups of a user.
-         for( Group group : session.getUser().getGroups() ) {
-         for( Acl acl : group.getAcls() ) {
-         if( acl.getAcl().startsWith(requiredRole)) {
-         return acl.getAllowed();
-         }
-         }
-         }*/
         return false;
     }
 
@@ -449,28 +432,4 @@ public class SessionService extends Service {
         }
         return String.join(winLineSeparator, batFile);
     }
-
-/*    public List<String> getUserAcls(User user){
-        List<String> modules = new ArrayList<String>();
-        //Modules with right permit all is allowed for all authorized users.
-        modules.add("permitall");
-        //Is it allowed by the groups.
-        for( Group group : user.getGroups() ) {
-            for( Acl acl : group.getAcls() ) {
-                if( acl.getAllowed() ) {
-                    modules.add(acl.getAcl());
-                }
-            }
-        }
-        //Is it allowed by the user
-        for( Acl acl : user.getAcls() ){
-            if( acl.getAllowed() && !modules.contains(acl.getAcl())) {
-                modules.add(acl.getAcl());
-            } else if( !acl.getAllowed() && modules.contains(acl.getAcl()) ) {
-                //It is forbidden by the user
-                modules.remove(acl.getAcl());
-            }
-        }
-        return modules;
-    } */
 }
