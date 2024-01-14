@@ -3,6 +3,8 @@ package de.cranix.api.resources;
 
 import static de.cranix.helper.CranixConstants.*;
 import static de.cranix.api.resources.Resource.*;
+
+import de.cranix.services.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 
@@ -34,11 +36,6 @@ import java.util.Map;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.CrxSystemCmd;
-import de.cranix.services.JobService;
-import de.cranix.services.ProxyService;
-import de.cranix.services.SessionService;
-import de.cranix.services.Service;
-import de.cranix.services.SystemService;
 
 @Path("system")
 @Api(value = "system")
@@ -1419,5 +1416,48 @@ public class SystemResource {
 		program[1] = key;
 		CrxSystemCmd.exec(program, reply, stderr, null);
 		return reply.toString();
+	}
+
+	@POST
+	@Path("mailserver/access")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a new acces.")
+	@RolesAllowed("system.mailserver")
+	public CrxResponse addMailserverAccess(
+			@ApiParam(hidden = true) @Auth Session session,
+			MailAccess mailAccess
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new MailserverService(session,em).addMailAccess(mailAccess);
+		em.close();
+		return resp;
+	}
+	@GET
+	@Path("mailserver/access")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a new acces.")
+	@RolesAllowed("system.mailserver")
+	public List<MailAccess> addMailserverAccess(
+			@ApiParam(hidden = true) @Auth Session session
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<MailAccess> resp = new MailserverService(session,em).getAllMailAccess();
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("mailserver/access/{id}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a new acces.")
+	@RolesAllowed("system.mailserver")
+	public CrxResponse deleteMailserverAccess(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("id") Long id
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new MailserverService(session,em).deleteMailAccess(id);
+		em.close();
+		return resp;
 	}
 }
