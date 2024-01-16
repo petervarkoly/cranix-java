@@ -349,7 +349,7 @@ public class SessionService extends Service {
         /**
          * User have to use 2FA, and he is configuring 2FA. This is allowed.
          */
-        if (session.getAcls().contains("2fa.use") && requiredRole.equals("2fa.user")) {
+        if (session.getAcls().contains("2fa.use") && requiredRole.equals("2fa.use")) {
             return true;
         }
         /**
