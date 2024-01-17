@@ -72,8 +72,8 @@ public class Crx2faService extends Service {
         if (crx2fa == null) {
             return new CrxResponse(this.getSession(), "ERROR", "Can not find the CRANIX CFA");
         }
-        if(this.session.getCrx2faSession().getMyCrx2fa().equals(crx2fa)) {
-            return new CrxResponse(this.getSession(), "ERROR", "You must not remove this CFA you are just using it.");
+        if(this.session.getCrx2faSession()!=null && this.session.getCrx2faSession().getMyCrx2fa().equals(crx2fa)) {
+            return new CrxResponse(this.getSession(), "ERROR", "You must not remove this CFA. You are just using it.");
         }
         if( crx2fa.getCrx2faType().equals("TOTP")) {
             Crx2faRequest crx2faRequest = new Crx2faRequest();

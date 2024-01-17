@@ -32,7 +32,7 @@ public class Crx2fa extends AbstractEntity {
     * In case of EMAIL it is a email-address
     * In case of TOTP it is a qrCode
     */
-    @Column(name = "address", length = 2000)
+    @Column(name = "address", length = 4000)
     private String crx2faAddress = "";
 
     /**
