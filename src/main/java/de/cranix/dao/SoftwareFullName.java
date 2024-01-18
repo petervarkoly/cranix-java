@@ -24,6 +24,7 @@ public class SoftwareFullName implements Serializable {
 	@Id
 	@SequenceGenerator(name="SOFTWARELICENSES_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SOFTWARELICENSES_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	//bi-directional many-to-one association to Software

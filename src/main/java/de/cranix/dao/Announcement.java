@@ -32,6 +32,7 @@ public class Announcement implements Serializable {
 	@Id
 	@SequenceGenerator(name="ANNOUNCEMENTS_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ANNOUNCEMENTS_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	/**

@@ -26,6 +26,7 @@ public class Contact implements Serializable {
 	@Id
 	@SequenceGenerator(name="CONTACTS_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CONTACTS_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	@Size(max=128, message="Email must not be longer then 128 characters.")

@@ -23,6 +23,7 @@ public class PositiveList implements Serializable {
 	@Id
 	@SequenceGenerator(name="POSITIVELIST_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="POSITIVELIST_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	@Size(max=64, message="Description must not be longer then 64 characters.")

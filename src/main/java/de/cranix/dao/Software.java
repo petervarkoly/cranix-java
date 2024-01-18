@@ -29,6 +29,7 @@ public class Software implements Serializable {
 	@Id
 	@SequenceGenerator(name="SOFTWARE_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SOFTWARE_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	@Size(max=128, message="Description must not be longer then 128 characters.")

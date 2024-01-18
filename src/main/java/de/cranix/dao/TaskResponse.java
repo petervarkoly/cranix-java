@@ -30,6 +30,7 @@ public class TaskResponse implements Serializable {
     @Id
     @SequenceGenerator(name="TASKS_ID_GENERATOR" )
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="TASKS_ID_GENERATOR")
+    @Column(name = "id")
     private Long id;
 
     //bi-directional many-to-one association to User

@@ -44,6 +44,7 @@ public class RoomSmartControl implements Serializable {
 	@Id
 	@SequenceGenerator(name="ACCESSINROOM_ID_GENERATOR", sequenceName="SEQ")
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ACCESSINROOM_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 	
 	//bi-directional many-to-one association to room

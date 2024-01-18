@@ -30,6 +30,7 @@ public class Job implements Serializable {
 	@Id
 	@SequenceGenerator(name="CEPHALIXJOBS_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CEPHALIXJOBS_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	private String description;

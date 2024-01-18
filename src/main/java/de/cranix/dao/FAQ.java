@@ -26,6 +26,7 @@ public class FAQ implements Serializable {
 	@Id
 	@SequenceGenerator(name="FAQS_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="FAQS_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	@Size(max=128, message="Issue must not be longer then 128 characters.")

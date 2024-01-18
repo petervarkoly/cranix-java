@@ -27,6 +27,7 @@ public class AccessInRoom implements Serializable {
 	@Id
 	@SequenceGenerator(name="ACCESSINROOM_ID_GENERATOR", sequenceName="SEQ")
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ACCESSINROOM_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	//uni-directional many-to-one association to Room

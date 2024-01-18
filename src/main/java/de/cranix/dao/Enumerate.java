@@ -25,6 +25,7 @@ public class Enumerate implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
+	@Column(name = "id")
 	private Long id;
 
 	@Size(max=32, message="Name must not be longer then 32 characters.")

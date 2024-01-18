@@ -31,6 +31,7 @@ public class Group implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
+	@Column(name = "id")
 	private Long id;
 
 	@Column(name = "name", updatable = false)

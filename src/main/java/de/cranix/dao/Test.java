@@ -21,6 +21,7 @@ public class Test implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
+	@Column(name = "id")
 	private Long id;
 
 	private String currentStep;

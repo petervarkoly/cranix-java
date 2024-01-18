@@ -36,6 +36,7 @@ public class Category implements Serializable {
 	@Id
 	@SequenceGenerator(name="CATEGORIES_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CATEGORIES_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	@Size(max=64, message="Uid must not be longer then 64 characters..")

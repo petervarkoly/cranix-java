@@ -22,6 +22,7 @@ public class CrxResponse implements Serializable {
     @Id
     @SequenceGenerator(name = "RESPONSES_ID_GENERATOR", sequenceName = "SEQ")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RESPONSES_ID_GENERATOR")
+    @Column(name = "id")
     private Long id;
     /*
      * The error code for machine work

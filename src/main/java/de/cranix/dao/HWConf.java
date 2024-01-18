@@ -30,6 +30,7 @@ public class HWConf implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
+	@Column(name = "id")
 	private Long id;
 
 	@Size(max=64, message="Description must not be longer then 64 characters.")

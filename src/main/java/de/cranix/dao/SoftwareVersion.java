@@ -28,6 +28,7 @@ public class SoftwareVersion implements Serializable {
 	@Id
 	@SequenceGenerator(name="SOFTWAREVERSION_ID_GENERATOR" )
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SOFTWAREVERSION_ID_GENERATOR")
+	@Column(name = "id")
 	private Long id;
 
 	private String version;

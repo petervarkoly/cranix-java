@@ -15,22 +15,34 @@ public abstract class AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(
+            name = "id",
+            columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
+    )
     private Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name="creator_id",nullable = false,updatable = false)
-    @JsonIgnore
     private User creator;
 
-    @Column(name = "creator_id", insertable = false, updatable = false)
+    @Column(
+            name = "creator_id",
+            insertable = false,
+            updatable = false,
+            columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
+    )
     private Long creatorId;
 
-    @Column(name = "created", updatable = false, columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
+    @Column(
+            name = "created",
+            updatable = false,
+            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
+    )
     @Temporal(DATE)
     private Date created;
 
-    @Column(name = "modified", columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ")
+    @Column(
+            name = "modified",
+            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP "
+    )
     @Temporal(DATE)
     private Date modified;
 
@@ -95,6 +107,9 @@ public abstract class AbstractEntity implements Serializable {
      *
      * @return the creator
      */
+    @ManyToOne(optional = false)
+    @JoinColumn(name="creator_id", nullable = false, updatable = false)
+    @JsonIgnore
     public User getCreator() {
         return creator;
     }
