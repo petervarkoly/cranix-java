@@ -1,3 +1,4 @@
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;

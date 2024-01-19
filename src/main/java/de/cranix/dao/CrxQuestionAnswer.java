@@ -27,7 +27,7 @@ public class CrxQuestionAnswer extends AbstractEntity {
     @NotNull
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="crxquestion_id")
+    @JoinColumn(name="crxquestion_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
     private CrxQuestion crxQuestion;
 
     @OneToMany(mappedBy="crxQuestionAnswer", cascade=CascadeType.REMOVE, orphanRemoval=true)

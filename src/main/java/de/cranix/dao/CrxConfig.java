@@ -6,9 +6,9 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * The persistent class for the CrxConfig database table.
- *
  */
 @Entity
 @Table(
@@ -39,38 +39,37 @@ public class CrxConfig extends AbstractEntity {
         @Size(max=128, message="value must not be longer then 128 characters.")
         private String value;
         
-        public CrxConfig() {
+        public CrxConfig() {}
+
+	public String getObjectType() {
+	    return this.objectType;
 	}
-
-        public String getObjectType() {
-                return this.objectType;
-        }
-
-        public void setObjectType(String objectType) {
-                this.objectType = objectType;
-        }
-
-        public Long getObjectId() {
-                return this.objectId;
-        }
-
-        public void setObjectId(Long objectId) {
-                this.objectId = objectId;
-        }
-
-        public String getKeyword() {
-                return this.keyword;
-        }
-
-        public void setKeyword(String keyword) {
-                this.keyword = keyword;
-        }
-
-        public String getValue() {
-                return this.value;
-        }
-
-        public void setValue(String value) {
-                this.value = value;
-        }
+	
+	public void setObjectType(String objectType) {
+	    this.objectType = objectType;
+	}
+	
+	public Long getObjectId() {
+	    return this.objectId;
+	}
+	
+	public void setObjectId(Long objectId) {
+	    this.objectId = objectId;
+	}
+	
+	public String getKeyword() {
+	    return this.keyword;
+	}
+	
+	public void setKeyword(String keyword) {
+	    this.keyword = keyword;
+	}
+	
+	public String getValue() {
+	    return this.value;
+	}
+	
+	public void setValue(String value) {
+	    this.value = value;
+	}
 }

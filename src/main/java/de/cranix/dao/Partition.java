@@ -48,7 +48,7 @@ public class Partition extends AbstractEntity {
 	//bi-directional many-to-one association to HWConf
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="hwconf_id")
+	@JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private HWConf hwconf;
 
 	@Transient

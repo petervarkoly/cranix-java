@@ -31,19 +31,15 @@ public class Acl extends AbstractEntity {
 	//bi-directional many-to-one association to User
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="creator_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
 	private User user;
-	
-	@Column(name = "user_id", insertable = false, updatable = false)
-	private Long userId;
 
 	//bi-directional many-to-one association to Group
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
 	private Group group;
 	
-	@Column(name = "group_id", insertable = false, updatable = false)
-	private Long groupId;
-
 	public Acl() {
 	}
 
@@ -85,18 +81,11 @@ public class Acl extends AbstractEntity {
 	}
 
 	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
+		return this.user != null ? this.user.getId() : null;
 	}
 
 	public Long getGroupId() {
-		return groupId;
+		return this.group != null ? this.group.getId() : null;
 	}
 
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
-	}
 }

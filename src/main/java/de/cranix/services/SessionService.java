@@ -1,12 +1,7 @@
 /* 2022 (C) Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.services;
 
-import de.cranix.dao.Acl;
-import de.cranix.dao.Device;
-import de.cranix.dao.Group;
-import de.cranix.dao.Room;
-import de.cranix.dao.Session;
-import de.cranix.dao.User;
+import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
 import de.cranix.helper.IPv4;
 import io.dropwizard.auth.AuthenticationException;
@@ -121,16 +116,12 @@ public class SessionService extends Service {
             token = createSessionToken(username);
         }
         this.session.setToken(token);
-        this.session.setUserId(user.getId());
         this.session.setRole(user.getRole());
         this.session.setUser(user);
         if (room != null) {
-            this.session.setRoomId(room.getId());
             this.session.setRoom(room);
-            this.session.setRoomName(room.getName());
         }
         if (device != null) {
-            this.session.setDeviceId(device.getId());
             this.session.setMac(device.getMac());
             this.session.setIp(device.getIp());
             this.session.setDnsName(device.getName());
@@ -166,6 +157,19 @@ public class SessionService extends Service {
 
         this.session.setAcls(modules);
         this.session.setPassword(password);
+
+        //Handle CRANIX 2FA
+        if (this.isAllowed(user, "2fa.use")) {
+            for (Crx2fa crx2fa : user.getCrx2fas()) {
+                this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
+            }
+            for (Crx2faSession crx2faSession : user.getCrx2faSessions()) {
+                if (crx2faSession.getClientIP().equals(IP) && crx2faSession.getChecked() && crx2faSession.isValid()) {
+                    this.session.setCrx2faSession(crx2faSession);
+                    break;
+                }
+            }
+        }
         sessions.put(token, this.session);
         save(session);
         return this.session;
@@ -182,14 +186,12 @@ public class SessionService extends Service {
             token = createSessionToken(username);
         }
         this.session.setToken(token);
-        this.session.setUserId(user.getId());
         this.session.setRole(user.getRole());
         this.session.setUser(user);
         this.session.setFullName(user.getFullName());
         List<String> modules = Session.getUserAcls(user);
         if (!this.isSuperuser()) {
             RoomService roomService = new RoomService(this.session, this.em);
-            ;
             if (!roomService.getAllToRegister().isEmpty()) {
                 modules.add("adhoclan.mydevices");
             }
@@ -200,7 +202,7 @@ public class SessionService extends Service {
         return this.session;
     }
 
-    private void save(Session obj) {
+    public void save(Session obj) {
         if (em != null) {
             try {
                 this.em.getTransaction().begin();
@@ -292,6 +294,10 @@ public class SessionService extends Service {
                 return null;
             }
         }
+        if (token.equals(this.getProperty("de.cranix.api.auth.localhost"))) {
+            return session;
+        }
+
         if (!isSuperuser(session)) {
             Long timeout = 90L;
             try {
@@ -331,6 +337,26 @@ public class SessionService extends Service {
     }
 
     public boolean authorize(Session session, String requiredRole) {
+        if (session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost"))) {
+            return true;
+        }
+
+        /**
+         * User have to use 2FA, and he is configuring 2FA. This is allowed.
+         */
+        if (session.getAcls().contains("2fa.use") && requiredRole.equals("2fa.use")) {
+            return true;
+        }
+        /**
+         * User have to use 2FA but has no checked 2FA session.
+         * Only 2FA setup is allowed.
+         */
+        if (session.getAcls().contains("2fa.use") &&
+                (session.getCrx2faSession() == null || !session.getCrx2faSession().getChecked())
+        ) {
+            logger.info("Token without checked CRX2FA session");
+            return false;
+        }
 
         /**
          * If the required role is the role of the user then he is authorized.
@@ -344,22 +370,6 @@ public class SessionService extends Service {
                 return true;
             }
         }
-        /**
-         * A required role can be allowed or denied by the user
-         for( Acl acl : session.getUser().getAcls() ){
-         if( acl.getAcl().startsWith(requiredRole)) {
-         return acl.getAllowed();
-         }
-         }
-         *
-         * A required role can be allowed or denied by one of the groups of a user.
-         for( Group group : session.getUser().getGroups() ) {
-         for( Acl acl : group.getAcls() ) {
-         if( acl.getAcl().startsWith(requiredRole)) {
-         return acl.getAllowed();
-         }
-         }
-         }*/
         return false;
     }
 
@@ -417,28 +427,4 @@ public class SessionService extends Service {
         }
         return String.join(winLineSeparator, batFile);
     }
-
-/*    public List<String> getUserAcls(User user){
-        List<String> modules = new ArrayList<String>();
-        //Modules with right permit all is allowed for all authorized users.
-        modules.add("permitall");
-        //Is it allowed by the groups.
-        for( Group group : user.getGroups() ) {
-            for( Acl acl : group.getAcls() ) {
-                if( acl.getAllowed() ) {
-                    modules.add(acl.getAcl());
-                }
-            }
-        }
-        //Is it allowed by the user
-        for( Acl acl : user.getAcls() ){
-            if( acl.getAllowed() && !modules.contains(acl.getAcl())) {
-                modules.add(acl.getAcl());
-            } else if( !acl.getAllowed() && modules.contains(acl.getAcl()) ) {
-                //It is forbidden by the user
-                modules.remove(acl.getAcl());
-            }
-        }
-        return modules;
-    } */
 }

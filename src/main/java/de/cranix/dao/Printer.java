@@ -1,3 +1,4 @@
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -28,7 +29,7 @@ public class Printer extends AbstractEntity  {
 	//bi-directional many-to-one association to HWConf
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="device_id")
+	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private Device    device;
 
 	//bi-directional many-to-many association to Device

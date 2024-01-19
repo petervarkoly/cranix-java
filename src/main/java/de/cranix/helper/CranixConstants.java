@@ -22,6 +22,7 @@ public interface CranixConstants {
 	static String cranixPrinters   = cranixBaseDir + "templates/printers.txt";
 	static String cranixSysConfig  = "/etc/sysconfig/cranix";
 	static String cranixMdmConfig  = "/etc/sysconfig/CRX_MDM";
+	static String cranix2faConfig  = "/etc/sysconfig/CRX_2FA";
 	static String cranixSysPrefix  = "CRANIX_";
 	static String cranixAdm        = "/var/adm/cranix/";
 	static String cranixScreenShots= "/var/adm/cranix/screenShots/";
@@ -48,4 +49,8 @@ public interface CranixConstants {
 	static Set<PosixFilePermission> worldWriteFilePermission = PosixFilePermissions.fromString("rw-rw-rw-");
 	static Set<PosixFilePermission> worldReadDirPermission   = PosixFilePermissions.fromString("rwxr-xr-x");
 	static Set<PosixFilePermission> worldWriteDirePermission = PosixFilePermissions.fromString("rwxrwxrwx");
+
+	static enum Crx2faTypes {
+		SMS
+	}
 }

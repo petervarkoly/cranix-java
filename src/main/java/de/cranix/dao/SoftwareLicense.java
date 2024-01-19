@@ -1,4 +1,4 @@
-/* (c) 2017-2023 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2017-2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -43,8 +43,8 @@ public class SoftwareLicense extends AbstractEntity {
 	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(        
 		name="LicenseToDevice",
-	    	joinColumns={ @JoinColumn(name="license_id") },
-	    	inverseJoinColumns={ @JoinColumn(name="device_id") }
+	    	joinColumns={ @JoinColumn(name="license_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
+	    	inverseJoinColumns={ @JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
 	)
 	@JsonIgnore
 	private List<Device> devices;
@@ -52,7 +52,7 @@ public class SoftwareLicense extends AbstractEntity {
 	//bi-directional many-to-one association to Software
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="software_id")
+	@JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private Software software;
 	
 	/**

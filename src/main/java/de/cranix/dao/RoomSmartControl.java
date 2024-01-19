@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -36,12 +36,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class RoomSmartControl extends AbstractEntity {
 	
-	//bi-directional many-to-one association to room
-	@Column(name = "room_id")
-	private Long roomId;
-	
 	@ManyToOne
-	@JoinColumn(name = "room_id", insertable = false, updatable = false)
+	@JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", insertable = false, updatable = false)
 	@JsonIgnore
 	private Room room;
 	
@@ -68,9 +64,12 @@ public class RoomSmartControl extends AbstractEntity {
 		return this.room;
 	}
 	
+	public Long getRoomId() {
+		return this.room.getId();
+	}
+	
 	public void setRoom(Room room) {
 		this.room = room;
-		this.roomId = room.getId();
 	}
 	
 	public void setEndTime(Date date) {

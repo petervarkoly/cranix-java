@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -66,8 +66,8 @@ public class Software extends AbstractEntity {
 	@ManyToMany()
 	@JoinTable(
 		name="SoftwareRequirements",
-		joinColumns={ @JoinColumn(name="software_id")	},
-		inverseJoinColumns={ @JoinColumn(name="requirement_id") }
+		joinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")	},
+		inverseJoinColumns={ @JoinColumn(name="requirement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
 	)
 	@JsonIgnore
 	private List<Software> softwareRequirements = new ArrayList<Software>();

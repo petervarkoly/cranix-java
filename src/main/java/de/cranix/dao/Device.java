@@ -103,7 +103,7 @@ public class Device extends AbstractEntity {
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "AvailablePrinters",
-            joinColumns = {@JoinColumn(name = "device_id")},
+            joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")},
             inverseJoinColumns = {@JoinColumn(name = "printer_id")}
     )
     @JsonIgnore
@@ -113,7 +113,7 @@ public class Device extends AbstractEntity {
     @ManyToOne
     @JoinTable(
             name = "DefaultPrinter",
-            joinColumns = {@JoinColumn(name = "device_id")},
+            joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")},
             inverseJoinColumns = {@JoinColumn(name = "printer_id")}
     )
     @JsonIgnore
@@ -136,7 +136,7 @@ public class Device extends AbstractEntity {
     //bi-directional many-to-one association to HWConf
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "hwconf_id")
+    @JoinColumn(name = "hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
     private HWConf hwconf;
 
     @Column(name = "hwconf_id", insertable = false, updatable = false)
@@ -145,7 +145,7 @@ public class Device extends AbstractEntity {
     //bi-directional many-to-one association to Room
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "room_id")
+    @JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
     private Room room;
 
     //bi-directional many-to-one association to Device

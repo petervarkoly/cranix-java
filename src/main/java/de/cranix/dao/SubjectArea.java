@@ -22,15 +22,15 @@ public class SubjectArea extends AbstractEntity{
     @NotNull
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="teachingsubject_id")
+    @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
     private TeachingSubject teachingSubject;
 
     @ManyToMany
     @JsonIgnore
     @JoinTable(
             name="ChallengesInArea",
-            joinColumns={ @JoinColumn(name="subjectarea_id") },
-            inverseJoinColumns={ @JoinColumn(name="crxchallenge_id") }
+            joinColumns={ @JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
+            inverseJoinColumns={ @JoinColumn(name="crxchallenge_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
     )
     private ArrayList<CrxChallenge> challenges;
 
@@ -38,8 +38,8 @@ public class SubjectArea extends AbstractEntity{
     @JsonIgnore
     @JoinTable(
             name="QuestionInArea",
-            joinColumns={ @JoinColumn(name="subjectarea_id") },
-            inverseJoinColumns={ @JoinColumn(name="crxquestion_id") }
+            joinColumns={ @JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
+            inverseJoinColumns={ @JoinColumn(name="crxquestion_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
     )
     private ArrayList<CrxQuestion> questions;
 

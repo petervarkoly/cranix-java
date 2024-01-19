@@ -43,7 +43,7 @@ public class SoftwareStatus extends AbstractEntity {
 	 */
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="softwareversion_id")
+	@JoinColumn(name="softwareversion_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private SoftwareVersion softwareVersion;
 
 	/**
@@ -54,7 +54,7 @@ public class SoftwareStatus extends AbstractEntity {
 
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="device_id")
+	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private Device device;
 
 	@Column(name = "device_id", insertable = false, updatable = false)

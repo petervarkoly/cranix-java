@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,8 +18,8 @@ import java.util.List;
 @NamedQuery(name = "CrxResponse.findAll", query = "SELECT r FROM CrxResponse r")
 public class CrxResponse extends AbstractEntity {
     @ManyToOne
+    @JoinColumn(name="session_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
     Session session;
-
     /*
      * The error code for machine work
      */
@@ -43,9 +43,6 @@ public class CrxResponse extends AbstractEntity {
      */
     @Transient
     private Long objectId;
-
-    @Column(name = "session_id", insertable = false, updatable = false)
-    private Long sessionId;
 
     public CrxResponse() {
     }
@@ -109,11 +106,7 @@ public class CrxResponse extends AbstractEntity {
     }
 
     public Long getSessionId() {
-        return this.sessionId;
-    }
-
-    public void setSessionId(Long sessionId) {
-        this.sessionId = sessionId;
+        return this.session != null ? this.session.getId() : 0L;
     }
 
     public String getValue() {

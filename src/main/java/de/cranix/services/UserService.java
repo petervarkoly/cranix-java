@@ -1081,7 +1081,7 @@ public class UserService extends Service {
             HWConf hwconf = room.getHwconf();
             device.setName(devName);
             device.setMac(MAC);
-            device.setOwner(user);
+            device.setCreator(user);
             device.setIp(ipAddress.get(0).split(" ")[0]);
             device.setHwconf(hwconf);
             device.setRoom(room);

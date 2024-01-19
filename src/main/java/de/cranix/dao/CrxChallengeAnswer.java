@@ -25,7 +25,7 @@ public class CrxChallengeAnswer extends AbstractEntity {
     @NotNull
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="crxquestionanswer_id")
+    @JoinColumn(name="crxquestionanswer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
     private CrxQuestionAnswer crxQuestionAnswer;
 
     public Boolean getCorrect() {

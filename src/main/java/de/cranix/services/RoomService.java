@@ -378,8 +378,7 @@ public class RoomService extends Service {
             this.em.merge(hwconf);
             this.em.getTransaction().commit();
             if (!room.getAccessInRooms().isEmpty()) {
-                room.getAccessInRooms().get(0).setRoomId((room.getId()));
-                //this.em.merge(room.getAccessInRooms().get(0));
+                room.getAccessInRooms().get(0).setRoom((room));
             }
         } catch (Exception e) {
             logger.error("Error by creating Room:" + e.getMessage());
@@ -1244,7 +1243,6 @@ public class RoomService extends Service {
             this.em.getTransaction().begin();
             accessList.correctTime();
             accessList.setRoom(room);
-            accessList.setRoomId(roomId);
             accessList.setCreator(this.session.getUser());
             this.em.persist(accessList);
             room.getAccessInRooms().add(accessList);
@@ -1424,8 +1422,6 @@ public class RoomService extends Service {
             Query query = em.createNamedQuery("AccessInRoom.findAll");
             for (AccessInRoom air : (List<AccessInRoom>) query.getResultList()) {
                 logger.debug("AIR: " + air);
-                air.setRoomName(air.getRoom().getName());
-                air.setRoomId(air.getRoom().getId());
                 if (air.getAccessType().equals("ACT")) {
                     air.setPrinting(null);
                     air.setLogin(null);

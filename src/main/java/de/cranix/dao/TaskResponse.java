@@ -25,11 +25,8 @@ public class TaskResponse extends AbstractEntity {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="parent_id")
+    @JoinColumn(name="parent_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
     private Announcement parent;
-
-    @Column(name="parent_id", insertable=false, updatable=false)
-    private Long parentId;
 
     /**
      * The content of the task response. Maximal length is 16MB
@@ -53,11 +50,7 @@ public class TaskResponse extends AbstractEntity {
     }
 
     public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
+        return this.parent.getId();
     }
 
     public String getText() {

@@ -26,6 +26,7 @@ public class AccessInRoom extends AbstractEntity{
 	//uni-directional many-to-one association to Room
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
 	private Room room;
 
 	/*
@@ -41,9 +42,6 @@ public class AccessInRoom extends AbstractEntity{
 	@Column(name = "action")
 	@Size(max=32, message="action must not be longer then 32 characters.")
 	private String action;
-
-	@Column(name="room_id", insertable = false, updatable = false)
-	private Long roomId;
 
 	/*
 	 * If the corresponding access should be applied Mondays
@@ -304,11 +302,7 @@ public class AccessInRoom extends AbstractEntity{
 	}
 
 	public Long getRoomId() {
-		return this.roomId;
-	}
-
-	public void setRoomId(Long roomId) {
-		this.roomId = roomId;
+		return this.room.getId();
 	}
 
 	public Boolean getSaturday() {
@@ -358,11 +352,7 @@ public class AccessInRoom extends AbstractEntity{
 	}
 
 	public String getRoomName() {
-		return roomName;
-	}
-
-	public void setRoomName(String roomName) {
-		this.roomName = roomName;
+		return this.room.getName();
 	}
 
 	public Boolean getAllowSessionIp() {

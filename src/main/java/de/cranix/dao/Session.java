@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 /* (c) 2016 EXTIS GmbH - all rights reserved */
 package de.cranix.dao;
 
@@ -21,38 +21,33 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class Session implements Principal {
 
 	@Id
-	@Column(name = "id")
+	@Column(name = "id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	@GeneratedValue(strategy = IDENTITY)
-	private int id;
+	private Long id;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "createdate")
 	private Date createDate;
 
 
-	@Column(name="device_id", insertable = false, updatable = false )
-	private Long deviceId;
-
 	//@OneToOne
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="device_id")
+	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private Device device;
 
-	@Column(name = "user_id", insertable = false, updatable = false )
-	private Long userId;
-
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="user_id")
+	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private User user;
 
-	@Column(name = "room_id", insertable = false, updatable = false)
-	private Long roomId;
+	@OneToOne
+	@JoinColumn(name="crx2fasession_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	private Crx2faSession crx2faSession;
 
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="room_id")
+	@JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private Room room;
 
 	@Column(name = "ip")
@@ -80,13 +75,7 @@ public class Session implements Principal {
 	private String mac;
 
 	@Transient
-	private String roomName;
-
-	@Transient
 	private String dnsName;
-
-	@JsonIgnore
-	private transient Object temporaryUploadData;
 
 	@Transient
 	private List<String> acls;
@@ -97,30 +86,25 @@ public class Session implements Principal {
 	@Transient
 	private String name;
 
-	public Object getTemporaryUploadData() {
-		return temporaryUploadData;
-	}
 
-	public void setTemporaryUploadData(Object temporaryUploadData) {
-		this.temporaryUploadData = temporaryUploadData;
-	}
+	@Transient List<String> crx2fas = new ArrayList<>();
 
 	public Session(String name) {
 		this.name = name;
 	}
 
-	public Session(String token, Long userid, String password, String ip) {
-		this.userId = userid;
+	public Session(String token, User user, String password, String ip) {
+		this.user = user;
 		this.password = password;
 		this.token = token;
 		this.schoolId="dummy";
 	}
 
 	public Session() {
-		this.deviceId = null;
-		this.roomId   = null;
-		this.dnsName  = null;
-		this.mac	  = null;
+		this.user    = null;
+		this.room    = null;
+		this.dnsName = null;
+		this.mac     = null;
 	}
 
 	@Override
@@ -132,8 +116,7 @@ public class Session implements Principal {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + id;
-		return result;
+        	return prime * result + ((id == null) ? 0 : id.hashCode());
 	}
 
 	@Override
@@ -153,12 +136,12 @@ public class Session implements Principal {
 	@Override
 	public String toString() {
 		StringBuilder data = new StringBuilder();
-		if( this.deviceId != null ) {
-			data.append("deviceId: '" + String.valueOf(this.deviceId)).append("' ");
+		if( this.device != null ) {
+			data.append("deviceId: '" + String.valueOf(this.device.getId())).append("' ");
 		} else {
 			data.append("deviceId: 'null' ");
 		}
-		data.append("userId: '" + String.valueOf(this.userId)).append("' ");
+		data.append("userId: '" + String.valueOf(this.user.getId())).append("' ");
 		data.append("token: '" + this.token).append("' ");
 		data.append("mac: '" + this.mac).append("' ");
 		data.append("role: '" + this.role).append("' ");
@@ -206,27 +189,15 @@ public class Session implements Principal {
 	}
 
 	public Long getUserId() {
-		return this.userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
+		return this.user.getId();
 	}
 
 	public Long getDeviceId() {
-		return this.deviceId;
-	}
-
-	public void setDeviceId(Long deviceId) {
-		this.deviceId = deviceId;
+		return this.device.getId();
 	}
 
 	public Long getRoomId() {
-		return this.roomId;
-	}
-
-	public void setRoomId(Long roomId) {
-		this.roomId = roomId;
+		return this.room.getId();
 	}
 
 	public Date getCreateDate() {
@@ -241,11 +212,11 @@ public class Session implements Principal {
 		this.device = device;
 	}
 
-	public int getId() {
+	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -300,15 +271,12 @@ public class Session implements Principal {
 	 * @return the roomName
 	 */
 	public String getRoomName() {
-		return roomName;
+		if( this.room != null ){
+			return this.room.getName();
+		}
+		return "";
 	}
 
-	/**
-	 * @param roomName the roomName to set
-	 */
-	public void setRoomName(String roomName) {
-		this.roomName = roomName;
-	}
 
 	/**
 	 * @return the dnsName
@@ -337,6 +305,16 @@ public class Session implements Principal {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
+
+	public Crx2faSession getCrx2faSession() { return crx2faSession;	}
+
+	public void setCrx2faSession(Crx2faSession crx2faSession) {
+		this.crx2faSession = crx2faSession;
+	}
+
+	public List<String> getCrx2fas() { return crx2fas; }
+
+	public void setCrx2fas(List<String> crx2fas) {this.crx2fas = crx2fas;}
 
 	public static List<String> getUserAcls(User user){
 		List<String> modules = new ArrayList<String>();

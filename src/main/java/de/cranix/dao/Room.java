@@ -109,11 +109,8 @@ public class Room extends AbstractEntity {
 	/* bi-directional many-to-one associations */
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="hwconf_id")
+	@JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
 	private HWConf hwconf;
-
-	@Column(name="hwconf_id", insertable=false, updatable=false)
-	private Long hwconfId;
 
 	/* bi-directional many-to-one associations */
 	@OneToMany(mappedBy="room")
@@ -140,16 +137,16 @@ public class Room extends AbstractEntity {
 	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(
 		name="AvailablePrinters",
-		joinColumns={ @JoinColumn(name="room_id") },
-		inverseJoinColumns={@JoinColumn(name="printer_id")}
+		joinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
+		inverseJoinColumns={@JoinColumn(name="printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")}
 	)
 	private List<Printer> availablePrinters = new ArrayList<Printer>();
 
 	@ManyToOne( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(
 		name="DefaultPrinter",
-		joinColumns={ @JoinColumn(name="room_id") },
-		inverseJoinColumns={ @JoinColumn(name="printer_id") }
+		joinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
+		inverseJoinColumns={ @JoinColumn(name="printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
 	)
 	private Printer defaultPrinter;
 
@@ -176,7 +173,7 @@ public class Room extends AbstractEntity {
 	}
 
 	public Long getHwconfId() {
-		return this.hwconfId;
+		return this.hwconf.getId();
 	}
 
 	public String getName() {
@@ -297,7 +294,6 @@ public class Room extends AbstractEntity {
 
 	public void setHwconf(HWConf hwconf) {
 		this.hwconf   = hwconf;
-		this.hwconfId = hwconf.getId();
 	}
 
 	public String getNetwork() {
