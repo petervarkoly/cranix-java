@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import static javax.persistence.TemporalType.DATE;
+import static javax.persistence.TemporalType.TIMESTAMP;
 
 @MappedSuperclass
 public abstract class AbstractEntity implements Serializable {
@@ -23,7 +24,10 @@ public abstract class AbstractEntity implements Serializable {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name="creator_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
+    @JoinColumn(
+            name="creator_id",
+            columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
+    )
     @JsonIgnore
     private User creator;
 
@@ -32,14 +36,14 @@ public abstract class AbstractEntity implements Serializable {
             updatable = false,
             columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
     )
-    @Temporal(DATE)
+    @Temporal(TIMESTAMP)
     private Date created;
 
     @Column(
             name = "modified",
             columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP "
     )
-    @Temporal(DATE)
+    @Temporal(TIMESTAMP)
     private Date modified;
 
     /**
