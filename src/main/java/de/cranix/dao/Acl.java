@@ -27,17 +27,17 @@ public class Acl extends AbstractEntity {
 	@Convert(converter=BooleanToStringConverter.class)
 	@Column(name = "allowed", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean allowed;
-	
+
 	//bi-directional many-to-one association to User
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="creator_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
+	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL", nullable = false, updatable = false)
 	private User user;
 
 	//bi-directional many-to-one association to Group
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
+	@JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL", nullable = false, updatable = false)
 	private Group group;
 	
 	public Acl() {

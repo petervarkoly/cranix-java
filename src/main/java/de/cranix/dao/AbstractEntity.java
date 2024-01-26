@@ -26,7 +26,7 @@ public abstract class AbstractEntity implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(
             name="creator_id",
-            columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
+            columnDefinition ="BIGINT UNSIGNED NOT NULL"
     )
     @JsonIgnore
     private User creator;
@@ -41,7 +41,7 @@ public abstract class AbstractEntity implements Serializable {
 
     @Column(
             name = "modified",
-            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP "
+            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
     )
     @Temporal(TIMESTAMP)
     private Date modified;

@@ -109,7 +109,7 @@ public class Room extends AbstractEntity {
 	/* bi-directional many-to-one associations */
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private HWConf hwconf;
 
 	/* bi-directional many-to-one associations */
@@ -137,16 +137,16 @@ public class Room extends AbstractEntity {
 	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(
 		name="AvailablePrinters",
-		joinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={@JoinColumn(name="printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")}
+		joinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={@JoinColumn(name="printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
 	)
 	private List<Printer> availablePrinters = new ArrayList<Printer>();
 
 	@ManyToOne( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(
 		name="DefaultPrinter",
-		joinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	private Printer defaultPrinter;
 

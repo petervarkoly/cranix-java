@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @NamedQueries({
 	@NamedQuery(name="SoftwareStatus.findAll",		query="SELECT s FROM SoftwareStatus s"),
 	@NamedQuery(name="SoftwareStatus.findByStatus", query="SELECT s FROM SoftwareStatus s WHERE s.status = :STATUS"),
-	@NamedQuery(name="SoftwareStatus.getAllForOne", query="SELECT ss, sv FROM SoftwareStatus ss JOIN SoftwareVersion sv ON ss.softwarversion_id=sv.id WHERE ss.deviceId= :DEVICE AND sv.softwareId= :SOFTWARE"),
-	@NamedQuery(name="SoftwareStatus.getForOne",	query="SELECT ss, sv FROM SoftwareStatus ss JOIN SoftwareVersion sv ON ss.softwareversion_id=sv.id WHERE ss.deviceId= :DEVICE AND sv.softwareId= :SOFTWARE AND sv.version = :VERSION"),
 })
 public class SoftwareStatus extends AbstractEntity {
 
@@ -43,22 +41,13 @@ public class SoftwareStatus extends AbstractEntity {
 	 */
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="softwareversion_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="softwareversion_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private SoftwareVersion softwareVersion;
-
-	/**
-	 * Bidirectional many to one read only association to a software version object.ZZZZZ
-	 */
-	@Column(name = "softwareversion_id", insertable = false, updatable = false)
-	private Long softwareversionId;
 
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private Device device;
-
-	@Column(name = "device_id", insertable = false, updatable = false)
-	private Long deviceId;
 
 	@Transient
 	private String roomName;
@@ -111,14 +100,6 @@ public class SoftwareStatus extends AbstractEntity {
 		this.device = device;
 	}
 
-	public Long getSoftwareversionId() {
-		return softwareversionId;
-	}
-
-	public void setSoftwareversionId(Long versionId) {
-		this.softwareversionId = versionId;
-	}
-
 	public String getDeviceName() {
 		return deviceName;
 	}
@@ -152,19 +133,15 @@ public class SoftwareStatus extends AbstractEntity {
 	}
 
 	public Long getDeviceId() {
-		return deviceId;
-	}
-
-	public void setDeviceId(Long deviceId) {
-		this.deviceId = deviceId;
+		return this.device.getId();
 	}
 
 	public Long getSoftwareId() {
 		return softwareId;
 	}
 
-	public void setSoftwareId(Long softwareId) {
-		this.softwareId = softwareId;
+	public void setSoftwareId(Long id) {
+		this.softwareId = id;
 	}
 
 	/**
@@ -173,7 +150,6 @@ public class SoftwareStatus extends AbstractEntity {
 	public String getRoomName() {
 		return roomName;
 	}
-
 
 	/**
 	 * @param roomName the roomName to set

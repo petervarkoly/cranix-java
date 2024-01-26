@@ -26,7 +26,7 @@ public class AccessInRoom extends AbstractEntity{
 	//uni-directional many-to-one association to Room
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
+	@JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL", nullable = false, updatable = false)
 	private Room room;
 
 	/*

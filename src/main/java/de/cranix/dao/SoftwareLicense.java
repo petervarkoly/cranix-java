@@ -43,8 +43,8 @@ public class SoftwareLicense extends AbstractEntity {
 	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(        
 		name="LicenseToDevice",
-	    	joinColumns={ @JoinColumn(name="license_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-	    	inverseJoinColumns={ @JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+	    	joinColumns={ @JoinColumn(name="license_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+	    	inverseJoinColumns={ @JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	@JsonIgnore
 	private List<Device> devices;
@@ -52,7 +52,7 @@ public class SoftwareLicense extends AbstractEntity {
 	//bi-directional many-to-one association to Software
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private Software software;
 	
 	/**

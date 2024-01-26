@@ -1457,7 +1457,7 @@ public class DeviceService extends Service {
             }
             Device newDevice = new Device();
             newDevice.setMac(device.getMac());
-            newDevice.setHwconfId(device.getHwconfId());
+            newDevice.setHwconf(device.getHwconf());
             ipCount++;
             if (!device.getWlanMac().isBlank()) {
                 newDevice.setWlanMac(device.getWlanMac());

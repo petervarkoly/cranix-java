@@ -25,7 +25,7 @@ public class TaskResponse extends AbstractEntity {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="parent_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+    @JoinColumn(name="parent_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private Announcement parent;
 
     /**

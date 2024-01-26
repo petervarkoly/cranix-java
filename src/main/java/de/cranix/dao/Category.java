@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Entity
 @Table(
 	name="Categories",
-        uniqueConstraints = { @UniqueConstraint(columnNames = { "name","categroyType" }) }
+        uniqueConstraints = { @UniqueConstraint(columnNames = { "name","categoryType" }) }
 )
 @NamedQueries({
 	@NamedQuery(name="Category.findAll",          query="SELECT c FROM Category c"),
@@ -59,8 +59,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="DeviceInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	private List<Device> devices;
 
@@ -69,8 +69,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="GroupInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	private List<Group> groups = new ArrayList<Group>();
 
@@ -79,8 +79,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="HWConfInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	private List<HWConf> hwconfs;
 
@@ -89,8 +89,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="RoomInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	private List<Room> rooms;
 
@@ -99,8 +99,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="SoftwareInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	private List<Software> softwares;
 
@@ -109,8 +109,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="SoftwareRemovedFromCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	private List<Software> removedSoftwares;
 
@@ -119,8 +119,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="UserInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	private List<User> users = new ArrayList<User>();
 
@@ -128,8 +128,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="AnnouncementInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="announcement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="announcement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	@JsonIgnore
 	private List<Announcement> announcements;
@@ -138,8 +138,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="ContactInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="contact_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="contact_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	@JsonIgnore
 	private List<Contact> contacts;
@@ -148,8 +148,8 @@ public class Category extends AbstractEntity {
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 		name="FAQInCategories",
-		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={ @JoinColumn(name="faq_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={ @JoinColumn(name="faq_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	@JsonIgnore
 	private List<FAQ> faqs;

@@ -17,10 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "SoftwareVersions")
 @NamedQueries({
-	@NamedQuery(name="SoftwareVersion.findAll",       query="SELECT s FROM SoftwareVersion s"),
-	@NamedQuery(name="SoftwareVersion.get",		  query="SELECT s FROM SoftwareVersion s WHERE s.softwareId = :SOFTWARE and s.version = :VERSION"),
-	@NamedQuery(name="SoftwareVersion.getBySoftware", query="SELECT s FROM SoftwareVersion s WHERE s.softwareId = :SOFTWARE"),
-	
+	@NamedQuery(name="SoftwareVersion.findAll", query="SELECT s FROM SoftwareVersion s")
 })
 public class SoftwareVersion extends AbstractEntity {
 
@@ -35,12 +32,9 @@ public class SoftwareVersion extends AbstractEntity {
 	//bi-directional many-to-one association to Software
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private Software software;
 	
-	@Column(name = "software_id", insertable = false, updatable = false)
-	private Long softwareId;
-
 	/*
 	 * C -> current this is the most recent version and does exists on the server and can be installed
 	 * R -> replaced this version does not exists on the server but is installed on some clients

@@ -194,8 +194,8 @@ public class User extends AbstractEntity {
 	@ManyToMany
 	@JoinTable(
 		name="LoggedOn",
-		joinColumns={ @JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-		inverseJoinColumns={@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")}
+		joinColumns={ @JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
 	)
 	@JsonIgnore
 	private List<Device> loggedOn = new ArrayList<Device>();
@@ -203,8 +203,8 @@ public class User extends AbstractEntity {
 	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(
 		name="GroupMember",
-		joinColumns={@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")},
-		inverseJoinColumns={@JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")}
+		joinColumns={@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
+		inverseJoinColumns={@JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
 	)
 	@JsonIgnore
 	private List<Group> groups = new ArrayList<Group>();
@@ -212,8 +212,8 @@ public class User extends AbstractEntity {
 	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(
 		name="HaveSeen",
-		joinColumns={@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")},
-		inverseJoinColumns={@JoinColumn(name="announcement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")}
+		joinColumns={@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
+		inverseJoinColumns={@JoinColumn(name="announcement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
 	)
 	@JsonIgnore
 	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();

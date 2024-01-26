@@ -29,7 +29,7 @@ public class Printer extends AbstractEntity  {
 	//bi-directional many-to-one association to HWConf
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private Device    device;
 
 	//bi-directional many-to-many association to Device

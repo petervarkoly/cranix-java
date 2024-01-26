@@ -263,7 +263,7 @@ public class PrinterService extends Service {
         device.setMac(mac.trim());
         device.setName(name);
         device.setIp(ip);
-        device.setHwconfId(hwconf.getId());
+        device.setHwconf(hwconf);
         logger.debug(hwconf.getName() + "#" + hwconf.getId());
         List<Device> devices = new ArrayList<Device>();
         devices.add(device);

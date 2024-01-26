@@ -103,8 +103,8 @@ public class Device extends AbstractEntity {
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "AvailablePrinters",
-            joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")},
-            inverseJoinColumns = {@JoinColumn(name = "printer_id")}
+            joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
+            inverseJoinColumns = {@JoinColumn(name = "printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
     )
     @JsonIgnore
     private List<Printer> availablePrinters = new ArrayList<Printer>();
@@ -113,8 +113,8 @@ public class Device extends AbstractEntity {
     @ManyToOne
     @JoinTable(
             name = "DefaultPrinter",
-            joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")},
-            inverseJoinColumns = {@JoinColumn(name = "printer_id")}
+            joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
+            inverseJoinColumns = {@JoinColumn(name = "printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
     )
     @JsonIgnore
     private Printer defaultPrinter;
@@ -135,26 +135,19 @@ public class Device extends AbstractEntity {
 
     //bi-directional many-to-one association to HWConf
     @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+    @JoinColumn(name = "hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private HWConf hwconf;
-
-    @Column(name = "hwconf_id", insertable = false, updatable = false)
-    private Long hwconfId;
 
     //bi-directional many-to-one association to Room
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+    @JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private Room room;
 
     //bi-directional many-to-one association to Device
     @OneToMany(mappedBy = "device", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Session> sessions = new ArrayList<Session>();
-
-    @Column(name = "room_id", insertable = false, updatable = false)
-    private Long roomId;
 
     //bi-directional many-to-many association to User
     @ManyToMany(mappedBy = "loggedOn")
@@ -174,7 +167,6 @@ public class Device extends AbstractEntity {
     private char[] screenShot;
 
     public Device() {
-        this.hwconfId = null;
         this.name = "";
         this.ip = "";
         this.mac = "";
@@ -183,11 +175,7 @@ public class Device extends AbstractEntity {
     }
 
     public Long getHwconfId() {
-        return this.hwconfId;
-    }
-
-    public void setHwconfId(Long hwconfId) {
-        this.hwconfId = hwconfId;
+        return this.hwconf.getId();
     }
 
     public String getName() {
@@ -276,7 +264,6 @@ public class Device extends AbstractEntity {
 
     public void setHwconf(HWConf hwconf) {
         this.hwconf = hwconf;
-        this.hwconfId = hwconf.getId();
         if (!hwconf.getDevices().contains(this)) {
             hwconf.getDevices().add(this);
         }
@@ -288,7 +275,6 @@ public class Device extends AbstractEntity {
 
     public void setRoom(Room room) {
         this.room = room;
-        this.roomId = room.getId();
         if (!room.getDevices().contains(this)) {
             room.getDevices().add(this);
         }
@@ -354,11 +340,7 @@ public class Device extends AbstractEntity {
     }
 
     public Long getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
+        return this.room.getId();
     }
 
     public List<Printer> getPrinterQueue() {

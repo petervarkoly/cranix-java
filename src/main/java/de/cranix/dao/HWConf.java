@@ -17,10 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  */
 @Entity
-@Table(
-	name="HWConfs",
-	uniqueConstraints = { @UniqueConstraint(columnNames = { "hwconf_id", "name" }) }
-)
+@Table(name="HWConfs")
 @NamedQueries({
 	@NamedQuery(name="HWConf.findAll",   query="SELECT h FROM HWConf h"),
 	@NamedQuery(name="HWConf.findAllId", query="SELECT h.id FROM HWConf h"),
@@ -30,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class HWConf extends AbstractEntity {
 
-	@Column(name = "name")
+	@Column(name = "name", unique = true )
 	@Size(max=32, message="name must not be longer then 32 characters.")
 	private String name;
 

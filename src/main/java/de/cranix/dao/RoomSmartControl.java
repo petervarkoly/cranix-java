@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class RoomSmartControl extends AbstractEntity {
 	
 	@ManyToOne
-	@JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", insertable = false, updatable = false)
+	@JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL", insertable = false, updatable = false)
 	@JsonIgnore
 	private Room room;
 	

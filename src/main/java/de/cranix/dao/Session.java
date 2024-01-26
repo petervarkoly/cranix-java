@@ -33,21 +33,21 @@ public class Session implements Principal {
 	//@OneToOne
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private Device device;
 
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private User user;
 
 	@OneToOne
-	@JoinColumn(name="crx2fasession_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="crx2fasession_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private Crx2faSession crx2faSession;
 
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")
+	@JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private Room room;
 
 	@Column(name = "ip")

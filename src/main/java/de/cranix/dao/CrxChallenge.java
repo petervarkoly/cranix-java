@@ -28,7 +28,7 @@ public class CrxChallenge extends AbstractEntity {
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false)
+    @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED NOT NULL", nullable = false)
     private TeachingSubject teachingSubject;
 
     @ManyToMany(mappedBy = "challenges")
@@ -54,16 +54,16 @@ public class CrxChallenge extends AbstractEntity {
     @ManyToMany()
     @JoinTable(
             name="GroupsOfChallenges",
-            joinColumns={ @JoinColumn(name="crxchallenge_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-            inverseJoinColumns={ @JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+            joinColumns={ @JoinColumn(name="crxchallenge_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+            inverseJoinColumns={ @JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
     )
     private List<Group> groups = new ArrayList<Group>();
 
     @ManyToMany()
     @JoinTable(
             name="UsersOfChallenges",
-            joinColumns={ @JoinColumn(name="crxchallenge_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") },
-            inverseJoinColumns={ @JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+            joinColumns={ @JoinColumn(name="crxchallenge_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+            inverseJoinColumns={ @JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
     )
     private List<User> users = new ArrayList<User>();
 

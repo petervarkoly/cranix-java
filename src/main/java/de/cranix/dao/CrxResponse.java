@@ -18,7 +18,7 @@ import java.util.List;
 @NamedQuery(name = "CrxResponse.findAll", query = "SELECT r FROM CrxResponse r")
 public class CrxResponse extends AbstractEntity {
     @ManyToOne
-    @JoinColumn(name="session_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT", nullable = false, updatable = false)
+    @JoinColumn(name="session_id", columnDefinition ="BIGINT UNSIGNED NOT NULL", nullable = false, updatable = false)
     Session session;
     /*
      * The error code for machine work

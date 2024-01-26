@@ -66,8 +66,8 @@ public class Software extends AbstractEntity {
 	@ManyToMany()
 	@JoinTable(
 		name="SoftwareRequirements",
-		joinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT")	},
-		inverseJoinColumns={ @JoinColumn(name="requirement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT") }
+		joinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")	},
+		inverseJoinColumns={ @JoinColumn(name="requirement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	@JsonIgnore
 	private List<Software> softwareRequirements = new ArrayList<Software>();
