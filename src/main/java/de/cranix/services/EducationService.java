@@ -780,8 +780,9 @@ public class EducationService extends UserService {
         CrxSystemCmd.exec(program, reply, stderr, null);
 
         RoomSmartControl roomSmartControl = new RoomSmartControl(
-			new RoomService(this.session, this.em).getById(roomId),
-		       	this.session.getUser(), minutes);
+		this.em.find(Room.class, roomId),
+		this.session.getUser(), minutes
+	);
         try {
             this.em.getTransaction().begin();
             this.em.persist(roomSmartControl);

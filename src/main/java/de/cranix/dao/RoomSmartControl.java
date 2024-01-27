@@ -40,42 +40,37 @@ public class RoomSmartControl extends AbstractEntity {
 	@JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL", insertable = false, updatable = false)
 	@JsonIgnore
 	private Room room;
-	
-	//TODO rename startTime CREATED	
-	//@Temporal(TemporalType.TIMESTAMP)
-	//@Column(name = "startTime")
-	//private Date startTime;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "endTime")
 	private Date endTime;
-	
+
 	public RoomSmartControl() {
 	}
-	
+
 	public RoomSmartControl(Room room, User owner, Long duration) {
 		this.setCreator(owner);
 		this.setRoom(room);
 		this.setCreated(new Date());
 		this.endTime = new Date( System.currentTimeMillis( ) + duration * 60 * 1000 );
 	}
-	
+
 	public Room getRoom() {
 		return this.room;
 	}
-	
+
 	public Long getRoomId() {
 		return this.room.getId();
 	}
-	
+
 	public void setRoom(Room room) {
 		this.room = room;
 	}
-	
+
 	public void setEndTime(Date date) {
 		this.endTime = date;
 	}
-	
+
 	public Date getEndTime() {
 		return this.endTime;
 	}
