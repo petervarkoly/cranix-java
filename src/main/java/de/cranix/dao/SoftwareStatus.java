@@ -14,7 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Entity
-@Table(name="SoftwareStatus")
+@Table(
+		name="SoftwareStatus",
+		uniqueConstraints = { @UniqueConstraint(columnNames = {"softwareversion_id", "device_id"})}
+)
 @NamedQueries({
 	@NamedQuery(name="SoftwareStatus.findAll",		query="SELECT s FROM SoftwareStatus s"),
 	@NamedQuery(name="SoftwareStatus.findByStatus", query="SELECT s FROM SoftwareStatus s WHERE s.status = :STATUS"),

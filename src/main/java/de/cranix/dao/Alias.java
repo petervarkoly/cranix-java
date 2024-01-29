@@ -11,7 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  */
 @Entity
-@Table(name="Aliases")
+@Table(
+		name="Aliases",
+		uniqueConstraints = { @UniqueConstraint(columnNames = { "user_id", "alias" }) }
+)
 @NamedQueries( {
 	@NamedQuery(name="Alias.findAll",	query="SELECT a FROM Alias a"),
 	@NamedQuery(name="Alias.getByName",	query="SELECT a FROM Alias a where a.alias = :alias"),

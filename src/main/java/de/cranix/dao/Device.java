@@ -176,7 +176,7 @@ public class Device extends AbstractEntity {
     }
 
     public Long getHwconfId() {
-        return this.hwconf.getId();
+        return this.hwconf == null ? null: this.hwconf.getId();
     }
 
     public String getName() {

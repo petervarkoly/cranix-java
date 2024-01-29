@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Entity
 @Table(
 	name="CrxConfig",
-	uniqueConstraints = { @UniqueConstraint(columnNames = { "objectType", "objectId", "keyword" }) }
+	uniqueConstraints = { @UniqueConstraint(columnNames = { "objectType", "objectId", "keyword", "value" }) }
 )
 @NamedQueries({
 	@NamedQuery(name="CrxConfig.getAllById",    query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id"),

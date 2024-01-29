@@ -10,38 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * The persistent class for the Responses database table.
- */
-@Entity
-@Table(name = "Responses")
-@NamedQuery(name = "CrxResponse.findAll", query = "SELECT r FROM CrxResponse r")
-public class CrxResponse extends AbstractEntity {
-    @ManyToOne
-    @JoinColumn(name="session_id", columnDefinition ="BIGINT UNSIGNED NOT NULL", nullable = false, updatable = false)
+public class CrxResponse {
+
     Session session;
-    /*
-     * The error code for machine work
-     */
-    @Column(name = "code")
-    @Size(max = 64, message = "code must not be longer then 64 characters")
+
     private String code;
-    /*
-     * Human readable code. Can contains '%s' as place holder.
-     */
-    @Column(name = "value")
-    @Size(max = 1024, message = "value must not be longer then 64 characters")
+
     private String value;
-    /*
-     * The values for the place holders.
-     */
-    @Transient
+
     private List<String> parameters;
 
-    /*
-     * This id will be set to the id of a object which was created or deleted or manipulated if any
-     */
-    @Transient
     private Long objectId;
 
     public CrxResponse() {

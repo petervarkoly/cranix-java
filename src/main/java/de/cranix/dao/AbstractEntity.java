@@ -26,7 +26,7 @@ public abstract class AbstractEntity implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(
             name="creator_id",
-            columnDefinition ="BIGINT UNSIGNED NOT NULL"
+            columnDefinition ="BIGINT UNSIGNED"
     )
     @JsonIgnore
     private User creator;
