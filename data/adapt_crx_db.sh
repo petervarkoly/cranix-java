@@ -1,4 +1,10 @@
-/usr/bin/systemctl stop cephalix-api cron
+#!/bin/bash
+#
+SERVICE=cranix-api
+if [ -e /opt/cranix-java/bin/start-cephalix-api ]; then
+	SERVICE=cephalix-api
+fi
+/usr/bin/systemctl stop $SERVICE cron
 
 ALLG=$( echo "SELECT id FROM TeachingSubjects where name='Allgemeinwissen';" | mysql CRX | tail -n 1 )
 echo "UPDATE CrxChallenges set teachingsubject_id=$ALLG where teachingsubject_id NOT IN (SELECT id FROM TeachingSubjects)" | mysql CRX
@@ -29,40 +35,6 @@ echo "ALTER TABLE AvailablePrinters DROP FOREIGN KEY FK_AvailablePrinters_printe
 echo "ALTER TABLE AvailablePrinters DROP FOREIGN KEY FK_AvailablePrinters_room_id;"| mysql CRX
 echo "ALTER TABLE Categories DROP FOREIGN KEY Categories_ibfk_1;"| mysql CRX
 echo "ALTER TABLE Categories DROP FOREIGN KEY FK_Categories_OWNER_ID;"| mysql CRX
-echo "ALTER TABLE CephalixArticles DROP FOREIGN KEY CephalixArticles_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixArticles DROP FOREIGN KEY FK_CephalixArticles_cephalixticket_id;"| mysql CRX
-echo "ALTER TABLE CephalixCareMessages DROP FOREIGN KEY CephalixCareMessages_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixCareMessages DROP FOREIGN KEY FK_CephalixCareMessages_CEPHALIXCARE_ID;"| mysql CRX
-echo "ALTER TABLE CephalixCares DROP FOREIGN KEY CephalixCares_ibfk_2;"| mysql CRX
-echo "ALTER TABLE CephalixCares DROP FOREIGN KEY FK_CephalixCares_CEPHALIXINSTITUTE_ID;"| mysql CRX
-echo "ALTER TABLE CephalixDynDns DROP FOREIGN KEY CephalixDynDns_ibfk_2;"| mysql CRX
-echo "ALTER TABLE CephalixDynDns DROP FOREIGN KEY FK_CephalixDynDns_CEPHALIXINSTITUTE_ID;"| mysql CRX
-echo "ALTER TABLE CephalixITUsage DROP FOREIGN KEY CephalixITUsage_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixITUsage DROP FOREIGN KEY FK_CephalixITUsage_CEPHALIXINSTITUTE_ID;"| mysql CRX
-echo "ALTER TABLE CephalixITUsageAvarage DROP FOREIGN KEY CephalixITUsageAvarage_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixITUsageAvarage DROP FOREIGN KEY FK_CephalixITUsageAvarage_CEPHALIXINSTITUTE_ID;"| mysql CRX
-echo "ALTER TABLE CephalixInstitutes DROP FOREIGN KEY CephalixInstitutes_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixInstitutes DROP FOREIGN KEY FK_CephalixInstitutes_CEPHALIXCUSTOMER_ID;"| mysql CRX
-echo "ALTER TABLE CephalixMappings DROP FOREIGN KEY CephalixMappings_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixMappings DROP FOREIGN KEY FK_CephalixMappings_cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixNotices DROP FOREIGN KEY CephalixNotices_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixNotices DROP FOREIGN KEY FK_CephalixNotices_cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixOssCareMessages DROP FOREIGN KEY CephalixOssCareMessages_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixOssCares DROP FOREIGN KEY CephalixOssCares_ibfk_2;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToCustomer DROP FOREIGN KEY CephalixRepositoriesToCustomer_cephalixcustomer_id;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToCustomer DROP FOREIGN KEY CephalixRepositoriesToCustomer_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToCustomer DROP FOREIGN KEY CephalixRepositoriesToCustomer_ibfk_2;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToCustomer DROP FOREIGN KEY CephalixRepositoriesToCustomercephalixrepositoryid;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToInstitute DROP FOREIGN KEY CephalixRepositoriesToInstitute_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToInstitute DROP FOREIGN KEY CephalixRepositoriesToInstitute_ibfk_2;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToInstitute DROP FOREIGN KEY CephalixRepositoriesToInstitutecephalixinstituteid;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToInstitute DROP FOREIGN KEY CphalixRepositoriesToInstitutecephalixrepositoryid;"| mysql CRX
-echo "ALTER TABLE CephalixSupervisor DROP FOREIGN KEY CephalixSupervisor_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixSupervisor DROP FOREIGN KEY CephalixSupervisor_ibfk_2;"| mysql CRX
-echo "ALTER TABLE CephalixSystemStatus DROP FOREIGN KEY CephalixSystemStatus_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixSystemStatus DROP FOREIGN KEY FK_CephalixSystemStatus_CEPHALIXINSTITUTE_ID;"| mysql CRX
-echo "ALTER TABLE CephalixTickets DROP FOREIGN KEY CephalixTickets_ibfk_1;"| mysql CRX
-echo "ALTER TABLE CephalixTickets DROP FOREIGN KEY FK_CephalixTickets_cephalixinstitute_id;"| mysql CRX
 echo "ALTER TABLE ChallengesInArea DROP FOREIGN KEY FK_ChallengesInArea_crxchallenge_id;"| mysql CRX
 echo "ALTER TABLE ChallengesInArea DROP FOREIGN KEY FK_ChallengesInArea_subjectarea_id;"| mysql CRX
 echo "ALTER TABLE ContactInCategories DROP FOREIGN KEY ContactInCategories_ibfk_1;"| mysql CRX
@@ -214,23 +186,6 @@ echo "ALTER TABLE AvailablePrinters DROP KEY room_id;"| mysql CRX
 echo "ALTER TABLE AvailablePrinters DROP KEY device_id;"| mysql CRX
 echo "ALTER TABLE AvailablePrinters DROP KEY printer_id;"| mysql CRX
 echo "ALTER TABLE Categories DROP KEY owner_id;"| mysql CRX
-echo "ALTER TABLE CephalixArticles DROP KEY cephalixticket_id;"| mysql CRX
-echo "ALTER TABLE CephalixCareMessages DROP KEY cephalixcare_id;"| mysql CRX
-echo "ALTER TABLE CephalixCares DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixDynDns DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixITUsage DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixITUsageAvarage DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixInstitutes DROP KEY cephalixcustomer_id;"| mysql CRX
-echo "ALTER TABLE CephalixMappings DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixNotices DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixOssCareMessages DROP KEY cephalixosscare_id;"| mysql CRX
-echo "ALTER TABLE CephalixOssCares DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToCustomer DROP KEY cephalixcustomer_id;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToInstitute DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixSupervisor DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixSupervisor DROP KEY cephalixcustomer_id;"| mysql CRX
-echo "ALTER TABLE CephalixSystemStatus DROP KEY cephalixinstitute_id;"| mysql CRX
-echo "ALTER TABLE CephalixTickets DROP KEY cephalixinstitute_id;"| mysql CRX
 echo "ALTER TABLE ChallengesInArea DROP KEY FK_ChallengesInArea_subjectarea_id;"| mysql CRX
 echo "ALTER TABLE ContactInCategories DROP KEY category_id;"| mysql CRX
 echo "ALTER TABLE Contacts DROP KEY owner_id;"| mysql CRX
@@ -298,7 +253,6 @@ echo "ALTER TABLE UserInCategories DROP KEY category_id;"| mysql CRX
 echo "ALTER TABLE Users DROP KEY creator_id;"| mysql CRX
 echo "ALTER TABLE Aliases DROP INDEX aliases;"| mysql CRX
 echo "ALTER TABLE Categories DROP INDEX categories;"| mysql CRX
-echo "ALTER TABLE CephalixDynDns DROP INDEX ddnshostdom;"| mysql CRX
 echo "ALTER TABLE Crx2fas DROP INDEX UNQ_Crx2fas_0;"| mysql CRX
 echo "ALTER TABLE CrxChallengeAnswers DROP INDEX UNQ_CrxChallengeAnswers_0;"| mysql CRX
 echo "ALTER TABLE CrxConfig DROP INDEX CrxConfig;"| mysql CRX
@@ -320,27 +274,6 @@ echo "ALTER TABLE AnnouncementInCategories MODIFY COLUMN id bigint(20) unsigned 
 echo "ALTER TABLE Announcements MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
 echo "ALTER TABLE AvailablePrinters MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
 echo "ALTER TABLE Categories MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE Cephalix2faMapping MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE Cephalix2faMapping MODIFY COLUMN creator_id bigint(20) unsigned;"| mysql CRX
-echo "ALTER TABLE Cephalix2faMapping MODIFY COLUMN cephalixinstitute_id bigint(20) unsigned;"| mysql CRX
-echo "ALTER TABLE CephalixArticles MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixCareMessages MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixCares MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixCustomers MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixDynDns MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixITUsage MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixITUsageAvarage MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixInstitutes MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixMappings MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixNotices MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixOssCareMessages MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixOssCares MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixRepositories MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToCustomer MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixRepositoriesToInstitute MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixSupervisor MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixSystemStatus MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
-echo "ALTER TABLE CephalixTickets MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
 echo "ALTER TABLE ChallengesInArea MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
 echo "ALTER TABLE ChallengesInArea MODIFY COLUMN crxchallenge_id bigint(20) unsigned;"| mysql CRX
 echo "ALTER TABLE ChallengesInArea MODIFY COLUMN subjectarea_id bigint(20) unsigned;"| mysql CRX
@@ -427,7 +360,83 @@ echo "ALTER TABLE UsersOfChallenges MODIFY COLUMN user_id bigint(20) unsigned;"|
 echo "ALTER TABLE Devices MODIFY COLUMN wlanIp varchar(16) DEFAULT NULL;"| mysql CRX
 echo "UPDATE Devices SET wlanIp=NULL where wlanIp = '';"| mysql CRX
 echo "UPDATE CrxQuestions SET crxchallenge_id=NULL WHERE crxchallenge_id NOT IN (SELECT id FROM CrxChallenges);"| mysql CRX
-/usr/bin/systemctl start cephalix-api
+
+if [ $SERVICE == "cephalix-api" ]; then
+	echo "ALTER TABLE CephalixArticles DROP FOREIGN KEY CephalixArticles_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixArticles DROP FOREIGN KEY FK_CephalixArticles_cephalixticket_id;"| mysql CRX
+	echo "ALTER TABLE CephalixCareMessages DROP FOREIGN KEY CephalixCareMessages_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixCareMessages DROP FOREIGN KEY FK_CephalixCareMessages_CEPHALIXCARE_ID;"| mysql CRX
+	echo "ALTER TABLE CephalixCares DROP FOREIGN KEY CephalixCares_ibfk_2;"| mysql CRX
+	echo "ALTER TABLE CephalixCares DROP FOREIGN KEY FK_CephalixCares_CEPHALIXINSTITUTE_ID;"| mysql CRX
+	echo "ALTER TABLE CephalixDynDns DROP FOREIGN KEY CephalixDynDns_ibfk_2;"| mysql CRX
+	echo "ALTER TABLE CephalixDynDns DROP FOREIGN KEY FK_CephalixDynDns_CEPHALIXINSTITUTE_ID;"| mysql CRX
+	echo "ALTER TABLE CephalixITUsage DROP FOREIGN KEY CephalixITUsage_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixITUsage DROP FOREIGN KEY FK_CephalixITUsage_CEPHALIXINSTITUTE_ID;"| mysql CRX
+	echo "ALTER TABLE CephalixITUsageAvarage DROP FOREIGN KEY CephalixITUsageAvarage_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixITUsageAvarage DROP FOREIGN KEY FK_CephalixITUsageAvarage_CEPHALIXINSTITUTE_ID;"| mysql CRX
+	echo "ALTER TABLE CephalixInstitutes DROP FOREIGN KEY CephalixInstitutes_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixInstitutes DROP FOREIGN KEY FK_CephalixInstitutes_CEPHALIXCUSTOMER_ID;"| mysql CRX
+	echo "ALTER TABLE CephalixMappings DROP FOREIGN KEY CephalixMappings_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixMappings DROP FOREIGN KEY FK_CephalixMappings_cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixNotices DROP FOREIGN KEY CephalixNotices_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixNotices DROP FOREIGN KEY FK_CephalixNotices_cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixOssCareMessages DROP FOREIGN KEY CephalixOssCareMessages_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixOssCares DROP FOREIGN KEY CephalixOssCares_ibfk_2;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToCustomer DROP FOREIGN KEY CephalixRepositoriesToCustomer_cephalixcustomer_id;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToCustomer DROP FOREIGN KEY CephalixRepositoriesToCustomer_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToCustomer DROP FOREIGN KEY CephalixRepositoriesToCustomer_ibfk_2;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToCustomer DROP FOREIGN KEY CephalixRepositoriesToCustomercephalixrepositoryid;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToInstitute DROP FOREIGN KEY CephalixRepositoriesToInstitute_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToInstitute DROP FOREIGN KEY CephalixRepositoriesToInstitute_ibfk_2;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToInstitute DROP FOREIGN KEY CephalixRepositoriesToInstitutecephalixinstituteid;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToInstitute DROP FOREIGN KEY CphalixRepositoriesToInstitutecephalixrepositoryid;"| mysql CRX
+	echo "ALTER TABLE CephalixSupervisor DROP FOREIGN KEY CephalixSupervisor_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixSupervisor DROP FOREIGN KEY CephalixSupervisor_ibfk_2;"| mysql CRX
+	echo "ALTER TABLE CephalixSystemStatus DROP FOREIGN KEY CephalixSystemStatus_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixSystemStatus DROP FOREIGN KEY FK_CephalixSystemStatus_CEPHALIXINSTITUTE_ID;"| mysql CRX
+	echo "ALTER TABLE CephalixTickets DROP FOREIGN KEY CephalixTickets_ibfk_1;"| mysql CRX
+	echo "ALTER TABLE CephalixTickets DROP FOREIGN KEY FK_CephalixTickets_cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixArticles DROP KEY cephalixticket_id;"| mysql CRX
+	echo "ALTER TABLE CephalixCareMessages DROP KEY cephalixcare_id;"| mysql CRX
+	echo "ALTER TABLE CephalixCares DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixDynDns DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixITUsage DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixITUsageAvarage DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixInstitutes DROP KEY cephalixcustomer_id;"| mysql CRX
+	echo "ALTER TABLE CephalixMappings DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixNotices DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixOssCareMessages DROP KEY cephalixosscare_id;"| mysql CRX
+	echo "ALTER TABLE CephalixOssCares DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToCustomer DROP KEY cephalixcustomer_id;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToInstitute DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixSupervisor DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixSupervisor DROP KEY cephalixcustomer_id;"| mysql CRX
+	echo "ALTER TABLE CephalixSystemStatus DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE CephalixTickets DROP KEY cephalixinstitute_id;"| mysql CRX
+	echo "ALTER TABLE Cephalix2faMapping MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE Cephalix2faMapping MODIFY COLUMN creator_id bigint(20) unsigned;"| mysql CRX
+	echo "ALTER TABLE Cephalix2faMapping MODIFY COLUMN cephalixinstitute_id bigint(20) unsigned;"| mysql CRX
+	echo "ALTER TABLE CephalixArticles MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixCareMessages MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixCares MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixCustomers MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixDynDns MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixITUsage MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixITUsageAvarage MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixInstitutes MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixMappings MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixNotices MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixOssCareMessages MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixOssCares MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositories MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToCustomer MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixRepositoriesToInstitute MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixSupervisor MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixSystemStatus MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixTickets MODIFY COLUMN id bigint(20) unsigned NOT NULL AUTO_INCREMENT;"| mysql CRX
+	echo "ALTER TABLE CephalixDynDns DROP INDEX ddnshostdom;"| mysql CRX
+fi
+/usr/bin/systemctl start $SERVICE
 /usr/share/cranix/tools/wait-for-api.sh
 
 for table in Announcements Categories Contacts Devices FAQs Groups PositiveLists TaskResponses
@@ -436,16 +445,18 @@ do
 	echo "UPDATE $table set creator_id = owner_id" | mysql CRX
 	echo "ALTER TABLE $table DROP COLUMN owner_id" | mysql CRX
 done
-echo "UPDATE CephalixTickets set creator_id = ownerId ;" | mysql CRX
-echo "ALTER TABLE CephalixTickets DROP COLUMN ownerId;"  | mysql CRX
-for table in CephalixArticles CephalixCustomers CephalixInstitutes CephalixSystemStatus CephalixTickets
-do
-	echo "$table"
-	echo "UPDATE $table SET created = recDate" | mysql CRX
-	echo "ALTER TABLE $table DROP COLUMN recDate" | mysql CRX
-done
-
-/usr/bin/systemctl stop cephalix-api
-sleep 1
-echo "UPDATE CephalixMappings set creator_id=1;" | mysql CRX
-/usr/bin/systemctl start cephalix-api
+if [ $SERVICE == "cephalix-api" ]; then
+	echo "UPDATE CephalixTickets set creator_id = ownerId ;" | mysql CRX
+	echo "ALTER TABLE CephalixTickets DROP COLUMN ownerId;"  | mysql CRX
+	for table in CephalixArticles CephalixCustomers CephalixInstitutes CephalixSystemStatus CephalixTickets
+	do
+		echo "$table"
+		echo "UPDATE $table SET created = recDate" | mysql CRX
+		echo "UPDATE $table SET modified = recDate" | mysql CRX
+		echo "ALTER TABLE $table DROP COLUMN recDate" | mysql CRX
+	done
+	echo "UPDATE CephalixMappings set creator_id=1;" | mysql CRX
+fi
+/usr/bin/systemctl stop $SERVICE
+sleep 5
+/usr/bin/systemctl start $SERVICE
