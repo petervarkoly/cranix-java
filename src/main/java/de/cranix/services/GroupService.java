@@ -136,17 +136,16 @@ public class GroupService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		// Group names will be converted upper case
 		group.setName(group.getName().toUpperCase());
 		// First we check if the parameter are unique.
 		if( ! this.isNameUnique(group.getName())){
-			return new CrxResponse(this.getSession(),"ERROR","Group name is not unique.");
+			return new CrxResponse("ERROR","Group name is not unique.");
 		}
 		if( !this.mayAdd(group) ) {
 			return new CrxResponse(
-					this.getSession(),
 					"ERROR",
 					"You must not create group with type %s",
 					null,
@@ -168,7 +167,7 @@ public class GroupService extends Service {
 			logger.debug("Created Group:" + group);
 		} catch (Exception e) {
 			logger.error("Error crating a group" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		}
 		startPlugin("add_group", group);
 		if( group.getGroupType().equals("workgroup") ) {
@@ -179,13 +178,13 @@ public class GroupService extends Service {
 		if(group.getGroupType().equals("class")) {
 			this.createCategoryForGroup(group, true, true, "informations");
 		}
-		return new CrxResponse(this.getSession(),"OK","Group was created.",group.getId());
+		return new CrxResponse("OK","Group was created.",group.getId());
 	}
 
 	public CrxResponse modify(Group group){
 		Group oldGroup = this.getById(group.getId());
 		if( !this.mayModify(oldGroup) ) {
-			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
+			return new CrxResponse("ERROR","You must not modify this group.");
 		}
 		oldGroup.setDescription(group.getDescription());
 		//Check group parameter
@@ -195,7 +194,7 @@ public class GroupService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-				return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+				return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -203,26 +202,26 @@ public class GroupService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		}  finally {
 		}
 		startPlugin("modify_group", oldGroup);
-		return new CrxResponse(this.getSession(),"OK","Group was modified.");
+		return new CrxResponse("OK","Group was modified.");
 	}
 
 	public CrxResponse delete(Group group){
 		// Remove group from GroupMember of table
 		group =  this.em.find(Group.class, group.getId());
 		if( this.isProtected(group)) {
-			return new CrxResponse(this.getSession(),"ERROR","This group must not be deleted.");
+			return new CrxResponse("ERROR","This group must not be deleted.");
 		}
 		if( !this.mayDelete(group) ) {
-			return new CrxResponse(this.getSession(),"ERROR","You must not delete this group.");
+			return new CrxResponse("ERROR","You must not delete this group.");
 		}
 		//Primary group must not be deleted if there are member
 		if( group.getGroupType().equals("primary")) {
 			if( group.getUsers() != null  && !group.getUsers().isEmpty() ) {
-				return new CrxResponse(this.getSession(),"ERROR","You must not delete this primary group because this still contains member(s).");
+				return new CrxResponse("ERROR","You must not delete this primary group because this still contains member(s).");
 			}
 		}
 		//Start the plugin
@@ -264,10 +263,10 @@ public class GroupService extends Service {
 			//em.getEntityManagerFactory().getCache().evictAll();
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK","Group was deleted.");
+		return new CrxResponse("OK","Group was deleted.");
 	}
 
 	/**
@@ -294,7 +293,7 @@ public class GroupService extends Service {
 			importFile = Files.readAllLines(file.toPath());
 		} catch (IOException e) {
 			logger.error("File error:" + e.getMessage(), e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		int count = 0;
 		for(String line : importFile ) {
@@ -320,13 +319,13 @@ public class GroupService extends Service {
 				}
 			}
 		}
-		return new CrxResponse(this.getSession(),"OK","Groups were imported.");
+		return new CrxResponse("OK","Groups were imported.");
 	}
 
 	public CrxResponse delete(long groupId){
 		Group group = this.getById(groupId);
 		if( group == null ) {
-			return new CrxResponse(this.getSession(),"ERROR", "Can not find the group with id %s.",null,String.valueOf(groupId));
+			return new CrxResponse("ERROR", "Can not find the group with id %s.",null,String.valueOf(groupId));
 		}
 		return delete(group);
 	}
@@ -334,7 +333,7 @@ public class GroupService extends Service {
 	public CrxResponse delete(String groupName){
 		Group group = this.getByName(groupName);
 		if( group == null ) {
-			return new CrxResponse(this.getSession(),"ERROR", "Can not find the group with id %s.",null,groupName);
+			return new CrxResponse("ERROR", "Can not find the group with id %s.",null,groupName);
 		}
 		return delete(group);
 	}
@@ -355,7 +354,7 @@ public class GroupService extends Service {
 	public CrxResponse setMembers(long groupId, List<Long> userIds) {
 		Group group = this.getById(groupId);
 		if( !this.mayModify(group) ) {
-			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
+			return new CrxResponse("ERROR","You must not modify this group.");
         }
 		List<User> usersToRemove = new ArrayList<User>();
 		List<User> usersToAdd    = new ArrayList<User>();
@@ -392,24 +391,24 @@ public class GroupService extends Service {
 			this.em.merge(group);
 			this.em.getTransaction().commit();
 		}catch (Exception e) {
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		} finally {
 		}
 		changeMemberPlugin("addmembers", group, usersToAdd);
 		changeMemberPlugin("removemembers", group, usersToRemove);
-		return new CrxResponse(this.getSession(),"OK","The members of group was set.");
+		return new CrxResponse("OK","The members of group was set.");
 	}
 
 
 	public CrxResponse addMember(Group group, User user) {
 		if( !this.mayModify(group) ) {
-			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
+			return new CrxResponse("ERROR","You must not modify this group.");
 		}
 		parameters = new ArrayList<String>();
 		parameters.add(user.getUid());
 		parameters.add(group.getName());
 		if( user.getGroups().contains(group)) {
-			return new CrxResponse(this.getSession(),"OK","User %s is already member of group %s.",null,parameters );
+			return new CrxResponse("OK","User %s is already member of group %s.",null,parameters );
 		}
 		group.addUser(user);
 		try {
@@ -418,16 +417,16 @@ public class GroupService extends Service {
 			this.em.merge(group);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		} finally {
 		}
 		changeMemberPlugin("addmembers", group, user);
-		return new CrxResponse(this.getSession(),"OK","User %s was added to group %s.",null,parameters );
+		return new CrxResponse("OK","User %s was added to group %s.",null,parameters );
 	}
 
 	public CrxResponse addMembers(Group group, List<User> users) {
 		if( !this.mayModify(group) ) {
-			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
+			return new CrxResponse("ERROR","You must not modify this group.");
 		}
 		try {
 			for( User user: users ) {
@@ -440,20 +439,20 @@ public class GroupService extends Service {
 				}
 			}
 		} catch (Exception e) {
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		} finally {
 		}
 		changeMemberPlugin("addmembers", group, users);
-		return new CrxResponse(this.getSession(),"OK","User %s was added to group %s.",null,parameters );
+		return new CrxResponse("OK","User %s was added to group %s.",null,parameters );
 	}
 	public CrxResponse addMember(long groupId, long userId) {
 		Group group = this.em.find(Group.class, groupId);
 		User  user  = this.em.find(User.class, userId);
 		if( group == null ) {
-			return new CrxResponse(this.getSession(),"ERROR","Group %s was not found.",null,String.valueOf(groupId));
+			return new CrxResponse("ERROR","Group %s was not found.",null,String.valueOf(groupId));
 		}
 		if( user == null ) {
-			return new CrxResponse(this.getSession(),"ERROR","User %s was not found.",null,String.valueOf(userId));
+			return new CrxResponse("ERROR","User %s was not found.",null,String.valueOf(userId));
 		}
 		return this.addMember(group, user);
 	}
@@ -462,10 +461,10 @@ public class GroupService extends Service {
 		Group group = this.getByName(groupName);
 		User  user  = new UserService(this.session,this.em).getByUid(uid);
 		if( group == null ) {
-			return new CrxResponse(this.getSession(),"ERROR","Group %s was not found.",null,groupName);
+			return new CrxResponse("ERROR","Group %s was not found.",null,groupName);
 		}
 		if( user == null ) {
-			return new CrxResponse(this.getSession(),"ERROR","User %s was not found.",null,uid);
+			return new CrxResponse("ERROR","User %s was not found.",null,uid);
 		}
 		group = this.em.find(Group.class, group.getId());
 		user  = this.em.find(User.class,  user.getId());
@@ -481,14 +480,14 @@ public class GroupService extends Service {
 	public CrxResponse removeMember(long groupId, long userId) {
 		Group group = this.em.find(Group.class, groupId);
 		if( !this.mayModify(group) ) {
-			return new CrxResponse(this.getSession(),"ERROR","You must not modify this group.");
+			return new CrxResponse("ERROR","You must not modify this group.");
 		}
 		User  user  = this.em.find(User.class, userId);
 		if( user.getRole().equals(group.getName()) ) {
-			return new CrxResponse(this.getSession(),"ERROR","User must not be removed from it's primary group.");
+			return new CrxResponse("ERROR","User must not be removed from it's primary group.");
 		}
 		if( group.getCreator().equals(user) ) {
-			return new CrxResponse(this.getSession(),"ERROR","You must not remove yourself from your owned groups.");
+			return new CrxResponse("ERROR","You must not remove yourself from your owned groups.");
 		}
 		group.removeUser(user);
 		try {
@@ -497,14 +496,14 @@ public class GroupService extends Service {
 			this.em.merge(group);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		} finally {
 		}
 		changeMemberPlugin("removemembers", group, user);
 		parameters = new ArrayList<String>();
 		parameters.add(user.getUid());
 		parameters.add(group.getName());
-		return new CrxResponse(this.getSession(),"OK","User %s was removed from group %s.",null,parameters );
+		return new CrxResponse("OK","User %s was removed from group %s.",null,parameters );
 	}
 
 	public List<Group> getGroups(List<Long> groupIds) {
@@ -526,18 +525,18 @@ public class GroupService extends Service {
 			parameters = new ArrayList<String>();
 			parameters.add(group.getName());
 			parameters.add(error.toString());
-			return new CrxResponse(this.getSession(),"ERROR","Class directory %s can not be cleaned. Reason %s",null,parameters);
+			return new CrxResponse("ERROR","Class directory %s can not be cleaned. Reason %s",null,parameters);
 		}
-		return new CrxResponse(this.getSession(),"OK","Group directory was cleaned.");
+		return new CrxResponse("OK","Group directory was cleaned.");
 	}
 
 	public CrxResponse cleanClassDirectories() {
 		for( Group group : this.getByType("class")) {
 			if( cleanGroupDirectory(group).getCode().equals("ERROR") ) {
-				return new CrxResponse(this.getSession(),"ERROR","Class directory %s can not be cleaned.",null,group.getName());
+				return new CrxResponse("ERROR","Class directory %s can not be cleaned.",null,group.getName());
 			}
 		}
-		return new CrxResponse(this.getSession(),"OK","Class directories was cleaned.");
+		return new CrxResponse("OK","Class directories was cleaned.");
 	}
 
 	public CrxResponse createCategoryForGroup(Long groupId, boolean studentsOnly, boolean publicAccess, String type) {
@@ -547,7 +546,7 @@ public class GroupService extends Service {
 	public CrxResponse createCategoryForGroup(Group group, boolean studentsOnly, boolean publicAccess, String type) {
 		for ( Category cat : group.getCategories() ) {
 			if( cat.getCategoryType().equals(type) && cat.getName().equals(group.getName()) ) {
-				return new CrxResponse(this.getSession(),"OK","Smart room is for this group already created.");
+				return new CrxResponse("OK","Smart room is for this group already created.");
 			}
 		}
 		Category category = new Category();
@@ -569,7 +568,7 @@ public class GroupService extends Service {
 	public CrxResponse createSmartRoomForGroup(Group group, boolean studentsOnly, boolean publicAccess) {
 		for ( Category cat : group.getCategories() ) {
 			if( cat.getCategoryType().equals("smartRoom") && cat.getName().equals(group.getName()) ) {
-				return new CrxResponse(this.getSession(),"OK","Smart room is for this group already created.");
+				return new CrxResponse("OK","Smart room is for this group already created.");
 			}
 		}
 		Category category = new Category();

@@ -42,6 +42,7 @@ public class Crx2faService extends Service {
                 crx2faRequest.setUid(user.getUid());
                 crx2faRequest.setUserId(user.getId());
                 crx2faRequest.setTimeStep(crx2fa.getTimeStep());
+                crx2faRequest.setType("TOTP");
                 crx2faRequest.setAction("CREATE");
                 this.logger.debug("request:" + crx2faRequest);
                 JSONObject response = sendRequest(crx2faRequest);
@@ -60,9 +61,9 @@ public class Crx2faService extends Service {
             this.session.setUser(user);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "CRANIX 2FA was created successfully.");
+        return new CrxResponse("OK", "CRANIX 2FA was created successfully.");
     }
 
     public CrxResponse delete(Long id) {
@@ -70,10 +71,10 @@ public class Crx2faService extends Service {
         //TODO check if it is allowed
         User user = crx2fa.getCreator();
         if (crx2fa == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find the CRANIX CFA");
+            return new CrxResponse("ERROR", "Can not find the CRANIX CFA");
         }
         if(this.session.getCrx2faSession()!=null && this.session.getCrx2faSession().getMyCrx2fa().equals(crx2fa)) {
-            return new CrxResponse(this.getSession(), "ERROR", "You must not remove this CFA. You are just using it.");
+            return new CrxResponse("ERROR", "You must not remove this CFA. You are just using it.");
         }
         if( crx2fa.getCrx2faType().equals("TOTP")) {
             Crx2faRequest crx2faRequest = new Crx2faRequest();
@@ -90,9 +91,9 @@ public class Crx2faService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.session, "OK", "CRANIX 2FA was deleted successfully.");
+        return new CrxResponse("OK", "CRANIX 2FA was deleted successfully.");
     }
 
     public CrxResponse modify(Crx2fa crx2fa) {
@@ -100,10 +101,10 @@ public class Crx2faService extends Service {
         //TODO check if it is allowed
         User user = oldCrx2fa.getCreator();
         if (oldCrx2fa == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find the CRANIX 2fa");
+            return new CrxResponse("ERROR", "Can not find the CRANIX 2fa");
         }
         if (!oldCrx2fa.getCreator().equals(user)) {
-            return new CrxResponse(this.getSession(), "ERROR", "You ar not the owner of this crx 2fa");
+            return new CrxResponse("ERROR", "You ar not the owner of this crx 2fa");
         }
         try {
             oldCrx2fa.setValidHours(crx2fa.getValidHours());
@@ -116,22 +117,22 @@ public class Crx2faService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "CRANIX 2FA was modified successfully.");
+        return new CrxResponse("OK", "CRANIX 2FA was modified successfully.");
     }
 
     public CrxResponse reset(Long id) {
         Crx2fa crx2fa = this.em.find(Crx2fa.class, id);
         if (crx2fa == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find the CRANIX CFA");
+            return new CrxResponse("ERROR", "Can not find the CRANIX CFA");
         }
         Crx2faRequest crx2faRequest = new Crx2faRequest();
         crx2faRequest.setRegCode(this.getConfigValue("REG_CODE"));
         crx2faRequest.setSerial(crx2fa.getSerial());
         crx2faRequest.setAction("RESET");
         sendRequest(crx2faRequest);
-        return new CrxResponse(this.getSession(), "OK", "CRANIX 2FA was reseted successfully.");
+        return new CrxResponse("OK", "CRANIX 2FA was reseted successfully.");
     }
 
     public CrxResponse sendPin(Long crx2faId, String ip, String token) {
@@ -140,7 +141,7 @@ public class Crx2faService extends Service {
         SessionService sessionService = new SessionService(this.em);
         Session session1 = sessionService.getByToken(token);
         if (!session1.getIp().equals(ip)) {
-            return new CrxResponse(session, "ERROR", "A jó büdös életbe!!");
+            return new CrxResponse("ERROR", "A jó büdös életbe!!");
         }
         User user = em.find(User.class, session1.getUserId());
         Crx2faSession crx2faSession = new Crx2faSession(user, crx2fa, ip);
@@ -157,7 +158,7 @@ public class Crx2faService extends Service {
         this.em.persist(crx2faSession);
         this.em.getTransaction().commit();
         this.em.refresh(user);
-        return new CrxResponse(session, "OK", "PIN was sent for your address.");
+        return new CrxResponse("OK", "PIN was sent for your address.");
     }
 
     /**

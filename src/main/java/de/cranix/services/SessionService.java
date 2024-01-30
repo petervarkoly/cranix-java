@@ -205,12 +205,9 @@ public class SessionService extends Service {
     public void save(Session obj) {
         if (em != null) {
             try {
+                logger.debug("save session:" + obj);
                 this.em.getTransaction().begin();
-                if (obj.getId() > 0) {
-                    this.em.merge(obj);
-                } else {
-                    this.em.persist(obj);
-                }
+                this.em.persist(obj);
                 User user = obj.getUser();
                 Device device = obj.getDevice();
                 if (device != null) {
@@ -226,6 +223,7 @@ public class SessionService extends Service {
                 this.em.refresh(obj);
                 this.em.getTransaction().commit();
             } catch (Exception e) {
+                logger.debug("save session failed:" + obj);
                 logger.error(e.getMessage());
             }
         }

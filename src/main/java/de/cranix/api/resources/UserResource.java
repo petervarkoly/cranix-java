@@ -359,9 +359,9 @@ public class UserResource {
         }
         em.close();
         if (error.length() > 0) {
-            return new CrxResponse(session, "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
-        return new CrxResponse(session, "OK", "User was added to the additional group.");
+        return new CrxResponse("OK", "User was added to the additional group.");
     }
 
     @POST
@@ -806,7 +806,7 @@ public class UserResource {
             Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
-            return new CrxResponse(session, "ERROR", "Import file can not be saved" + e.getMessage());
+            return new CrxResponse("ERROR", "Import file can not be saved" + e.getMessage());
         }
         try {
             Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
@@ -822,7 +822,7 @@ public class UserResource {
                 Files.write(file.toPath(), utf8lines);
 
             } catch (IOException ioe2) {
-                return new CrxResponse(session, "ERROR", "Import file is not UTF-8 coded.");
+                return new CrxResponse("ERROR", "Import file is not UTF-8 coded.");
             }
         }
         if (password != null && !password.isEmpty()) {
@@ -891,7 +891,7 @@ public class UserResource {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Import was started.");
+        return new CrxResponse("OK", "Import was started.");
     }
 
     @GET
@@ -1023,9 +1023,9 @@ public class UserResource {
             CrxSystemCmd.exec(program, reply, stderr, null);
             logger.debug("restartImport reply: " + reply.toString());
             logger.debug("restartImport error: " + reply.toString());
-            return new CrxResponse(session, "OK", "Import was started.");
+            return new CrxResponse("OK", "Import was started.");
         }
-        return new CrxResponse(session, "ERROR", "CAn not find the import.");
+        return new CrxResponse("ERROR", "CAn not find the import.");
     }
 
     @DELETE
@@ -1043,7 +1043,7 @@ public class UserResource {
         Service controller = new Service(session, null);
         StringBuilder importDir = controller.getImportDir(startTime);
         if (startTime == null || startTime.isEmpty()) {
-            return new CrxResponse(session, "ERROR", "Invalid import name.");
+            return new CrxResponse("ERROR", "Invalid import name.");
         }
         String[] program = new String[3];
         program[0] = "rm";
@@ -1052,7 +1052,7 @@ public class UserResource {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Import was deleted.");
+        return new CrxResponse("OK", "Import was deleted.");
     }
 
     @DELETE
@@ -1075,7 +1075,7 @@ public class UserResource {
         program[1] = "-f";
         program[2] = "/run/crx_import_user";
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Import was stopped.");
+        return new CrxResponse("OK", "Import was stopped.");
     }
 
     @GET
@@ -1149,7 +1149,7 @@ public class UserResource {
             }
         }
         em.close();
-        return new CrxResponse(session, "OK", "All teachers was put into all classes.");
+        return new CrxResponse("OK", "All teachers was put into all classes.");
     }
 
     @PUT
@@ -1229,7 +1229,7 @@ public class UserResource {
             groupService.addMember(group, user);
         }
         em.close();
-        return new CrxResponse(session, "OK", "User was put into all classes.");
+        return new CrxResponse("OK", "User was put into all classes.");
     }
 
     @POST
@@ -1283,7 +1283,7 @@ public class UserResource {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Import was started.");
+        return new CrxResponse("OK", "Import was started.");
     }
 
     @POST

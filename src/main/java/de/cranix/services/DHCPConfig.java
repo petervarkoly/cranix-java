@@ -89,9 +89,9 @@ public class DHCPConfig extends Service {
         }
         if (result == 0) {
 
-            return new CrxResponse(session, "OK", "DHCPD configuration is ok");
+            return new CrxResponse("OK", "DHCPD configuration is ok");
         } else {
-            return new CrxResponse(session, "ERROR", stderr.toString());
+            return new CrxResponse("ERROR", stderr.toString());
         }
     }
 

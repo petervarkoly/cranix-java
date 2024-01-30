@@ -1,9 +1,7 @@
 package de.cranix.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +95,7 @@ public class ChallengeService extends Service {
     public CrxResponse add(CrxChallenge challenge) {
         logger.debug("add:" + challenge);
         if (challenge.getTeachingSubject() == null) {
-            return new CrxResponse(this.session, "ERROR", "You have to define the subject the challenge belongs to.");
+            return new CrxResponse("ERROR", "You have to define the subject the challenge belongs to.");
         }
         User owner = this.em.find(User.class, this.session.getUserId());
         //First we persist the challenge
@@ -119,7 +117,7 @@ public class ChallengeService extends Service {
         owner.getChallenges().add(challenge);
         this.em.merge(owner);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.session, "OK", "Challenge was successfully added.", challenge.getId());
+        return new CrxResponse("OK", "Challenge was successfully added.", challenge.getId());
     }
 
     /**
@@ -139,7 +137,7 @@ public class ChallengeService extends Service {
         this.em.merge(challenge);
         this.adapt(challenge, owner);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.session, "OK", "Challenge was successfully modified.", challenge.getId());
+        return new CrxResponse("OK", "Challenge was successfully modified.", challenge.getId());
     }
 
     public CrxResponse assignAndStart(CrxChallenge challenge) {
@@ -155,7 +153,7 @@ public class ChallengeService extends Service {
         this.em.merge(challenge);
         this.adapt(challenge, owner);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.session, "OK", "Challenge was successfully assigned and stated.");
+        return new CrxResponse("OK", "Challenge was successfully assigned and stated.");
     }
 
     /*
@@ -284,14 +282,14 @@ public class ChallengeService extends Service {
         try {
             question = this.em.find(CrxQuestion.class, questionId);
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find question.");
+            return new CrxResponse("ERROR", "Can not find question.");
         }
         this.em.getTransaction().begin();
         challenge.getQuestions().remove(question);
         this.em.remove(question);
         this.em.merge(challenge);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(), "OK", "Question was removed.");
+        return new CrxResponse("OK", "Question was removed.");
     }
 
     /**
@@ -314,7 +312,7 @@ public class ChallengeService extends Service {
             question = this.em.find(CrxQuestion.class, questionId);
             answer = this.em.find(CrxQuestionAnswer.class, answerId);
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find challenge.");
+            return new CrxResponse("ERROR", "Can not find challenge.");
         }
         this.em.getTransaction().begin();
         question.getCrxQuestionAnswers().remove(answer);
@@ -322,7 +320,7 @@ public class ChallengeService extends Service {
         this.em.merge(question);
         this.em.merge(challenge);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(), "OK", "Answer was removed.");
+        return new CrxResponse("OK", "Answer was removed.");
     }
 
     /**
@@ -366,7 +364,7 @@ public class ChallengeService extends Service {
         }
         this.em.remove(challenge);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(), "OK", "Challenge was removed successfully.");
+        return new CrxResponse("OK", "Challenge was removed successfully.");
     }
 
     /**
@@ -562,7 +560,7 @@ public class ChallengeService extends Service {
             return res;
         } catch (IOException e) {
             this.em.getTransaction().rollback();
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
     }
 
@@ -657,7 +655,7 @@ public class ChallengeService extends Service {
     public Object getResultOfUser(Long id, Long creatorId) {
         CrxChallenge challenge = this.getById(id);
         if (challenge == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge");
+            return new CrxResponse("ERROR", "Could not find the challenge");
         }
         Map<Long, Map<Long, Boolean>> results = new HashMap<>();
         for (CrxQuestion question : challenge.getQuestions()) {
@@ -721,7 +719,7 @@ public class ChallengeService extends Service {
                 challengeAnswer.setCorrect(answer);
                 this.em.merge(challengeAnswer);
                 this.em.getTransaction().commit();
-                return new CrxResponse(this.getSession(), "OK", "Answer was saved correct.");
+                return new CrxResponse("OK", "Answer was saved correct.");
             }
         }
         CrxChallengeAnswer challengeAnswer = new CrxChallengeAnswer();
@@ -733,7 +731,7 @@ public class ChallengeService extends Service {
         this.em.persist(challengeAnswer);
         questionAnswer.getChallengeAnswers().add(challengeAnswer);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(), "OK", "Answer was saved correct.");
+        return new CrxResponse("OK", "Answer was saved correct.");
     }
 
     /**
@@ -746,17 +744,17 @@ public class ChallengeService extends Service {
     public CrxResponse saveChallengeAnswers(Long crxChallengeId, Map<Long, Boolean> answers) {
         CrxChallenge challenge = this.getById(crxChallengeId);
         if (!challenge.isReleased()) {
-            return new CrxResponse(this.getSession(), "ERROR", "This challenge is not available now.");
+            return new CrxResponse("ERROR", "This challenge is not available now.");
         }
         for (Long answerId : answers.keySet()) {
             CrxQuestionAnswer questionAnswer = this.em.find(CrxQuestionAnswer.class, answerId);
             if (!questionAnswer.getCrxQuestion().getChallenge().equals(challenge)) {
                 logger.debug("saveChallengeAnswers:" + questionAnswer.getCrxQuestion().getChallenge() + answerId);
-                return new CrxResponse(this.getSession(), "ERROR", "Answers does not belongs to challenge.");
+                return new CrxResponse("ERROR", "Answers does not belongs to challenge.");
             }
             saveChallengeAnswer(questionAnswer, answers.get(answerId));
         }
-        return new CrxResponse(this.getSession(), "OK", "Answers were saved correct.");
+        return new CrxResponse("OK", "Answers were saved correct.");
     }
 
     /**
@@ -768,10 +766,10 @@ public class ChallengeService extends Service {
     public Object getMyResults(Long id) {
         CrxChallenge challenge = this.getById(id);
         if (challenge == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
+            return new CrxResponse("ERROR", "Could not find the challenge.");
         }
         if (!challenge.isReleased()) {
-            return new CrxResponse(this.getSession(), "ERROR", "This challenge is not available now.");
+            return new CrxResponse("ERROR", "This challenge is not available now.");
         }
         Map<Long, Boolean> results = new HashMap<>();
         for (CrxQuestion question : challenge.getQuestions()) {
@@ -792,13 +790,13 @@ public class ChallengeService extends Service {
     private CrxResponse isModifiable(Long challengeId) {
         CrxChallenge challenge = this.getById(challengeId);
         if (challenge == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
+            return new CrxResponse("ERROR", "Could not find the challenge.");
         }
         if (challenge.isReleased()) {
-            return new CrxResponse(this.getSession(), "ERROR", "The challenge is now available. You must not change it.");
+            return new CrxResponse("ERROR", "The challenge is now available. You must not change it.");
         }
         if (!this.session.getUser().equals(challenge.getCreator()) && !this.isSuperuser()) {
-            return new CrxResponse(this.getSession(), "ERROR", "Only the owner may modify a challenge.");
+            return new CrxResponse("ERROR", "Only the owner may modify a challenge.");
         }
         return null;
     }
@@ -807,11 +805,11 @@ public class ChallengeService extends Service {
     private CrxResponse isManagable(Long challengeId) {
         CrxChallenge challenge = this.getById(challengeId);
         if (challenge == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Could not find the challenge.");
+            return new CrxResponse("ERROR", "Could not find the challenge.");
         }
         logger.debug("isManagable" + this.session.getUser() + challenge.getCreator());
         if (!this.session.getUser().equals(challenge.getCreator()) && !this.isSuperuser()) {
-            return new CrxResponse(this.getSession(), "ERROR", "Only the owner may manage a challenge.");
+            return new CrxResponse("ERROR", "Only the owner may manage a challenge.");
         }
         return null;
     }

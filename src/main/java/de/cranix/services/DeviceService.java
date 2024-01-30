@@ -95,10 +95,10 @@ public class DeviceService extends Service {
             if (needReloadSalt) {
                 new SoftwareService(this.session, this.em).rewriteTopSls();
             }
-            return new CrxResponse(this.getSession(), "OK", "Devices were deleted succesfully.");
+            return new CrxResponse("OK", "Devices were deleted succesfully.");
         } catch (Exception e) {
             logger.error("delete: " + e.getMessage(), e);
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
     }
 
@@ -111,7 +111,7 @@ public class DeviceService extends Service {
      */
     public CrxResponse delete(Device device, boolean atomic) {
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not delete null device.");
+            return new CrxResponse("ERROR", "Can not delete null device.");
         }
         boolean needReloadSalt = false;
         String name = device.getName();
@@ -120,13 +120,13 @@ public class DeviceService extends Service {
             HWConf hwconf = device.getHwconf();
             Room room = device.getRoom();
             if (this.isProtected(device)) {
-                return new CrxResponse(this.getSession(), "ERROR", "This device must not be deleted.");
+                return new CrxResponse("ERROR", "This device must not be deleted.");
             }
             if (!this.mayModify(device)) {
-                return new CrxResponse(this.getSession(), "ERROR", "You must not delete this device.");
+                return new CrxResponse("ERROR", "You must not delete this device.");
             }
             if (device.getPrinterQueue() != null && !device.getPrinterQueue().isEmpty()) {
-                return new CrxResponse(this.getSession(), "ERROR",
+                return new CrxResponse("ERROR",
                         "This is a printer device with defined printer queues. "
                                 + "You have to delete this devices via printer management.");
             }
@@ -207,10 +207,10 @@ public class DeviceService extends Service {
             if (user != null) {
                 userService.delete(user);
             }
-            return new CrxResponse(this.getSession(), "OK", "%s was deleted successfully.", null, name);
+            return new CrxResponse("OK", "%s was deleted successfully.", null, name);
         } catch (Exception e) {
             logger.error("device: " + device.getName() + " " + e.getMessage(), e);
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
     }
 
@@ -225,7 +225,7 @@ public class DeviceService extends Service {
 
         Device device = this.em.find(Device.class, deviceId);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find device with id %s.", null, String.valueOf(deviceId));
+            return new CrxResponse("ERROR", "Can not find device with id %s.", null, String.valueOf(deviceId));
         }
         return this.delete(device, atomic);
     }
@@ -241,31 +241,31 @@ public class DeviceService extends Service {
         if (name != "") {
             parameters.add(device.getMac());
             parameters.add(name);
-            return new CrxResponse(this.session, "ERROR", "The MAC address '%s' will be used allready by '%s'.", null, parameters);
+            return new CrxResponse("ERROR", "The MAC address '%s' will be used allready by '%s'.", null, parameters);
         }
         if (!IPv4.validateMACAddress(device.getMac())) {
             parameters.add(device.getMac());
-            return new CrxResponse(this.session, "ERROR", "The MAC address '%s' is not valid.", null, parameters);
+            return new CrxResponse("ERROR", "The MAC address '%s' is not valid.", null, parameters);
         }
         //Check the name
         if (!this.isNameUnique(device.getName())) {
-            return new CrxResponse(this.session, "ERROR", "Devices name is not unique.");
+            return new CrxResponse("ERROR", "Devices name is not unique.");
         }
         if (this.checkBadHostName(device.getName())) {
-            return new CrxResponse(this.session, "ERROR", "Devices name contains not allowed characters. ");
+            return new CrxResponse("ERROR", "Devices name contains not allowed characters. ");
         }
         //Check the IP address
         name = this.isIPUnique(device.getIp());
         if (name != "") {
             parameters.add(name);
-            return new CrxResponse(this.session, "ERROR", "The IP address will be used allready by '%s'", null, parameters);
+            return new CrxResponse("ERROR", "The IP address will be used allready by '%s'", null, parameters);
         }
         if (!IPv4.validateIPAddress(device.getIp())) {
             parameters.add(device.getIp());
-            return new CrxResponse(this.session, "ERROR", "The IP address '%s' is not valid.", null, parameters);
+            return new CrxResponse("ERROR", "The IP address '%s' is not valid.", null, parameters);
         }
         if (!net.contains(device.getIp())) {
-            return new CrxResponse(this.session, "ERROR", "The IP address is not in the room ip address range.");
+            return new CrxResponse("ERROR", "The IP address is not in the room ip address range.");
         }
 
         if (device.getWlanMac().isEmpty()) {
@@ -276,24 +276,24 @@ public class DeviceService extends Service {
             name = this.isMacUnique(device.getWlanMac());
             if (name != "") {
                 parameters.add(name);
-                return new CrxResponse(this.session, "ERROR", "The WLAN MAC address will be used allready '%s'.", null, parameters);
+                return new CrxResponse("ERROR", "The WLAN MAC address will be used allready '%s'.", null, parameters);
             }
             if (!IPv4.validateMACAddress(device.getWlanMac())) {
                 parameters.add(device.getMac());
-                return new CrxResponse(this.session, "ERROR", "The WLAN-MAC address '%s' is not valid.", null, parameters);
+                return new CrxResponse("ERROR", "The WLAN-MAC address '%s' is not valid.", null, parameters);
             }
             //Check the IP address
             name = this.isIPUnique(device.getWlanIp());
             if (name != "") {
                 parameters.add(name);
-                return new CrxResponse(this.session, "ERROR", "The WLAN-IP address will be used allready by '%s'", null, parameters);
+                return new CrxResponse("ERROR", "The WLAN-IP address will be used allready by '%s'", null, parameters);
             }
             if (!IPv4.validateIPAddress(device.getWlanIp())) {
                 parameters.add(device.getWlanIp());
-                return new CrxResponse(this.session, "ERROR", "The WLAN-IP address '%s' is not valid.", null, parameters);
+                return new CrxResponse("ERROR", "The WLAN-IP address '%s' is not valid.", null, parameters);
             }
             if (!net.contains(device.getWlanIp())) {
-                return new CrxResponse(this.session, "ERROR", "The WLAN-IP address is not in the room ip address range.");
+                return new CrxResponse("ERROR", "The WLAN-IP address is not in the room ip address range.");
             }
         }
         //Check if the name is DNS and if necessary NETBIOS conform.
@@ -307,9 +307,9 @@ public class DeviceService extends Service {
         }
         logger.debug("After check name lenght.");
         if (error.isEmpty()) {
-            return new CrxResponse(this.session, "OK", "");
+            return new CrxResponse("OK", "");
         }
-        return new CrxResponse(this.session, "ERROR", String.join(System.lineSeparator(), error));
+        return new CrxResponse("ERROR", String.join(System.lineSeparator(), error));
     }
 
     /*
@@ -325,12 +325,12 @@ public class DeviceService extends Service {
         if (device.getRoomId() != null) {
             room = roomService.getById(device.getRoomId());
             if (room == null) {
-                return new CrxResponse(this.session, "ERROR", "Can not find the room");
+                return new CrxResponse("ERROR", "Can not find the room");
             }
         } else if (device.getRoom() != null) {
             room = device.getRoom();
         } else {
-            return new CrxResponse(this.session, "ERROR", "No room was defined");
+            return new CrxResponse("ERROR", "No room was defined");
         }
         //Remove trailing and ending spaces.
         if (!device.getName().isEmpty()) {
@@ -343,7 +343,7 @@ public class DeviceService extends Service {
             logger.debug("IP is empty");
             if (ipAddress.isEmpty()) {
                 parameters.add(device.getMac());
-                return new CrxResponse(this.session, "ERROR",
+                return new CrxResponse("ERROR",
                         "There are no more free ip addresses in this room for the MAC: %s.", room.getId(), parameters);
             }
             if (device.getName().isEmpty()) {
@@ -355,7 +355,7 @@ public class DeviceService extends Service {
         if (!device.getWlanMac().isEmpty()) {
             if (ipAddress.size() < 2) {
                 parameters.add(device.getWlanMac());
-                return new CrxResponse(this.session, "ERROR",
+                return new CrxResponse("ERROR",
                         "There are no more free ip addresses in this room for the MAC: %s.", room.getId(), parameters);
             }
             device.setWlanIp(ipAddress.get(1).split(" ")[0]);
@@ -388,7 +388,7 @@ public class DeviceService extends Service {
             this.em.merge(hwconf);
             this.em.getTransaction().commit();
         } catch (Error e) {
-            return new CrxResponse(this.session, "ERROR", "An error accrued during persisting the device.");
+            return new CrxResponse("ERROR", "An error accrued during persisting the device.");
         }
         startPlugin("add_device", device);
         if (device.isFatClient()) {
@@ -408,7 +408,7 @@ public class DeviceService extends Service {
                 new SoftwareService(this.session, this.em).applySoftwareStateToHosts(device);
             }
         }
-        return new CrxResponse(this.session, "OK", "Device was created successfully: %s", null, device.getName());
+        return new CrxResponse("OK", "Device was created successfully: %s", null, device.getName());
     }
 
     /*
@@ -586,7 +586,7 @@ public class DeviceService extends Service {
             importFile = Files.readAllLines(file.toPath());
         } catch (IOException e) {
             logger.error("File error:" + e.getMessage(), e);
-            responses.add(new CrxResponse(this.getSession(), "ERROR", e.getMessage()));
+            responses.add(new CrxResponse("ERROR", e.getMessage()));
             return responses;
         }
         RoomService roomService = new RoomService(this.session, this.em);
@@ -602,7 +602,7 @@ public class DeviceService extends Service {
 
         logger.debug("header" + header);
         if (!header.containsValue("mac") || (!header.containsValue("room") && !header.containsValue("roomid"))) {
-            responses.add(new CrxResponse(this.getSession(), "ERROR", "MAC and Room are mandatory fields."));
+            responses.add(new CrxResponse("ERROR", "MAC and Room are mandatory fields."));
             return responses;
         }
         for (String line : importFile.subList(1, importFile.size())) {
@@ -623,7 +623,7 @@ public class DeviceService extends Service {
                 } catch (Exception e) {
                     logger.debug("Can Not find the Room by room_id: " + values.get("roomid"));
                     parameters.add(values.get("room"));
-                    responses.add(new CrxResponse(this.getSession(), "ERROR", "Can not find the Room: %s", null, parameters));
+                    responses.add(new CrxResponse("ERROR", "Can not find the Room: %s", null, parameters));
                     parameters = new ArrayList<String>();
                     continue;
                 }
@@ -634,7 +634,7 @@ public class DeviceService extends Service {
             if (room == null) {
                 logger.debug("Can Not find the Room: " + roomTMP);
                 parameters.add(values.get("room"));
-                responses.add(new CrxResponse(this.getSession(), "ERROR", "Can not find the Room: %s", null, parameters));
+                responses.add(new CrxResponse("ERROR", "Can not find the Room: %s", null, parameters));
                 parameters = new ArrayList<String>();
                 continue;
             }
@@ -857,19 +857,19 @@ public class DeviceService extends Service {
             }
         } catch (Exception e) {
             logger.error("can not set printers" + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", "Printers of the device could not be set.");
+            return new CrxResponse("ERROR", "Printers of the device could not be set.");
         }
-        return new CrxResponse(this.session, "OK", "Printers of the device was set.");
+        return new CrxResponse("OK", "Printers of the device was set.");
     }
 
     public CrxResponse addLoggedInUserByMac(String MAC, String userName) {
         Device device = this.getByMAC(MAC);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with MAC: %s", null, MAC);
+            return new CrxResponse("ERROR", "There is no registered device with MAC: %s", null, MAC);
         }
         User user = new UserService(this.session, this.em).getByUid(userName);
         if (user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, userName);
+            return new CrxResponse("ERROR", "There is no registered user with uid: %s", null, userName);
         }
         return this.addLoggedInUser(device, user);
     }
@@ -877,11 +877,11 @@ public class DeviceService extends Service {
     public CrxResponse addLoggedInUser(String IP, String userName) {
         Device device = this.getByIP(IP);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with IP: %s", null, IP);
+            return new CrxResponse("ERROR", "There is no registered device with IP: %s", null, IP);
         }
         User user = new UserService(this.session, this.em).getByUid(userName);
         if (user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, userName);
+            return new CrxResponse("ERROR", "There is no registered user with uid: %s", null, userName);
         }
         return this.addLoggedInUser(device, user);
     }
@@ -889,11 +889,11 @@ public class DeviceService extends Service {
     public CrxResponse addLoggedInUser(Long deviceId, Long userId) {
         Device device = this.getById(deviceId);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with ID: %s", null, String.valueOf(deviceId));
+            return new CrxResponse("ERROR", "There is no registered device with ID: %s", null, String.valueOf(deviceId));
         }
         User user = new UserService(this.session, this.em).getById(userId);
         if (user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, String.valueOf(userId));
+            return new CrxResponse("ERROR", "There is no registered user with uid: %s", null, String.valueOf(userId));
         }
         return this.addLoggedInUser(device, user);
     }
@@ -905,7 +905,7 @@ public class DeviceService extends Service {
         parameters.add(device.getIp());
         parameters.add(user.getUid());
         if (user.getLoggedOn().contains(device)) {
-            return new CrxResponse(this.getSession(), "OK", "Logged in user was already added on this device for you:%s;%s;%s", null, parameters);
+            return new CrxResponse("OK", "Logged in user was already added on this device for you:%s;%s;%s", null, parameters);
         }
         device.getLoggedIn().add(user);
         user.getLoggedOn().add(device);
@@ -917,16 +917,16 @@ public class DeviceService extends Service {
             this.em.merge(user);
             this.em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Logged in user was added succesfully:%s;%s;%s", null, parameters);
+        return new CrxResponse("OK", "Logged in user was added succesfully:%s;%s;%s", null, parameters);
     }
 
     public CrxResponse removeLoggedInUserByMac(String MAC, String userName) {
         Device device = this.getByMAC(MAC);
         User user = new UserService(this.session, this.em).getByUid(userName);
         if (device == null || user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find user or device");
+            return new CrxResponse("ERROR", "Can not find user or device");
         }
         return this.removeLoggedInUser(device, user);
     }
@@ -935,7 +935,7 @@ public class DeviceService extends Service {
         Device device = this.getByIP(IP);
         User user = new UserService(this.session, this.em).getByUid(userName);
         if (device == null || user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find user or device");
+            return new CrxResponse("ERROR", "Can not find user or device");
         }
         return this.removeLoggedInUser(device, user);
     }
@@ -944,7 +944,7 @@ public class DeviceService extends Service {
         Device device = this.getById(deviceId);
         User user = new UserService(this.session, this.em).getById(userId);
         if (device == null || user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find user or device");
+            return new CrxResponse("ERROR", "Can not find user or device");
         }
         return this.removeLoggedInUser(device, user);
     }
@@ -954,7 +954,7 @@ public class DeviceService extends Service {
         if (!user.getLoggedOn().contains(device)) {
             parameters.add(device.getName());
             parameters.add(user.getUid());
-            return new CrxResponse(this.getSession(), "OK", "Logged in user was already removed from this device for you:%s;%s;%s", null, parameters);
+            return new CrxResponse("OK", "Logged in user was already removed from this device for you:%s;%s;%s", null, parameters);
         }
         device.getLoggedIn().remove(user);
         user.getLoggedOn().remove(device);
@@ -964,11 +964,11 @@ public class DeviceService extends Service {
             this.em.merge(user);
             this.em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         parameters.add(device.getName());
         parameters.add(user.getUid());
-        return new CrxResponse(this.getSession(), "OK", "Logged in user was removed succesfully:%s;%s", null, parameters);
+        return new CrxResponse("OK", "Logged in user was removed succesfully:%s;%s", null, parameters);
     }
 
     public CrxResponse forceModify(Device device) {
@@ -981,9 +981,9 @@ public class DeviceService extends Service {
             this.em.merge(device);
             this.em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Device was modified succesfully");
+        return new CrxResponse("OK", "Device was modified succesfully");
     }
 
     public CrxResponse modify(Device device) {
@@ -997,7 +997,7 @@ public class DeviceService extends Service {
             room = this.em.find(Room.class, oldDevice.getRoom().getId());
         } catch (Exception e) {
             logger.debug("DeviceId:" + device.getId() + " " + e.getMessage(), e);
-            return new CrxResponse(this.getSession(), "ERROR", "Device or HWConf can not be found.");
+            return new CrxResponse("ERROR", "Device or HWConf can not be found.");
         }
         HWConf oldHwconf = oldDevice.getHwconf();
 
@@ -1011,7 +1011,7 @@ public class DeviceService extends Service {
         String name = "";
         //Check the MAC address
         if (!this.mayModify(oldDevice)) {
-            return new CrxResponse(this.getSession(), "ERROR", "You must not modify this device: %s", null, oldDevice.getName());
+            return new CrxResponse("ERROR", "You must not modify this device: %s", null, oldDevice.getName());
         }
         device.setMac(device.getMac().toUpperCase().replaceAll("-", ":"));
         if (!oldDevice.getMac().equals(device.getMac())) {
@@ -1060,7 +1060,7 @@ public class DeviceService extends Service {
         }
         logger.debug("ERROR" + error);
         if (!error.isEmpty()) {
-            return new CrxResponse(this.getSession(), "ERROR", "ERROR" + String.join(System.lineSeparator(), error), null, parameters);
+            return new CrxResponse("ERROR", "ERROR" + String.join(System.lineSeparator(), error), null, parameters);
         }
         try {
             oldDevice.setMac(device.getMac());
@@ -1086,13 +1086,13 @@ public class DeviceService extends Service {
             this.em.merge(room);
             this.em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", "ERROR-3" + e.getMessage());
+            return new CrxResponse("ERROR", "ERROR-3" + e.getMessage());
         }
         startPlugin("modify_device", oldDevice);
         if (macChange) {
             new DHCPConfig(session, em).Create();
         }
-        return new CrxResponse(this.getSession(), "OK", "Device was modified succesfully.");
+        return new CrxResponse("OK", "Device was modified succesfully.");
     }
 
     public List<Device> getDevices(List<Long> deviceIds) {
@@ -1113,7 +1113,7 @@ public class DeviceService extends Service {
     public CrxResponse manageDevice(long deviceId, String action, Map<String, String> actionContent) {
         Device device = this.getById(deviceId);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find the client.");
+            return new CrxResponse("ERROR", "Can not find the client.");
         }
         return this.manageDevice(device, action, actionContent);
     }
@@ -1121,14 +1121,14 @@ public class DeviceService extends Service {
     public CrxResponse manageDevice(String deviceName, String action, Map<String, String> actionContent) {
         Device device = this.getByName(deviceName);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find the client.");
+            return new CrxResponse("ERROR", "Can not find the client.");
         }
         return this.manageDevice(device, action, actionContent);
     }
 
     public CrxResponse manageDevice(Device device, String action, Map<String, String> actionContent) {
         if (this.session.getDevice() != null && this.session.getDevice().equals(device)) {
-            return new CrxResponse(this.getSession(), "ERROR", "Do not control the own client.");
+            return new CrxResponse("ERROR", "Do not control the own client.");
         }
         logger.debug("manageDevice: " + device.getName() + " " + action);
         CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
@@ -1230,7 +1230,7 @@ public class DeviceService extends Service {
                     Files.write(file.toPath(), fileContent);
                 } catch (IOException e) {
                     logger.error("savefile: " + e.getMessage(), e);
-                    return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                    return new CrxResponse("ERROR", e.getMessage());
                 }
                 program = new String[4];
                 program[0] = "/usr/bin/salt-cp";
@@ -1256,7 +1256,7 @@ public class DeviceService extends Service {
                 } catch (Exception e) {
                     logger.error("sethwconfofroom:" + e.getMessage(), e);
                 }
-                return new CrxResponse(this.getSession(), "OK", "HWConf was set on '%s'.", null, FQHN.toString());
+                return new CrxResponse("OK", "HWConf was set on '%s'.", null, FQHN.toString());
             case "cleanuploggedin":
                 try {
                     this.em.getTransaction().begin();
@@ -1270,7 +1270,7 @@ public class DeviceService extends Service {
                 } catch (Exception e) {
                     logger.error("cleanuploggedin:" + e.getMessage(), e);
                 }
-                return new CrxResponse(this.getSession(), "OK", "Logged in users was cleaned up on '%s'.", null, FQHN.toString());
+                return new CrxResponse("OK", "Logged in users was cleaned up on '%s'.", null, FQHN.toString());
             case "download":
                 UserService uc = new UserService(this.session, this.em);
                 boolean cleanUpExport = true;
@@ -1290,24 +1290,24 @@ public class DeviceService extends Service {
                 for (User user : device.getLoggedIn()) {
                     uc.collectFileFromUser(user, projectName, cleanUpExport, sortInDirs);
                 }
-                return new CrxResponse(this.getSession(), "OK", "Device control was applied on '%s'.", null, FQHN.toString());
+                return new CrxResponse("OK", "Device control was applied on '%s'.", null, FQHN.toString());
             default:
-                return new CrxResponse(this.getSession(), "ERROR", "Unknonw action.");
+                return new CrxResponse("ERROR", "Unknonw action.");
         }
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(this.getSession(), "OK", "Device control was applied on '%s'.", null, FQHN.toString());
+        return new CrxResponse("OK", "Device control was applied on '%s'.", null, FQHN.toString());
     }
 
     public CrxResponse cleanUpLoggedIn() {
         for (Device device : this.getAll()) {
             cleanUpLoggedIn(device);
         }
-        return new CrxResponse(this.getSession(), "OK", "LoggedIn attributes was cleaned up.");
+        return new CrxResponse("OK", "LoggedIn attributes was cleaned up.");
     }
 
     public CrxResponse cleanUpLoggedIn(Device device) {
         if (device.getLoggedIn() == null || device.getLoggedIn().isEmpty()) {
-            return new CrxResponse(this.getSession(), "OK", "No logged in user to remove.");
+            return new CrxResponse("OK", "No logged in user to remove.");
         }
         try {
             this.em.getTransaction().begin();
@@ -1320,9 +1320,9 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.debug("cleanUpLoggedIn: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "LoggedIn attributes was cleaned up.");
+        return new CrxResponse("OK", "LoggedIn attributes was cleaned up.");
     }
 
     public List<Device> getDevicesOnMyPlace(Device device) {
@@ -1360,11 +1360,11 @@ public class DeviceService extends Service {
     public CrxResponse setLoggedInUserByMac(String MAC, String userName) {
         Device device = this.getByMAC(MAC);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with MAC: %s", null, MAC);
+            return new CrxResponse("ERROR", "There is no registered device with MAC: %s", null, MAC);
         }
         User user = new UserService(this.session, this.em).getByUid(userName);
         if (user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, userName);
+            return new CrxResponse("ERROR", "There is no registered user with uid: %s", null, userName);
         }
         return this.setLoggedInUsers(device, user);
     }
@@ -1372,11 +1372,11 @@ public class DeviceService extends Service {
     public CrxResponse setLoggedInUsers(String IP, String userName) {
         Device device = this.getByIP(IP);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with IP: %s", null, IP);
+            return new CrxResponse("ERROR", "There is no registered device with IP: %s", null, IP);
         }
         User user = new UserService(this.session, this.em).getByUid(userName);
         if (user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, userName);
+            return new CrxResponse("ERROR", "There is no registered user with uid: %s", null, userName);
         }
         return this.setLoggedInUsers(device, user);
     }
@@ -1384,11 +1384,11 @@ public class DeviceService extends Service {
     public CrxResponse setLoggedInUsers(Long deviceId, Long userId) {
         Device device = this.getById(deviceId);
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered device with ID: %s", null, String.valueOf(deviceId));
+            return new CrxResponse("ERROR", "There is no registered device with ID: %s", null, String.valueOf(deviceId));
         }
         User user = new UserService(this.session, this.em).getById(userId);
         if (user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "There is no registered user with uid: %s", null, String.valueOf(userId));
+            return new CrxResponse("ERROR", "There is no registered user with uid: %s", null, String.valueOf(userId));
         }
         return this.setLoggedInUsers(device, user);
     }
@@ -1411,14 +1411,14 @@ public class DeviceService extends Service {
             this.em.merge(user);
             this.em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Logged in user was added succesfully:%s;%s;%s", null, parameters);
+        return new CrxResponse("OK", "Logged in user was added succesfully:%s;%s;%s", null, parameters);
     }
 
     public CrxResponse addDHCP(Long deviceId, CrxMConfig dhcpParameter) {
         if (!dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions")) {
-            return new CrxResponse(session, "ERROR", "Bad DHCP parameter.");
+            return new CrxResponse("ERROR", "Bad DHCP parameter.");
         }
         Device device = this.getById(deviceId);
         CrxResponse crxResponse = this.addMConfig(device, dhcpParameter.getKeyword(), dhcpParameter.getValue());
@@ -1432,7 +1432,7 @@ public class DeviceService extends Service {
             return crxResponse;
         }
         new DHCPConfig(session, em).Create();
-        return new CrxResponse(session, "OK", "DHCP Parameter was added succesfully");
+        return new CrxResponse("OK", "DHCP Parameter was added succesfully");
     }
 
     public List<CrxResponse> moveDevices(List<Long> deviceIds, Long roomId) {
@@ -1450,7 +1450,7 @@ public class DeviceService extends Service {
             parameters.add(room.getName());
             //It is stupid but it can be:
             if (device.getRoom().equals(room)) {
-                responses.add(new CrxResponse(this.session, "OK",
+                responses.add(new CrxResponse("OK",
                         "The device '%s' is already in room '%s'.", parameters)
                 );
                 continue;
@@ -1467,7 +1467,7 @@ public class DeviceService extends Service {
         }
         List<String> availableIps = roomService.getAvailableIPAddresses(room, ipCount);
         if (availableIps.size() < ipCount) {
-            responses.add(new CrxResponse(this.session, "ERROR", "There is not enough free IP-Address in this room."));
+            responses.add(new CrxResponse("ERROR", "There is not enough free IP-Address in this room."));
             return responses;
         }
         for (Device dev : devicesToDelete) {

@@ -1,18 +1,11 @@
 /* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class CrxResponse {
-
-    Session session;
 
     private String code;
 
@@ -26,40 +19,35 @@ public class CrxResponse {
     }
 
 
-    public CrxResponse(Session session, String code, String value) {
-        this.session = session;
+    public CrxResponse(String code, String value) {
         this.code = code;
         this.value = value;
         this.parameters = new ArrayList<String>();
         this.objectId = null;
     }
 
-    public CrxResponse(Session session, String code, String value, List<String> parameters) {
-        this.session = session;
+    public CrxResponse(String code, String value, List<String> parameters) {
         this.code = code;
         this.value = value;
         this.parameters = parameters;
         this.objectId = null;
     }
 
-    public CrxResponse(Session session, String code, String value, Long objectId) {
-        this.session = session;
+    public CrxResponse(String code, String value, Long objectId) {
         this.code = code;
         this.value = value;
         this.parameters = new ArrayList<String>();
         this.objectId = objectId;
     }
 
-    public CrxResponse(Session session, String code, String value, Long objectId, List<String> parameters) {
-        this.session = session;
+    public CrxResponse(String code, String value, Long objectId, List<String> parameters) {
         this.code = code;
         this.value = value;
         this.parameters = parameters;
         this.objectId = objectId;
     }
 
-    public CrxResponse(Session session, String code, String value, Long objectId, String parameter) {
-        this.session = session;
+    public CrxResponse(String code, String value, Long objectId, String parameter) {
         this.code = code;
         this.value = value;
         this.parameters = new ArrayList<String>();
@@ -81,10 +69,6 @@ public class CrxResponse {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public Long getSessionId() {
-        return this.session != null ? this.session.getId() : 0L;
     }
 
     public String getValue() {

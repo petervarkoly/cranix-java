@@ -38,7 +38,7 @@ public class InformationService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
 		announcement.setCreator(user);
@@ -62,10 +62,10 @@ public class InformationService extends Service {
 			}
 			this.em.getTransaction().commit();
 			logger.debug("Created Announcement:" + announcement);
-			return new CrxResponse(this.getSession(),"OK", "Announcement was created succesfully.",announcement.getId());
+			return new CrxResponse("OK", "Announcement was created succesfully.",announcement.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -84,7 +84,7 @@ public class InformationService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
 		contact.setCreator(user);
@@ -107,10 +107,10 @@ public class InformationService extends Service {
 			}
 			this.em.getTransaction().commit();
 			logger.debug("Created Contact:" + contact);
-			return new CrxResponse(this.getSession(),"OK", "Contact was created succesfully.",contact.getId());
+			return new CrxResponse("OK", "Contact was created succesfully.",contact.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -129,7 +129,7 @@ public class InformationService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		User user = this.session.getUser();
 		faq.setCreator(user);
@@ -152,10 +152,10 @@ public class InformationService extends Service {
 			}
 			this.em.getTransaction().commit();
 			logger.debug("Created FAQ:" + faq);
-			return new CrxResponse(this.getSession(),"OK", "FAQ was created succesfully.",faq.getId());
+			return new CrxResponse("OK", "FAQ was created succesfully.",faq.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -305,7 +305,7 @@ public class InformationService extends Service {
 			Announcement announcement = this.em.find(Announcement.class, announcementId);
 			User user = this.session.getUser();
 			if(announcement.getHaveSeenUsers().contains(user) ) {
-				return new CrxResponse(this.getSession(),"OK","Annoncement was set as seen.");
+				return new CrxResponse("OK","Annoncement was set as seen.");
 			}
 			announcement.getHaveSeenUsers().add(user);
 			user.getReadAnnouncements().add(announcement);
@@ -315,10 +315,10 @@ public class InformationService extends Service {
 			this.em.getTransaction().commit();
 		}catch (Exception e) {
 			logger.error("setAnnouncementHaveSeen:" + this.getSession().getUserId() + " " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR","Annoncement could not be set as seen.");
+			return new CrxResponse("ERROR","Annoncement could not be set as seen.");
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK","Annoncement was set as seen.");
+		return new CrxResponse("OK","Annoncement was set as seen.");
 	}
 
 	/**
@@ -415,11 +415,11 @@ public class InformationService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		if( !this.mayModify(announcement) )
 		{
-			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to modify this Announcement");
+			return new CrxResponse("ERROR", "You have no rights to modify this Announcement");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -461,10 +461,10 @@ public class InformationService extends Service {
 			this.em.merge(oldAnnouncement);
 			this.em.merge(announcement.getCreator());
 			this.em.getTransaction().commit();
-			return new CrxResponse(this.getSession(),"OK", "Announcement was modified succesfully.");
+			return new CrxResponse("OK", "Announcement was modified succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -477,11 +477,11 @@ public class InformationService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		if( !this.mayModify(contact) )
 		{
-			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to modify this contact");
+			return new CrxResponse("ERROR", "You have no rights to modify this contact");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -516,10 +516,10 @@ public class InformationService extends Service {
 			this.em.merge(oldContact);
 			this.em.merge(oldContact.getCreator());
 			this.em.getTransaction().commit();
-			return new CrxResponse(this.getSession(),"OK", "Contact was modified succesfully.");
+			return new CrxResponse("OK", "Contact was modified succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -532,11 +532,11 @@ public class InformationService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		if( !this.mayModify(faq) )
 		{
-			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to modify this FAQ ");
+			return new CrxResponse("ERROR", "You have no rights to modify this FAQ ");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -569,10 +569,10 @@ public class InformationService extends Service {
 			this.em.merge(oldFaq);
 			this.em.merge(oldFaq.getCreator());
 			this.em.getTransaction().commit();
-			return new CrxResponse(this.getSession(),"OK", "FAQ was modified succesfully.");
+			return new CrxResponse("OK", "FAQ was modified succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -592,7 +592,7 @@ public class InformationService extends Service {
 		}
 		if( !this.mayModify(announcement) )
 		{
-			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to delete this Announcement");
+			return new CrxResponse("ERROR", "You have no rights to delete this Announcement");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -603,10 +603,10 @@ public class InformationService extends Service {
 			}
 			this.em.remove(announcement);
 			this.em.getTransaction().commit();
-			return new CrxResponse(this.getSession(),"OK", "Announcement was deleted succesfully.");
+			return new CrxResponse("OK", "Announcement was deleted succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -626,7 +626,7 @@ public class InformationService extends Service {
 		}
 		if( !this.mayModify(contact) )
 		{
-			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to delete this contact");
+			return new CrxResponse("ERROR", "You have no rights to delete this contact");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -637,10 +637,10 @@ public class InformationService extends Service {
 			}
 			this.em.remove(contact);
 			this.em.getTransaction().commit();
-			return new CrxResponse(this.getSession(),"OK", "Contact was deleted succesfully.");
+			return new CrxResponse("OK", "Contact was deleted succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -660,7 +660,7 @@ public class InformationService extends Service {
 		}
 		if( !this.mayModify(faq) )
 		{
-			return new CrxResponse(this.getSession(),"ERROR", "You have no rights to delete this FAQ");
+			return new CrxResponse("ERROR", "You have no rights to delete this FAQ");
 		}
 		try {
 			this.em.getTransaction().begin();
@@ -671,10 +671,10 @@ public class InformationService extends Service {
 			}
 			this.em.remove(faq);
 			this.em.getTransaction().commit();
-			return new CrxResponse(this.getSession(),"OK", "FAQ was deleted succesfully.");
+			return new CrxResponse("OK", "FAQ was deleted succesfully.");
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -724,15 +724,15 @@ public class InformationService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK", "Task Response was created successfully");
+		return new CrxResponse("OK", "Task Response was created successfully");
     }
 
     public CrxResponse modifyTaskResponse(TaskResponse taskResponse) {
 		TaskResponse oldResponse = this.em.find(TaskResponse.class,taskResponse.getId());
 		if( ! this.session.getUser().equals(oldResponse.getCreator()) ) {
-			return new CrxResponse(this.getSession(),"ERROR", "You are not allowed to modify this task response");
+			return new CrxResponse("ERROR", "You are not allowed to modify this task response");
 		}
 		oldResponse.setText(taskResponse.getText());
 		try {
@@ -741,15 +741,15 @@ public class InformationService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK", "Task Response was modified successfully");
+		return new CrxResponse("OK", "Task Response was modified successfully");
 	}
 
 	public CrxResponse rateTaskResponse(TaskResponse taskResponse) {
 		TaskResponse oldResponse = this.em.find(TaskResponse.class,taskResponse.getId());
 		if( ! this.session.getUser().equals(oldResponse.getParent().getCreator()) ) {
-			return new CrxResponse(this.getSession(),"ERROR", "You are not allowed to rate this task response");
+			return new CrxResponse("ERROR", "You are not allowed to rate this task response");
 		}
 		oldResponse.setRating(taskResponse.getRating());
 		try {
@@ -758,9 +758,9 @@ public class InformationService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK", "Task Response was rated successfully");
+		return new CrxResponse("OK", "Task Response was rated successfully");
 
 	}
 

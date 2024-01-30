@@ -36,8 +36,8 @@ public class SchedulerResource {
         Integer counter = new GuestUserService(session, em).deleteExpiredGuestUser();
         em.close();
         if (counter == 0) {
-            return new CrxResponse(session, "OK", "No guest user accounts to delete.");
+            return new CrxResponse("OK", "No guest user accounts to delete.");
         }
-        return new CrxResponse(session, "OK", "%s guest user groups was deleted.", null, counter.toString());
+        return new CrxResponse("OK", "%s guest user groups was deleted.", null, counter.toString());
     }
 }

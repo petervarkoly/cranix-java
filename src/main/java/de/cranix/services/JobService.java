@@ -87,7 +87,7 @@ public class JobService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 
 		/*
@@ -109,7 +109,7 @@ public class JobService extends Service {
 			Files.write(jobFile, tmp );
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 
 		/*
@@ -124,7 +124,7 @@ public class JobService extends Service {
 		program[3] = scheduledTime;
 		CrxSystemCmd.exec(program, reply, error, null);
 		logger.debug("create job  : " + path.toString() + " : " + job.getCommand());
-		return new CrxResponse(this.getSession(),"OK","Job was created successfully",job.getId());
+		return new CrxResponse("OK","Job was created successfully",job.getId());
 	}
 
 	public CrxResponse setExitCode(Long jobId, Integer exitCode) {
@@ -137,9 +137,9 @@ public class JobService extends Service {
 			this.em.getTransaction().commit();
 		}  catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK","Jobs exit code was set successfully");
+		return new CrxResponse("OK","Jobs exit code was set successfully");
 	}
 
 	public CrxResponse restartJob(Long jobId) {
@@ -151,7 +151,7 @@ public class JobService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		String[] program   = new String[4];
 		StringBuffer reply = new StringBuffer();
@@ -161,7 +161,7 @@ public class JobService extends Service {
 		program[2] = basePath + String.valueOf(jobId);
 		program[3] = "now" ;
 		CrxSystemCmd.exec(program, reply, error, null);
-		return new CrxResponse(this.getSession(),"OK","Job was restarted successfully",jobId);
+		return new CrxResponse("OK","Job was restarted successfully",jobId);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -148,10 +148,10 @@ public class AdHocLanService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteMember:" +e.getMessage());
-			return new CrxResponse(this.getSession(),"erease category ERROR",e.getMessage());
+			return new CrxResponse("erease category ERROR",e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK","Category was modified");
+		return new CrxResponse("OK","Category was modified");
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class AdHocLanService extends Service {
 		Room oldRoom = rc.getById(room.getId());
 		if( !oldRoom.getRoomType().equals("AdHocAccess")) {
 			em.close();
-			return new CrxResponse(session,"ERROR","This is not an AdHocLan room");
+			return new CrxResponse("ERROR","This is not an AdHocLan room");
 		} else {
 			oldRoom.setDescription(room.getDescription());
 			oldRoom.setPlaces(room.getPlaces());
@@ -189,10 +189,10 @@ public class AdHocLanService extends Service {
 				em.merge(oldRoom);
 				em.merge(cat);
 				em.getTransaction().commit();
-				return new CrxResponse(session,"OK","AdHocLan room was modified successfully");
+				return new CrxResponse("OK","AdHocLan room was modified successfully");
 			} catch (Exception e) {
 				logger.error("modify:" + e.getMessage());
-				return new CrxResponse(session,"ERROR","AdHocLan room could not be modified.");
+				return new CrxResponse("ERROR","AdHocLan room could not be modified.");
 			}
 		}
 	}

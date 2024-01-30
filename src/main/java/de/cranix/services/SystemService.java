@@ -175,7 +175,7 @@ public class SystemService extends Service {
     public CrxResponse addEnumerate(String name, String value) {
         Query query = this.em.createNamedQuery("Enumerate.get").setParameter("name", name).setParameter("value", value);
         if (!query.getResultList().isEmpty()) {
-            return new CrxResponse(this.getSession(), "ERROR", "Entry alread does exists");
+            return new CrxResponse("ERROR", "Entry alread does exists");
         }
         Enumerate en = new Enumerate(name, value, this.session.getUser());
         try {
@@ -184,9 +184,9 @@ public class SystemService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Enumerate was created succesfully.");
+        return new CrxResponse("OK", "Enumerate was created succesfully.");
     }
 
     /**
@@ -204,9 +204,9 @@ public class SystemService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Enumerate was removed successfully.");
+        return new CrxResponse("OK", "Enumerate was removed successfully.");
     }
 
     ////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ public class SystemService extends Service {
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         CrxSystemCmd.exec(program, reply, error, createLiteralJson(firewallExt));
-        return new CrxResponse(this.getSession(), "OK", "Firewall incoming access rules were set successfully.");
+        return new CrxResponse("OK", "Firewall incoming access rules were set successfully.");
     }
 
     public List<Map<String, String>> getFirewallOutgoingRules() {
@@ -366,10 +366,10 @@ public class SystemService extends Service {
             logger.debug("addFirewallOutgoingRule reply:", reply.toString());
             logger.debug("addFirewallOutgoingRule error:", error.toString());
             reloadFirewall();
-            return new CrxResponse(this.getSession(), "OK", "Firewall outgoing access rule was add successfully.");
+            return new CrxResponse("OK", "Firewall outgoing access rule was add successfully.");
         } catch (Exception e) {
             logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
     }
 
@@ -407,10 +407,10 @@ public class SystemService extends Service {
             CrxSystemCmd.exec(program, reply, error, null);
             logger.debug("deleteFirewallOutgoingRule error:", error.toString());
             reloadFirewall();
-            return new CrxResponse(this.getSession(), "OK", "Firewall outgoing access rule was deleted successfully.");
+            return new CrxResponse("OK", "Firewall outgoing access rule was deleted successfully.");
         } catch (Exception e) {
             logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
     }
 
@@ -457,7 +457,7 @@ public class SystemService extends Service {
                 Long.parseLong(remoteRule.get("id"))
         );
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not set.");
+            return new CrxResponse("ERROR", "Firewall remote access rule could not set.");
         }
         program[3] = String.format("--add-forward-port=port=%s:proto=tcp:toport=%s:toaddr=%s",
                 remoteRule.get("ext"), remoteRule.get("port"), device.getIp()
@@ -466,7 +466,7 @@ public class SystemService extends Service {
         CrxSystemCmd.exec(program, reply, error, null);
         logger.debug("addFirewallRemoteAccessRule error:", error.toString());
         reloadFirewall();
-        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule was add successfully.");
+        return new CrxResponse("OK", "Firewall remote access rule was add successfully.");
     }
 
     public CrxResponse deleteFirewallRemoteAccessRule(Map<String, String> remoteRule) {
@@ -480,7 +480,7 @@ public class SystemService extends Service {
                 Long.parseLong(remoteRule.get("id"))
         );
         if (device == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Firewall remote access rule could not be deleted.");
+            return new CrxResponse("ERROR", "Firewall remote access rule could not be deleted.");
         }
         program[3] = String.format("--remove-forward-port=port=%s:proto=tcp:toport=%s:toaddr=%s",
                 remoteRule.get("ext"), remoteRule.get("port"), device.getIp()
@@ -489,7 +489,7 @@ public class SystemService extends Service {
         CrxSystemCmd.exec(program, reply, error, null);
         logger.debug("deleteFirewallRemoteAccessRule error:", error.toString());
         reloadFirewall();
-        return new CrxResponse(this.getSession(), "OK", "Firewall remote access rule was removed successfully.");
+        return new CrxResponse("OK", "Firewall remote access rule was removed successfully.");
     }
 
     /*
@@ -519,7 +519,7 @@ public class SystemService extends Service {
 
     public CrxResponse registerSystem() {
         if (!this.validateRegcode()) {
-            return new CrxResponse(this.getSession(), "ERROR", "Registration Code is invalid.");
+            return new CrxResponse("ERROR", "Registration Code is invalid.");
         }
         String[] program = new String[1];
         StringBuffer reply = new StringBuffer();
@@ -527,9 +527,9 @@ public class SystemService extends Service {
         program[0] = cranixBaseDir + "tools/register.sh";
         CrxSystemCmd.exec(program, reply, error, null);
         if (error.toString().isEmpty()) {
-            return new CrxResponse(this.getSession(), "OK", "System was registered succesfully.");
+            return new CrxResponse("OK", "System was registered succesfully.");
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
     }
 
@@ -579,9 +579,9 @@ public class SystemService extends Service {
             i++;
         }
         if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
-            return new CrxResponse(this.getSession(), "OK", "Packages were installed succesfully.");
+            return new CrxResponse("OK", "Packages were installed succesfully.");
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
     }
 
@@ -651,9 +651,9 @@ public class SystemService extends Service {
             i++;
         }
         if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
-            return new CrxResponse(this.getSession(), "OK", "Packages were updated succesfully.");
+            return new CrxResponse("OK", "Packages were updated succesfully.");
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
     }
 
@@ -668,9 +668,9 @@ public class SystemService extends Service {
         StringBuffer error = new StringBuffer();
         program[0] = "/usr/sbin/crx_update.sh";
         if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
-            return new CrxResponse(this.getSession(), "OK", "System was updated succesfully.");
+            return new CrxResponse("OK", "System was updated succesfully.");
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
     }
 
@@ -685,9 +685,9 @@ public class SystemService extends Service {
         StringBuffer error = new StringBuffer();
         program[0] = "/sbin/reboot";
         if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
-            return new CrxResponse(this.getSession(), "OK", "System will be rebooted.");
+            return new CrxResponse("OK", "System will be rebooted.");
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
     }
 
@@ -702,9 +702,9 @@ public class SystemService extends Service {
         StringBuffer error = new StringBuffer();
         program[0] = "/sbin/shutdown";
         if (CrxSystemCmd.exec(program, reply, error, null) == 0) {
-            return new CrxResponse(this.getSession(), "OK", "System will be turned off.");
+            return new CrxResponse("OK", "System will be turned off.");
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
     }
 
@@ -791,9 +791,9 @@ public class SystemService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.debug("ERROR in setAclToGroup:" + e.getMessage());
-            return new CrxResponse(session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(session, "OK", "ACL was set succesfully.");
+        return new CrxResponse("OK", "ACL was set succesfully.");
     }
 
     public List<Acl> getAclsOfUser(Long userId) {
@@ -878,9 +878,9 @@ public class SystemService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.debug("ERROR in setAclToUser:" + e.getMessage());
-            return new CrxResponse(session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(session, "OK", "ACL was set succesfully.");
+        return new CrxResponse("OK", "ACL was set succesfully.");
     }
 
     public String[] getDnsDomains() {
@@ -905,7 +905,7 @@ public class SystemService extends Service {
         program[6] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
         CrxSystemCmd.exec(program, reply, error, null);
         //TODO evaluate error
-        return new CrxResponse(session, "OK", "DNS Zone was created succesfully.");
+        return new CrxResponse("OK", "DNS Zone was created succesfully.");
     }
 
     public List<DnsRecord> getRecords(String domainName) {
@@ -964,9 +964,9 @@ public class SystemService extends Service {
         logger.debug("addDnsRecord reply" + reply.toString());
         logger.debug("addDnsRecord error" + error.toString());
         if (error.toString().isEmpty()) {
-            return new CrxResponse(session, "OK", "DNS record was created succesfully.");
+            return new CrxResponse("OK", "DNS record was created succesfully.");
         } else {
-            return new CrxResponse(session, "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
     }
 
@@ -988,14 +988,14 @@ public class SystemService extends Service {
         logger.debug("deleteDnsRecord reply" + reply.toString());
         logger.debug("deleteDnsRecord error" + error.toString());
         if (error.toString().isEmpty()) {
-            return new CrxResponse(session, "OK", "DNS record was created succesfully.");
+            return new CrxResponse("OK", "DNS record was created succesfully.");
         } else {
             logger.error(
                     dnsRecord.getDomainName() + "#" +
                             dnsRecord.getRecordName() + "#" +
                             dnsRecord.getRecordType() + "#" +
                             dnsRecord.getRecordData() + "# " + error.toString());
-            return new CrxResponse(session, "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
     }
 
@@ -1012,7 +1012,7 @@ public class SystemService extends Service {
         program[6] = "register%" + this.getProperty("de.cranix.dao.User.Register.Password");
         CrxSystemCmd.exec(program, reply, error, null);
         //TODO evaluate error
-        return new CrxResponse(session, "OK", "DNS Zone was created succesfully.");
+        return new CrxResponse("OK", "DNS Zone was created succesfully.");
     }
 
     public CrxResponse findObject(String objectType, LinkedHashMap<String, Object> object) {
@@ -1063,9 +1063,9 @@ public class SystemService extends Service {
                 break;
         }
         if (objectId == null) {
-            return new CrxResponse(session, "ERROR", "Object was not found.");
+            return new CrxResponse("ERROR", "Object was not found.");
         } else {
-            return new CrxResponse(session, "OK", "Object was found.", objectId);
+            return new CrxResponse("OK", "Object was found.", objectId);
         }
     }
 

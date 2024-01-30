@@ -31,7 +31,7 @@ public class SupportRequest {
 	private String ticketResponseInfo	= "";
 	private String attachment	= "";
 	private String attachmentName	= "";
-	private Date recDate;
+	private Date created;
 
 	@Override
 	public String toString() {
@@ -171,11 +171,11 @@ public class SupportRequest {
 		this.attachmentName = attachmentName;
 	}
 
-	public Date getRecDate() {
-		return recDate;
+	public Date getCreated() {
+		return created;
 	}
 
-	public void setRecDate(Date recDate) {
-		this.recDate = recDate;
+	public void setCreated(Date created) {
+		this.created = created;
 	}
 }

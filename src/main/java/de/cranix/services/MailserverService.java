@@ -25,23 +25,23 @@ public class MailserverService extends  Service{
             em.persist(mailAccess);
             em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(null,"ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(null,"OK", "Mail Access Entry was created successfully.");
+        return new CrxResponse("OK", "Mail Access Entry was created successfully.");
     }
 
     public CrxResponse deleteMailAccess(Long id) {
         try{
             MailAccess mailAccess = this.em.find(MailAccess.class, id);
             if( mailAccess == null){
-                return new CrxResponse(null,"ERROR", "Can not find MailAccess.");
+                return new CrxResponse("ERROR", "Can not find MailAccess.");
             }
             em.getTransaction().begin();
             em.remove(mailAccess);
             em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(null,"ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(null,"OK", "Mail Access Entry was removed successfully.");
+        return new CrxResponse("OK", "Mail Access Entry was removed successfully.");
     }
 }

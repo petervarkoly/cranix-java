@@ -178,9 +178,9 @@ public class SystemResource {
 			}
 		}
 		if( CrxSystemCmd.exec(program, reply, stderr, null) == 0 ) {
-			return new CrxResponse(session,"OK","Service state was set successfully.");
+			return new CrxResponse("OK","Service state was set successfully.");
 		} else {
-			return new CrxResponse(session,"ERROR",stderr.toString());
+			return new CrxResponse("ERROR",stderr.toString());
 		}
 	}
 
@@ -202,9 +202,9 @@ public class SystemResource {
 		try {
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
-			return new CrxResponse(session,"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(session,"OK", "File was saved succesfully.");
+		return new CrxResponse("OK", "File was saved succesfully.");
 	}
 
 	@GET
@@ -322,10 +322,10 @@ public class SystemResource {
 		SystemService systemService = new SystemService(session,em);
 		if( systemService.setConfigValue(key, value) ) {
 			em.close();
-			return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
+			return new CrxResponse("OK","Global configuration value was set succesfully.");
 		} else {
 			em.close();
-			return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+			return new CrxResponse("ERROR","Global configuration value could not be set.");
 		}
 	}
 
@@ -347,12 +347,12 @@ public class SystemResource {
 		SystemService systemService = new SystemService(session,em);
 		try {
 			if( systemService.setConfigValue(config.get("key"), config.get("value")) ) {
-				return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
+				return new CrxResponse("OK","Global configuration value was set succesfully.");
 			} else {
-				return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+				return new CrxResponse("ERROR","Global configuration value could not be set.");
 			}
 		} catch(Exception e) {
-			return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+			return new CrxResponse("ERROR","Global configuration value could not be set.");
 		} finally {
 			em.close();
 		}
@@ -545,7 +545,7 @@ public class SystemResource {
 				return this.setServicesStatus(session,"firewalld","active","restart");
 			}
 		}
-		return new CrxResponse(session,"ERROR","Bad firewall state.");
+		return new CrxResponse("ERROR","Bad firewall state.");
 	}
 
 	/*
@@ -729,7 +729,7 @@ public class SystemResource {
 		StringBuffer error = new StringBuffer();
 		CrxSystemCmd.exec(program, reply, error, acls);
 		//TODO check error
-		return new CrxResponse(session,"OK","Proxy basic configuration was written succesfully.");
+		return new CrxResponse("OK","Proxy basic configuration was written succesfully.");
 	}
 
 	@GET
@@ -815,11 +815,11 @@ public class SystemResource {
 			program[4] = "custom/" +list + "/domains";
 			CrxSystemCmd.exec(program, reply, error, null);
 			new Service(session,null).systemctl("try-restart", "squid");
-			return new CrxResponse(session,"OK","Custom list was written successfully");
+			return new CrxResponse("OK","Custom list was written successfully");
 		} catch( IOException e ) {
 			e.printStackTrace();
 		}
-		return new CrxResponse(session,"ERROR","Could not write custom list.");
+		return new CrxResponse("ERROR","Could not write custom list.");
 	}
 
 	@PUT
@@ -836,7 +836,7 @@ public class SystemResource {
 		StringBuffer error = new StringBuffer();
 		CrxSystemCmd.exec(program, reply, error, "");
 		//TODO check error
-		return new CrxResponse(session,"OK","DNS server configuration was written successfully.");
+		return new CrxResponse("OK","DNS server configuration was written successfully.");
 	}
 
 	@GET
@@ -887,7 +887,7 @@ public class SystemResource {
 		}
 
 		//TODO check error
-		return new CrxResponse(session,"OK","Safe Search configuration was written successfully.");
+		return new CrxResponse("OK","Safe Search configuration was written successfully.");
 	}
 
 	/*
@@ -1104,7 +1104,7 @@ public class SystemResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Group group = em.find(Group.class, groupId);
-		CrxResponse resp = new CrxResponse(session,"OK","Acls was deleted succesfully.");
+		CrxResponse resp = new CrxResponse("OK","Acls was deleted succesfully.");
 		if( group != null ) {
 			em.getTransaction().begin();
 			for(Acl acl : group.getAcls() ) {
@@ -1114,7 +1114,7 @@ public class SystemResource {
 			em.merge(group);
 			em.getTransaction().commit();
 		} else {
-			resp = new CrxResponse(session,"ERROR","Group can not be find.");
+			resp = new CrxResponse("ERROR","Group can not be find.");
 		}
 		return resp;
 	}
@@ -1188,7 +1188,7 @@ public class SystemResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		User user = em.find(User.class, userId);
-		CrxResponse resp = new CrxResponse(session,"OK","Acls was deleted succesfully.");
+		CrxResponse resp = new CrxResponse("OK","Acls was deleted succesfully.");
 		if( user != null ) {
 			em.getTransaction().begin();
 			for(Acl acl : user.getAcls() ) {
@@ -1198,7 +1198,7 @@ public class SystemResource {
 			em.merge(user);
 			em.getTransaction().commit();
 		} else {
-			resp = new CrxResponse(session,"ERROR","Group can not be find.");
+			resp = new CrxResponse("ERROR","Group can not be find.");
 		}
 		return resp;
 	}
@@ -1390,9 +1390,9 @@ public class SystemResource {
 		program[0] = cranixBaseDir + "addons/" + name + "/action.sh";
 		program[1] =  action;
 		if( CrxSystemCmd.exec(program, reply, stderr, null) == 0 ) {
-			return new CrxResponse(session,"OK","Service state was set successfully.");
+			return new CrxResponse("OK","Service state was set successfully.");
 		} else {
-			return new CrxResponse(session,"ERROR",stderr.toString());
+			return new CrxResponse("ERROR",stderr.toString());
 		}
 	}
 

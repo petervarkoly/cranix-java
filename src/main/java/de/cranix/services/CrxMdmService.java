@@ -116,6 +116,6 @@ public class CrxMdmService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new CrxResponse(session, "OK", "Enrollment was created succesfully", parameters);
+        return new CrxResponse("OK", "Enrollment was created succesfully", parameters);
     }
 }

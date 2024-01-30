@@ -753,7 +753,7 @@ public class DeviceResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final CrxResponse crxResponse = new DeviceService(session, em).addDHCP(deviceId, dhcpParameter);
-		return new CrxResponse(session, "OK", "DHCP Parameter was added succesfully");
+		return new CrxResponse("OK", "DHCP Parameter was added succesfully");
 	}
 
 	@DELETE

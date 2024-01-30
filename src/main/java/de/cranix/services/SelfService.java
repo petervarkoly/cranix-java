@@ -52,9 +52,9 @@ public class SelfService extends Service {
             em.getTransaction().commit();
             startPlugin("modify_user", oldUser);
         } catch (Exception e) {
-            return new CrxResponse(session, "ERROR", "Could not modify user parameter.");
+            return new CrxResponse("ERROR", "Could not modify user parameter.");
         }
-        return new CrxResponse(session, "OK", "User parameters were modified successfully.");
+        return new CrxResponse("OK", "User parameters were modified successfully.");
     }
 
     public Boolean haveVpn() {
@@ -190,7 +190,7 @@ public class SelfService extends Service {
             if (deviceService.mayModify(device)) {
                 resp = deviceService.delete(deviceId, true);
             } else {
-                resp = new CrxResponse(session, "ERROR", "This is not your device.");
+                resp = new CrxResponse("ERROR", "This is not your device.");
             }
         }
         return resp;
@@ -200,13 +200,13 @@ public class SelfService extends Service {
         try {
             Device oldDevice = em.find(Device.class, deviceId);
             if (oldDevice == null) {
-                return new CrxResponse(session, "ERROR", "Can not find the device.");
+                return new CrxResponse("ERROR", "Can not find the device.");
             }
             if (deviceId != device.getId()) {
-                return new CrxResponse(session, "ERROR", "Device ID mismatch.");
+                return new CrxResponse("ERROR", "Device ID mismatch.");
             }
             if (!this.mayModify(device)) {
-                return new CrxResponse(session, "ERROR", "This is not your device.");
+                return new CrxResponse("ERROR", "This is not your device.");
             }
             em.getTransaction().begin();
             oldDevice.setMac(device.getMac());
@@ -215,9 +215,9 @@ public class SelfService extends Service {
             new DHCPConfig(session, em).Create();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(session, "OK", "Device was modified successfully");
+        return new CrxResponse("OK", "Device was modified successfully");
     }
 
 }

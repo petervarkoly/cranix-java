@@ -144,7 +144,7 @@ public class EducationService extends UserService {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         try {
             this.em.getTransaction().begin();
@@ -186,9 +186,9 @@ public class EducationService extends UserService {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Smart Room was created succesfully.");
+        return new CrxResponse("OK", "Smart Room was created succesfully.");
     }
 
     public CrxResponse modifySmartRoom(long roomId, Category smartRoom) {
@@ -202,9 +202,9 @@ public class EducationService extends UserService {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Smart Room was modified succesfully.");
+        return new CrxResponse("OK", "Smart Room was modified succesfully.");
     }
 
     public CrxResponse deleteSmartRoom(Long roomId) {
@@ -225,9 +225,9 @@ public class EducationService extends UserService {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Smart Room was deleted succesfully.");
+        return new CrxResponse("OK", "Smart Room was deleted succesfully.");
     }
 
 
@@ -409,7 +409,7 @@ public class EducationService extends UserService {
             Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
-            responses.add(new CrxResponse(this.getSession(), "ERROR", e.getMessage()));
+            responses.add(new CrxResponse("ERROR", e.getMessage()));
             return responses;
         }
         switch (what) {
@@ -419,7 +419,7 @@ public class EducationService extends UserService {
                     if (user != null) {
                         responses.add(this.saveFileToUserImport(user, file, fileName, cleanUp));
                     } else {
-                        responses.add(new CrxResponse(this.getSession(), "ERROR", "User with id %s does not exists.", null, id.toString()));
+                        responses.add(new CrxResponse("ERROR", "User with id %s does not exists.", null, id.toString()));
                     }
                 }
                 break;
@@ -428,7 +428,7 @@ public class EducationService extends UserService {
                 if (user != null) {
                     responses.add(this.saveFileToUserImport(user, file, fileName, cleanUp));
                 } else {
-                    responses.add(new CrxResponse(this.getSession(), "ERROR", "User with id %s does not exists.", null, objectId.toString()));
+                    responses.add(new CrxResponse("ERROR", "User with id %s does not exists.", null, objectId.toString()));
                 }
                 break;
             case "group":
@@ -441,7 +441,7 @@ public class EducationService extends UserService {
                         }
                     }
                 } else {
-                    responses.add(new CrxResponse(this.getSession(), "ERROR", "Group with id %s does not exists.", null, objectId.toString()));
+                    responses.add(new CrxResponse("ERROR", "Group with id %s does not exists.", null, objectId.toString()));
                 }
                 break;
             case "device":
@@ -451,7 +451,7 @@ public class EducationService extends UserService {
                         responses.add(this.saveFileToUserImport(myUser, file, fileName, cleanUp));
                     }
                 } else {
-                    responses.add(new CrxResponse(this.getSession(), "ERROR", "Device with id %s does not exists.", null, objectId.toString()));
+                    responses.add(new CrxResponse("ERROR", "Device with id %s does not exists.", null, objectId.toString()));
                 }
                 break;
             case "room":
@@ -484,7 +484,7 @@ public class EducationService extends UserService {
         UserPrincipal owner;
         List<String> parameters = new ArrayList<String>();
         if (user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "No user defined.");
+            return new CrxResponse("ERROR", "No user defined.");
         } else {
             logger.debug("saveFileToUserImport File " + fileName + " saved to " + user.getUid() + " cleanUp:" + cleanUp);
         }
@@ -524,7 +524,7 @@ public class EducationService extends UserService {
         } catch (Exception e) {
             logger.error("saveFileToUserImport 1.:" + e.getMessage());
             parameters.add(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 1.", null, parameters);
+            return new CrxResponse("ERROR", "File %s could not be saved to user: %s: %s 1.", null, parameters);
         }
 	try {
             // Create the directory first.
@@ -533,7 +533,7 @@ public class EducationService extends UserService {
         } catch (Exception e) {
             logger.error("saveFileToUserImport 2.:" + e.getMessage());
             parameters.add(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 2.", null, parameters);
+            return new CrxResponse("ERROR", "File %s could not be saved to user: %s: %s 2.", null, parameters);
         }
 
 	try {
@@ -543,7 +543,7 @@ public class EducationService extends UserService {
         } catch (Exception e) {
             logger.error("saveFileToUserImport 3.:" + e.getMessage());
             parameters.add(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 3.", null, parameters);
+            return new CrxResponse("ERROR", "File %s could not be saved to user: %s: %s 3.", null, parameters);
         }
 
 	try {
@@ -553,7 +553,7 @@ public class EducationService extends UserService {
         } catch (Exception e) {
             logger.error("saveFileToUserImport 4.:" + e.getMessage());
             parameters.add(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 4.", null, parameters);
+            return new CrxResponse("ERROR", "File %s could not be saved to user: %s: %s 4.", null, parameters);
         }
 
 	try {
@@ -574,9 +574,9 @@ public class EducationService extends UserService {
         } catch (Exception e) {
             logger.error("saveFileToUserImport 5.:" + e.getMessage());
             parameters.add(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", "File %s could not be saved to user: %s: %s 5.", null, parameters);
+            return new CrxResponse("ERROR", "File %s could not be saved to user: %s: %s 5.", null, parameters);
         }
-        return new CrxResponse(this.getSession(), "OK", "File '%s' successfully saved to user '%s'.", null, parameters);
+        return new CrxResponse("OK", "File '%s' successfully saved to user '%s'.", null, parameters);
     }
 
 
@@ -593,7 +593,7 @@ public class EducationService extends UserService {
         if (this.session.getUser().equals(emGroup.getCreator())) {
             return groupService.modify(group);
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", "You are not the owner of this group.");
+            return new CrxResponse("ERROR", "You are not the owner of this group.");
         }
     }
 
@@ -603,7 +603,7 @@ public class EducationService extends UserService {
         if (this.session.getUser().equals(emGroup.getCreator())) {
             return groupService.delete(groupId);
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", "You are not the owner of this group.");
+            return new CrxResponse("ERROR", "You are not the owner of this group.");
         }
     }
 
@@ -684,7 +684,7 @@ public class EducationService extends UserService {
                 program[4] = "--complexity=on";
                 CrxSystemCmd.exec(program, reply, error, null);
             }
-            return new CrxResponse(this.getSession(), "OK", "The password of the selected users was reseted.");
+            return new CrxResponse("OK", "The password of the selected users was reseted.");
         }
 
         logger.debug("manageRoom called " + roomId + " action:");
@@ -705,9 +705,9 @@ public class EducationService extends UserService {
             }
         }
         if (errors.isEmpty()) {
-            return new CrxResponse(this.getSession(), "OK", "Room control was applied.");
+            return new CrxResponse("OK", "Room control was applied.");
         } else {
-            return new CrxResponse(this.getSession(), "ERROR", String.join("<br>", errors));
+            return new CrxResponse("ERROR", String.join("<br>", errors));
         }
     }
 
@@ -716,7 +716,7 @@ public class EducationService extends UserService {
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
         logger.debug("actionMap" + actionMap);
         if (actionMap.getName().equals("delete")) {
-            responses.add(new CrxResponse(this.session, "ERROR", "You must not delete devices"));
+            responses.add(new CrxResponse("ERROR", "You must not delete devices"));
 
         } else {
             for (Long id : actionMap.getObjectIds()) {
@@ -789,9 +789,9 @@ public class EducationService extends UserService {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Now you have the control for the selected room.");
+        return new CrxResponse("OK", "Now you have the control for the selected room.");
     }
 
     public List<CrxResponse> collectFileFromUsers(
@@ -996,11 +996,11 @@ public class EducationService extends UserService {
                 if (sessionService.authorize(this.session, "user.delete") || sessionService.authorize(this.session, "student.delete")) {
                     return userService.deleteStudents(crxActionMap.getObjectIds());
                 } else {
-                    responses.add(new CrxResponse(session, "ERROR", "You have no right to execute this action."));
+                    responses.add(new CrxResponse("ERROR", "You have no right to execute this action."));
                     return responses;
                 }
         }
-        responses.add(new CrxResponse(session, "ERROR", "Unknown action"));
+        responses.add(new CrxResponse("ERROR", "Unknown action"));
         return responses;
     }
 
@@ -1025,16 +1025,16 @@ public class EducationService extends UserService {
         oldDevice.setRow(device.getRow());
         oldDevice.setPlace(device.getPlace());
         if (deviceConrtoller.getDevicesOnMyPlace(oldDevice).size() > 0) {
-            return new CrxResponse(this.session, "ERROR", "Place is already occupied.");
+            return new CrxResponse("ERROR", "Place is already occupied.");
         }
         try {
             this.em.getTransaction().begin();
             this.em.merge(oldDevice);
             this.em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.session, "OK", "Device was repositioned.");
+        return new CrxResponse("OK", "Device was repositioned.");
     }
 
     public List<Student> getStudents() {

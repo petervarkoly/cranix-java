@@ -162,9 +162,9 @@
                  this.em.getTransaction().commit();
              } catch (Exception e) {
                  logger.error("Updating the software:" + e.getMessage());
-                 return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                 return new CrxResponse("ERROR", e.getMessage());
              }
-             return new CrxResponse(this.getSession(), "OK", "New software version was created succesfully", softwareVersion.getId());
+             return new CrxResponse("OK", "New software version was created succesfully", softwareVersion.getId());
          }
          //This is an new software
          software.setCreator(this.session.getUser());
@@ -180,10 +180,10 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "Software was created succesfully.", software.getId());
+         return new CrxResponse("OK", "Software was created succesfully.", software.getId());
      }
 
      public CrxResponse delete(Long softwareId) {
@@ -191,7 +191,7 @@
              Software software = this.em.find(Software.class, softwareId);
              String softwareName = software.getName();
              if (!this.mayModify(software)) {
-                 return new CrxResponse(this.getSession(), "ERROR", "You must not delete this software.");
+                 return new CrxResponse("ERROR", "You must not delete this software.");
              }
              this.em.getTransaction().begin();
              if (!this.em.contains(software)) {
@@ -216,10 +216,10 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              e.printStackTrace();
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "Software was deleted succesfully");
+         return new CrxResponse("OK", "Software was deleted succesfully");
      }
 
      public CrxResponse modify(Software software) {
@@ -230,10 +230,10 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "Software was created succesfully");
+         return new CrxResponse("OK", "Software was created succesfully");
      }
 
      public List<Software> getAll() {
@@ -497,7 +497,7 @@
              file = File.createTempFile("crx_download_job", ".crxb", new File(cranixTmpDir));
          } catch (IOException e) {
              logger.error(e.getMessage(), e);
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          }
          StringBuilder command = new StringBuilder();
          command.append("/usr/sbin/crx_download_packages ");
@@ -518,7 +518,7 @@
          program[2] = file.toPath().toString();
          program[3] = "now";
          CrxSystemCmd.exec(program, reply, stderr, null);
-         return new CrxResponse(this.getSession(), "OK", "Download of the softwares was started succesfully");
+         return new CrxResponse("OK", "Download of the softwares was started succesfully");
      }
 
      public CrxResponse refreshSoftwareRepositories() {
@@ -532,7 +532,7 @@
          program[4] = "-r";
          program[5] = "salt-packages";
          CrxSystemCmd.exec(program, reply, stderr, null);
-         return new CrxResponse(this.getSession(), "OK", "Software repositories was refreshed succesfully");
+         return new CrxResponse("OK", "Software repositories was refreshed succesfully");
      }
 
      public List<Map<String, String>> listUpdatesForSoftwarePackages() {
@@ -583,7 +583,7 @@
              file = File.createTempFile("crx_update_softwares_job", ".crxb", new File(cranixTmpDir));
          } catch (IOException e) {
              logger.error(e.getMessage(), e);
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          }
          StringBuilder command = new StringBuilder();
          command.append("/usr/sbin/crx_update_packages ");
@@ -604,7 +604,7 @@
          program[2] = file.toPath().toString();
          program[3] = "now";
          CrxSystemCmd.exec(program, reply, stderr, null);
-         return new CrxResponse(this.getSession(), "OK", "Update of the softwares was started succesfully");
+         return new CrxResponse("OK", "Update of the softwares was started succesfully");
      }
 
      public CrxResponse updateSoftwaresDirectly(List<String> softwares) {
@@ -622,7 +622,7 @@
              program[7 + i] = "oss-pkg-" + softwares.get(i);
          }
          CrxSystemCmd.exec(program, reply, stderr, null);
-         return new CrxResponse(this.getSession(), "OK", "Softwares were updated succesfully");
+         return new CrxResponse("OK", "Softwares were updated succesfully");
      }
 
      public CrxResponse deleteDownloadedSoftwares(List<String> softwares) {
@@ -638,7 +638,7 @@
              program[5 + i] = softwares.get(i);
          }
          CrxSystemCmd.exec(program, reply, stderr, null);
-         return new CrxResponse(this.getSession(), "OK", "Softwares were updated succesfully");
+         return new CrxResponse("OK", "Softwares were updated succesfully");
      }
 
      /*
@@ -738,7 +738,7 @@
              Software s = this.em.find(Software.class, softwareId);
              Category c = this.em.find(Category.class, categoryId);
              if (c.getSoftwares().contains(s)) {
-                 return new CrxResponse(this.getSession(), "OK", "Software was already added to the installation.");
+                 return new CrxResponse("OK", "Software was already added to the installation.");
              }
              s.getCategories().add(c);
              c.getSoftwares().add(s);
@@ -750,10 +750,10 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-			 return new CrxResponse(this.getSession(), "addSoftwareToCategory ERROR", e.getMessage());
+			 return new CrxResponse("addSoftwareToCategory ERROR", e.getMessage());
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "Software was added to the installation succesfully.");
+         return new CrxResponse("OK", "Software was added to the installation succesfully.");
      }
 
      /**
@@ -768,7 +768,7 @@
              Software s = this.em.find(Software.class, softwareId);
              Category c = this.em.find(Category.class, categoryId);
              if (!c.getSoftwares().contains(s)) {
-                 return new CrxResponse(this.getSession(), "OK", "Software is not member of the installation.");
+                 return new CrxResponse("OK", "Software is not member of the installation.");
              }
              s.getCategories().remove(c);
              c.getSoftwares().remove(s);
@@ -784,10 +784,10 @@
                  }
              }
          } catch (Exception e) {
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "SoftwareState was added to category succesfully");
+         return new CrxResponse("OK", "SoftwareState was added to category succesfully");
      }
 
      /**
@@ -815,7 +815,7 @@
                  this.em.merge(software);
                  this.em.getTransaction().commit();
              } catch (Exception e) {
-                 return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                 return new CrxResponse("ERROR", e.getMessage());
              } finally {
              }
              return this.uploadLicenseFile(softwareLicense, fileInputStream, contentDispositionHeader);
@@ -829,7 +829,7 @@
                  this.em.merge(software);
                  this.em.getTransaction().commit();
              } catch (Exception e) {
-                 return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                 return new CrxResponse("ERROR", e.getMessage());
              } finally {
              }
          } else {
@@ -857,11 +857,11 @@
                  Files.delete(file.toPath());
              } catch (IOException e) {
                  logger.error(e.getMessage(), e);
-                 return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                 return new CrxResponse("ERROR", e.getMessage());
              } finally {
              }
          }
-         return new CrxResponse(this.getSession(), "OK", "License was added to the software succesfully");
+         return new CrxResponse("OK", "License was added to the software succesfully");
      }
 
      /*
@@ -883,13 +883,13 @@
              this.em.merge(oldLicense);
              this.em.getTransaction().commit();
          } catch (Exception e) {
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          } finally {
          }
          if (softwareLicense.getLicenseType().equals('F') && fileInputStream != null) {
              return this.uploadLicenseFile(softwareLicense, fileInputStream, contentDispositionHeader);
          }
-         return new CrxResponse(this.getSession(), "OK", "License was modified succesfully");
+         return new CrxResponse("OK", "License was modified succesfully");
      }
 
      /*
@@ -917,7 +917,7 @@
              throw new WebApplicationException(500);
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "Software License File was uploaded succesfully");
+         return new CrxResponse("OK", "Software License File was uploaded succesfully");
      }
 
      public CrxResponse deleteLicence(long licenseId) {
@@ -931,10 +931,10 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "Software license was deleted successfully");
+         return new CrxResponse("OK", "Software license was deleted successfully");
      }
 
      /*
@@ -956,12 +956,12 @@
 
          for (SoftwareLicense myLicense : device.getSoftwareLicenses()) {
              if (myLicense.getSoftware().equals(software)) {
-                 return new CrxResponse(this.getSession(), "OK", "License was already added to the device.");
+                 return new CrxResponse("OK", "License was already added to the device.");
              }
          }
          SoftwareLicense softwareLicense = this.getNextFreeLicenseId(software);
          if (softwareLicense == null) {
-             return new CrxResponse(this.getSession(), "ERROR", "There is not enough licences.");
+             return new CrxResponse("ERROR", "There is not enough licences.");
          } else {
              try {
                  this.em.getTransaction().begin();
@@ -970,11 +970,11 @@
                  this.em.getTransaction().commit();
              } catch (Exception e) {
                  logger.error(e.getMessage());
-                 return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                 return new CrxResponse("ERROR", e.getMessage());
              } finally {
              }
          }
-         return new CrxResponse(this.getSession(), "OK", "License was added to the device succesfully.");
+         return new CrxResponse("OK", "License was added to the device succesfully.");
      }
 
      /*
@@ -993,13 +993,13 @@
                      this.em.getTransaction().commit();
                  } catch (Exception e) {
                      logger.error(e.getMessage());
-                     return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                     return new CrxResponse("ERROR", e.getMessage());
                  } finally {
                  }
-                 return new CrxResponse(this.getSession(), "OK", "License was removed from device.");
+                 return new CrxResponse("OK", "License was removed from device.");
              }
          }
-         return new CrxResponse(this.getSession(), "OK", "No license on thise device.");
+         return new CrxResponse("OK", "No license on thise device.");
      }
      /*
       * Sets the software status on a device to a given version and remove the other status.
@@ -1252,7 +1252,7 @@
              this.systemctl("try-restart", "salt-master");
              logger.debug("Services restarted");
          }
-         return new CrxResponse(this.session,"OK","Salt configuration was rewritten.");
+         return new CrxResponse("OK","Salt configuration was rewritten.");
      }
 
      /*
@@ -1283,7 +1283,7 @@
              saltPrincipial = lookupService.lookupPrincipalByName("salt");
          } catch (IOException e) {
              logger.error(e.getMessage());
-             return new CrxResponse(session, "ERROR", "Can not get salt's user principal.");
+             return new CrxResponse("ERROR", "Can not get salt's user principal.");
          }
          //Collect the corresponding Rooms and Hwconfs
          List<HWConf> hwconfs = new ArrayList<HWConf>();
@@ -1569,9 +1569,9 @@
          this.rewriteTopSls();
          if (errorMessages.length() > 0) {
              logger.error(errorMessages.toString());
-             return new CrxResponse(this.getSession(), "ERROR", errorMessages.toString());
+             return new CrxResponse("ERROR", errorMessages.toString());
          }
-         return new CrxResponse(this.getSession(), "OK", "Software State was saved succesfully");
+         return new CrxResponse("OK", "Software State was saved succesfully");
      }
 
      /**
@@ -1602,7 +1602,7 @@
                  this.em.getTransaction().commit();
              } catch (Exception e) {
                  logger.error("Can not create software: " + e.getMessage());
-                 return new CrxResponse(this.getSession(), "ERROR", "Can not create software: " + e.getMessage());
+                 return new CrxResponse("ERROR", "Can not create software: " + e.getMessage());
              }
          }
          for (SoftwareVersion sv : software.getSoftwareVersions()) {
@@ -1622,7 +1622,7 @@
                  this.em.getTransaction().commit();
              } catch (Exception e) {
                  logger.error("Can not create software version: " + e.getMessage());
-                 return new CrxResponse(this.getSession(), "ERROR", "Can not create software version " + e.getMessage());
+                 return new CrxResponse("ERROR", "Can not create software version " + e.getMessage());
              }
          }
 
@@ -1659,7 +1659,7 @@
                  this.em.getTransaction().commit();
              } catch (Exception e) {
                  logger.error("Can not create software status:" + e.getMessage());
-                 return new CrxResponse(this.getSession(), "ERROR", "Can not create software status:" + e.getMessage());
+                 return new CrxResponse("ERROR", "Can not create software status:" + e.getMessage());
              }
          } else {
              softwareStatus.setStatus(status);
@@ -1669,7 +1669,7 @@
                  this.em.getTransaction().commit();
              } catch (Exception e) {
                  logger.error("Can not modify software status:" + e.getMessage());
-                 return new CrxResponse(this.getSession(), "ERROR", "Can not modify software status:" + e.getMessage());
+                 return new CrxResponse("ERROR", "Can not modify software status:" + e.getMessage());
              }
          }
 
@@ -1688,9 +1688,9 @@
              }
          } catch (Exception e) {
              logger.error("Can not remove software status:" + e.getMessage());
-             return new CrxResponse(this.getSession(), "ERROR", "Can not remove software status:" + e.getMessage());
+             return new CrxResponse("ERROR", "Can not remove software status:" + e.getMessage());
          }
-         return new CrxResponse(this.getSession(), "OK", "Software State was saved succesfully");
+         return new CrxResponse("OK", "Software State was saved succesfully");
      }
 
      public CrxResponse setSoftwareStatusOnDeviceById(Long deviceId, String softwareName, String description, String version, String status) {
@@ -1715,10 +1715,10 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "All software states was removed from device.");
+         return new CrxResponse("OK", "All software states was removed from device.");
      }
 
      /**
@@ -1737,15 +1737,15 @@
                      this.em.merge(st);
                      this.em.remove(st);
                      this.em.getTransaction().commit();
-                     return new CrxResponse(this.getSession(), "OK", "Software State was removed succesfully");
+                     return new CrxResponse("OK", "Software State was removed succesfully");
                  } catch (Exception e) {
                      logger.error(e.getMessage());
-                     return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+                     return new CrxResponse("ERROR", e.getMessage());
                  } finally {
                  }
              }
          }
-         return new CrxResponse(this.getSession(), "OK", "No Software State exists for this software version on this device.");
+         return new CrxResponse("OK", "No Software State exists for this software version on this device.");
      }
 
      public CrxResponse deleteSoftwareStatusFromDeviceByName(String deviceName, String softwareName, String version) {
@@ -1848,10 +1848,10 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-             return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+             return new CrxResponse("ERROR", e.getMessage());
          } finally {
          }
-         return new CrxResponse(this.getSession(), "OK", "Software requirement was added successfully");
+         return new CrxResponse("OK", "Software requirement was added successfully");
      }
 
      public CrxResponse addRequirements(List<String> requirement) {
