@@ -27,7 +27,7 @@ public class Crx2faService extends Service {
         this.crx2faCheck = config.getConfigValue("CHECK_URL");
     }
 
-    public List<Crx2fa> geAll(){
+    public List<Crx2fa> getAll(){
         Query query = this.em.createNamedQuery("Crx2fa.findAll");
         return query.getResultList();
     }

@@ -21,6 +21,9 @@ public abstract class AbstractEntity implements Serializable {
     )
     private Long id;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name="creator_id", nullable = false, updatable = false)
+    @JsonIgnore
     private User creator;
 
     @Column(
@@ -107,9 +110,6 @@ public abstract class AbstractEntity implements Serializable {
      *
      * @return the creator
      */
-    @ManyToOne(optional = false)
-    @JoinColumn(name="creator_id", nullable = false, updatable = false)
-    @JsonIgnore
     public User getCreator() {
         return creator;
     }

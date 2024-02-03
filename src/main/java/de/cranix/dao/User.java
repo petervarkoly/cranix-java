@@ -298,9 +298,10 @@ public class User implements Serializable {
 	@JsonIgnore
 	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();
 
-	@OneToMany( mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
 	@JsonIgnore
-	private List<Crx2fa> crx2fas;
+	private List<Crx2fa> crx2fas = new ArrayList<Crx2fa>();
+
 	public List<Crx2fa> getCrx2fas() {
 		return crx2fas;
 	}

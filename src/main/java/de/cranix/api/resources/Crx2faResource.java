@@ -18,12 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
-import static de.cranix.api.resources.Resource.TEXT;
 import static de.cranix.helper.CranixConstants.cranix2faConfig;
 
 @Path("2fas")
@@ -67,7 +65,7 @@ public class Crx2faResource {
             @ApiParam(hidden = true) @Auth Session session
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        List<Crx2fa> resp = new Crx2faService(session,em).geAll();
+        List<Crx2fa> resp = new Crx2faService(session,em).getAll();
         em.close();
         return resp;
     }

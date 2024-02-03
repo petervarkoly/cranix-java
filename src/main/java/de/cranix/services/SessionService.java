@@ -62,6 +62,7 @@ public class SessionService extends Service {
     public Session createSessionWithUser(String username, String password, String deviceType) {
         UserService userService = new UserService(this.session, this.em);
         DeviceService deviceService = new DeviceService(this.session, this.em);
+        Crx2faService crx2faService = new Crx2faService(this.session, this.em);
         Room room = null;
         String[] program = new String[2];
         StringBuffer reply = new StringBuffer();
@@ -96,6 +97,7 @@ public class SessionService extends Service {
         if (user == null) {
             return null;
         }
+        logger.debug("user:" + user + " crx2fas" + user.getCrx2fas());
         /**
          * For debug reason.
          * Create Variable CRANIX_USER_<USERNAME>_SESSION_IP="<IP-Of-The-Device>" in /etc/sysconfig/cranix
@@ -127,7 +129,6 @@ public class SessionService extends Service {
         if (device != null) {
             this.session.setDeviceId(device.getId());
             this.session.setMac(device.getMac());
-            this.session.setIp(device.getIp());
             this.session.setDnsName(device.getName());
             this.session.setDevice(device);
         } else {
@@ -161,11 +162,13 @@ public class SessionService extends Service {
 
         this.session.setAcls(modules);
         this.session.setPassword(password);
-
+        logger.debug("sesion: " + this.session);
         //Handle CRANIX 2FA
-        if (this.isAllowed(user, "2fa.use")) {
-            for (Crx2fa crx2fa : user.getCrx2fas()) {
-                this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
+        if (this.session.getAcls().contains("2fa.use")) {
+            for (Crx2fa crx2fa : crx2faService.getAll()) {
+                if(crx2fa.getCreator().equals(user)) {
+                    this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
+                }
             }
             for (Crx2faSession crx2faSession : user.getCrx2faSessions()) {
                 if (crx2faSession.getClientIP().equals(IP) && crx2faSession.getChecked() && crx2faSession.isValid()) {
