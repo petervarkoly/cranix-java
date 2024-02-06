@@ -59,7 +59,7 @@ public class SessionService extends Service {
         }
     }
 
-    public Session createSessionWithUser(String username, String password, String deviceType) {
+    public Session createSessionWithUser(String username, String password, Long crx2faSessionId) {
         UserService userService = new UserService(this.session, this.em);
         DeviceService deviceService = new DeviceService(this.session, this.em);
         Room room = null;
@@ -163,12 +163,19 @@ public class SessionService extends Service {
             for (Crx2fa crx2fa : user.getCrx2fas()) {
                 this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
             }
+            if(crx2faSessionId > 0) {
+                Crx2faSession crx2faSession = this.em.find(Crx2faSession.class,crx2faSessionId);
+                if( crx2faSession != null && crx2faSession.isValid() ){
+                    this.session.setCrx2faSession(crx2faSession);
+                }
+            }
+            /* Eventually this we can use ahead.
             for (Crx2faSession crx2faSession : user.getCrx2faSessions()) {
                 if (crx2faSession.getClientIP().equals(IP) && crx2faSession.getChecked() && crx2faSession.isValid()) {
                     this.session.setCrx2faSession(crx2faSession);
                     break;
                 }
-            }
+            }*/
         }
         sessions.put(token, this.session);
         save(session);

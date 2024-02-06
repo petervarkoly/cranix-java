@@ -33,7 +33,7 @@ public class Session implements Principal {
 	//@OneToOne
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
+	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED")
 	private Device device;
 
 	@ManyToOne
@@ -42,12 +42,12 @@ public class Session implements Principal {
 	private User user;
 
 	@OneToOne
-	@JoinColumn(name="crx2fasession_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
+	@JoinColumn(name="crx2fasession_id", columnDefinition ="BIGINT UNSIGNED")
 	private Crx2faSession crx2faSession;
 
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
+	@JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED")
 	private Room room;
 
 	@Column(name = "ip")

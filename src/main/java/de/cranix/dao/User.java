@@ -76,7 +76,7 @@ public class User extends AbstractEntity {
 	@Size(max=16, message="Role must not be longer then 16 characters.")
 	private String role;
 
-	@Column(name="birthDay", columnDefinition = "DATE NOT NULL")
+	@Column(name="birthDay", columnDefinition = "DATE NOT NULL DEFAULT NOW()")
 	private String birthDay;
 
 	@Column(name="fsQuotaUsed")
@@ -228,25 +228,17 @@ public class User extends AbstractEntity {
 	@Transient
 	String fullName;
 
-	@OneToMany( mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
 	@JsonIgnore
 	private List<Crx2fa> crx2fas;
 	public List<Crx2fa> getCrx2fas() {
 		return crx2fas;
 	}
 
-	public void setCrx2fas(List<Crx2fa> crx2fa) { this.crx2fas = crx2fa; }
-
 	public void addCrx2fa(Crx2fa crx2fa) {
 		if(!this.crx2fas.contains(crx2fa)) {
 			this.crx2fas.add(crx2fa);
 			crx2fa.setCreator(this);
-		}
-	}
-
-	public void deleteCrx2fa(Crx2fa crx2fa) {
-		if(this.crx2fas.contains(crx2fa)) {
-			this.crx2fas.remove(crx2fa);
 		}
 	}
 
@@ -679,15 +671,5 @@ public class User extends AbstractEntity {
 			this.taskResponses.remove(taskResponse);
 			taskResponse.setCreator(null);
 		}
-	}
-
-	@JsonIgnore
-	public  Group getFirstClass() {
-		for( Group group : this.getGroups()) {
-			if (group.getGroupType().equals("class")) {
-				return group;
-			}
-		}
-		return null;
 	}
 }

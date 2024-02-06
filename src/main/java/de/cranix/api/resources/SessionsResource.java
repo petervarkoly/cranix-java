@@ -49,20 +49,19 @@ public class SessionsResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	public Session createSession(
-		@Context UriInfo ui,
+			@Context HttpServletRequest req,
 		@FormParam("username") String username,
 		@FormParam("password") String password,
-		@FormParam("device") String device,
-		@Context HttpServletRequest req
+		@FormParam("crx2faSessionId") String crx2faSessionId
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		if(crx2faSessionId.isEmpty()){
+			crx2faSessionId = "0";
+		}
 
 		logger.debug("user:" + username + " password:" + password);
 		if(username == null || password == null ) {
 			throw new WebApplicationException(400);
-		}
-		if( device == null) {
-			device = "dummy";
 		}
 
 		//Compatibility reason admin -> Administrator
@@ -73,7 +72,7 @@ public class SessionsResource {
 		Session session =  new Session(username);
 		session.setIp(req.getRemoteAddr());
 		SessionService sessionService = new SessionService(session,em);
-		session = sessionService.createSessionWithUser(username, password, device);
+		session = sessionService.createSessionWithUser(username, password, Long.parseLong(crx2faSessionId));
 		em.close();
 		if( session != null ) {
 			logger.debug(session.toString());
@@ -88,8 +87,9 @@ public class SessionsResource {
 	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new session and delivers the token.",
 	    notes = "Following parameter are required:<br>"
-	    + "'username' The login name of the user."
-	    + "'password' The password of the user."
+				+ "'username' The login name of the user."
+				+ "'password' The password of the user."
+				+ "'crx2faSessionId' The id of a valid Crx2faSession"
 	)
 	@ApiResponses(value = {
 		@ApiResponse(code = 401, message = "Login is incorrect"),
@@ -101,7 +101,11 @@ public class SessionsResource {
 		Map<String,String> loginDatas
 	) {
 		if( loginDatas.containsKey("username") && loginDatas.containsKey("password") ) {
-			return createSession(ui,loginDatas.get("username"),loginDatas.get("password"),"dummy",req);
+			String crx2faSessionId = "0";
+			if(loginDatas.containsKey("crx2faSessionId")) {
+				crx2faSessionId = loginDatas.get("crx2faSessionId");
+			}
+			return createSession(req,loginDatas.get("username"),loginDatas.get("password"),crx2faSessionId);
 		}
 		throw new WebApplicationException(401);
 	}
@@ -116,13 +120,12 @@ public class SessionsResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	public String createToken(
-		@Context UriInfo ui,
 		@FormParam("username") String username,
 		@FormParam("password") String password,
-		@FormParam("device") String device,
+		@FormParam("crx2faSessionId") String crx2faSessionId,
 		@Context HttpServletRequest req
 	) {
-		Session session = createSession(ui, username, password, device, req);
+		Session session = createSession(req, username, password, crx2faSessionId);
 		if( session == null) {
 			return "";
 		} else {

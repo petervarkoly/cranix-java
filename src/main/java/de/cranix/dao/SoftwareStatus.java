@@ -1,4 +1,4 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 204 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The persistent class for the SoftwareStatus database table.
+ * The state of the installation of a specific software version on a device.
  *
  */
 @Entity

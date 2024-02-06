@@ -136,7 +136,7 @@ public class Device extends AbstractEntity {
 
     //bi-directional many-to-one association to HWConf
     @ManyToOne
-    @JoinColumn(name = "hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
+    @JoinColumn(name = "hwconf_id", columnDefinition ="BIGINT UNSIGNED")
     private HWConf hwconf;
 
     //bi-directional many-to-one association to Room

@@ -43,8 +43,8 @@ public class SoftwareLicense extends AbstractEntity {
 	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(        
 		name="LicenseToDevice",
-		joinColumns={ @JoinColumn(name="license_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
-		inverseJoinColumns={ @JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
+		joinColumns={ @JoinColumn(name="license_id", columnDefinition ="BIGINT UNSIGNED") },
+		inverseJoinColumns={ @JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED") }
 	)
 	@JsonIgnore
 	private List<Device> devices;

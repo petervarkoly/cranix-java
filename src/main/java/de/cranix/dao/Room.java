@@ -109,7 +109,7 @@ public class Room extends AbstractEntity {
 	/* bi-directional many-to-one associations */
 	@ManyToOne
 	@JsonIgnore
-	@JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
+	@JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED")
 	private HWConf hwconf;
 
 	/* bi-directional many-to-one associations */
