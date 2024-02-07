@@ -43,9 +43,9 @@ public class Config {
 		configHelp = new HashMap<>();
 		try {
 			configFile = Files.readAllLines(this.CRX_CONFIG);
-		}
-		catch( IOException e ) {
+		} catch( IOException e ) {
 			e.printStackTrace();
+			return;
 		}
 		Boolean ro = false;
 		String  path = "Backup";
