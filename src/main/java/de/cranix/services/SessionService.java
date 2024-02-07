@@ -149,8 +149,7 @@ public class SessionService extends Service {
         this.session.setFullName(user.getFullName());
         List<String> modules = Session.getUserAcls(user);
         if (!this.isSuperuser()) {
-            RoomService roomService = new RoomService(this.session, this.em);
-            if (!roomService.getAllToRegister().isEmpty()) {
+            if (!new RoomService(this.session, this.em).getAllToRegister().isEmpty()) {
                 modules.add("adhoclan.mydevices");
             }
         }
@@ -342,7 +341,13 @@ public class SessionService extends Service {
     }
 
     public boolean authorize(Session session, String requiredRole) {
-        if (session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost"))) {
+	/**
+	 * Local token and token of cephalix must not be checked.
+	 */
+        if (
+	    session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost")) ||
+	    session.getUser().getUid().equals("cephalix")
+	) {
             return true;
         }
 
