@@ -62,7 +62,6 @@ public class SessionService extends Service {
     public Session createSessionWithUser(String username, String password, String deviceType) {
         UserService userService = new UserService(this.session, this.em);
         DeviceService deviceService = new DeviceService(this.session, this.em);
-        Crx2faService crx2faService = new Crx2faService(this.session, this.em);
         Room room = null;
         String[] program = new String[2];
         StringBuffer reply = new StringBuffer();
@@ -154,8 +153,7 @@ public class SessionService extends Service {
         this.session.setFullName(user.getFullName());
         List<String> modules = Session.getUserAcls(user);
         if (!this.isSuperuser()) {
-            RoomService roomService = new RoomService(this.session, this.em);
-            if (!roomService.getAllToRegister().isEmpty()) {
+            if (!new RoomService(this.session, this.em).getAllToRegister().isEmpty()) {
                 modules.add("adhoclan.mydevices");
             }
         }
@@ -165,7 +163,7 @@ public class SessionService extends Service {
         logger.debug("sesion: " + this.session);
         //Handle CRANIX 2FA
         if (this.session.getAcls().contains("2fa.use")) {
-            for (Crx2fa crx2fa : crx2faService.getAll()) {
+            for (Crx2fa crx2fa : new Crx2faService(this.session, this.em).getAll()) {
                 if(crx2fa.getCreator().equals(user)) {
                     this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
                 }
@@ -345,7 +343,13 @@ public class SessionService extends Service {
     }
 
     public boolean authorize(Session session, String requiredRole) {
-        if (session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost"))) {
+        /**
+         * Local token and token of cephalix must not be checked.
+         */
+        if (
+                session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost")) ||
+                        session.getUser().getUid().equals("cephalix")
+        ) {
             return true;
         }
 
