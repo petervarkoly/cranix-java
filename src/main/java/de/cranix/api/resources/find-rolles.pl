@@ -42,9 +42,9 @@ foreach( @USERROLES ) {
 	print "INSERT INTO Enumerates SET name='apiAcl',value='user.modify.$_';\n";
 }
 foreach( @GROUPTYPES ) {
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','group.add.$_';\n";
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','group.delete.$_';\n";
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','group.modify.$_';\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='group.add.$_';\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='group.delete.$_';\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='group.modify.$_';\n";
 }
 print "INSERT INTO Acls SET group_id=2,acl='group.add.guests',allowed='Y';\n";
 print "INSERT INTO Acls SET group_id=2,acl='user.add.guests',allowed='Y';\n";
