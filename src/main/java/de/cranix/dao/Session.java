@@ -193,11 +193,11 @@ public class Session implements Principal {
 	}
 
 	public Long getDeviceId() {
-		return this.device.getId();
+		return this.device == null ? null: this.device.getId();
 	}
 
 	public Long getRoomId() {
-		return this.room.getId();
+		return this.room == null ? null: this.room.getId();
 	}
 
 	public Date getCreateDate() {
