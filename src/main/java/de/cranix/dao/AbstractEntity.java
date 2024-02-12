@@ -30,7 +30,7 @@ public abstract class AbstractEntity implements Serializable {
             name = "creator_id",
             insertable = false,
             updatable = false,
-            columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
+            columnDefinition ="BIGINT UNSIGNED"
     )
     private Long creatorId;
 
