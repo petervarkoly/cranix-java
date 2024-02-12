@@ -51,7 +51,7 @@ public class Crx2faSession extends AbstractEntity {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "crx2fa_id")
+    @JoinColumn(name = "crx2fa_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private Crx2fa myCrx2fa;
 
     @OneToOne(mappedBy = "crx2faSession", cascade ={CascadeType.REMOVE}, orphanRemoval=true)

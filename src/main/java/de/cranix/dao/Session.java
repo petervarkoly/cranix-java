@@ -50,7 +50,7 @@ public class Session implements Principal {
 
 
 	@OneToOne
-	@JoinColumn(name="crx2fasession_id")
+	@JoinColumn(name="crx2fasession_id", columnDefinition ="BIGINT UNSIGNED")
 	private Crx2faSession crx2faSession;
 
 	@ManyToOne
