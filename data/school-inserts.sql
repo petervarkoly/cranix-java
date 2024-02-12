@@ -13,8 +13,6 @@ INSERT INTO Acls SET id=10,group_id=1,acl='challenge.manage',allowed='Y';
 INSERT INTO Acls SET id=11,group_id=2,acl='challenge.manage',allowed='Y';
 INSERT INTO Acls SET id=12,group_id=1,acl='subject.manage',allowed='Y';
 INSERT INTO Acls SET id=13,group_id=2,acl='subject.manage',allowed='Y';
-INSERT INTO Acls SET id=14,group_id=1,acl='2fa.manage',allowed='Y';
-INSERT INTO Acls SET id=15,group_id=1,acl='2fa.use',allowed='Y';
 INSERT INTO Acls SET id=16,group_id=1,acl='adhoclan.manage',allowed='Y';
 INSERT INTO Acls SET id=17,group_id=1,acl='category.add',allowed='Y';
 INSERT INTO Acls SET id=18,group_id=1,acl='category.delete',allowed='Y';
