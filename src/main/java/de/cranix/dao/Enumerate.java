@@ -13,7 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Entity
-@Table(name="Enumerates")
+@Table(
+		name="Enumerates",
+		uniqueConstraints = {
+				@UniqueConstraint(columnNames = { "name", "value" })
+		}
+)
 @NamedQueries({
 	@NamedQuery(name="Enumerate.findAll", query="SELECT e FROM Enumerate e"),
 	@NamedQuery(name="Enumerate.getByName", query="SELECT e FROM Enumerate e WHERE e.name = :name"),

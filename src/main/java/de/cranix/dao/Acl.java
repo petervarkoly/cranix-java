@@ -13,7 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  */
 @Entity
-@Table(name="Acls")
+@Table(
+		name="Acls",
+		uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "acl", "group_id", "user_id" })
+	}
+)
 @NamedQueries({
 	@NamedQuery(name="Acl.findAll", query="SELECT a FROM Acl a")
 })
