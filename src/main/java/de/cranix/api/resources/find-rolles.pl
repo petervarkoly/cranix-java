@@ -11,8 +11,11 @@ my $forTeachers = {};
 
 foreach( split /\n/, $ROLES )
 {
-	if(	/\@RolesAllowed\("(.*)"\)/ )
+	if(/\@RolesAllowed\("(.*)"\)/ )
 	{
+		if( $1 =~ /^2fa/ ) {
+			next;
+		}
 		my $r = $1;
 		$hroles->{$1} = 1;
 		if( $r =~ /education/  || $r =~ /information/ ) {
