@@ -129,7 +129,7 @@ public class SoftwareResource {
 		Software software
 	) {
                 EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		software.setId(softwareId);
+				software.setId(softwareId);
                 CrxResponse resp = new SoftwareService(session,em).modify(software);
                 em.close();
                 return resp;
