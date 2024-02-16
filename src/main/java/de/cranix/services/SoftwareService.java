@@ -225,8 +225,12 @@
      public CrxResponse modify(Software software) {
          try {
              //Modifying only the software entry itself
+             Software oldSoftware = this.em.find(Software.class,software.getId());
+             oldSoftware.setDescription(software.getDescription());
+             oldSoftware.setManually(software.getManually());
+             oldSoftware.setWeight(software.getWeight());
              this.em.getTransaction().begin();
-             this.em.merge(software);
+             this.em.merge(oldSoftware);
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
