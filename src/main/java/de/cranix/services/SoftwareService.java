@@ -59,7 +59,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return null;
-         } finally {
          }
      }
 
@@ -69,7 +68,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return null;
-         } finally {
          }
      }
 
@@ -79,7 +77,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return null;
-         } finally {
          }
      }
 
@@ -89,7 +86,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return null;
-         } finally {
          }
      }
 
@@ -100,7 +96,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return null;
-         } finally {
          }
      }
 
@@ -181,7 +176,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return new CrxResponse("ERROR", e.getMessage());
-         } finally {
          }
          return new CrxResponse("OK", "Software was created succesfully.", software.getId());
      }
@@ -217,7 +211,6 @@
              logger.error(e.getMessage());
              e.printStackTrace();
              return new CrxResponse("ERROR", e.getMessage());
-         } finally {
          }
          return new CrxResponse("OK", "Software was deleted succesfully");
      }
@@ -235,7 +228,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return new CrxResponse("ERROR", e.getMessage());
-         } finally {
          }
          return new CrxResponse("OK", "Software was created succesfully");
      }
@@ -755,7 +747,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
 			 return new CrxResponse("addSoftwareToCategory ERROR", e.getMessage());
-         } finally {
          }
          return new CrxResponse("OK", "Software was added to the installation succesfully.");
      }
@@ -789,7 +780,6 @@
              }
          } catch (Exception e) {
              return new CrxResponse("ERROR", e.getMessage());
-         } finally {
          }
          return new CrxResponse("OK", "SoftwareState was added to category succesfully");
      }
@@ -820,7 +810,6 @@
                  this.em.getTransaction().commit();
              } catch (Exception e) {
                  return new CrxResponse("ERROR", e.getMessage());
-             } finally {
              }
              return this.uploadLicenseFile(softwareLicense, fileInputStream, contentDispositionHeader);
          }
@@ -834,7 +823,6 @@
                  this.em.getTransaction().commit();
              } catch (Exception e) {
                  return new CrxResponse("ERROR", e.getMessage());
-             } finally {
              }
          } else {
              File file = null;
@@ -862,7 +850,6 @@
              } catch (IOException e) {
                  logger.error(e.getMessage(), e);
                  return new CrxResponse("ERROR", e.getMessage());
-             } finally {
              }
          }
          return new CrxResponse("OK", "License was added to the software succesfully");
@@ -888,7 +875,6 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              return new CrxResponse("ERROR", e.getMessage());
-         } finally {
          }
          if (softwareLicense.getLicenseType().equals('F') && fileInputStream != null) {
              return this.uploadLicenseFile(softwareLicense, fileInputStream, contentDispositionHeader);
@@ -919,7 +905,6 @@
          } catch (IOException e) {
              logger.error(e.getMessage(), e);
              throw new WebApplicationException(500);
-         } finally {
          }
          return new CrxResponse("OK", "Software License File was uploaded succesfully");
      }
@@ -936,7 +921,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return new CrxResponse("ERROR", e.getMessage());
-         } finally {
          }
          return new CrxResponse("OK", "Software license was deleted successfully");
      }
@@ -975,7 +959,6 @@
              } catch (Exception e) {
                  logger.error(e.getMessage());
                  return new CrxResponse("ERROR", e.getMessage());
-             } finally {
              }
          }
          return new CrxResponse("OK", "License was added to the device succesfully.");
@@ -998,7 +981,6 @@
                  } catch (Exception e) {
                      logger.error(e.getMessage());
                      return new CrxResponse("ERROR", e.getMessage());
-                 } finally {
                  }
                  return new CrxResponse("OK", "License was removed from device.");
              }
@@ -1063,7 +1045,6 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-         } finally {
          }
      }
 
@@ -1092,7 +1073,6 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-         } finally {
          }
      }
 
@@ -1108,7 +1088,6 @@
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-         } finally {
          }
      }
 
@@ -1720,7 +1699,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return new CrxResponse("ERROR", e.getMessage());
-         } finally {
          }
          return new CrxResponse("OK", "All software states was removed from device.");
      }
@@ -1745,7 +1723,6 @@
                  } catch (Exception e) {
                      logger.error(e.getMessage());
                      return new CrxResponse("ERROR", e.getMessage());
-                 } finally {
                  }
              }
          }
@@ -1853,7 +1830,6 @@
          } catch (Exception e) {
              logger.error(e.getMessage());
              return new CrxResponse("ERROR", e.getMessage());
-         } finally {
          }
          return new CrxResponse("OK", "Software requirement was added successfully");
      }
