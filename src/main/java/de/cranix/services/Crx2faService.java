@@ -209,7 +209,7 @@ public class Crx2faService extends Service {
             case "SMS":
             case "MAIL":
                 for (Crx2faSession tmp : user.getCrx2faSessions()) {
-                    logger.debug("checkPin:" + tmp);
+                    logger.debug("checkPin SMS/MAIL:" + tmp);
                     /*
                     logger.debug(" crx2fa " + tmp.getMyCrx2fa().equals(crx2fa));
                     logger.debug(" isAvailable " + tmp.isAvailable());
@@ -269,7 +269,12 @@ public class Crx2faService extends Service {
             for (Crx2faSession crx2faSession : (List<Crx2faSession>) query.getResultList()) {
                 if (!crx2faSession.isValid()) {
                     User user = crx2faSession.getCreator();
+                    user.getCrx2faSessions().remove(crx2faSession);
+                    Session session1 = crx2faSession.getSession();
+                    session1.setCrx2faSession(null);
                     this.em.getTransaction().begin();
+                    em.merge(session1);
+                    em.merge(user);
                     em.remove(crx2faSession);
                     this.em.getTransaction().commit();
                     em.refresh(user);
