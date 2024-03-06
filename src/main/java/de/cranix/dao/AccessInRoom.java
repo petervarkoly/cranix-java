@@ -138,7 +138,10 @@ public class AccessInRoom extends AbstractEntity{
 	private String  pointInTime;
 
 	@Transient
-	private String roomName;
+	private String roomName = "";
+
+	@Transient
+	private Long roomId = (long) 0L;
 
 	@Transient
 	private Boolean allowSessionIp = false;
@@ -203,6 +206,10 @@ public class AccessInRoom extends AbstractEntity{
 
 	public Room getRoom() {
 		return this.room;
+	}
+
+	public Long getRoomId() {
+		return this.room != null ? this.room.getId() : this.roomId;
 	}
 
 	public void setRoom(Room room) {
@@ -301,10 +308,6 @@ public class AccessInRoom extends AbstractEntity{
 		this.proxy = proxy;
 	}
 
-	public Long getRoomId() {
-		return this.room.getId();
-	}
-
 	public Boolean getSaturday() {
 		return this.saturday;
 	}
@@ -352,7 +355,7 @@ public class AccessInRoom extends AbstractEntity{
 	}
 
 	public String getRoomName() {
-		return this.room.getName();
+		return this.room != null ? this.room.getName() : this.roomName;
 	}
 
 	public Boolean getAllowSessionIp() {
