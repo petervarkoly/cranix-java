@@ -20,8 +20,8 @@ import java.util.List;
 	name = "Devices",
 	uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "name" }),
-		@UniqueConstraint(columnNames = { "IP" }),
-		@UniqueConstraint(columnNames = { "wlanIp" })
+		@UniqueConstraint(columnNames = { "IP" })
+		//,@UniqueConstraint(columnNames = { "wlanIp" })
 	}
 )
 @NamedQueries({
