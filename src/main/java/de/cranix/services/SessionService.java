@@ -357,6 +357,13 @@ public class SessionService extends Service {
         if (session.getAcls().contains("2fa.use") && requiredRole.equals("2fa.use")) {
             return true;
         }
+	/**
+	 * Clone tool is a special case
+	 */
+	if(requiredRole.startsWith("hwconf.") && session.getAcls().contains(requiredRole)) {
+            logger.info("Token without checked CRX2FA session for clone tool" + requiredRole);
+	    return true;
+	}
         /**
          * User have to use 2FA but has no checked 2FA session.
          * Only 2FA setup is allowed.
