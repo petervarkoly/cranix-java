@@ -22,16 +22,18 @@ public class SupportRequest {
 	private String firstname	= "";
 	private String lastname		= "";
 	private String company		= "";
-	private SUPPORT_TYPE supporttype = SUPPORT_TYPE.Error; 
+	private SUPPORT_TYPE supporttype = SUPPORT_TYPE.Error;
 
 	private String regcodeValidUntil	= "";
 	private String status			= "";
-	private String requestDate		= "";
+	private String requestDate              = "";
 	private String ticketno			= "";
 	private String ticketResponseInfo	= "";
 	private String attachment	= "";
 	private String attachmentName	= "";
 	private Date created;
+	private Long cranixUserId   = null;
+	private Long cranixDeviceId = null;
 
 	@Override
 	public String toString() {
@@ -100,11 +102,11 @@ public class SupportRequest {
 	}
 
 	public String getRequestDate() {
-		return requestDate;
+	        return requestDate;
 	}
 
 	public void setRequestDate(String requestDate) {
-		this.requestDate = requestDate;
+	        this.requestDate = requestDate;
 	}
 
 	public String getTicketno() {
@@ -177,5 +179,21 @@ public class SupportRequest {
 
 	public void setCreated(Date created) {
 		this.created = created;
+	}
+
+	public Long getCranixUserId() {
+		return cranixUserId;
+	}
+
+	public void setCranixUserId(Long cranixUserId) {
+		this.cranixUserId = cranixUserId;
+	}
+
+	public Long getCranixDeviceId() {
+		return cranixDeviceId;
+	}
+
+	public void setCranixDeviceId(Long cranixDeviceId) {
+		this.cranixDeviceId = cranixDeviceId;
 	}
 }
