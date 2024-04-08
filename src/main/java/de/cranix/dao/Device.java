@@ -124,6 +124,10 @@ public class Device extends AbstractEntity {
     @JsonIgnore
     private List<Printer> printerQueue = new ArrayList<Printer>();
 
+    @OneToMany(mappedBy = "device", cascade=CascadeType.ALL )
+    @JsonIgnore
+    private List<DeviceState> deviceStates = new ArrayList<DeviceState>();
+
     //bi-directional many-to-many association to Device
     @ManyToMany(mappedBy = "devices", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JsonIgnore
@@ -402,4 +406,11 @@ public class Device extends AbstractEntity {
                 this.hwconf.getDeviceType().equals("FatClient");
     }
 
+    public List<DeviceState> getDeviceStates() {
+        return deviceStates;
+    }
+
+    public void setDeviceStates(List<DeviceState> deviceStates) {
+        this.deviceStates = deviceStates;
+    }
 }

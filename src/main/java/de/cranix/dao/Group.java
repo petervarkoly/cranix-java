@@ -54,7 +54,7 @@ public class Group extends AbstractEntity {
 	private String groupType;
 
 	/* bi-directional one-to-many associations */
-	@OneToMany(mappedBy="group")
+	@OneToMany(mappedBy="group", cascade=CascadeType.REMOVE )
 	@JsonIgnore
 	private List<Acl> acls;
 

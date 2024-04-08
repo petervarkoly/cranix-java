@@ -272,10 +272,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getAnnouncementIds() {
-		this.announcementIds = new ArrayList<Long>();
-		if( this.announcements != null ) {
-			for (Announcement a : this.announcements) {
-				this.announcementIds.add(a.getId());
+		if (this.announcementIds == null || this.announcementIds.isEmpty()) {
+			this.announcementIds = new ArrayList<Long>();
+			if (this.announcements != null) {
+				for (Announcement a : this.announcements) {
+					this.announcementIds.add(a.getId());
+				}
 			}
 		}
 		return this.announcementIds;
@@ -295,10 +297,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getContactIds() {
-		this.contactIds = new ArrayList<Long>();
-		if( this.contacts != null ) {
-			for (Contact c : this.contacts) {
-				this.contactIds.add(c.getId());
+		if( this.contactIds == null || this.contactIds.isEmpty()) {
+			this.contactIds = new ArrayList<Long>();
+			if (this.contacts != null) {
+				for (Contact c : this.contacts) {
+					this.contactIds.add(c.getId());
+				}
 			}
 		}
 		return this.contactIds;
@@ -317,10 +321,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getDeviceIds() {
-		this.deviceIds = new ArrayList<Long>();
-		if( this.devices != null ) {
-			for (Device d : this.devices) {
-				this.deviceIds.add(d.getId());
+		if( this.deviceIds == null || this.deviceIds.isEmpty() ) {
+			this.deviceIds = new ArrayList<Long>();
+			if (this.devices != null) {
+				for (Device d : this.devices) {
+					this.deviceIds.add(d.getId());
+				}
 			}
 		}
 		return this.deviceIds;
@@ -340,10 +346,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getFaqIds() {
-		this.faqIds          = new ArrayList<Long>();
-		if( this.faqs != null ) {
-			for (FAQ f: this.faqs) {
-				this.faqIds.add(f.getId());
+		if( this.faqIds == null || this.faqIds.isEmpty() ) {
+			this.faqIds = new ArrayList<Long>();
+			if (this.faqs != null) {
+				for (FAQ f : this.faqs) {
+					this.faqIds.add(f.getId());
+				}
 			}
 		}
 		return faqIds;
@@ -363,10 +371,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getGroupIds() {
-		this.groupIds = new ArrayList<Long>();
-		if( this.groups != null ) {
-			for (Group g: this.groups) {
-				this.groupIds.add(g.getId());
+		if( this.groupIds == null || this.groupIds.isEmpty() ) {
+			this.groupIds = new ArrayList<Long>();
+			if (this.groups != null) {
+				for (Group g : this.groups) {
+					this.groupIds.add(g.getId());
+				}
 			}
 		}
 		return this.groupIds;
@@ -386,10 +396,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getHwconfIds() {
-		this.hwconfIds = new ArrayList<Long>();
-		if( this.hwconfs != null ) {
-			for (HWConf h: this.hwconfs) {
-				this.hwconfIds.add(h.getId());
+		if( this.hwconfIds == null || this.hwconfIds.isEmpty() ) {
+			this.hwconfIds = new ArrayList<Long>();
+			if (this.hwconfs != null) {
+				for (HWConf h : this.hwconfs) {
+					this.hwconfIds.add(h.getId());
+				}
 			}
 		}
 		return this.hwconfIds;
@@ -409,10 +421,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getRoomIds() {
-		this.roomIds = new ArrayList<Long>();
-		if( this.rooms != null ) {
-			for (Room r: this.rooms) {
-				this.roomIds.add(r.getId());
+		if( this.roomIds == null || this.roomIds.isEmpty() ) {
+			this.roomIds = new ArrayList<Long>();
+			if (this.rooms != null) {
+				for (Room r : this.rooms) {
+					this.roomIds.add(r.getId());
+				}
 			}
 		}
 		return this.roomIds;
@@ -432,10 +446,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getSoftwareIds() {
-		this.softwareIds = new ArrayList<Long>();
-		if( this.softwares != null ) {
-			for (Software s: this.softwares) {
-				this.softwareIds.add(s.getId());
+		if( this.softwareIds == null || this.softwareIds.isEmpty()) {
+			this.softwareIds = new ArrayList<Long>();
+			if (this.softwares != null) {
+				for (Software s : this.softwares) {
+					this.softwareIds.add(s.getId());
+				}
 			}
 		}
 		return this.softwareIds;
@@ -464,10 +480,12 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getUserIds() {
-		this.userIds         = new ArrayList<Long>();
-		if( this.users != null ) {
-			for (User u: this.users) {
-				this.userIds.add(u.getId());
+		if( this.userIds == null || this.userIds.isEmpty() ) {
+			this.userIds = new ArrayList<Long>();
+			if (this.users != null) {
+				for (User u : this.users) {
+					this.userIds.add(u.getId());
+				}
 			}
 		}
 		return this.userIds;
@@ -476,5 +494,4 @@ public class Category extends AbstractEntity {
 	public void setUserIds(List<Long> ids) {
 		this.userIds = ids;
 	}
-
 }

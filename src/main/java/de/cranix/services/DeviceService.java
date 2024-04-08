@@ -233,19 +233,25 @@ public class DeviceService extends Service {
     protected CrxResponse check(Device device, Room room) {
         List<String> error = new ArrayList<String>();
         List<String> parameters = new ArrayList<String>();
-        IPv4Net net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
+        String name;
+        IPv4Net net = null;
+        if (room.getStartIP() != null && !room.getStartIP().isEmpty()) {
+            net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
+        }
 
         //Check the MAC address
-        device.setMac(device.getMac().toUpperCase().replaceAll("-", ":"));
-        String name = this.isMacUnique(device.getMac());
-        if (name != "") {
-            parameters.add(device.getMac());
-            parameters.add(name);
-            return new CrxResponse("ERROR", "The MAC address '%s' will be used allready by '%s'.", null, parameters);
-        }
-        if (!IPv4.validateMACAddress(device.getMac())) {
-            parameters.add(device.getMac());
-            return new CrxResponse("ERROR", "The MAC address '%s' is not valid.", null, parameters);
+        if (device.getMac() != null && !device.getMac().isEmpty()) {
+            device.setMac(device.getMac().toUpperCase().replaceAll("-", ":"));
+            name = this.isMacUnique(device.getMac());
+            if (name != "") {
+                parameters.add(device.getMac());
+                parameters.add(name);
+                return new CrxResponse("ERROR", "The MAC address '%s' will be used allready by '%s'.", null, parameters);
+            }
+            if (!IPv4.validateMACAddress(device.getMac())) {
+                parameters.add(device.getMac());
+                return new CrxResponse("ERROR", "The MAC address '%s' is not valid.", null, parameters);
+            }
         }
         //Check the name
         if (!this.isNameUnique(device.getName())) {
@@ -264,23 +270,25 @@ public class DeviceService extends Service {
             parameters.add(device.getIp());
             return new CrxResponse("ERROR", "The IP address '%s' is not valid.", null, parameters);
         }
-        if (!net.contains(device.getIp())) {
+        if (net != null && !net.contains(device.getIp())) {
             return new CrxResponse("ERROR", "The IP address is not in the room ip address range.");
         }
 
         if (device.getWlanMac().isEmpty()) {
             device.setWlanIp("");
         } else {
-            //Check the MAC address
-            device.setWlanMac(device.getWlanMac().toUpperCase().replaceAll("-", ":"));
-            name = this.isMacUnique(device.getWlanMac());
-            if (name != "") {
-                parameters.add(name);
-                return new CrxResponse("ERROR", "The WLAN MAC address will be used allready '%s'.", null, parameters);
-            }
-            if (!IPv4.validateMACAddress(device.getWlanMac())) {
-                parameters.add(device.getMac());
-                return new CrxResponse("ERROR", "The WLAN-MAC address '%s' is not valid.", null, parameters);
+            if (!device.getWlanMac().isEmpty()) {
+                //Check the MAC address
+                device.setWlanMac(device.getWlanMac().toUpperCase().replaceAll("-", ":"));
+                name = this.isMacUnique(device.getWlanMac());
+                if (name != "") {
+                    parameters.add(name);
+                    return new CrxResponse("ERROR", "The WLAN MAC address will be used allready '%s'.", null, parameters);
+                }
+                if (!IPv4.validateMACAddress(device.getWlanMac())) {
+                    parameters.add(device.getMac());
+                    return new CrxResponse("ERROR", "The WLAN-MAC address '%s' is not valid.", null, parameters);
+                }
             }
             //Check the IP address
             name = this.isIPUnique(device.getWlanIp());
@@ -292,7 +300,7 @@ public class DeviceService extends Service {
                 parameters.add(device.getWlanIp());
                 return new CrxResponse("ERROR", "The WLAN-IP address '%s' is not valid.", null, parameters);
             }
-            if (!net.contains(device.getWlanIp())) {
+            if (net != null && !net.contains(device.getWlanIp())) {
                 return new CrxResponse("ERROR", "The WLAN-IP address is not in the room ip address range.");
             }
         }
@@ -691,7 +699,7 @@ public class DeviceService extends Service {
                 device.setHwconf(room.getHwconf());
             }
             logger.debug(" New device to add: " + device);
-            responses.add(this.add(device,false));
+            responses.add(this.add(device, false));
         }
         new DHCPConfig(session, em).Create();
         new SoftwareService(this.session, this.em).applySoftwareStateToHosts();
@@ -1492,5 +1500,28 @@ public class DeviceService extends Service {
             }
         }
         return responses;
+    }
+
+    public Object getLastState() {
+        Map<Long, DeviceState> result = new HashMap<>();
+        for (Device device : this.getAll()) {
+            if(device.getDeviceStates().size() > 0 ) {
+                result.put(device.getId(), device.getDeviceStates().get(device.getDeviceStates().size() - 1));
+            }
+        }
+        return result;
+    }
+
+    public CrxResponse addDeviceState(DeviceState state) {
+        Device device = this.getById(state.getDeviceId());
+        if (device == null) {
+            return new CrxResponse("ERROR", "Can not find device");
+        }
+        this.em.getTransaction().begin();
+        device.getDeviceStates().add(state);
+        state.setDevice(device);
+        this.em.merge(device);
+        this.em.getTransaction().commit();
+        return new CrxResponse("OK", "Device state was created");
     }
 }

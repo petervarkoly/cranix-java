@@ -10,14 +10,10 @@ import static de.cranix.api.resources.Resource.JSON_UTF8;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.POST;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 
+import de.cranix.dao.CrxActionMap;
+import de.cranix.services.DeviceService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -156,6 +152,7 @@ public class CategoryResource {
 	@RolesAllowed("category.modify")
 	public CrxResponse modify(
 		@ApiParam(hidden = true) @Auth Session session,
+		@PathParam("categoryId") Long categoryId,
 		Category category
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
@@ -163,7 +160,48 @@ public class CategoryResource {
 		em.close();
 		return resp;
 	}
-	
+
+	@PATCH
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Modify a category")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("category.modify")
+	public CrxResponse modify(
+			@ApiParam(hidden = true) @Auth Session session,
+			Category category
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CategoryService(session,em).modify(category);
+		em.close();
+		return resp;
+	}
+	/**
+	 * Apply actions on a list of categories.
+	 *
+	 * @param session
+	 * @return The result in an CrxResponse object
+	 * @see CrxResponse
+	 */
+	@POST
+	@Path("applyAction")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Apply actions on selected devices.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
+	})
+	@RolesAllowed("category.delete")
+	public List<CrxResponse> applyAction(
+			@ApiParam(hidden = true) @Auth Session session,
+			CrxActionMap actionMap
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<CrxResponse> responses = new CategoryService(session,em).applyAction(actionMap);
+		em.close();
+		return responses;
+	}
+
 	/*
 	 * PUT categories/<categoryId>/<memeberType>/<memberId>
 	 */

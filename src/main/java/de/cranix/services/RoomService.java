@@ -45,11 +45,12 @@ public class RoomService extends Service {
         put(20, 64);
         put(19, 91);
     }};
+    static public List<String> smartRooms = Arrays.asList("smartRoom", "virtualRoom", "route");
 
     static public List<Long> getDeviceIds(Room room) {
         List<Long> ids = new ArrayList<>();
-        for( Device device : room.getDevices() ){
-                ids.add(device.getId());
+        for (Device device : room.getDevices()) {
+            ids.add(device.getId());
         }
         return ids;
     }
@@ -57,6 +58,7 @@ public class RoomService extends Service {
     public RoomService(Session session, EntityManager em) {
         super(session, em);
     }
+
 
     public boolean isNameUnique(String name) {
         try {
@@ -303,9 +305,6 @@ public class RoomService extends Service {
     }
 
     public CrxResponse add(Room room) {
-        if (room.getRoomType().equals("smartRoom")) {
-            return new CrxResponse("ERROR", "Smart Rooms can only be created by Education Service.");
-        }
         HWConf hwconf = new HWConf();
         CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
         HWConf firstFatClient = cloneToolService.getByType("FatClient").get(0);
@@ -327,6 +326,15 @@ public class RoomService extends Service {
         }
         if (room.getDescription() != null && !room.getDescription().isEmpty() && !this.isDescriptionUnique(room.getDescription())) {
             return new CrxResponse("ERROR", "Room description is not unique.");
+        }
+
+        //Smart rooms does not contain any IP address regression. We have to create it only.
+        if (smartRooms.contains(room.getRoomType())) {
+            room.setCreator(this.session.getUser());
+            this.em.getTransaction().begin();
+            this.em.persist(room);
+            this.em.getTransaction().commit();
+            return new CrxResponse("OK", "Room was created successfully.", room.getId());
         }
         //Only adHocRooms name can be longer then 10 char
         if (!room.isIgnoreNetbios() && !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10) {
@@ -388,7 +396,7 @@ public class RoomService extends Service {
         return new CrxResponse("OK", "Room was created successfully.", room.getId());
     }
 
-    public CrxResponse delete(long roomId, boolean atomic ) {
+    public CrxResponse delete(long roomId, boolean atomic) {
         Room room = this.getById(roomId);
         if (room == null) {
             return new CrxResponse("ERROR", "Can not find room with id %s.", null, String.valueOf(roomId));
@@ -444,7 +452,7 @@ public class RoomService extends Service {
             logger.error("delete: " + e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());
         }
-        if( atomic ) {
+        if (atomic) {
             new DHCPConfig(session, em).Create();
             new SoftwareService(this.session, this.em).rewriteTopSls();
         }
@@ -461,9 +469,19 @@ public class RoomService extends Service {
      */
     public List<String> getAvailableIPAddresses(long roomId) {
         Room room = this.getById(roomId);
-        IPv4Net net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
-        List<String> allIPs = net.getAvailableIPs(0);
         List<String> usedIPs = new ArrayList<String>();
+        List<String> allIPs = new ArrayList<String>();
+        if (room.getStartIP() == null || room.getStartIP().isEmpty()) {
+            return allIPs;
+        }
+        IPv4Net net;
+        try {
+            net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
+        } catch (Exception e) {
+            logger.debug("Room has no IP");
+            return allIPs;
+        }
+        allIPs = net.getAvailableIPs(0);
         IPv4Net subNetwork = null;
         for (String subnet : this.getEnumerates("network")) {
             subNetwork = new IPv4Net(subnet);
@@ -500,6 +518,9 @@ public class RoomService extends Service {
     public List<String> getAvailableIPAddresses(Room room, long count) {
         logger.debug("getAvailableIPAddresses: Room:" + room + " RoomId:" + room.getId());
         List<String> availableIPs = new ArrayList<String>();
+        if( room.getStartIP() == null || room.getStartIP().isEmpty()) {
+            return availableIPs;
+        }
         IPv4Net net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
         IPv4Net subNetwork = null;
         for (String subnet : this.getEnumerates("network")) {
@@ -761,16 +782,16 @@ public class RoomService extends Service {
     public List<CrxResponse> addDevices(long roomId, List<Device> devices) {
         List<CrxResponse> responses = new ArrayList<>();
         Room room = this.getById(roomId);
-        if(room == null){
-            responses.add(new CrxResponse("ERROR","Can not find the room"));
+        if (room == null) {
+            responses.add(new CrxResponse("ERROR", "Can not find the room"));
             return responses;
         }
         boolean needWriteSalt = false;
         DeviceService deviceService = new DeviceService(this.session, this.em);
-        for( Device device : devices) {
+        for (Device device : devices) {
             device.setRoom(room);
-            responses.add(deviceService.add(device,false));
-            if(device.isFatClient()){
+            responses.add(deviceService.add(device, false));
+            if (device.isFatClient()) {
                 needWriteSalt = true;
             }
         }
@@ -811,9 +832,9 @@ public class RoomService extends Service {
     }
 
     public HWConf getBYODHwconf() {
-                Query query = this.em.createNamedQuery("HWConf.getByName");
-                query.setParameter("name", "BYOD");
-                return (HWConf) query.getResultList().get(0);
+        Query query = this.em.createNamedQuery("HWConf.getByName");
+        query.setParameter("name", "BYOD");
+        return (HWConf) query.getResultList().get(0);
     }
 
     public List<Device> getDevices(long roomId) {
@@ -828,7 +849,7 @@ public class RoomService extends Service {
         }
         logger.debug("IPAddr" + ipAddress);
         Device device = new Device();
-        Room room  = this.em.find(Room.class, roomId);
+        Room room = this.em.find(Room.class, roomId);
         User owner = this.session.getUser();
         HWConf hwconf = room.getHwconf();
         logger.debug("DEVICE " + macAddress + " " + name);
@@ -966,7 +987,7 @@ public class RoomService extends Service {
             return;
         }
         room.setDefaultPrinter(printer);
-        if( !printer.getDefaultInRooms().contains(room)) {
+        if (!printer.getDefaultInRooms().contains(room)) {
             printer.getDefaultInRooms().add(room);
         }
         try {
@@ -977,7 +998,7 @@ public class RoomService extends Service {
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
             tmpMap.put("action", "enable");
-            tmpMap.put("network", room.getStartIP() +"/" +room.getNetMask() );
+            tmpMap.put("network", room.getStartIP() + "/" + room.getNetMask());
             startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
         } catch (Exception e) {
             logger.error("setDefaultPrinter: " + e.getMessage());
@@ -986,7 +1007,7 @@ public class RoomService extends Service {
 
     public void setDefaultPrinter(Room room, Long deviceId) {
         Printer printer = new PrinterService(this.session, this.em).getById(deviceId);
-        if( printer != null ) {
+        if (printer != null) {
             this.setDefaultPrinter(room, printer);
         }
     }
@@ -1001,11 +1022,11 @@ public class RoomService extends Service {
                 this.em.merge(room);
                 this.em.merge(printer);
                 this.em.getTransaction().commit();
-				Map<String, String> tmpMap = new HashMap<>();
-				tmpMap.put("name", printer.getName());
-				tmpMap.put("action", "disable");
-				tmpMap.put("network", room.getStartIP() +"/" +room.getNetMask() );
-				startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
+                Map<String, String> tmpMap = new HashMap<>();
+                tmpMap.put("name", printer.getName());
+                tmpMap.put("action", "disable");
+                tmpMap.put("network", room.getStartIP() + "/" + room.getNetMask());
+                startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
             } catch (Exception e) {
                 logger.error("deleteDefaultPrinter: " + e.getMessage());
             }
@@ -1029,7 +1050,7 @@ public class RoomService extends Service {
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
             tmpMap.put("action", "enable");
-            tmpMap.put("network", room.getStartIP() +"/" +room.getNetMask() );
+            tmpMap.put("network", room.getStartIP() + "/" + room.getNetMask());
             startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
         } catch (Exception e) {
             logger.error("addAvailablePrinters: " + e.getMessage());
@@ -1053,7 +1074,7 @@ public class RoomService extends Service {
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
             tmpMap.put("action", "disable");
-            tmpMap.put("network", room.getStartIP() +"/" +room.getNetMask() );
+            tmpMap.put("network", room.getStartIP() + "/" + room.getNetMask());
             startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
         } catch (Exception e) {
             logger.error("deleteAvailablePrinter: " + e.getMessage());
@@ -1124,7 +1145,7 @@ public class RoomService extends Service {
 
     public CrxResponse organizeRoom(long roomId) {
         Room room = this.getById(roomId);
-        if (room.getRoomType().equals("smartRoom")) {
+        if (smartRooms.contains(room.getRoomType())) {
             return new CrxResponse("OK", "Smart room can not get reorganized");
         }
         boolean changed = false;
@@ -1286,7 +1307,7 @@ public class RoomService extends Service {
             return new CrxResponse("ERROR", e.getMessage());
         }
         CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
-	HWConf defHwconf = cloneToolService.getById(4l);
+        HWConf defHwconf = cloneToolService.getById(4l);
         Map<String, Integer> header = new HashMap<>();
         CrxResponse crxResponse;
         String headerLine = importFile.get(0);
@@ -1404,7 +1425,7 @@ public class RoomService extends Service {
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
         if (actionMap.getName().equals("delete")) {
             for (Long id : actionMap.getObjectIds()) {
-                responses.add(this.delete(id,false));
+                responses.add(this.delete(id, false));
             }
             new DHCPConfig(session, em).Create();
             new SoftwareService(session, em).rewriteTopSls();

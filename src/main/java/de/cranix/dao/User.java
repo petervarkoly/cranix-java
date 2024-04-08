@@ -101,7 +101,7 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	private List<Alias> aliases = new ArrayList<Alias>();
 
-	@OneToMany(mappedBy="user")
+	@OneToMany(mappedBy="user", cascade=CascadeType.REMOVE)
 	@JsonIgnore
 	private List<Acl> acls = new ArrayList<Acl>();
 

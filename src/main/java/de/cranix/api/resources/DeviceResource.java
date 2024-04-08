@@ -753,6 +753,7 @@ public class DeviceResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final CrxResponse crxResponse = new DeviceService(session, em).addDHCP(deviceId, dhcpParameter);
+		em.close();
 		return new CrxResponse("OK", "DHCP Parameter was added succesfully");
 	}
 
@@ -774,6 +775,54 @@ public class DeviceResource {
 		Device device = deviceService.getById(deviceId);
 		CrxResponse resp = deviceService.deleteMConfig(device, parameterId);
 		new DHCPConfig(session, em).Create();
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("states")
+	@Produces(JSON_UTF8)
+	@ApiOperation(
+			value = "Delivers the list of the actual state of the devices"
+	)
+	@RolesAllowed("device.state")
+	public Object getLastState( @ApiParam(hidden = true) @Auth Session session ){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Object resp = new DeviceService(session, em).getLastState();
+		em.close();
+		return resp;
+	}
+
+	@POST
+	@Path("states")
+	@Produces(JSON_UTF8)
+	@ApiOperation(
+			value = "Delivers the list of the actual state of the devices"
+	)
+	@RolesAllowed("device.state")
+	public CrxResponse addDeviceState(
+			@ApiParam(hidden = true) @Auth Session session,
+			DeviceState state
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new DeviceService(session, em).addDeviceState(state);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("{deviceId}/states")
+	@Produces(JSON_UTF8)
+	@ApiOperation(
+			value = "Delivers the list of the actual state of the devices"
+	)
+	@RolesAllowed("device.state")
+	public List<DeviceState> getLastState(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("deviceId") Long deviceId
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<DeviceState> resp = new DeviceService(session, em).getById(deviceId).getDeviceStates();
 		em.close();
 		return resp;
 	}

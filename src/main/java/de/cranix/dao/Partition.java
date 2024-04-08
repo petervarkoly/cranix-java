@@ -28,22 +28,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Partition extends AbstractEntity {
 
 	@Column(name="name", length=32)
-	private String name;
+	private String name = "";
 
 	@Column(name="description", length=64)
-	private String description;
+	private String description = "";
 
 	@Column(name="format", length=16)
-	private String format;
+	private String format = null;
 
 	@Column(name="joinType", length=16)
-	private String joinType;
+	private String joinType = null;
 
 	@Column(name="OS", length=16)
-	private String os;
+	private String os = null;
 
 	@Column(name="tool", length=16)
-	private String tool;
+	private String tool = null;
 
 	//bi-directional many-to-one association to HWConf
 	@ManyToOne
@@ -74,7 +74,9 @@ public class Partition extends AbstractEntity {
 	}
 
 	public void setFormat(String format) {
-		this.format = format.length() > 16 ? format.substring(0,16) : format ;
+		if( format != null ) {
+			this.format = format.length() > 16 ? format.substring(0,16) : format ;
+		}
 	}
 
 	public String getJoinType() {
@@ -82,7 +84,9 @@ public class Partition extends AbstractEntity {
 	}
 
 	public void setJoinType(String joinType) {
-		this.joinType = joinType.length() > 16 ? joinType.substring(0,16) : joinType ;
+		if( joinType != null ) {
+			this.joinType = joinType.length() > 16 ? joinType.substring(0,16) : joinType ;
+		}
 	}
 
 	public String getName() {
@@ -98,7 +102,9 @@ public class Partition extends AbstractEntity {
 	}
 
 	public void setOs(String os) {
-		this.os = os.length() > 16 ? os.substring(0,16) : os ;
+		if( os != null ) {
+			this.os = os.length() > 16 ? os.substring(0, 16) : os;
+		}
 	}
 
 	public String getTool() {
@@ -106,7 +112,9 @@ public class Partition extends AbstractEntity {
 	}
 
 	public void setTool(String tool) {
-		this.tool = tool.length() > 16 ? tool.substring(0,16) : tool ;
+		if( tool != null ) {
+			this.tool = tool.length() > 16 ? tool.substring(0,16) : tool ;
+		}
 	}
 
 	public HWConf getHwconf() {
@@ -124,5 +132,4 @@ public class Partition extends AbstractEntity {
 	public void setLastCloned(Timestamp lastCloned) {
 		this.lastCloned = lastCloned;
 	}
-
 }
