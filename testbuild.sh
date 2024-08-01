@@ -28,7 +28,7 @@ if [ -e cranix-java ]; then
     rm -r cranix-java
 fi
 mkdir -p cranix-java/lib
-mv    target/cranix-4.6.jar        cranix-java/lib/
+mv    target/cranix-15.6.jar        cranix-java/lib/
 chmod 644 cranix-java/lib/*
 rsync -a data/                     cranix-java/data/
 rsync -a bin/                      cranix-java/bin/
