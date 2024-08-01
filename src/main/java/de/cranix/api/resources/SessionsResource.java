@@ -162,7 +162,7 @@ public class SessionsResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final SessionService sessionService = new SessionService(session,em);
-		if( session == null || ! session.getToken().equals(token) ) {
+		if( session == null || (!sessionService.isSuperuser() && ! session.getToken().equals(token) )) {
 			em.close();
 			logger.info("deletion of session denied " + token);
 			throw new WebApplicationException(401);
