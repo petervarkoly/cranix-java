@@ -9,7 +9,7 @@ if [ "$1" ]; then
         if [ "$2" ]; then
            PORT=$2
         fi
-	scp -P $PORT target/cranix-4.6.jar root@$1:/opt/cranix-java/lib/
+	scp -P $PORT target/cranix-15.6.jar root@$1:/opt/cranix-java/lib/
 	ssh -p $PORT root@$1 systemctl restart cranix-api
 fi
 echo  -n "Do you want to check in (y/n)?"
