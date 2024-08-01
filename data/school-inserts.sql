@@ -114,4 +114,5 @@ CREATE TABLE CrxNextID (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci ;
 INSERT INTO CrxNextID Values(4000100,NOW());
+INSERT INTO `TeachingSubjects` (`id`, `created`, `creator_id`, `modified`, `name`) VALUES (NULL,NOW(),1,NOW(),'Allgemeinwissen'),(NULL,NOW(),1,NOW(),'Biologie'),(NULL,NOW(),1,NOW(),'Chemie'),(NULL,NOW(),1,NOW(),'Deutsch'),(NULL,NOW(),1,NOW(),'Englisch'),(NULL,NOW(),1,NOW(),'Ethik'),(NULL,NOW(),1,NOW(),'Französisch'),(NULL,NOW(),1,NOW(),'Geschichte'),(NULL,NOW(),1,NOW(),'Geographie'),(NULL,NOW(),1,NOW(),'Informatik'),(NULL,NOW(),1,NOW(),'Latein'),(NULL,NOW(),1,NOW(),'Literatur'),(NULL,NOW(),1,NOW(),'Mathematik'),(NULL,NOW(),1,NOW(),'Musik'),(NULL,NOW(),1,NOW(),'Philosophie'),(NULL,NOW(),1,NOW(),'Physik'),(NULL,NOW(),1,NOW(),'Religion'),(NULL,NOW(),1,NOW(),'Soziologie'),(NULL,NOW(),1,NOW(),'Sport'),(NULL,NOW(),1,NOW(),'Technik'),(NULL,NOW(),1,NOW(),'Wirtschaft'),(NULL,NOW(),1,NOW(),'English');
 SET FOREIGN_KEY_CHECKS=1;
