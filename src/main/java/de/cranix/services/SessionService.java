@@ -402,7 +402,7 @@ public class SessionService extends Service {
 
     public String logonScript(String OS) {
         //TODO make logon server configurable
-        String[] program = new String[6];
+        String[] program = new String[7];
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         List<String> batFile = new ArrayList<String>();
@@ -410,11 +410,14 @@ public class SessionService extends Service {
         if (fileServerName.isEmpty()) {
             fileServerName = this.getConfigValue("NETBIOSNAME");
         }
-        batFile.add("net use z: \\\\" + fileServerName + "\\" + this.session.getUser().getUid()
+        fileServerName = fileServerName + "." + this.getConfigValue("DOMAIN");
+        batFile.add(
+                "net use z: \\\\" + fileServerName + "\\" + this.session.getUser().getUid()
                 + " /persisten:no /user:"
                 + this.getConfigValue("WORKGROUP") + "\\"
                 + this.session.getUser().getUid() + " \""
-                + this.session.getPassword() + "\"");
+                + this.session.getPassword() + "\""
+        );
         program[0] = cranixBaseDir + "plugins/shares/netlogon/open/100-create-logon-script.sh";
         program[1] = this.session.getUser().getUid();
         program[2] = this.session.getIp();
@@ -425,6 +428,7 @@ public class SessionService extends Service {
             program[4] = "dummy";
         }
         program[5] = this.getConfigValue("DOMAIN");
+        program[6] = "Y";
         CrxSystemCmd.exec(program, reply, error, null);
         File file = new File("/var/lib/samba/sysvol/" + this.getConfigValue("DOMAIN") + "/scripts/" + this.session.getUser().getUid() + ".bat");
         if (file.exists()) {
