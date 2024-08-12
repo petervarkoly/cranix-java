@@ -79,9 +79,9 @@ public class SelfService extends Service {
         File configFile = null;
         String uid = session.getUser().getUid();
         switch (OS) {
-            case "Win7":
             case "Win10":
-                configFile = new File("/var/adm/cranix/vpn/crx-vpn-installer-" + vpnId + "-" + uid + ".exe");
+            case "Win11":
+                configFile = new File("/var/adm/cranix/vpn/crx-vpn-installer-" + vpnId + "-" + uid + ".ovpn");
                 break;
             case "Mac":
                 configFile = new File("/var/adm/cranix/vpn/" + vpnId + "-" + uid + ".tar.bz2");
@@ -110,11 +110,9 @@ public class SelfService extends Service {
         File configFile = null;
         String contentType = "application/x-dosexec";
         switch (OS) {
-            case "Win7":
-                configFile = new File("/srv/www/admin/vpn-clients/openvpn-install-Win7.exe");
-                break;
             case "Win10":
-                configFile = new File("/srv/www/admin/vpn-clients/openvpn-install-Win10.exe");
+            case "Win11":
+                configFile = new File("/srv/www/admin/vpn-clients/openvpn-install-Win.msi");
                 break;
             case "Mac":
                 configFile = new File("/srv/www/admin/vpn-clients/Tunnelblick.dmg");
