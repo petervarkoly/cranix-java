@@ -37,7 +37,7 @@ public interface CranixConstants {
 	static FileAttribute<Set<PosixFilePermission>> worldReadDirAttribute   = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rwxr-xr-x"));
 	static FileAttribute<Set<PosixFilePermission>> worldReadFileAttribute  = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rw-r--r--"));
 
-	static String[] vpnOsList = { "Win7","Win10","Mac","Linux" };
+	static String[] vpnOsList = { "Win10","Win11","Mac","Linux" };
 
 	static Set<PosixFilePermission> privatDirPermission      = PosixFilePermissions.fromString("rwx------");
 	static Set<PosixFilePermission> privatFilePermission     = PosixFilePermissions.fromString("rw-------");
