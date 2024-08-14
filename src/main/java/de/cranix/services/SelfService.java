@@ -81,7 +81,7 @@ public class SelfService extends Service {
         switch (OS) {
             case "Win10":
             case "Win11":
-                configFile = new File("/var/adm/cranix/vpn/crx-vpn-installer-" + vpnId + "-" + uid + ".ovpn");
+                configFile = new File("/var/adm/cranix/vpn/" + vpnId + "-" + uid + ".ovpn");
                 break;
             case "Mac":
                 configFile = new File("/var/adm/cranix/vpn/" + vpnId + "-" + uid + ".tar.bz2");
