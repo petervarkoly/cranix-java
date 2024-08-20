@@ -49,13 +49,13 @@ public class SessionsResource {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	public Session createSession(
-			@Context HttpServletRequest req,
+		@Context HttpServletRequest req,
 		@FormParam("username") String username,
 		@FormParam("password") String password,
 		@FormParam("crx2faSessionId") String crx2faSessionId
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		if(crx2faSessionId.isEmpty()){
+		if(crx2faSessionId == null || crx2faSessionId.isEmpty()){
 			crx2faSessionId = "0";
 		}
 
