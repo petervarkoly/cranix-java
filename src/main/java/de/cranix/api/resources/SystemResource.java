@@ -534,18 +534,16 @@ public class SystemResource {
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("state") String state
 	) {
-		switch (state) {
-			case "stop": {
-				return this.setServicesStatus(session,"firewalld","active","false");
-			}
-			case "start": {
-				return this.setServicesStatus(session,"firewalld","active","true");
-			}
-			case "restart": {
-				return this.setServicesStatus(session,"firewalld","active","restart");
-			}
+		String[] program = new String[2];
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		program[0] = "/usr/sbin/cranix-firewall.py";
+		program[1] = state;
+		if( CrxSystemCmd.exec(program, reply, error, null) == 0 ) {
+			return new CrxResponse("OK","Service state was set successfully.");
+		} else {
+			return new CrxResponse("ERROR",error.toString());
 		}
-		return new CrxResponse("ERROR","Bad firewall state.");
 	}
 
 	/*

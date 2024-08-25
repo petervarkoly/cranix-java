@@ -10,19 +10,25 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonString;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.ws.rs.WebApplicationException;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
+import static de.cranix.helper.CranixConstants.cranixFwConfig;
+import static de.cranix.helper.CranixConstants.firewallServices;
 import static de.cranix.helper.StaticHelpers.createLiteralJson;
 import static de.cranix.helper.StaticHelpers.reloadFirewall;
 
@@ -42,6 +48,7 @@ public class SystemService extends Service {
     static Pattern destinationAddress = Pattern.compile("destination address=\"([0-9\\./]+)\"");
     static Pattern sourceAddress = Pattern.compile("source address=\"([0-9\\./]+)\"");
     static Pattern protocolPattern = Pattern.compile("protocol value=(\\S+)");
+    static Pattern fwPortPattern = Pattern.compile("(\\d+/\\S+)");
 
     /**
      * Delivers a list of the status of the system
@@ -214,44 +221,30 @@ public class SystemService extends Service {
     ///////////////////////////////////////////////////////
 
     public String[] getFirewallServices() {
-        String[] program = new String[2];
-        StringBuffer reply = new StringBuffer();
-        StringBuffer error = new StringBuffer();
-        program[0] = "/usr/bin/firewall-cmd";
-        program[1] = "--get-services";
-        CrxSystemCmd.exec(program, reply, error, null);
-        return reply.toString().split("\\s");
+        return firewallServices;
     }
 
     public Map<String, List<String>> getFirewallIncomingRules() {
-        String[] program = new String[4];
-        StringBuffer reply = new StringBuffer();
-        StringBuffer error = new StringBuffer();
-        program[0] = "/usr/bin/firewall-cmd";
-        program[1] = "--zone=external";
-        program[2] = "--list-services";
-        program[3] = "--permanent";
-        Map<String, List<String>> statusMap;
-        statusMap = new HashMap<>();
+        Map<String, List<String>> statusMap = new HashMap<>();
         List<String> services = new ArrayList<>();
-        CrxSystemCmd.exec(program, reply, error, null);
-        for (String service : reply.toString().split("\\s")) {
-            if (!service.isBlank()) {
-                services.add(service);
-            }
-        }
-        reply = new StringBuffer();
-        error = new StringBuffer();
-        program[0] = "/usr/bin/firewall-cmd";
-        program[1] = "--zone=external";
-        program[2] = "--list-ports";
-        program[3] = "--permanent";
-        CrxSystemCmd.exec(program, reply, error, null);
         List<String> ports = new ArrayList<String>();
-        for (String port : reply.toString().split("\\s")) {
-            if (!port.isBlank()) {
-                ports.add(port);
+        File jsonInputFile = new File(cranixFwConfig);
+        InputStream is;
+        try {
+            is = new FileInputStream(jsonInputFile);
+            JsonReader jsonReader = Json.createReader(is);
+            JsonObject fwConf = jsonReader.readObject();
+            jsonReader.close();
+            for( JsonString port: fwConf.getJsonObject("open_ports").getJsonArray("external").getValuesAs(JsonString.class)) {
+                if(fwPortPattern.matcher(port.toString()).find()) {
+                    ports.add(port.toString());
+                } else {
+                    services.add(port.toString());
+                }
             }
+        }catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         statusMap.put("services", services);
         statusMap.put("ports", ports);
@@ -260,7 +253,7 @@ public class SystemService extends Service {
 
     public CrxResponse setFirewallIncomingRules(Map<String, List<String>> firewallExt) {
         String[] program = new String[1];
-        program[0] = cranixBaseDir + "tools/set_fw_incomming.py";
+        program[0] = cranixBaseDir + "tools/firewall/set_fw_incomming.py";
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
         CrxSystemCmd.exec(program, reply, error, createLiteralJson(firewallExt));
@@ -268,60 +261,47 @@ public class SystemService extends Service {
     }
 
     public List<Map<String, String>> getFirewallOutgoingRules() {
-        Matcher matcher;
+        Map<String, String> statusMap;
         RoomService roomService = new RoomService(this.session, this.em);
         DeviceService deviceService = new DeviceService(this.session, this.em);
         List<Map<String, String>> firewallList = new ArrayList<>();
-        Map<String, String> statusMap;
-        String[] program = new String[3];
-        StringBuffer reply = new StringBuffer();
-        StringBuffer error = new StringBuffer();
-        program[0] = "/usr/bin/firewall-cmd";
-        program[1] = "--zone=external";
-        program[2] = "--list-rich-rules";
-        CrxSystemCmd.exec(program, reply, error, null);
-        for (String line : reply.toString().split("\\n")) {
-            statusMap = new HashMap<>();
-            //Evaluate source
-            matcher = sourceAddress.matcher(line);
-            if (!matcher.find()) {
-                logger.error("getFirewallOutgoingRules bad rule:" + line);
-                continue;
-            }
-            String[] host = matcher.group(1).split("/");
-            if (host.length == 1 || host[1].equals("32")) {
-                Device device = deviceService.getByMainIP(host[0]);
-                if (device == null) {
-                    logger.debug("not found");
-                    continue;
+        File jsonInputFile = new File(cranixFwConfig);
+        InputStream is;
+        try {
+            is = new FileInputStream(jsonInputFile);
+            JsonReader jsonReader = Json.createReader(is);
+            JsonObject fwConf = jsonReader.readObject();
+            jsonReader.close();
+            JsonObject externalRules = fwConf.getJsonObject("nat_rules").getJsonObject("external");
+            for( String source: externalRules.keySet()) {
+                statusMap = new HashMap<>();
+                String[] host = source.split("/");
+                if (host.length == 1 || host[1].equals("32")) {
+                    Device device = deviceService.getByMainIP(host[0]);
+                    if (device == null) {
+                        logger.debug("not found");
+                        continue;
+                    }
+                    statusMap.put("id", Long.toString(device.getId()));
+                    statusMap.put("name", device.getName());
+                    statusMap.put("type", "host");
+                } else {
+                    Room room = roomService.getByIP(host[0]);
+                    if (room == null || !room.getRoomControl().equals("no")) {
+                        continue;
+                    }
+                    statusMap.put("id", Long.toString(room.getId()));
+                    statusMap.put("name", room.getName());
+                    statusMap.put("type", "room");
                 }
-                statusMap.put("id", Long.toString(device.getId()));
-                statusMap.put("name", device.getName());
-                statusMap.put("type", "host");
-            } else {
-                Room room = roomService.getByIP(host[0]);
-                if (room == null || !room.getRoomControl().equals("no")) {
-                    continue;
-                }
-                statusMap.put("id", Long.toString(room.getId()));
-                statusMap.put("name", room.getName());
-                statusMap.put("type", "room");
-            }
-            // Evaluate destination
-            matcher = destinationAddress.matcher(line);
-            if (matcher.find()) {
-                statusMap.put("dest", matcher.group(1));
-            } else {
+                // todo handle destination and protocol
                 statusMap.put("dest", "0/0");
-            }
-            // Evaluate protocol
-            matcher = protocolPattern.matcher(line);
-            if (matcher.find()) {
-                statusMap.put("protocol", matcher.group(1));
-            } else {
                 statusMap.put("protocol", "all");
+                firewallList.add(statusMap);
             }
-            firewallList.add(statusMap);
+        }catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         return firewallList;
     }
@@ -329,10 +309,10 @@ public class SystemService extends Service {
     public CrxResponse addFirewallOutgoingRule(Map<String, String> firewalRule) {
         try {
             logger.debug("addFirewallOutgoingRule 1." + new ObjectMapper().writeValueAsString(firewalRule));
-            String[] program = new String[2];
+            String[] program = new String[4];
             StringBuffer reply = new StringBuffer();
             StringBuffer error = new StringBuffer();
-            program[0] = "/usr/share/cranix/tools/add_fw_external_rule.sh";
+            program[0] = "/usr/share/cranix/tools/firewall/add_fw_external_rule.py";
             String source = "";
             Long id = Long.parseLong(firewalRule.get("id"));
             if (firewalRule.get("type").equals("room")) {
@@ -345,27 +325,12 @@ public class SystemService extends Service {
                 source = String.format("%s/32", device.getIp());
             }
             logger.debug("addFirewallOutgoingRule 2." + source);
-            StringBuilder richRule = new StringBuilder();
-            richRule.append("rule family=ipv4 source address=");
-            richRule.append(source);
-            if (!firewalRule.get("protocol").equals("all")) {
-                richRule.append(" protocol value=");
-                richRule.append(firewalRule.get("protocol"));
-            }
-            logger.debug("addFirewallOutgoingRule 3." + richRule);
-            if (firewalRule.get("dest").equals("0/0")) {
-                program[1] = String.format("rule family=ipv4 source address=%s masquerade", source);
-            } else {
-                program[1] = String.format(
-                        "rule family=ipv4 source address=%s destination address=%s masquerade",
-                        source, firewalRule.get("dest")
-                );
-            }
-            logger.debug("addFirewallOutgoingRule 4.:" + program[0] + " " + program[1]);
+            program[1] = source;
+            program[2] = firewalRule.get("dest");
+            program[3] = firewalRule.get("protocol");
             CrxSystemCmd.exec(program, reply, error, null);
             logger.debug("addFirewallOutgoingRule reply:", reply.toString());
             logger.debug("addFirewallOutgoingRule error:", error.toString());
-            reloadFirewall();
             return new CrxResponse("OK", "Firewall outgoing access rule was add successfully.");
         } catch (Exception e) {
             logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
@@ -376,10 +341,10 @@ public class SystemService extends Service {
     public CrxResponse deleteFirewallOutgoingRule(Map<String, String> firewalRule) {
         try {
             logger.debug(new ObjectMapper().writeValueAsString(firewalRule));
-            String[] program = new String[2];
+            String[] program = new String[4];
             StringBuffer reply = new StringBuffer();
             StringBuffer error = new StringBuffer();
-            program[0] = "/usr/share/cranix/tools/remove_fw_external_rule.sh";
+            program[0] = "/usr/share/cranix/tools/firewall/del_fw_external_rule.py";
             String source = "";
             Long id = Long.parseLong(firewalRule.get("id"));
             if (firewalRule.get("type").equals("room")) {
@@ -389,24 +354,11 @@ public class SystemService extends Service {
                 Device device = new DeviceService(this.session, this.em).getById(id);
                 source = String.format("%s/32", device.getIp());
             }
-            StringBuilder richRule = new StringBuilder();
-            richRule.append("\"rule family=ipv4 source address=");
-            richRule.append(source);
-            if (!firewalRule.get("protocol").equals("all")) {
-                richRule.append(" protocol value=");
-                richRule.append(firewalRule.get("protocol"));
-            }
-            if (firewalRule.get("dest").equals("0/0")) {
-                program[1] = String.format("rule family=ipv4 source address=%s masquerade", source);
-            } else {
-                program[1] = String.format(
-                        "\"rule family=ipv4 source address=%s destination address=%s masquerade\"",
-                        source, firewalRule.get("dest")
-                );
-            }
+            program[1] = source;
+            program[2] = firewalRule.get("dest");
+            program[3] = firewalRule.get("protocol");
             CrxSystemCmd.exec(program, reply, error, null);
             logger.debug("deleteFirewallOutgoingRule error:", error.toString());
-            reloadFirewall();
             return new CrxResponse("OK", "Firewall outgoing access rule was deleted successfully.");
         } catch (Exception e) {
             logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
@@ -415,80 +367,75 @@ public class SystemService extends Service {
     }
 
     public List<Map<String, String>> getFirewallRemoteAccessRules() {
-        String[] program = new String[3];
-        StringBuffer reply = new StringBuffer();
-        StringBuffer error = new StringBuffer();
-        program[0] = "/usr/bin/firewall-cmd";
-        program[1] = "--zone=external";
-        program[2] = "--list-forward-ports";
-        CrxSystemCmd.exec(program, reply, error, null);
         List<Map<String, String>> firewallList = new ArrayList<>();
         Map<String, String> statusMap;
         DeviceService deviceService = new DeviceService(this.session, this.em);
-        for (String line : reply.toString().split("\\n")) {
-            Matcher matcher = portForward.matcher(line);
-            if (matcher.find()) {
-                Device device = deviceService.getByIP(matcher.group(3));
+        File jsonInputFile = new File(cranixFwConfig);
+        InputStream is;
+        try {
+            is = new FileInputStream(jsonInputFile);
+            JsonReader jsonReader = Json.createReader(is);
+            JsonObject fwConf = jsonReader.readObject();
+            jsonReader.close();
+            for (JsonObject rule : fwConf.getJsonObject("port_forward_rules").getJsonArray("external").getValuesAs(JsonObject.class)) {
+                Device device = deviceService.getByIP(rule.getString("to_ip"));
                 if (device != null) {
                     statusMap = new HashMap<String, String>();
-                    statusMap.put("ext",  matcher.group(1));
-                    statusMap.put("port", matcher.group(2));
+                    statusMap.put("ext",  rule.getString("dport"));
+                    statusMap.put("port", rule.getString("to_port"));
+                    statusMap.put("proto", rule.getString("proto"));
                     statusMap.put("name", device.getName());
                     statusMap.put("id", device.getId().toString());
                     firewallList.add(statusMap);
                 } else {
-                    logger.error("getFirewallRemoteAccessRules can not find host:" + matcher.group(3));
+                    logger.error("getFirewallRemoteAccessRules can not find host:" + rule.getString("to_ip"));
                 }
-            } else {
-                logger.error("getFirewallRemoteAccessRules bad rule: " + line);
             }
+        }catch (FileNotFoundException e) {
+            logger.error(e.getMessage());
         }
         return firewallList;
     }
 
     public CrxResponse addFirewallRemoteAccessRule(Map<String, String> remoteRule) {
-        String[] program = new String[4];
+        String[] program = new String[1];
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
-        program[0] = "/usr/bin/firewall-cmd";
-        program[1] = "--permanent";
-        program[2] = "--zone=external";
+        program[0] = "/usr/share/cranix/tools/firewall/add_fw_remote_access_rule.py";
         Device device = new DeviceService(this.session, this.em).getById(
                 Long.parseLong(remoteRule.get("id"))
         );
         if (device == null) {
             return new CrxResponse("ERROR", "Firewall remote access rule could not set.");
         }
-        program[3] = String.format("--add-forward-port=port=%s:proto=tcp:toport=%s:toaddr=%s",
-                remoteRule.get("ext"), remoteRule.get("port"), device.getIp()
-        );
-        logger.debug(program[0] + " " + program[1] + " " + program[2] + " " + program[3] );
-        CrxSystemCmd.exec(program, reply, error, null);
+        Map<String, String> statusMap = new HashMap<String, String>();
+        statusMap.put("proto","tcp");
+        statusMap.put("dport",remoteRule.get("ext"));
+        statusMap.put("to_ip",device.getIp());
+        statusMap.put("to_port",remoteRule.get("port"));
+        CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
         logger.debug("addFirewallRemoteAccessRule error:", error.toString());
-        reloadFirewall();
         return new CrxResponse("OK", "Firewall remote access rule was add successfully.");
     }
 
     public CrxResponse deleteFirewallRemoteAccessRule(Map<String, String> remoteRule) {
-        String[] program = new String[4];
+        String[] program = new String[1];
         StringBuffer reply = new StringBuffer();
         StringBuffer error = new StringBuffer();
-        program[0] = "/usr/bin/firewall-cmd";
-        program[1] = "--permanent";
-        program[2] = "--zone=external";
+        program[0] = "/usr/share/cranix/tools/firewall/del_fw_remote_access_rule.py";
         Device device = new DeviceService(this.session, this.em).getById(
                 Long.parseLong(remoteRule.get("id"))
         );
         if (device == null) {
-            return new CrxResponse("ERROR", "Firewall remote access rule could not be deleted.");
+            return new CrxResponse("ERROR", "Firewall remote access rule could not set.");
         }
-        program[3] = String.format("--remove-forward-port=port=%s:proto=tcp:toport=%s:toaddr=%s",
-                remoteRule.get("ext"), remoteRule.get("port"), device.getIp()
-        );
-        logger.debug(program[0] + " " + program[1] + " " + program[2] + " " + program[3] );
-        CrxSystemCmd.exec(program, reply, error, null);
-        logger.debug("deleteFirewallRemoteAccessRule error:", error.toString());
-        reloadFirewall();
+        Map<String, String> statusMap = new HashMap<String, String>();
+        statusMap.put("proto","tcp");
+        statusMap.put("dport",remoteRule.get("ext"));
+        statusMap.put("to_ip",device.getIp());
+        statusMap.put("to_port",remoteRule.get("port"));
+        CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
+        logger.debug("addFirewallRemoteAccessRule error:", error.toString());
         return new CrxResponse("OK", "Firewall remote access rule was removed successfully.");
     }
 
