@@ -309,7 +309,7 @@ public class SystemService extends Service {
     public CrxResponse addFirewallOutgoingRule(Map<String, String> firewalRule) {
         try {
             logger.debug("addFirewallOutgoingRule 1." + new ObjectMapper().writeValueAsString(firewalRule));
-            String[] program = new String[4];
+            String[] program = new String[1];
             StringBuffer reply = new StringBuffer();
             StringBuffer error = new StringBuffer();
             program[0] = "/usr/share/cranix/tools/firewall/add_fw_external_rule.py";
@@ -325,10 +325,11 @@ public class SystemService extends Service {
                 source = String.format("%s/32", device.getIp());
             }
             logger.debug("addFirewallOutgoingRule 2." + source);
-            program[1] = source;
-            program[2] = firewalRule.get("dest");
-            program[3] = firewalRule.get("protocol");
-            CrxSystemCmd.exec(program, reply, error, null);
+	    Map<String, String> statusMap = new HashMap<String, String>();
+            statusMap.put("proto",firewalRule.get("protocol"));
+            statusMap.put("dest",firewalRule.get("dest"));
+            statusMap.put("source",source);
+            CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
             logger.debug("addFirewallOutgoingRule reply:", reply.toString());
             logger.debug("addFirewallOutgoingRule error:", error.toString());
             return new CrxResponse("OK", "Firewall outgoing access rule was add successfully.");
@@ -341,7 +342,7 @@ public class SystemService extends Service {
     public CrxResponse deleteFirewallOutgoingRule(Map<String, String> firewalRule) {
         try {
             logger.debug(new ObjectMapper().writeValueAsString(firewalRule));
-            String[] program = new String[4];
+            String[] program = new String[1];
             StringBuffer reply = new StringBuffer();
             StringBuffer error = new StringBuffer();
             program[0] = "/usr/share/cranix/tools/firewall/del_fw_external_rule.py";
@@ -354,10 +355,11 @@ public class SystemService extends Service {
                 Device device = new DeviceService(this.session, this.em).getById(id);
                 source = String.format("%s/32", device.getIp());
             }
-            program[1] = source;
-            program[2] = firewalRule.get("dest");
-            program[3] = firewalRule.get("protocol");
-            CrxSystemCmd.exec(program, reply, error, null);
+	    Map<String, String> statusMap = new HashMap<String, String>();
+            statusMap.put("proto",firewalRule.get("protocol"));
+            statusMap.put("dest",firewalRule.get("dest"));
+            statusMap.put("source",source);
+            CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
             logger.debug("deleteFirewallOutgoingRule error:", error.toString());
             return new CrxResponse("OK", "Firewall outgoing access rule was deleted successfully.");
         } catch (Exception e) {
