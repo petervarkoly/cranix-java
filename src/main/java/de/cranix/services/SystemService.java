@@ -56,15 +56,15 @@ public class SystemService extends Service {
      * @return Hash of status lists:
      * [
      * {
-     * "name"			: "groups"
-     * "primary"		: 5,
-     * "class"			: 40,
-     * "workgroups"	: 122
+     * "name"                        : "groups"
+     * "primary"                : 5,
+     * "class"                        : 40,
+     * "workgroups"        : 122
      * },
      * {
-     * "name"			: "users",
-     * "students"		: 590,
-     * "students-loggedOn"	205,
+     * "name"                        : "users",
+     * "students"                : 590,
+     * "students-loggedOn"        205,
      * ...
      * }
      * ....
@@ -272,10 +272,9 @@ public class SystemService extends Service {
             JsonReader jsonReader = Json.createReader(is);
             JsonObject fwConf = jsonReader.readObject();
             jsonReader.close();
-            JsonObject externalRules = fwConf.getJsonObject("nat_rules").getJsonObject("external");
-            for( String source: externalRules.keySet()) {
+            for( JsonObject rule : fwConf.getJsonObject("nat_rules").getJsonArray("external").getValuesAs(JsonObject.class)) {
                 statusMap = new HashMap<>();
-                String[] host = source.split("/");
+                String[] host = rule.getString("source").split("/");
                 if (host.length == 1 || host[1].equals("32")) {
                     Device device = deviceService.getByMainIP(host[0]);
                     if (device == null) {
@@ -294,29 +293,37 @@ public class SystemService extends Service {
                     statusMap.put("name", room.getName());
                     statusMap.put("type", "room");
                 }
-                // todo handle destination and protocol
-                statusMap.put("dest", "0/0");
-                statusMap.put("protocol", "all");
+                if(rule.has("dest")
+                    statusMap.put("dest", rule.getString("dest"));
+                else
+                    statusMap.put("dest", "");
+                if(rule.has("proto")
+                    statusMap.put("protocol", rule.getSting("proto");
+                else
+                    statusMap.put("protocol", "");
+                if(rule.has("to_source")
+                    statusMap.put("to_source", rule.getSting("to_source");
+                else
+                    statusMap.put("to_source", "");
                 firewallList.add(statusMap);
             }
         }catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return firewallList;
     }
 
-    public CrxResponse addFirewallOutgoingRule(Map<String, String> firewalRule) {
+    public CrxResponse addFirewallOutgoingRule(Map<String, String> firewallRule) {
         try {
-            logger.debug("addFirewallOutgoingRule 1." + new ObjectMapper().writeValueAsString(firewalRule));
+            logger.debug("addFirewallOutgoingRule 1." + new ObjectMapper().writeValueAsString(firewallRule));
             String[] program = new String[1];
             StringBuffer reply = new StringBuffer();
             StringBuffer error = new StringBuffer();
             program[0] = "/usr/share/cranix/tools/firewall/add_fw_external_rule.py";
             String source = "";
-            Long id = Long.parseLong(firewalRule.get("id"));
-            if (firewalRule.get("type").equals("room")) {
-                logger.debug("addFirewallOutgoingRule 1 room" + firewalRule.get("id"));
+            Long id = Long.parseLong(firewallRule.get("id"));
+            if (firewallRule.get("type").equals("room")) {
+                logger.debug("addFirewallOutgoingRule 1 room" + firewallRule.get("id"));
                 Room room = new RoomService(this.session, this.em).getById(id);
                 source = String.format("%s/%s", room.getStartIP(), room.getNetMask());
             } else {
@@ -325,10 +332,10 @@ public class SystemService extends Service {
                 source = String.format("%s/32", device.getIp());
             }
             logger.debug("addFirewallOutgoingRule 2." + source);
-	    Map<String, String> statusMap = new HashMap<String, String>();
-            statusMap.put("proto",firewalRule.get("protocol"));
-            statusMap.put("dest",firewalRule.get("dest"));
-            statusMap.put("source",source);
+            Map<String, String> statusMap = new HashMap<String, String>();
+            statusMap.put("proto", firewallRule.get("protocol"));
+            statusMap.put("dest", firewallRule.get("dest"));
+            statusMap.put("source", source);
             CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
             logger.debug("addFirewallOutgoingRule reply:", reply.toString());
             logger.debug("addFirewallOutgoingRule error:", error.toString());
@@ -339,26 +346,31 @@ public class SystemService extends Service {
         }
     }
 
-    public CrxResponse deleteFirewallOutgoingRule(Map<String, String> firewalRule) {
+    public CrxResponse deleteFirewallOutgoingRule(Map<String, String> firewallRule) {
         try {
-            logger.debug(new ObjectMapper().writeValueAsString(firewalRule));
+            logger.debug(new ObjectMapper().writeValueAsString(firewallRule));
             String[] program = new String[1];
             StringBuffer reply = new StringBuffer();
             StringBuffer error = new StringBuffer();
             program[0] = "/usr/share/cranix/tools/firewall/del_fw_external_rule.py";
             String source = "";
-            Long id = Long.parseLong(firewalRule.get("id"));
-            if (firewalRule.get("type").equals("room")) {
+            Long id = Long.parseLong(firewallRule.get("id"));
+            if (firewallRule.get("type").equals("room")) {
                 Room room = new RoomService(this.session, this.em).getById(id);
                 source = String.format("%s/%s", room.getStartIP(), room.getNetMask());
             } else {
                 Device device = new DeviceService(this.session, this.em).getById(id);
                 source = String.format("%s/32", device.getIp());
             }
-	    Map<String, String> statusMap = new HashMap<String, String>();
-            statusMap.put("proto",firewalRule.get("protocol"));
-            statusMap.put("dest",firewalRule.get("dest"));
-            statusMap.put("source",source);
+            Map<String, String> statusMap = new HashMap<String, String>();
+            statusMap.put("proto", firewallRule.get("protocol"));
+            statusMap.put("dest", firewallRule.get("dest"));
+            statusMap.put("source", source);
+            if( firewallRule.containsKey("to_source")
+                statusMap.put("to_source", firewallRule.get("to_source");
+            else
+                statusMap.put("to_source", "");
+                
             CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
             logger.debug("deleteFirewallOutgoingRule error:", error.toString());
             return new CrxResponse("OK", "Firewall outgoing access rule was deleted successfully.");
