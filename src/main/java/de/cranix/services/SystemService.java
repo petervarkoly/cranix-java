@@ -293,18 +293,9 @@ public class SystemService extends Service {
                     statusMap.put("name", room.getName());
                     statusMap.put("type", "room");
                 }
-                if(rule.has("dest")
-                    statusMap.put("dest", rule.getString("dest"));
-                else
-                    statusMap.put("dest", "");
-                if(rule.has("proto")
-                    statusMap.put("protocol", rule.getSting("proto");
-                else
-                    statusMap.put("protocol", "");
-                if(rule.has("to_source")
-                    statusMap.put("to_source", rule.getSting("to_source");
-                else
-                    statusMap.put("to_source", "");
+                statusMap.put("dest", rule.getString("dest",""));
+                statusMap.put("protocol", rule.getString("proto",""));
+                statusMap.put("to_source", rule.getString("to_source",""));
                 firewallList.add(statusMap);
             }
         }catch (FileNotFoundException e) {
@@ -366,11 +357,10 @@ public class SystemService extends Service {
             statusMap.put("proto", firewallRule.get("protocol"));
             statusMap.put("dest", firewallRule.get("dest"));
             statusMap.put("source", source);
-            if( firewallRule.containsKey("to_source")
-                statusMap.put("to_source", firewallRule.get("to_source");
+            if( firewallRule.containsKey("to_source"))
+                statusMap.put("to_source", firewallRule.get("to_source"));
             else
                 statusMap.put("to_source", "");
-                
             CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
             logger.debug("deleteFirewallOutgoingRule error:", error.toString());
             return new CrxResponse("OK", "Firewall outgoing access rule was deleted successfully.");
