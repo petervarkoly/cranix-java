@@ -14,10 +14,7 @@ import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
+import javax.json.*;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.ws.rs.WebApplicationException;
@@ -235,11 +232,11 @@ public class SystemService extends Service {
             JsonReader jsonReader = Json.createReader(is);
             JsonObject fwConf = jsonReader.readObject();
             jsonReader.close();
-            for( JsonString port: fwConf.getJsonObject("open_ports").getJsonArray("external").getValuesAs(JsonString.class)) {
+            for( JsonValue port: fwConf.getJsonObject("open_ports").getJsonArray("external")) {
                 if(fwPortPattern.matcher(port.toString()).find()) {
-                    ports.add(port.toString());
+                    ports.add(port.toString().replace("\"",""));
                 } else {
-                    services.add(port.toString());
+                    services.add(port.toString().replace("\"",""));
                 }
             }
         }catch (FileNotFoundException e) {
