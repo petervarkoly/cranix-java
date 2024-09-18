@@ -59,10 +59,10 @@ public class Device extends AbstractEntity {
     private String name;
 
     @Column(name = "place")
-    private Integer place;
+    private Integer place = 0;
 
     @Column(name = "roomRow")
-    private Integer row;
+    private Integer row = 0;
 
     @Column(name = "IP", length = 16)
     @Size(max = 16, message = "IP must not be longer then 16 characters.")
@@ -188,7 +188,7 @@ public class Device extends AbstractEntity {
     }
 
     public int getPlace() {
-        return this.place;
+        return this.place == null ? 0: this.place;
     }
 
     public void setPlace(int place) {
@@ -212,7 +212,7 @@ public class Device extends AbstractEntity {
     }
 
     public int getRow() {
-        return this.row;
+        return this.row == null ? 0: this.row;
     }
 
     public void setRow(int row) {
