@@ -48,7 +48,7 @@ public class AdHocLanResource {
 		@ApiResponse(code = 404, message = "No room was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
-	@RolesAllowed("adhoclan.manage")
+	@PermitAll
 	public List<AdHocRoom> getAll( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<AdHocRoom> resp = new AdHocLanService(session,em).getAll();
@@ -63,7 +63,7 @@ public class AdHocLanResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@PermitAll
+	@RolesAllowed("adhoclan.manage")
 	public CrxResponse add(
 		@ApiParam(hidden = true) @Auth Session session,
 		AdHocRoom room
