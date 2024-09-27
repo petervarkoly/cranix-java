@@ -11,8 +11,11 @@ my $forTeachers = {};
 
 foreach( split /\n/, $ROLES )
 {
-	if(	/\@RolesAllowed\("(.*)"\)/ )
+	if(/\@RolesAllowed\("(.*)"\)/ )
 	{
+		if( $1 =~ /^2fa/ ) {
+			next;
+		}
 		my $r = $1;
 		$hroles->{$1} = 1;
 		if( $r =~ /education/  || $r =~ /information/ ) {
@@ -24,30 +27,30 @@ foreach( split /\n/, $ROLES )
 }
 foreach( sort keys %$hroles )
 {
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','$_',6);\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='$_';\n";
 }
 foreach( sort keys %$hroles )
 {
-	print "INSERT INTO Acls VALUES(NULL,NULL,1,'$_','Y',6);\n";
+	print "INSERT INTO Acls SET group_id=1,acl='$_',allowed='Y';\n";
 }
 
 foreach( sort keys %$forTeachers )
 {
-	print "INSERT INTO Acls VALUES(NULL,NULL,2,'$_','Y',6);\n";
+	print "INSERT INTO Acls SET group_id=2,acl='$_',allowed='Y';\n";
 }
 
 foreach( @USERROLES ) {
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','user.add.$_',6);\n";
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','user.delete.$_',6);\n";
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','user.modify.$_',6);\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='user.add.$_';\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='user.delete.$_';\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='user.modify.$_';\n";
 }
 foreach( @GROUPTYPES ) {
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','group.add.$_',6);\n";
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','group.delete.$_',6);\n";
-	print "INSERT INTO Enumerates VALUES(NULL,'apiAcl','group.modify.$_',6);\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='group.add.$_';\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='group.delete.$_';\n";
+	print "INSERT INTO Enumerates SET name='apiAcl',value='group.modify.$_';\n";
 }
-print "INSERT INTO Acls VALUES(NULL,NULL,2,'group.add.guests','Y',6);\n";
-print "INSERT INTO Acls VALUES(NULL,NULL,2,'user.add.guests','Y',6);\n";
-print "INSERT INTO Acls VALUES(NULL,NULL,2,'group.add.workgroup','Y',6);\n";
-print "INSERT INTO Acls VALUES(NULL,NULL,2,'group.delete.workgroup','Y',6);\n";
-print "INSERT INTO Acls VALUES(NULL,NULL,2,'group.modify.workgroup','Y',6);\n";
+print "INSERT INTO Acls SET group_id=2,acl='group.add.guests',allowed='Y';\n";
+print "INSERT INTO Acls SET group_id=2,acl='user.add.guests',allowed='Y';\n";
+print "INSERT INTO Acls SET group_id=2,acl='group.add.workgroup',allowed='Y';\n";
+print "INSERT INTO Acls SET group_id=2,acl='group.delete.workgroup',allowed='Y';\n";
+print "INSERT INTO Acls SET group_id=2,acl='group.modify.workgroup',allowed='Y';\n";

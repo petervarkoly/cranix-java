@@ -1,7 +1,6 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved  */
 package de.cranix.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
 import org.slf4j.Logger;
@@ -13,8 +12,13 @@ import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -195,13 +199,11 @@ public class UserService extends Service {
         // Check role
         if (user.getRole() == null) {
             return new CrxResponse(
-                    this.getSession(),
                     "ERROR",
                     "You have to define the role of the user.");
         }
         if (!this.mayAdd(user)) {
             return new CrxResponse(
-                    this.getSession(),
                     "ERROR",
                     "You must not create user whith role %s.",
                     null,
@@ -212,7 +214,7 @@ public class UserService extends Service {
             if (!user.getRole().equals(roleStudent)) {
                 user.setBirthDay(this.nowDateString());
             } else {
-                return new CrxResponse(this.getSession(), "ERROR", "You have to define the birthday.");
+                return new CrxResponse("ERROR", "You have to define the birthday.");
             }
         }
         // Create uid if not given
@@ -223,11 +225,11 @@ public class UserService extends Service {
             // First we check if the parameter are unique.
             // workstation users have a user called as itself
             if (!user.getRole().equals("workstations") && !this.isNameUnique(user.getUid())) {
-                return new CrxResponse(this.getSession(), "ERROR", "User name is not unique.");
+                return new CrxResponse("ERROR", "User name is not unique.");
             }
             // Check if uid contains non allowed characters
             if (this.checkNonASCII(user.getUid())) {
-                return new CrxResponse(this.getSession(), "ERROR", "Uid contains not allowed characters.");
+                return new CrxResponse("ERROR", "Uid contains not allowed characters.");
             }
         }
         // Check the user password
@@ -257,7 +259,7 @@ public class UserService extends Service {
             errorMessage.append(violation.getMessage()).append(getNl());
         }
         if (errorMessage.length() > 0) {
-            return new CrxResponse(this.getSession(), "ERROR", errorMessage.toString());
+            return new CrxResponse("ERROR", errorMessage.toString());
         }
         if (user.getMailAliases() != null) {
             for (String alias : user.getMailAliases()) {
@@ -278,7 +280,7 @@ public class UserService extends Service {
             logger.debug("Created user" + user);
         } catch (Exception e) {
             logger.error("add: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         startPlugin("add_user", user);
         List<String> parameters = new ArrayList<String>();
@@ -286,7 +288,7 @@ public class UserService extends Service {
         parameters.add(user.getGivenName());
         parameters.add(user.getSurName());
         parameters.add(user.getPassword());
-        return new CrxResponse(this.getSession(), "OK", "%s ( %s %s ) was created with password '%s'", user.getId(),
+        return new CrxResponse("OK", "%s ( %s %s ) was created with password '%s'", user.getId(),
                 parameters);
     }
 
@@ -301,7 +303,7 @@ public class UserService extends Service {
     public CrxResponse modify(User user) {
         User oldUser = this.getById(user.getId());
         if (!this.mayModify(oldUser)) {
-            return new CrxResponse(this.getSession(), "ERROR", "You must not modify this user.");
+            return new CrxResponse("ERROR", "You must not modify this user.");
         }
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             CrxResponse crxResponse = this.checkPassword(user.getPassword());
@@ -317,6 +319,7 @@ public class UserService extends Service {
         oldUser.setPassword(user.getPassword());
         oldUser.setFsQuota(user.getFsQuota());
         oldUser.setMsQuota(user.getMsQuota());
+        oldUser.setMustChange(user.isMustChange());
         List<Alias> newAliases = new ArrayList<Alias>();
         if (user.getMailAliases() != null) {
             ArrayList<String> oldAliases = new ArrayList<String>();
@@ -327,7 +330,7 @@ public class UserService extends Service {
                 String tmp = alias.trim();
                 if (!tmp.isEmpty()) {
                     if (!oldAliases.contains(tmp) && !this.isUserAliasUnique(tmp)) {
-                        return new CrxResponse(this.getSession(), "ERROR", "Alias '%s' is not unique", null, tmp);
+                        return new CrxResponse("ERROR", "Alias '%s' is not unique", null, tmp);
                     }
                     newAliases.add(new Alias(oldUser, tmp));
                 }
@@ -340,7 +343,7 @@ public class UserService extends Service {
             errorMessage.append(violation.getMessage()).append(getNl());
         }
         if (errorMessage.length() > 0) {
-            return new CrxResponse(this.getSession(), "ERROR", errorMessage.toString());
+            return new CrxResponse("ERROR", errorMessage.toString());
         }
         try {
             this.em.getTransaction().begin();
@@ -356,10 +359,10 @@ public class UserService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         startPlugin("modify_user", oldUser);
-        return new CrxResponse(this.getSession(), "OK", "User was modified succesfully");
+        return new CrxResponse("OK", "User was modified succesfully");
     }
 
     public List<CrxResponse> deleteStudents(List<Long> userIds) {
@@ -383,13 +386,13 @@ public class UserService extends Service {
 
     public CrxResponse delete(User user) {
         if (user == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Can not find the user.");
+            return new CrxResponse("ERROR", "Can not find the user.");
         }
         if (this.isProtected(user)) {
-            return new CrxResponse(this.getSession(), "ERROR", "This user must not be deleted.");
+            return new CrxResponse("ERROR", "This user must not be deleted.");
         }
         if (!this.mayDelete(user)) {
-            return new CrxResponse(this.getSession(), "ERROR", "You must not delete this user.");
+            return new CrxResponse("ERROR", "You must not delete this user.");
         }
         startPlugin("delete_user", user);
         //TODO make it configurable
@@ -422,7 +425,7 @@ public class UserService extends Service {
         }
         this.em.remove(user);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.getSession(), "OK", "User was deleted");
+        return new CrxResponse("OK", "User was deleted");
     }
 
     public List<Group> getAvailableGroups(long userId) {
@@ -449,7 +452,7 @@ public class UserService extends Service {
         User user = this.getById(userId);
         if (!this.mayModify(user)) {
             logger.error("setGroups: Session user may not modify: %s", null, userId);
-            return new CrxResponse(this.getSession(), "ERROR", "You must not modify this user.");
+            return new CrxResponse("ERROR", "You must not modify this user.");
         }
         for (Group group : groups) {
             if (!user.getGroups().contains(group)) {
@@ -480,7 +483,7 @@ public class UserService extends Service {
             this.em.merge(user);
             this.em.getTransaction().commit();
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         for (Group group : groupsToAdd) {
             changeMemberPlugin("addmembers", group, user);
@@ -488,7 +491,7 @@ public class UserService extends Service {
         for (Group group : groupsToRemove) {
             changeMemberPlugin("removemembers", group, user);
         }
-        return new CrxResponse(this.getSession(), "OK", "The groups of the user was set.");
+        return new CrxResponse("OK", "The groups of the user was set.");
     }
 
     public CrxResponse syncFsQuotas(List<List<String>> quotas) {
@@ -507,9 +510,9 @@ public class UserService extends Service {
                 }
             }
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "The filesystem quotas was synced succesfully");
+        return new CrxResponse("OK", "The filesystem quotas was synced succesfully");
     }
 
     public CrxResponse syncMsQuotas(List<List<String>> quotas) {
@@ -528,9 +531,9 @@ public class UserService extends Service {
                 }
             }
         } catch (Exception e) {
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "The mailsystem quotas was synced succesfully");
+        return new CrxResponse("OK", "The mailsystem quotas was synced succesfully");
     }
 
     public String getGroupsOfUser(String userName, String groupType) {
@@ -580,7 +583,7 @@ public class UserService extends Service {
             user.setPassword(password);
             user.setMustChange(mustChange);
             startPlugin("modify_user", user);
-            responses.add(new CrxResponse(this.getSession(), "OK", "The password of '%s' was reseted.", null, user.getUid()));
+            responses.add(new CrxResponse("OK", "The password of '%s' was reseted.", null, user.getUid()));
         }
         if (checkPassword) {
             this.setConfigValue("CHECK_PASSWORD_QUALITY", "yes");
@@ -607,7 +610,7 @@ public class UserService extends Service {
                 }
                 program[1] = user.getUid();
                 CrxSystemCmd.exec(program, reply, error, null);
-                responses.add(new CrxResponse(this.getSession(), "OK", "The template for '%s' was copied.", null, user.getUid()));
+                responses.add(new CrxResponse("OK", "The template for '%s' was copied.", null, user.getUid()));
             }
         }
         return responses;
@@ -628,7 +631,7 @@ public class UserService extends Service {
                 }
                 program[1] = user.getUid();
                 CrxSystemCmd.exec(program, reply, error, null);
-                responses.add(new CrxResponse(this.getSession(), "OK", "The windows profile of '%s' was removed.", null, user.getUid()));
+                responses.add(new CrxResponse("OK", "The windows profile of '%s' was removed.", null, user.getUid()));
             }
         }
         return responses;
@@ -653,7 +656,7 @@ public class UserService extends Service {
                 }
                 program[1] = user.getUid();
                 CrxSystemCmd.exec(program, reply, error, null);
-                responses.add(new CrxResponse(this.getSession(), "OK", "The windows profile of '%s' was froozen.", null, user.getUid()));
+                responses.add(new CrxResponse("OK", "The windows profile of '%s' was froozen.", null, user.getUid()));
             }
         }
         return responses;
@@ -681,9 +684,9 @@ public class UserService extends Service {
                 program[3] = user.getUid();
                 CrxSystemCmd.exec(program, reply, error, null);
                 if (disable) {
-                    responses.add(new CrxResponse(this.getSession(), "OK", "'%s' was disabled.", null, user.getUid()));
+                    responses.add(new CrxResponse("OK", "'%s' was disabled.", null, user.getUid()));
                 } else {
-                    responses.add(new CrxResponse(this.getSession(), "OK", "'%s' was enabled.", null, user.getUid()));
+                    responses.add(new CrxResponse("OK", "'%s' was enabled.", null, user.getUid()));
                 }
             }
         }
@@ -711,7 +714,7 @@ public class UserService extends Service {
                 this.em.merge(user);
                 this.em.getTransaction().commit();
                 CrxSystemCmd.exec(program, reply, error, null);
-                responses.add(new CrxResponse(this.getSession(), "OK", "The file system quota for '%s' was set.", null, user.getUid()));
+                responses.add(new CrxResponse("OK", "The file system quota for '%s' was set.", null, user.getUid()));
             }
         }
         return responses;
@@ -738,7 +741,7 @@ public class UserService extends Service {
                 this.em.merge(user);
                 this.em.getTransaction().commit();
                 CrxSystemCmd.exec(program, reply, error, null);
-                responses.add(new CrxResponse(this.getSession(), "OK", "The mail system quota for '%s' was set.", null, user.getUid()));
+                responses.add(new CrxResponse("OK", "The mail system quota for '%s' was set.", null, user.getUid()));
             }
         }
         return responses;
@@ -777,11 +780,11 @@ public class UserService extends Service {
                 logger.debug("Collect Program:" + st.toString());
                 logger.debug("Collected project " + project + " from " + user.getUid());
             }
-            return new CrxResponse(this.getSession(), "OK", "File was collected from: %s", null, user.getUid());
+            return new CrxResponse("OK", "File was collected from: %s", null, user.getUid());
         }
         logger.error("Can not collect project " + project + " from " + user.getUid() + stderr.toString());
 
-        return new CrxResponse(this.getSession(), "ERROR", stderr.toString());
+        return new CrxResponse("ERROR", stderr.toString());
     }
 
     public List<CrxResponse> disableInternet(List<Long> userIds, boolean disable) {
@@ -795,9 +798,9 @@ public class UserService extends Service {
                 }
                 if (disable) {
                     this.setConfig(this.getById(userId), "internetDisabled", "yes");
-                    responses.add(new CrxResponse(this.getSession(), "OK", "Surfing is for '%s' disabled.", null, user.getUid()));
+                    responses.add(new CrxResponse("OK", "Surfing is for '%s' disabled.", null, user.getUid()));
                 } else {
-                    responses.add(new CrxResponse(this.getSession(), "OK", "Surfing is for '%s' enabled.", null, user.getUid()));
+                    responses.add(new CrxResponse("OK", "Surfing is for '%s' enabled.", null, user.getUid()));
                     this.deleteConfig(this.getById(userId), "internetDisabled");
                 }
             }
@@ -821,25 +824,25 @@ public class UserService extends Service {
             creator.setCreatedAccessInRoom(null);
             //Announcement
             for (Announcement o : creator.getMyAnnouncements()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setMyAnnouncements(null);
             //Categories
             for (Category o : creator.getOwnedCategories()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setOwnedCategories(null);
             //Contacts
             for (Contact o : creator.getMyContacts()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setMyContacts(null);
             //Groups
             for (Group o : creator.getOwnedGroups()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setOwnedGroups(null);
@@ -851,7 +854,7 @@ public class UserService extends Service {
             creator.setCreatedHWConfs(null);
             //PositiveList
             for (PositiveList o : creator.getOwnedPositiveLists()) {
-                o.setOwner(newCreator);
+                o.setCreator(newCreator);
                 this.em.merge(o);
             }
             creator.setOwnedPositiveLists(null);
@@ -964,10 +967,10 @@ public class UserService extends Service {
     @SuppressWarnings("unlikely-arg-type")
     public CrxResponse addAlias(User user, String alias) {
         if (user.getAliases().contains(alias)) {
-            return new CrxResponse(this.getSession(), "OK", "The alias was already add to the user.");
+            return new CrxResponse("OK", "The alias was already add to the user.");
         }
         if (!this.isUserAliasUnique(alias)) {
-            return new CrxResponse(this.getSession(), "ERROR", "The alias was already add to an other user.");
+            return new CrxResponse("ERROR", "The alias was already add to an other user.");
         }
         try {
             Alias newAlias = new Alias(user, alias);
@@ -977,9 +980,9 @@ public class UserService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
+        return new CrxResponse("OK", "The alias was add to the user succesfully.");
     }
 
     public CrxResponse addDefaultAliase(User user) {
@@ -989,15 +992,15 @@ public class UserService extends Service {
         crxResponse = this.addAlias(user, normalize(user.getSurName() + "." + user.getGivenName()).replace(" ", ""));
         if (error) {
             if (crxResponse.getCode().equals("ERROR")) {
-                return new CrxResponse(this.getSession(), "ERROR", "Can not add default aliases.");
+                return new CrxResponse("ERROR", "Can not add default aliases.");
             } else {
-                return new CrxResponse(this.getSession(), "ERROR", "Can not add Givenname.Surname alias.");
+                return new CrxResponse("ERROR", "Can not add Givenname.Surname alias.");
             }
         } else {
             if (crxResponse.getCode().equals("ERROR")) {
-                return new CrxResponse(this.getSession(), "ERROR", "Can not ad Surname.Givenname alias");
+                return new CrxResponse("ERROR", "Can not ad Surname.Givenname alias");
             } else {
-                return new CrxResponse(this.getSession(), "OK", "The alias was add to the user succesfully.");
+                return new CrxResponse("OK", "The alias was add to the user succesfully.");
             }
         }
     }
@@ -1061,49 +1064,84 @@ public class UserService extends Service {
         return responses;
     }
 
-    public List<CrxResponse> moveStudentsDevices(){
+    CrxResponse registerUserDevice(String MAC, User user){
+        this.em.refresh(user);
+        RoomService roomService = new RoomService(session, em);
+        List<Room> rooms = roomService.getRoomToRegisterForUser(user);
+        if(!rooms.isEmpty()) {
+            Room room  = rooms.get(0);
+            List<String> ipAddress = roomService.getAvailableIPAddresses(room.getId(), 1);
+            String devName = user.getUid().replaceAll("_", "-")
+                    .replaceAll("\\.", "") +
+                    "-" + MAC.substring(8).replaceAll(":", "").toLowerCase();
+            Device device = new Device();
+            HWConf hwconf = room.getHwconf();
+            device.setName(devName);
+            device.setMac(MAC);
+            device.setCreator(user);
+            device.setIp(ipAddress.get(0).split(" ")[0]);
+            device.setHwconf(hwconf);
+            device.setRoom(room);
+            this.em.getTransaction().begin();
+            this.em.persist(device);
+            this.em.merge(room);
+            user.getOwnedDevices().add(device);
+            this.em.merge(user);
+            this.em.getTransaction().commit();
+            startPlugin("add_device", device);
+            return new CrxResponse("OK","Device was registered for user: " + user.getUid());
+        } else {
+            logger.debug("User has no room to register:" + user.getUid());
+            return new CrxResponse("ERR","No adhoc room for student:" + user.getUid());
+        }
+    }
+    public List<CrxResponse> moveUsersDevices(String role){
         List<CrxResponse> responses = new ArrayList<>();
-        for(User user: this.getByRole(roleStudent)){
-            responses.add(this.moveUserDevices(user));
+        List<Long> deviceIdsToDelete = new ArrayList<>();
+        List<String> devices = new ArrayList<>();
+        Map<String,User> newDevices = new HashMap<>();
+        DeviceService deviceService = new DeviceService(this.session, this.em);
+        for(User user: this.getByRole(role)){
+            for (Device device : user.getOwnedDevices()) {
+                deviceIdsToDelete.add(device.getId());
+                newDevices.put(device.getMac(),user);
+                devices.add(user.getUid() +";" + device.getMac());
+            }
+        }
+        try {
+            File file = File.createTempFile("moveUserDevices", ".json", new File(cranixTmpDir));
+            Files.write(file.toPath(),devices);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+        for(Long deviceId : deviceIdsToDelete ) {
+            responses.add(deviceService.delete(deviceId,false));
+        }
+        for(String mac: newDevices.keySet()){
+            responses.add(registerUserDevice(mac, newDevices.get(mac)));
         }
         new DHCPConfig(this.session,this.em).Create();
         return responses;
     }
-    public CrxResponse moveUserDevices(String uid) {
-        return this.moveUserDevices(this.getByUid(uid));
-    }
-    public CrxResponse moveUserDevices(User user) {
-        Group userClass = null;
-        Integer counter = 0;
-        List<String> params = new ArrayList<>();
-        for ( Group group : user.getGroups() ){
-            if(group.getGroupType().equals("class")){
-                userClass = group;
-                break;
-            }
-        }
-        if(userClass == null) {
-           return new CrxResponse(this.session,"ERROR","User is not member in any classes.");
-        }
-        AdHocLanService adHocLanService = new AdHocLanService(this.session,this.em);
-        Room classRoom = adHocLanService.getAdHocRoomOfGroup(userClass);
+
+    public List<CrxResponse> moveUserDevices(String uid){
+        User user = this.getByUid(uid);
+        List<CrxResponse> responses = new ArrayList<>();
+        List<Long> deviceIdsToDelete = new ArrayList<>();
+        Map<String,User> newDevices = new HashMap<>();
+        DeviceService deviceService = new DeviceService(this.session, this.em);
         for (Device device : user.getOwnedDevices()) {
-            for( Category category: device.getCategories() ){
-                if( category.getCategoryType().equals("adhocroom")) {
-                    if(! category.getGroups().contains(userClass)) {
-                        this.em.getTransaction().begin();
-                        device.getRoom().getDevices().remove(device);
-                        this.em.merge(device.getRoom());
-                        device.setRoom(classRoom);
-                        this.em.merge(classRoom);
-                        this.em.getTransaction().commit();
-                        counter++;
-                    }
-                }
-            }
+            deviceIdsToDelete.add(device.getId());
+            newDevices.put(device.getMac(),user);
         }
-        params.add(counter.toString());
-        params.add(user.getUid());
-        return new CrxResponse(this.session,"OK","%s devices of %s was moved in the new class.",params);
+        for(Long deviceId : deviceIdsToDelete ) {
+            responses.add(deviceService.delete(deviceId,false));
+        }
+        for(String mac: newDevices.keySet()){
+            responses.add(registerUserDevice(mac, newDevices.get(mac)));
+        }
+        new DHCPConfig(this.session,this.em).Create();
+        return responses;
     }
 }

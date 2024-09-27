@@ -88,7 +88,7 @@ public class Student {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		User other = (User) obj;
+		Student other = (Student) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

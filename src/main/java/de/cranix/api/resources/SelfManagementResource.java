@@ -112,7 +112,7 @@ public class SelfManagementResource {
      */
     @GET
     @Path("vpn/config/{OS}")
-    @Produces("application/x-dosexec")
+    @Produces("*/*")
     @ApiOperation(value = "Delivers the configuration for a given operating system.",
             notes = "OS The operating system: the list of the supported os will be delivered by GET selfmanagement/vpn/OS")
     @ApiResponses(value = {

@@ -224,7 +224,7 @@ public class DeviceResource {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
 	@PermitAll
-	public String getOwnerByIP(
+	public String getCreatorByIP(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("IP") String IP
 	) {
@@ -232,10 +232,10 @@ public class DeviceResource {
 		if (device == null) {
 			return "";
 		}
-		if (device.getOwner() == null) {
+		if (device.getCreator() == null) {
 			return "";
 		}
-		return device.getOwner().getUid();
+		return device.getCreator().getUid();
 	}
 
 	@GET
@@ -753,7 +753,7 @@ public class DeviceResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final CrxResponse crxResponse = new DeviceService(session, em).addDHCP(deviceId, dhcpParameter);
-		return new CrxResponse(session, "OK", "DHCP Parameter was added succesfully");
+		return new CrxResponse("OK", "DHCP Parameter was added succesfully");
 	}
 
 	@DELETE

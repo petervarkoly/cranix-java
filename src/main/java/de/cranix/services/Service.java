@@ -134,9 +134,9 @@ public class Service extends Config {
             String[] error = reply.toString().split("##");
             if (error.length > 1) {
                 parameters.add(error[1]);
-                return new CrxResponse(this.getSession(), "ERROR", error[0], null, parameters);
+                return new CrxResponse("ERROR", error[0], null, parameters);
             } else {
-                return new CrxResponse(this.getSession(), "ERROR", reply.toString());
+                return new CrxResponse("ERROR", reply.toString());
             }
         }
         return null;
@@ -320,32 +320,32 @@ public class Service extends Config {
                 break;
             case "de.cranix.dao.Announcement":
                 Announcement an = (Announcement) object;
-                owner = an.getOwner();
+                owner = an.getCreator();
                 neededRights.add("information.modify");
                 break;
             case "de.cranix.dao.Category":
                 Category cat = (Category) object;
-                owner = cat.getOwner();
+                owner = cat.getCreator();
                 neededRights.add("category.modify");
                 break;
             case "de.cranix.dao.Contact":
                 Contact con = (Contact) object;
-                owner = con.getOwner();
+                owner = con.getCreator();
                 neededRights.add("information.modify");
                 break;
             case "de.cranix.dao.FAQ":
                 FAQ faq = (FAQ) object;
-                owner = faq.getOwner();
+                owner = faq.getCreator();
                 neededRights.add("information.modify");
                 break;
             case "de.cranix.dao.Device":
                 Device Device = (Device) object;
-                owner = Device.getOwner();
+                owner = Device.getCreator();
                 neededRights.add("device.modify");
                 break;
             case "de.cranix.dao.Group":
                 Group group = (Group) object;
-                owner = group.getOwner();
+                owner = group.getCreator();
                 neededRights.add("group.modify");
                 neededRights.add("group.modify." + group.getGroupType());
                 break;
@@ -371,7 +371,7 @@ public class Service extends Config {
                 break;
             case "de.cranix.dao.RoomSmartControl":
                 RoomSmartControl rsc = (RoomSmartControl) object;
-                owner = rsc.getOwner();
+                owner = rsc.getCreator();
                 break;
             case "de.cranix.dao.Partition":
                 Partition partition = (Partition) object;
@@ -449,32 +449,32 @@ public class Service extends Config {
                 break;
             case "de.cranix.dao.Announcement":
                 Announcement an = (Announcement) object;
-                owner = an.getOwner();
+                owner = an.getCreator();
                 neededRights.add("information.delete");
                 break;
             case "de.cranix.dao.Category":
                 Category cat = (Category) object;
-                owner = cat.getOwner();
+                owner = cat.getCreator();
                 neededRights.add("category.delete");
                 break;
             case "de.cranix.dao.Contact":
                 Contact con = (Contact) object;
-                owner = con.getOwner();
+                owner = con.getCreator();
                 neededRights.add("information.delete");
                 break;
             case "de.cranix.dao.FAQ":
                 FAQ faq = (FAQ) object;
-                owner = faq.getOwner();
+                owner = faq.getCreator();
                 neededRights.add("information.delete");
                 break;
             case "de.cranix.dao.Device":
                 Device Device = (Device) object;
-                owner = Device.getOwner();
+                owner = Device.getCreator();
                 neededRights.add("device.delete");
                 break;
             case "de.cranix.dao.Group":
                 Group group = (Group) object;
-                owner = group.getOwner();
+                owner = group.getCreator();
                 neededRights.add("group.delete");
                 neededRights.add("group.delete." + group.getGroupType());
                 break;
@@ -500,7 +500,7 @@ public class Service extends Config {
                 break;
             case "de.cranix.dao.RoomSmartControl":
                 RoomSmartControl rsc = (RoomSmartControl) object;
-                owner = rsc.getOwner();
+                owner = rsc.getCreator();
                 break;
             case "de.cranix.dao.Partition":
                 Partition partition = (Partition) object;
@@ -970,7 +970,7 @@ public class Service extends Config {
 
     public CrxResponse addMConfig(CrxMConfig mconfig) {
         if (this.checkMConfig(mconfig)) {
-            return new CrxResponse(this.getSession(), "ERROR", "This mconfig value already exists.");
+            return new CrxResponse("ERROR", "This mconfig value already exists.");
         }
         mconfig.setCreator(this.session.getUser());
         try {
@@ -979,14 +979,14 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("addMConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Mconfig was created", mconfig.getId());
+        return new CrxResponse("OK", "Mconfig was created", mconfig.getId());
     }
 
     public CrxResponse addMConfig(Object object, String key, String value) {
         if (this.checkMConfig(object, key, value)) {
-            return new CrxResponse(this.getSession(), "ERROR", "This mconfig value already exists.");
+            return new CrxResponse("ERROR", "This mconfig value already exists.");
         }
         CrxMConfig mconfig = new CrxMConfig();
         switch (object.getClass().getName()) {
@@ -1016,14 +1016,14 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("addMConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Mconfig was created", mconfig.getId());
+        return new CrxResponse("OK", "Mconfig was created", mconfig.getId());
     }
 
     public CrxResponse addConfig(Object object, String key, String value) {
         if (this.checkConfig(object, key)) {
-            return new CrxResponse(this.getSession(), "ERROR", "This config already exists.");
+            return new CrxResponse("ERROR", "This config already exists.");
         }
         CrxConfig config = new CrxConfig();
         switch (object.getClass().getName()) {
@@ -1053,14 +1053,14 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("addConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Config was created");
+        return new CrxResponse("OK", "Config was created");
     }
 
     public CrxResponse addConfig(CrxConfig config) {
         if (this.checkConfig(config)) {
-            return new CrxResponse(this.getSession(), "ERROR", "This config already exists.");
+            return new CrxResponse("ERROR", "This config already exists.");
         }
         config.setCreator(this.session.getUser());
         try {
@@ -1069,9 +1069,9 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("addConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Config was created");
+        return new CrxResponse("OK", "Config was created");
     }
 
     public CrxResponse setConfig(Object object, String key, String value) {
@@ -1087,9 +1087,9 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("setConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Config was updated");
+        return new CrxResponse("OK", "Config was updated");
     }
 
     public CrxResponse deleteConfig(Long id) {
@@ -1100,9 +1100,9 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("deleteConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Config was deleted");
+        return new CrxResponse("OK", "Config was deleted");
     }
 
     public CrxResponse deleteMConfig(Long id) {
@@ -1113,15 +1113,15 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("deleteConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Config was deleted");
+        return new CrxResponse("OK", "Config was deleted");
     }
 
     public CrxResponse deleteConfig(Object object, String key) {
         CrxConfig config = this.getConfigObject(object, key);
         if (config == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "Config does not exists.");
+            return new CrxResponse("ERROR", "Config does not exists.");
         }
         try {
             this.em.getTransaction().begin();
@@ -1131,16 +1131,16 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("deleteConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         } finally {
         }
-        return new CrxResponse(this.getSession(), "OK", "Config was deleted");
+        return new CrxResponse("OK", "Config was deleted");
     }
 
     public CrxResponse deleteMConfig(Object object, String key, String value) {
         CrxMConfig config = this.getMConfigObject(object, key, value);
         if (config == null) {
-            return new CrxResponse(this.getSession(), "ERROR", "MConfig does not exists.");
+            return new CrxResponse("ERROR", "MConfig does not exists.");
         }
         try {
             this.em.getTransaction().begin();
@@ -1150,10 +1150,10 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("deleteMConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         } finally {
         }
-        return new CrxResponse(this.getSession(), "OK", "Config was deleted");
+        return new CrxResponse("OK", "Config was deleted");
     }
 
     public CrxResponse deleteMConfig(Object object, Long configId) {
@@ -1165,9 +1165,9 @@ public class Service extends Config {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("deleteConfig: " + e.getMessage());
-            return new CrxResponse(this.getSession(), "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.getSession(), "OK", "Config was deleted");
+        return new CrxResponse("OK", "Config was deleted");
     }
 
     public void deletAllConfigs(Object object) {

@@ -16,7 +16,14 @@ import java.util.List;
  * The persistent class for the Devices database table.
  */
 @Entity
-@Table(name = "Devices")
+@Table(
+	name = "Devices",
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "name" }),
+		@UniqueConstraint(columnNames = { "IP" })
+		//,@UniqueConstraint(columnNames = { "wlanIp" })
+	}
+)
 @NamedQueries({
         @NamedQuery(name = "Device.findAll", query = "SELECT d FROM Device d"),
         @NamedQuery(name = "Device.findAllId", query = "SELECT d.id FROM Device d"),
@@ -27,15 +34,10 @@ import java.util.List;
         @NamedQuery(name = "Device.search", query = "SELECT d FROM Device d where d.name LIKE :search OR d.ip LIKE :search OR d.wlanIp LIKE :search OR d.mac LIKE :search OR d.wlanMac LIKE :search"),
 })
 @SequenceGenerator(name = "seq", initialValue = 1, allocationSize = 100)
-public class Device implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq")
-    private Long id;
+public class Device extends AbstractEntity {
 
     @Column(name = "name", updatable = false, length = 32)
-    @Size(max = 32)
+    @Size(max = 32, message = "name must not be longer then 32 characters.")
     @Pattern.List({
 		/*@Pattern(
                  regexp = "^[^,~:@#$%\\^'\\.\\(\\)/\\\\\\{\\}_\\s\\*\\?<>\\|]+$",
@@ -57,10 +59,10 @@ public class Device implements Serializable {
     private String name;
 
     @Column(name = "place")
-    private int place;
+    private Integer place = 0;
 
     @Column(name = "roomRow")
-    private int row;
+    private Integer row = 0;
 
     @Column(name = "IP", length = 16)
     @Size(max = 16, message = "IP must not be longer then 16 characters.")
@@ -102,8 +104,8 @@ public class Device implements Serializable {
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "AvailablePrinters",
-            joinColumns = {@JoinColumn(name = "device_id")},
-            inverseJoinColumns = {@JoinColumn(name = "printer_id")}
+            joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
+            inverseJoinColumns = {@JoinColumn(name = "printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
     )
     @JsonIgnore
     private List<Printer> availablePrinters = new ArrayList<Printer>();
@@ -112,8 +114,8 @@ public class Device implements Serializable {
     @ManyToOne
     @JoinTable(
             name = "DefaultPrinter",
-            joinColumns = {@JoinColumn(name = "device_id")},
-            inverseJoinColumns = {@JoinColumn(name = "printer_id")}
+            joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
+            inverseJoinColumns = {@JoinColumn(name = "printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
     )
     @JsonIgnore
     private Printer defaultPrinter;
@@ -134,15 +136,13 @@ public class Device implements Serializable {
 
     //bi-directional many-to-one association to HWConf
     @ManyToOne
-    @JsonIgnore
+    @JoinColumn(name = "hwconf_id", columnDefinition ="BIGINT UNSIGNED")
     private HWConf hwconf;
-
-    @Column(name = "hwconf_id", insertable = false, updatable = false)
-    private Long hwconfId;
 
     //bi-directional many-to-one association to Room
     @ManyToOne
     @JsonIgnore
+    @JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private Room room;
 
     //bi-directional many-to-one association to Device
@@ -150,29 +150,13 @@ public class Device implements Serializable {
     @JsonIgnore
     private List<Session> sessions = new ArrayList<Session>();
 
-    @Column(name = "room_id", insertable = false, updatable = false)
-    private Long roomId;
-
-    //bi-directional many-to-one association to User
-    @ManyToOne
-    @JsonIgnore
-    private User owner;
-
-    @Column(name = "owner_id", insertable = false, updatable = false)
-    private Long ownerId;
-
-    @Transient
-    private String ownerName;
-
-    //bi-directional many-to-one association to TestUser
-    @OneToMany(mappedBy = "device")
-    @JsonIgnore
-    private List<TestUser> testUsers;
-
     //bi-directional many-to-many association to User
     @ManyToMany(mappedBy = "loggedOn")
     @JsonIgnore
     private List<User> loggedIn = new ArrayList<User>();
+
+    @Transient
+    private String ownerName;
 
     @Transient
     private Long loggedInId = 0L;
@@ -184,7 +168,6 @@ public class Device implements Serializable {
     private char[] screenShot;
 
     public Device() {
-        this.hwconfId = null;
         this.name = "";
         this.ip = "";
         this.mac = "";
@@ -192,58 +175,8 @@ public class Device implements Serializable {
         this.wlanMac = "";
     }
 
-    public static long getSerialversionuid() {
-        return serialVersionUID;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        try {
-            return new ObjectMapper().writeValueAsString(this);
-        } catch (Exception e) {
-            return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Device other = (Device) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
-    }
-
     public Long getHwconfId() {
-        return this.hwconfId;
-    }
-
-    public void setHwconfId(Long hwconfId) {
-        this.hwconfId = hwconfId;
+        return this.hwconf == null ? null: this.hwconf.getId();
     }
 
     public String getName() {
@@ -255,7 +188,7 @@ public class Device implements Serializable {
     }
 
     public int getPlace() {
-        return this.place;
+        return this.place == null ? 0: this.place;
     }
 
     public void setPlace(int place) {
@@ -279,7 +212,7 @@ public class Device implements Serializable {
     }
 
     public int getRow() {
-        return this.row;
+        return this.row == null ? 0: this.row;
     }
 
     public void setRow(int row) {
@@ -332,7 +265,6 @@ public class Device implements Serializable {
 
     public void setHwconf(HWConf hwconf) {
         this.hwconf = hwconf;
-        this.hwconfId = hwconf.getId();
         if (!hwconf.getDevices().contains(this)) {
             hwconf.getDevices().add(this);
         }
@@ -344,40 +276,9 @@ public class Device implements Serializable {
 
     public void setRoom(Room room) {
         this.room = room;
-        this.roomId = room.getId();
         if (!room.getDevices().contains(this)) {
             room.getDevices().add(this);
         }
-    }
-
-    public User getOwner() {
-        return this.owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public List<TestUser> getTestUsers() {
-        return this.testUsers;
-    }
-
-    public void setTestUsers(List<TestUser> testUsers) {
-        this.testUsers = testUsers;
-    }
-
-    public TestUser addTestUser(TestUser testUser) {
-        getTestUsers().add(testUser);
-        testUser.setDevice(this);
-
-        return testUser;
-    }
-
-    public TestUser removeTestUser(TestUser testUser) {
-        getTestUsers().remove(testUser);
-        testUser.setDevice(null);
-
-        return testUser;
     }
 
     public List<User> getLoggedIn() {
@@ -440,11 +341,7 @@ public class Device implements Serializable {
     }
 
     public Long getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
+        return this.room.getId();
     }
 
     public List<Printer> getPrinterQueue() {
@@ -463,15 +360,11 @@ public class Device implements Serializable {
         this.sessions = sessions;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
-    }
-
     public String getOwnerName() {
+        User owner = this.getCreator();
+        if( owner != null ) {
+            return owner.getFullName();
+        }
         return ownerName;
     }
 

@@ -8,23 +8,26 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
-@Table(name = "TeachingSubjects")
+@Table(
+        name = "TeachingSubjects",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})}
+)
 @NamedQueries({
-        @NamedQuery(name="TeachingSubject.findAll", query="SELECT ts FROM TeachingSubject ts"),
-        @NamedQuery(name="TeachingSubject.findByName",   query="SELECT ts FROM TeachingSubject ts WHERE ts.name = :name")
+        @NamedQuery(name = "TeachingSubject.findAll", query = "SELECT ts FROM TeachingSubject ts"),
+        @NamedQuery(name = "TeachingSubject.findByName", query = "SELECT ts FROM TeachingSubject ts WHERE ts.name = :name")
 })
 public class TeachingSubject extends AbstractEntity {
 
     @NotNull
-    @Column(name = "name", length = 64, unique=true)
+    @Column(name = "name", length = 64, unique = true)
     @Size(max = 64, message = "Name of a teaching subject must not be longer then 64 characters")
     private String name;
 
-    @OneToMany(mappedBy="teachingSubject", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "teachingSubject", cascade = CascadeType.ALL)
     private List<SubjectArea> subjectAreaList;
 
     @JsonIgnore
-    @OneToMany(mappedBy="teachingSubject", cascade=CascadeType.MERGE)
+    @OneToMany(mappedBy = "teachingSubject", cascade = CascadeType.MERGE)
     private List<CrxChallenge> crxChallenges;
 
     public String getName() {

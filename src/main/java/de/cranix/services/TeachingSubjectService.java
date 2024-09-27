@@ -2,7 +2,6 @@ package de.cranix.services;
 
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
-import de.cranix.dao.SubjectArea;
 import de.cranix.dao.TeachingSubject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.reflections.Reflections.log;
 
 public class TeachingSubjectService extends Service {
 
@@ -53,12 +50,12 @@ public class TeachingSubjectService extends Service {
     public CrxResponse add(TeachingSubject subject) {
         this.em.getTransaction().begin();
         if( this.getByName(subject.getName()) != null) {
-            return new CrxResponse(this.session,"ERROR","Teaching Subject does already exist.");
+            return new CrxResponse("ERROR","Teaching Subject does already exist.");
         }
         subject.setCreator(this.session.getUser());
         this.em.persist(subject);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.session,"OK","Teaching Subject was created.",subject.getId());
+        return new CrxResponse("OK","Teaching Subject was created.",subject.getId());
     }
 
 }

@@ -1,4 +1,4 @@
-/* (c) 2018 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
@@ -24,7 +24,10 @@ import de.cranix.helper.SslCrypto;
  * The persistent class for the Users database table.
  */
 @Entity
-@Table(name="Users")
+@Table(
+	name="Users",
+	uniqueConstraints = { @UniqueConstraint(columnNames = { "uid" }) }
+)
 @NamedQueries({
 	@NamedQuery(name="User.findAll", query="SELECT u FROM User u WHERE NOT u.role = 'internal'"),
 	@NamedQuery(name="User.findAllId", query="SELECT u.id FROM User u WHERE NOT u.role = 'internal'"),
@@ -41,20 +44,7 @@ import de.cranix.helper.SslCrypto;
 		  size=64000
 )
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class User implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-	Long id;
-
-	@Size(max=64, message="Givenname must not be longer then 64 characters.")
-	private String givenName;
-
-	private String role;
-
-	@Size(max=64, message="Surname must not be longer then 64 characters.")
-	private String surName;
+public class User extends AbstractEntity {
 
 	@Column(name="uid", updatable=false)
 	@Pattern.List({
@@ -70,40 +60,167 @@ public class User implements Serializable {
 	@Size(max=32, message="Uid must not be longer then 32 characters.")
 	private String uid;
 
+	@Column(name="uuid", updatable=false)
 	@Size(max=64, message="UUID must not be longer then 64 characters.")
 	private String uuid;
 
+	@Column(name="givenName")
+	@Size(max=64, message="Givenname must not be longer then 64 characters.")
+	private String givenName;
+
+	@Column(name="surName")
+	@Size(max=64, message="Surname must not be longer then 64 characters.")
+	private String surName;
+
+	@Column(name="role")
+	@Size(max=16, message="Role must not be longer then 16 characters.")
+	private String role;
+
+	@Column(name="birthDay", columnDefinition = "DATE NOT NULL DEFAULT NOW()")
 	private String birthDay;
 
-	//bi-directional many-to-one association to Alias
+	@Column(name="fsQuotaUsed")
+	private Integer fsQuotaUsed;
+
+	@Column(name="fsQuota")
+	private Integer fsQuota;
+
+	@Column(name="msQuotaUsed")
+	private Integer msQuotaUsed;
+
+	@Column(name="msQuota")
+	private Integer msQuota;
+
+	@JsonIgnore
+	@Column(name="initialPassword")
+	@Size(max=32, message="initialPassword must not be longer then 32 characters.")
+	private String initialPassword;
+
+	/* bi-directional many-to-one associations */
 	@OneToMany(mappedBy="user", cascade ={CascadeType.ALL})
 	@JsonIgnore
 	private List<Alias> aliases = new ArrayList<Alias>();
 
-	//bi-directional many-to-one association to Acls
 	@OneToMany(mappedBy="user")
 	@JsonIgnore
 	private List<Acl> acls = new ArrayList<Acl>();
 
-	//bi-directional many-to-one association to Acls
 	@OneToMany(mappedBy="creator")
 	@JsonIgnore
 	private List<Acl> createdAcls = new ArrayList<Acl>();
 
-	//bi-directional many-to-one association to Rooms
 	@OneToMany(mappedBy="creator")
 	@JsonIgnore
 	private List<Partition> createdPartitions = new ArrayList<Partition>();
 
-	//bi-directional many-to-one association to Rooms
 	@OneToMany(mappedBy="creator")
 	@JsonIgnore
 	private List<User> createdUsers = new ArrayList<User>();
 
-	//bi-directional many-to-one association to Device
 	@OneToMany(mappedBy="user", cascade ={CascadeType.ALL})
 	@JsonIgnore
 	private List<Session> sessions = new ArrayList<Session>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<Room> createdRooms = new ArrayList<Room>();
+
+	//bi-directional many-to-one association to HWConfs
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<HWConf> createdHWConfs = new ArrayList<HWConf>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<AccessInRoom> createdAccessInRoom = new ArrayList<AccessInRoom>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<CrxConfig> createdCrxConfig = new ArrayList<CrxConfig>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<CrxMConfig> createdCrxMConfig = new ArrayList<CrxMConfig>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<Device> ownedDevices = new ArrayList<Device>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<PositiveList> ownedPositiveLists = new ArrayList<PositiveList>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<Group> ownedGroups = new ArrayList<Group>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<Category> ownedCategories = new ArrayList<Category>();
+
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL}, orphanRemoval=true)
+	@JsonIgnore
+	private List<RoomSmartControl> smartControls = new ArrayList<RoomSmartControl>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<FAQ> myFAQs = new ArrayList<FAQ>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<Contact> myContacts = new ArrayList<Contact>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<Announcement> myAnnouncements = new ArrayList<Announcement>();
+
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	public List<CrxChallenge> challenges = new ArrayList<CrxChallenge>();
+
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL}, orphanRemoval=true)
+	@JsonIgnore
+	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
+
+	/* bi-directional many-to-many associations */
+	@ManyToMany(mappedBy="users")
+	@JsonIgnore
+	private List<Category> categories = new ArrayList<Category>();
+
+	@ManyToMany(mappedBy="users")
+	@JsonIgnore
+	private List<CrxChallenge> todos = new ArrayList<CrxChallenge>();
+
+	@ManyToMany
+	@JoinTable(
+		name="LoggedOn",
+		joinColumns={ @JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+		inverseJoinColumns={@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
+	)
+	@JsonIgnore
+	private List<Device> loggedOn = new ArrayList<Device>();
+
+	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
+	@JoinTable(
+		name="GroupMember",
+		joinColumns={@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
+		inverseJoinColumns={@JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
+	)
+	@JsonIgnore
+	private List<Group> groups = new ArrayList<Group>();
+
+	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
+	@JoinTable(
+		name="HaveSeen",
+		joinColumns={@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
+		inverseJoinColumns={@JoinColumn(name="announcement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
+	)
+	@JsonIgnore
+	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();
+
+	/* transient attributes */
+	@Transient
+	private String classes;
 
 	@Transient
 	List<String> mailAliases = new ArrayList<String>();
@@ -111,206 +228,34 @@ public class User implements Serializable {
 	@Transient
 	String fullName;
 
-	public List<Partition> getCreatedPartitions() {
-		return createdPartitions;
+	@OneToMany(fetch = FetchType.EAGER, mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
+	@JsonIgnore
+	private List<Crx2fa> crx2fas;
+	public List<Crx2fa> getCrx2fas() {
+		return crx2fas;
 	}
 
-	public void setCreatedPartitions(List<Partition> createdPartitions) {
-		this.createdPartitions = createdPartitions;
-	}
-
-	public List<User> getCreatedUsers() {
-		return createdUsers;
-	}
-
-	public void setCreatedUsers(List<User> createdUsers) {
-		this.createdUsers = createdUsers;
-	}
-
-	//bi-directional many-to-one association to Rooms
-	@OneToMany(mappedBy="creator")
-	@JsonIgnore
-	private List<Room> createdRooms = new ArrayList<Room>();
-
-	public List<Room> getCreatedRooms() {
-		return createdRooms;
-	}
-
-	public void setCreatedRooms(List<Room> createdRooms) {
-		this.createdRooms = createdRooms;
-	}
-
-	//bi-directional many-to-one association to HWConfs
-	@OneToMany(mappedBy="creator")
-	@JsonIgnore
-	private List<HWConf> createdHWConfs = new ArrayList<HWConf>();
-
-	public List<HWConf> getCreatedHWConfs() {
-		return createdHWConfs;
-	}
-
-	public void setCreatedHWConfs(List<HWConf> createdHWConfs) {
-		this.createdHWConfs = createdHWConfs;
-	}
-
-	//bi-directional many-to-one association to Alias
-	@OneToMany(mappedBy="creator")
-	@JsonIgnore
-	private List<AccessInRoom> createdAccessInRoom = new ArrayList<AccessInRoom>();
-
-	//bi-directional many-to-one association to CrxConfig
-	@OneToMany(mappedBy="creator")
-	@JsonIgnore
-	private List<CrxConfig> createdCrxConfig = new ArrayList<CrxConfig>();
-
-	//bi-directional many-to-one association to CrxConfig
-	@OneToMany(mappedBy="creator")
-	@JsonIgnore
-	private List<CrxMConfig> createdCrxMConfig = new ArrayList<CrxMConfig>();
-
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="owner")
-	@JsonIgnore
-	private List<Device> ownedDevices = new ArrayList<Device>();
-
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="owner")
-	@JsonIgnore
-	private List<PositiveList> ownedPositiveLists = new ArrayList<PositiveList>();
-
-	//bi-directional many-to-one association to groups
-	@OneToMany(mappedBy="owner")
-	@JsonIgnore
-	private List<Group> ownedGroups = new ArrayList<Group>();
-
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="owner")
-	@JsonIgnore
-	private List<Category> ownedCategories = new ArrayList<Category>();
-
-	//bi-directional many-to-one association to TestFile
-	@OneToMany(mappedBy="user")
-	@JsonIgnore
-	private List<TestFile> testFiles = new ArrayList<TestFile>();
-
-	//bi-directional many-to-one association to TestUser
-	@OneToMany(mappedBy="user")
-	@JsonIgnore
-	private List<TestUser> testUsers = new ArrayList<TestUser>();
-
-	//bi-directional many-to-one association to Test
-	@OneToMany(mappedBy="user")
-	@JsonIgnore
-	private List<Test> tests = new ArrayList<Test>();
-
-	//bi-directional many-to-one association to RoomSmartControl
-	@OneToMany(mappedBy="owner", cascade ={CascadeType.ALL}, orphanRemoval=true)
-	@JsonIgnore
-	private List<RoomSmartControl> smartControls = new ArrayList<RoomSmartControl>();
-
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="owner")
-	@JsonIgnore
-	private List<FAQ> myFAQs = new ArrayList<FAQ>();
-
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="owner")
-	@JsonIgnore
-	private List<Contact> myContacts = new ArrayList<Contact>();
-
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="owner")
-	@JsonIgnore
-	private List<Announcement> myAnnouncements = new ArrayList<Announcement>();
-
-	public List<TaskResponse> getTaskResponses() {
-		return taskResponses;
-	}
-
-	public void setTaskResponses(List<TaskResponse> taskResponses) {
-		this.taskResponses = taskResponses;
-	}
-
-	@OneToMany(mappedBy="creator")
-	@JsonIgnore
-	public List<CrxChallenge> challenges = new ArrayList<CrxChallenge>();
-
-	public void addTaskResponse(TaskResponse taskResponse) {
-		if( !this.taskResponses.contains(taskResponse)) {
-			this.taskResponses.add(taskResponse);
-			taskResponse.setOwner(this);
+	public void addCrx2fa(Crx2fa crx2fa) {
+		if(!this.crx2fas.contains(crx2fa)) {
+			this.crx2fas.add(crx2fa);
+			crx2fa.setCreator(this);
 		}
 	}
 
-	public void deleteTaskResponse(TaskResponse taskResponse) {
-		if( this.taskResponses.contains(taskResponse)) {
-			this.taskResponses.remove(taskResponse);
-			taskResponse.setOwner(null);
+	@OneToMany( mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
+	@JsonIgnore
+	private List<Crx2faSession> crx2faSessions = new ArrayList<>();
+
+	public List<Crx2faSession> getCrx2faSessions() {
+		return this.crx2faSessions;
+	}
+
+	public void addCrx2faSession(Crx2faSession crx2faSession){
+		if(!this.crx2faSessions.contains(crx2faSession)){
+			this.crx2faSessions.add(crx2faSession);
+			crx2faSession.setCreator(this);
 		}
 	}
-	//bi-directional many-to-one association to Device
-	@OneToMany(mappedBy="owner", cascade ={CascadeType.ALL}, orphanRemoval=true)
-	@JsonIgnore
-	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
-
-	//bi-directional many-to-many association to Category
-	@ManyToMany(mappedBy="users")
-	@JsonIgnore
-	private List<Category> categories = new ArrayList<Category>();
-
-	//bi-directional many-to-many association to Device
-	@ManyToMany
-	@JoinTable(
-		name="LoggedOn",
-		joinColumns={ @JoinColumn(name="user_id") },
-		inverseJoinColumns={@JoinColumn(name="device_id")}
-	)
-	@JsonIgnore
-	private List<Device> loggedOn = new ArrayList<Device>();
-
-	//bi-directional many-to-many association to Group
-	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
-	@JoinTable(
-		name="GroupMember",
-		joinColumns={@JoinColumn(name="user_id")},
-		inverseJoinColumns={@JoinColumn(name="group_id")}
-	)
-	@JsonIgnore
-	private List<Group> groups = new ArrayList<Group>();
-
-	//bi-directional many-to-many association to Challenges
-	@ManyToMany(mappedBy="users")
-	@JsonIgnore
-	private List<CrxChallenge> todos = new ArrayList<CrxChallenge>();
-
-	@Transient
-	private String classes;
-
-	//bi-directional many-to-many association to Announcements
-	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
-	@JoinTable(
-		name="HaveSeen",
-		joinColumns={@JoinColumn(name="user_id")},
-		inverseJoinColumns={@JoinColumn(name="announcement_id")}
-	)
-	//@JsonManagedReference
-	@JsonIgnore
-	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();
-
-
-
-	private Integer fsQuotaUsed;
-	private Integer fsQuota;
-	private Integer msQuotaUsed;
-	private Integer msQuota;
-
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
-
-	@JsonIgnore
-	private String initialPassword;
 
 	@Transient
 	private String password ="";
@@ -320,7 +265,7 @@ public class User implements Serializable {
 
 	public User() {
 		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-		this.id  = null;
+		this.setId(null);
 		this.uid = "";
 		this.uuid = "";
 		this.surName = "";
@@ -343,48 +288,22 @@ public class User implements Serializable {
 		this.mustChange = mustChange;
 	}
 
-	public Long getId() {
-		return this.id;
+	public List<Partition> getCreatedPartitions() {
+		return createdPartitions;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setCreatedPartitions(List<Partition> createdPartitions) {
+		this.createdPartitions = createdPartitions;
 	}
 
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
+	public List<User> getCreatedUsers() {
+		return createdUsers;
 	}
 
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+	public void setCreatedUsers(List<User> createdUsers) {
+		this.createdUsers = createdUsers;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		User other = (User) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
 	public String getGivenName() {
 		return this.givenName;
 	}
@@ -491,74 +410,14 @@ public class User implements Serializable {
 
 	public Device addOwnedDevice(Device ownedDevice) {
 		getOwnedDevices().add(ownedDevice);
-		ownedDevice.setOwner(this);
+		ownedDevice.setCreator(this);
 		return ownedDevice;
 	}
 
 	public Device removeOwnedDevice(Device ownedDevice) {
 		getOwnedDevices().remove(ownedDevice);
-		ownedDevice.setOwner(null);
+		ownedDevice.setCreator(null);
 		return ownedDevice;
-	}
-
-	public List<TestFile> getTestFiles() {
-		return this.testFiles;
-	}
-
-	public void setTestFiles(List<TestFile> testFiles) {
-		this.testFiles = testFiles;
-	}
-
-	public TestFile addTestFile(TestFile testFile) {
-		getTestFiles().add(testFile);
-		testFile.setUser(this);
-		return testFile;
-	}
-
-	public TestFile removeTestFile(TestFile testFile) {
-		getTestFiles().remove(testFile);
-		testFile.setUser(null);
-		return testFile;
-	}
-
-	public List<TestUser> getTestUsers() {
-		return this.testUsers;
-	}
-
-	public void setTestUsers(List<TestUser> testUsers) {
-		this.testUsers = testUsers;
-	}
-
-	public TestUser addTestUser(TestUser testUser) {
-		getTestUsers().add(testUser);
-		testUser.setUser(this);
-		return testUser;
-	}
-
-	public TestUser removeTestUser(TestUser testUser) {
-		getTestUsers().remove(testUser);
-		testUser.setUser(null);
-		return testUser;
-	}
-
-	public List<Test> getTests() {
-		return this.tests;
-	}
-
-	public void setTests(List<Test> tests) {
-		this.tests = tests;
-	}
-
-	public Test addTest(Test test) {
-		getTests().add(test);
-		test.setUser(this);
-		return test;
-	}
-
-	public Test removeTest(Test test) {
-		getTests().remove(test);
-		test.setUser(null);
-		return test;
 	}
 
 	public List<Device> getLoggedOn() {
@@ -657,14 +516,6 @@ public class User implements Serializable {
 
 	public void setMyFAQs(List<FAQ> values) {
 		this.myFAQs = values;
-	}
-
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
 	}
 
 	public void setOwnedCategories(List<Category> ownedCategories) {
@@ -772,10 +623,6 @@ public class User implements Serializable {
 		this.challenges = challenges;
 	}
 
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
-	}
-
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
 	}
@@ -786,5 +633,43 @@ public class User implements Serializable {
 
 	public void setTodos(List<CrxChallenge> todos) {
 		this.todos = todos;
+	}
+
+	public List<Room> getCreatedRooms() {
+		return createdRooms;
+	}
+
+	public void setCreatedRooms(List<Room> createdRooms) {
+		this.createdRooms = createdRooms;
+	}
+
+	public List<HWConf> getCreatedHWConfs() {
+		return createdHWConfs;
+	}
+
+	public void setCreatedHWConfs(List<HWConf> createdHWConfs) {
+		this.createdHWConfs = createdHWConfs;
+	}
+
+	public List<TaskResponse> getTaskResponses() {
+		return taskResponses;
+	}
+
+	public void setTaskResponses(List<TaskResponse> taskResponses) {
+		this.taskResponses = taskResponses;
+	}
+
+	public void addTaskResponse(TaskResponse taskResponse) {
+		if( !this.taskResponses.contains(taskResponse)) {
+			this.taskResponses.add(taskResponse);
+			taskResponse.setCreator(this);
+		}
+	}
+
+	public void deleteTaskResponse(TaskResponse taskResponse) {
+		if( this.taskResponses.contains(taskResponse)) {
+			this.taskResponses.remove(taskResponse);
+			taskResponse.setCreator(null);
+		}
 	}
 }

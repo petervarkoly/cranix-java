@@ -40,14 +40,14 @@ public class SubjectAreaService extends Service{
         subjectArea.setCreator(this.session.getUser());
         this.em.persist(subjectArea);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.session,"OK","Subject area was created.",subjectArea.getId());
+        return new CrxResponse("OK","Subject area was created.",subjectArea.getId());
     }
 
     public CrxResponse add(Long subjectId, SubjectArea subjectArea) {
         this.em.getTransaction().begin();
         TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,subjectId);
         if( this.getByName(subjectArea.getName()) != null) {
-            return new CrxResponse(this.session,"ERROR","Subject Subject does already exist.");
+            return new CrxResponse("ERROR","Subject Subject does already exist.");
         }
         subjectArea.setTeachingSubject(teachingSubject);
         subjectArea.setCreator(this.session.getUser());
@@ -55,6 +55,6 @@ public class SubjectAreaService extends Service{
         teachingSubject.getSubjectAreaList().add(subjectArea);
         this.em.merge(subjectArea);
         this.em.getTransaction().commit();
-        return new CrxResponse(this.session,"OK","Teaching area was created.",subjectArea.getId());
+        return new CrxResponse("OK","Teaching area was created.",subjectArea.getId());
     }
 }

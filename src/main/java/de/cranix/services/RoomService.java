@@ -230,7 +230,7 @@ public class RoomService extends Service {
         List<Room> rooms = new ArrayList<Room>();
         for (Category category : user.getCategories()) {
             if (category.getCategoryType().equals("AdHocAccess") &&
-                    (!category.getStudentsOnly() || this.session.getUser().getRole().equals(roleStudent)) &&
+                    (!category.getStudentsOnly() || user.getRole().equals(roleStudent)) &&
                     !category.getRooms().isEmpty()) {
                 rooms.add(category.getRooms().get(0));
             }
@@ -239,7 +239,7 @@ public class RoomService extends Service {
             for (Category category : group.getCategories()) {
                 logger.debug("getAllToRegister: " + category);
                 if (category.getCategoryType().equals("AdHocAccess") &&
-                        (!category.getStudentsOnly() || this.session.getUser().getRole().equals(roleStudent)) &&
+                        (!category.getStudentsOnly() || user.getRole().equals(roleStudent)) &&
                         !category.getRooms().isEmpty()) {
                     rooms.add(category.getRooms().get(0));
                 }
@@ -304,7 +304,7 @@ public class RoomService extends Service {
 
     public CrxResponse add(Room room) {
         if (room.getRoomType().equals("smartRoom")) {
-            return new CrxResponse(this.session, "ERROR", "Smart Rooms can only be created by Education Service.");
+            return new CrxResponse("ERROR", "Smart Rooms can only be created by Education Service.");
         }
         HWConf hwconf = new HWConf();
         CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
@@ -318,19 +318,19 @@ public class RoomService extends Service {
             errorMessage.append(violation.getMessage()).append(getNl());
         }
         if (errorMessage.length() > 0) {
-            return new CrxResponse(this.session, "ERROR", errorMessage.toString());
+            return new CrxResponse("ERROR", errorMessage.toString());
         }
 
         // First we check if the parameter are unique.
         if (!this.isNameUnique(room.getName())) {
-            return new CrxResponse(this.session, "ERROR", "Room name is not unique.");
+            return new CrxResponse("ERROR", "Room name is not unique.");
         }
         if (room.getDescription() != null && !room.getDescription().isEmpty() && !this.isDescriptionUnique(room.getDescription())) {
-            return new CrxResponse(this.session, "ERROR", "Room description is not unique.");
+            return new CrxResponse("ERROR", "Room description is not unique.");
         }
         //Only adHocRooms name can be longer then 10 char
         if (!room.isIgnoreNetbios() && !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10) {
-            return new CrxResponse(this.session, "ERROR", "Room name is to long.");
+            return new CrxResponse("ERROR", "Room name is to long.");
         }
         //If no devCount was set we calculate the net mask
         if (room.getDevCount() != null) {
@@ -346,7 +346,7 @@ public class RoomService extends Service {
         if (room.getStartIP() == null || room.getStartIP().isEmpty()) {
             String nextRoomIP = getNextRoomIP(room.getNetwork(), room.getNetMask());
             if (nextRoomIP.isEmpty()) {
-                return new CrxResponse(this.session, "ERROR", "The room can not be created. There is not enough IP-Adresses for its size.");
+                return new CrxResponse("ERROR", "The room can not be created. There is not enough IP-Adresses for its size.");
             }
             room.setStartIP(nextRoomIP);
         }
@@ -378,28 +378,27 @@ public class RoomService extends Service {
             this.em.merge(hwconf);
             this.em.getTransaction().commit();
             if (!room.getAccessInRooms().isEmpty()) {
-                room.getAccessInRooms().get(0).setRoomId((room.getId()));
-                //this.em.merge(room.getAccessInRooms().get(0));
+                room.getAccessInRooms().get(0).setRoom((room));
             }
         } catch (Exception e) {
             logger.error("Error by creating Room:" + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         startPlugin("add_room", room);
-        return new CrxResponse(this.session, "OK", "Room was created successfully.", room.getId());
+        return new CrxResponse("OK", "Room was created successfully.", room.getId());
     }
 
     public CrxResponse delete(long roomId, boolean atomic ) {
         Room room = this.getById(roomId);
         if (room == null) {
-            return new CrxResponse(this.session, "ERROR", "Can not find room with id %s.", null, String.valueOf(roomId));
+            return new CrxResponse("ERROR", "Can not find room with id %s.", null, String.valueOf(roomId));
         }
         if (!this.mayModify(room)) {
-            return new CrxResponse(this.session, "ERROR", "You must not delete this room.");
+            return new CrxResponse("ERROR", "You must not delete this room.");
         }
         DeviceService devService = new DeviceService(this.session, this.em);
         if (this.isProtected(room)) {
-            return new CrxResponse(this.session, "ERROR", "This room must not be deleted.");
+            return new CrxResponse("ERROR", "This room must not be deleted.");
         }
         List<Device> toDelete = new ArrayList<Device>();
         for (Device device : room.getDevices()) {
@@ -443,14 +442,14 @@ public class RoomService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("delete: " + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         if( atomic ) {
             new DHCPConfig(session, em).Create();
             new SoftwareService(this.session, this.em).rewriteTopSls();
         }
         startPlugin("delete_room", room);
-        return new CrxResponse(this.session, "OK", "Room was removed successfully.");
+        return new CrxResponse("OK", "Room was removed successfully.");
     }
 
 
@@ -664,18 +663,18 @@ public class RoomService extends Service {
     public CrxResponse setAccessStatus(long roomId, AccessInRoom access) {
         Room room = this.getById(roomId);
         this.setAccessStatus(room, access);
-        return new CrxResponse(this.session, "OK", "Access state in %s was set successfully.", null, room.getName());
+        return new CrxResponse("OK", "Access state in %s was set successfully.", null, room.getName());
     }
 
     public CrxResponse setDefaultAccess(long roomId) {
         Room room = this.getById(roomId);
         new AccessService().setDefaultAccess(room);
-        return new CrxResponse(this.session, "OK", "Default access state in %s was set successfully.", null, room.getName());
+        return new CrxResponse("OK", "Default access state in %s was set successfully.", null, room.getName());
     }
 
     public CrxResponse setDefaultAccess() {
         new AccessService().setDefaultAccess();
-        return new CrxResponse(this.session, "OK", "The default access was set in all rooms.");
+        return new CrxResponse("OK", "The default access was set in all rooms.");
     }
 
     /*
@@ -729,7 +728,7 @@ public class RoomService extends Service {
             Room room = access.getRoom();
             this.setAccessStatus(room, access);
         }
-        return new CrxResponse(this.session, "OK", "Scheduled access states where set successfully.");
+        return new CrxResponse("OK", "Scheduled access states where set successfully.");
     }
 
     /*
@@ -763,7 +762,7 @@ public class RoomService extends Service {
         List<CrxResponse> responses = new ArrayList<>();
         Room room = this.getById(roomId);
         if(room == null){
-            responses.add(new CrxResponse(this.session,"ERROR","Can not find the room"));
+            responses.add(new CrxResponse("ERROR","Can not find the room"));
             return responses;
         }
         boolean needWriteSalt = false;
@@ -802,13 +801,19 @@ public class RoomService extends Service {
             this.em.getEntityManagerFactory().getCache().evictAll();
         } catch (Exception e) {
             logger.error("deleteDevices" + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         new DHCPConfig(session, em).Create();
         if (needWriteSalt) {
             new SoftwareService(this.session, this.em).rewriteTopSls();
         }
-        return new CrxResponse(this.session, "OK ", "Devices were deleted successfully.");
+        return new CrxResponse("OK ", "Devices were deleted successfully.");
+    }
+
+    public HWConf getBYODHwconf() {
+                Query query = this.em.createNamedQuery("HWConf.getByName");
+                query.setParameter("name", "BYOD");
+                return (HWConf) query.getResultList().get(0);
     }
 
     public List<Device> getDevices(long roomId) {
@@ -819,7 +824,7 @@ public class RoomService extends Service {
         // First we check if there is enough IP-Addresses in this room
         List<String> ipAddress = this.getAvailableIPAddresses(roomId, 1);
         if (ipAddress.isEmpty()) {
-            return new CrxResponse(this.session, "ERROR", "There are no more free ip addresses in this room.");
+            return new CrxResponse("ERROR", "There are no more free ip addresses in this room.");
         }
         logger.debug("IPAddr" + ipAddress);
         Device device = new Device();
@@ -830,7 +835,7 @@ public class RoomService extends Service {
         if (!owner.getRole().contains("sysadmins")) {
             //non sysadmin user want to register his workstation
             if (!this.getAllToRegister().contains(room)) {
-                return new CrxResponse(this.session, "ERROR", "You have no rights to register devices in this room.");
+                return new CrxResponse("ERROR", "You have no rights to register devices in this room.");
             }
             //Check if the count of the registered devices is lower then the allowed mount
             int ownedDevicesInRoom = 0;
@@ -840,18 +845,18 @@ public class RoomService extends Service {
                 }
             }
             if (ownedDevicesInRoom >= room.getPlaces()) {
-                return new CrxResponse(this.session, "ERROR", "You must not register more devices in this room.");
+                return new CrxResponse("ERROR", "You must not register more devices in this room.");
             }
             if (hwconf == null) {
                 Query query = this.em.createNamedQuery("HWConf.getByName");
                 query.setParameter("name", "BYOD");
-                hwconf = (HWConf) query.getResultList().get(0);
+                hwconf = this.getBYODHwconf();
             }
             device.setMac(macAddress);
             device.setName(owner.getUid().replaceAll("_", "-").replaceAll("\\.", "") + "-" + name.toLowerCase().trim());
             device.setIp(ipAddress.get(0).split(" ")[0]);
             device.setHwconf(hwconf);
-            device.setOwner(owner);
+            device.setCreator(owner);
         } else {
             device.setMac(macAddress);
             device.setIp(ipAddress.get(0).split(" ")[0]);
@@ -886,12 +891,12 @@ public class RoomService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("addDevice: " + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", "Error by registering: " + e.getMessage());
+            return new CrxResponse("ERROR", "Error by registering: " + e.getMessage());
         }
         //Start plugin and create DHCP and salt configuration
         startPlugin("add_device", device);
         new DHCPConfig(session, em).Create();
-        return new CrxResponse(this.session, "OK", "Device was created successfully.", device.getId());
+        return new CrxResponse("OK", "Device was created successfully.", device.getId());
     }
 
     public HWConf getHWConf(long roomId) {
@@ -912,9 +917,9 @@ public class RoomService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("setHWConf: " + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.session, "OK", "The hardware configuration of the room was set successfully.");
+        return new CrxResponse("OK", "The hardware configuration of the room was set successfully.");
     }
 
     public CrxResponse modify(Room room) {
@@ -922,7 +927,6 @@ public class RoomService extends Service {
         HWConf hwconf = new CloneToolService(this.session, this.em).getById(room.getHwconfId());
         oldRoom.setDescription(room.getDescription());
         oldRoom.setHwconf(hwconf);
-        oldRoom.setHwconfId(room.getHwconfId());
         oldRoom.setRoomType(room.getRoomType());
         oldRoom.setRows(room.getRows());
         oldRoom.setRoomControl(room.getRoomControl());
@@ -939,10 +943,10 @@ public class RoomService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("modify: " + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         startPlugin("modify_room", oldRoom);
-        return new CrxResponse(this.session, "OK", "The room was modified successfully.");
+        return new CrxResponse("OK", "The room was modified successfully.");
     }
 
     public List<Room> getRooms(List<Long> roomIds) {
@@ -1092,7 +1096,7 @@ public class RoomService extends Service {
         } catch (Exception e) {
             logger.debug("setPrinters " + e.getMessage());
         }
-        return new CrxResponse(this.session, "OK", "Printers of the room was set.");
+        return new CrxResponse("OK", "Printers of the room was set.");
     }
 
     public CrxResponse manageRoom(long roomId, String action, Map<String, String> actionContent) {
@@ -1111,9 +1115,9 @@ public class RoomService extends Service {
             }
         }
         if (errors.isEmpty()) {
-            new CrxResponse(this.session, "OK", "Room control was applied.");
+            new CrxResponse("OK", "Room control was applied.");
         } else {
-            return new CrxResponse(this.session, "ERROR", String.join("<br>", errors));
+            return new CrxResponse("ERROR", String.join("<br>", errors));
         }
         return null;
     }
@@ -1121,7 +1125,7 @@ public class RoomService extends Service {
     public CrxResponse organizeRoom(long roomId) {
         Room room = this.getById(roomId);
         if (room.getRoomType().equals("smartRoom")) {
-            return new CrxResponse(this.session, "OK", "Smart room can not get reorganized");
+            return new CrxResponse("OK", "Smart room can not get reorganized");
         }
         boolean changed = false;
         List<Integer> coordinates;
@@ -1145,7 +1149,7 @@ public class RoomService extends Service {
                 this.em.getTransaction().commit();
             } catch (Exception e) {
                 logger.error("organizeRoom 1: " + e.getMessage());
-                return new CrxResponse(this.session, "ERROR", e.getMessage());
+                return new CrxResponse("ERROR", e.getMessage());
             }
         }
         for (Device device : room.getDevices()) {
@@ -1168,11 +1172,11 @@ public class RoomService extends Service {
                     this.em.getTransaction().commit();
                 } catch (Exception e) {
                     logger.error("organizeRoom 2: " + e.getMessage());
-                    return new CrxResponse(this.session, "ERROR", e.getMessage());
+                    return new CrxResponse("ERROR", e.getMessage());
                 }
             }
         }
-        return new CrxResponse(this.session, "OK", "Room was reorganized");
+        return new CrxResponse("OK", "Room was reorganized");
     }
 
     public List<Device> getDevicesOnMyPlace(Room room, Device device) {
@@ -1225,21 +1229,20 @@ public class RoomService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("setAccessList: " + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.session, "OK", "Access was created successfully");
+        return new CrxResponse("OK", "Access was created successfully");
     }
 
     public CrxResponse addAccessList(long roomId, AccessInRoom accessList) {
         try {
             Room room = this.em.find(Room.class, roomId);
             if (room.getRoomControl() != null && room.getRoomControl().equals("no")) {
-                return new CrxResponse(this.session, "ERROR", "You must not set access control in a room with no room control.");
+                return new CrxResponse("ERROR", "You must not set access control in a room with no room control.");
             }
             this.em.getTransaction().begin();
             accessList.correctTime();
             accessList.setRoom(room);
-            accessList.setRoomId(roomId);
             accessList.setCreator(this.session.getUser());
             this.em.persist(accessList);
             room.getAccessInRooms().add(accessList);
@@ -1247,16 +1250,16 @@ public class RoomService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("addAccessList: " + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.session, "OK", "Access was created successfully");
+        return new CrxResponse("OK", "Access was created successfully");
     }
 
     public CrxResponse deleteAccessList(long accessInRoomId) {
         try {
             AccessInRoom accessList = this.em.find(AccessInRoom.class, accessInRoomId);
             if (!this.mayModify(accessList)) {
-                return new CrxResponse(this.session, "ERROR", "You must not delete this accessList.");
+                return new CrxResponse("ERROR", "You must not delete this accessList.");
             }
             Room room = accessList.getRoom();
             this.em.getTransaction().begin();
@@ -1266,9 +1269,9 @@ public class RoomService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error("deleteAccessList: " + e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.session, "OK", "Access was deleted successfully");
+        return new CrxResponse("OK", "Access was deleted successfully");
     }
 
     public CrxResponse importRooms(InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
@@ -1280,9 +1283,10 @@ public class RoomService extends Service {
             importFile = Files.readAllLines(file.toPath());
         } catch (IOException e) {
             logger.error("File error:" + e.getMessage(), e);
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         CloneToolService cloneToolService = new CloneToolService(this.session, this.em);
+	HWConf defHwconf = cloneToolService.getById(4l);
         Map<String, Integer> header = new HashMap<>();
         CrxResponse crxResponse;
         String headerLine = importFile.get(0);
@@ -1292,7 +1296,7 @@ public class RoomService extends Service {
             i++;
         }
         if (!header.containsKey("name") || !header.containsKey("hwconf")) {
-            return new CrxResponse(this.session, "ERROR", "Fields name and hwconf are mandatory.");
+            return new CrxResponse("ERROR", "Fields name and hwconf are mandatory.");
         }
         i = 1;
         for (String line : importFile.subList(1, importFile.size())) {
@@ -1314,7 +1318,7 @@ public class RoomService extends Service {
             if (header.containsKey("count") && !values[header.get("count")].isEmpty()) {
                 int count = Integer.valueOf(values[header.get("count")]);
                 if (!Room.countToNm.containsKey(count)) {
-                    return new CrxResponse(this.session, "ERROR", "Bad computer count. Allowed values are 4,8,16,32,64,128.256,512,1024,2048,4096");
+                    return new CrxResponse("ERROR", "Bad computer count. Allowed values are 4,8,16,32,64,128.256,512,1024,2048,4096");
                 }
                 room.setNetMask(Room.countToNm.get(count));
             }
@@ -1347,9 +1351,9 @@ public class RoomService extends Service {
             if (header.containsKey("hwconf") && !values[header.get("hwconf")].isEmpty()) {
                 HWConf hwconf = cloneToolService.getByName(values[header.get("hwconf")]);
                 if (hwconf == null) {
-                    room.setHwconfId(4l);
+                    room.setHwconf(defHwconf);
                 } else {
-                    room.setHwconfId(hwconf.getId());
+                    room.setHwconf(hwconf);
                 }
             }
             crxResponse = this.add(room);
@@ -1357,7 +1361,7 @@ public class RoomService extends Service {
                 return crxResponse;
             }
         }
-        return new CrxResponse(this.session, "OK", "Rooms were imported successfully.");
+        return new CrxResponse("OK", "Rooms were imported successfully.");
     }
 
     public List<CrxMConfig> getDHCP(Long roomId) {
@@ -1374,7 +1378,7 @@ public class RoomService extends Service {
 
     public CrxResponse addDHCP(Long roomId, CrxMConfig dhcpParameter) {
         if (!dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions")) {
-            return new CrxResponse(session, "ERROR", "Bad DHCP parameter.");
+            return new CrxResponse("ERROR", "Bad DHCP parameter.");
         }
         Room room = this.getById(roomId);
         CrxResponse crxResponse = this.addMConfig(room, dhcpParameter.getKeyword(), dhcpParameter.getValue());
@@ -1388,7 +1392,7 @@ public class RoomService extends Service {
             return crxResponse;
         }
         new DHCPConfig(session, em).Create();
-        return new CrxResponse(session, "OK", "DHCP Parameter was added successfully");
+        return new CrxResponse("OK", "DHCP Parameter was added successfully");
     }
 
     public CrxResponse deleteDHCP(Long roomId, Long parameterId) {
@@ -1418,8 +1422,6 @@ public class RoomService extends Service {
             Query query = em.createNamedQuery("AccessInRoom.findAll");
             for (AccessInRoom air : (List<AccessInRoom>) query.getResultList()) {
                 logger.debug("AIR: " + air);
-                air.setRoomName(air.getRoom().getName());
-                air.setRoomId(air.getRoom().getId());
                 if (air.getAccessType().equals("ACT")) {
                     air.setPrinting(null);
                     air.setLogin(null);
@@ -1444,8 +1446,8 @@ public class RoomService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return new CrxResponse(this.session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
-        return new CrxResponse(this.session, "OK", "Access was modified successfully");
+        return new CrxResponse("OK", "Access was modified successfully");
     }
 }

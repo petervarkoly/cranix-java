@@ -1,11 +1,9 @@
 /* (c) 2021 Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api.resources;
 
-import de.cranix.dao.*;
 import de.cranix.services.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
-import org.apache.commons.lang3.SerializationUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -129,7 +127,7 @@ public class SoftwareResource {
 		Software software
 	) {
                 EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		software.setId(softwareId);
+				software.setId(softwareId);
                 CrxResponse resp = new SoftwareService(session,em).modify(software);
                 em.close();
                 return resp;
@@ -505,7 +503,7 @@ public class SoftwareResource {
                         deviceService.manageDevice(device, "applyState", null);
                 }
                 em.close();
-                return new CrxResponse(session,"OK","Salt High State was applied on all running minions.");
+                return new CrxResponse("OK","Salt High State was applied on all running minions.");
         }
 
 	@POST

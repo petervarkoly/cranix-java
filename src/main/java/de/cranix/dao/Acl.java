@@ -4,6 +4,7 @@ package de.cranix.dao;
 import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -12,93 +13,44 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 
  */
 @Entity
-@Table(name="Acls")
+@Table(
+		name="Acls",
+		uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "acl", "group_id", "user_id" })
+	}
+)
 @NamedQueries({
 	@NamedQuery(name="Acl.findAll", query="SELECT a FROM Acl a")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class Acl implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class Acl extends AbstractEntity {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-	private Long id;
-
+	@Column(name = "acl")
+	@Size(max=32, message="acl must not be longer then 32 characters.")
 	private String acl;
 	
 	@Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "allowed", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	private Boolean allowed;
-	
+
 	//bi-directional many-to-one association to User
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED", updatable = false)
 	private User user;
-	
-	@Column(name = "user_id", insertable = false, updatable = false)
-	private Long userId;
 
 	//bi-directional many-to-one association to Group
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="group_id", columnDefinition ="BIGINT UNSIGNED", updatable = false)
 	private Group group;
 	
-	@Column(name = "group_id", insertable = false, updatable = false)
-	private Long groupId;
-
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
-		
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Acl other = (Acl) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-	
-
 	public Acl() {
 	}
 
 	public Acl(String name, boolean allowed) {
 		this.acl     = name;
 		this.allowed = allowed;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getAcl() {
@@ -133,27 +85,12 @@ public class Acl implements Serializable {
 		return this.group;
 	}
 
-	public User getCreator() {
-		return creator;
-	}
-
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
-
 	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
+		return this.user != null ? this.user.getId() : null;
 	}
 
 	public Long getGroupId() {
-		return groupId;
+		return this.group != null ? this.group.getId() : null;
 	}
 
-	public void setGroupId(Long groupId) {
-		this.groupId = groupId;
-	}
 }

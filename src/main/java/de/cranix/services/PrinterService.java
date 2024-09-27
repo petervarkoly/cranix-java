@@ -1,6 +1,5 @@
 package de.cranix.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -167,7 +165,7 @@ public class PrinterService extends Service {
         if (printer != null) {
             return this.deletePrinter(printer);
         }
-        return new CrxResponse(this.session, "ERROR", "Can not find printer with name %s.", null, name);
+        return new CrxResponse("ERROR", "Can not find printer with name %s.", null, name);
     }
 
     public CrxResponse deletePrinter(Long printerId) {
@@ -175,7 +173,7 @@ public class PrinterService extends Service {
         if (printer != null) {
             return this.deletePrinter(printer);
         }
-        return new CrxResponse(this.session, "ERROR", "Can not find printer with id %s.", null, String.valueOf(printerId));
+        return new CrxResponse("ERROR", "Can not find printer with id %s.", null, String.valueOf(printerId));
     }
 
     /**
@@ -185,7 +183,7 @@ public class PrinterService extends Service {
      * @return
      */
     public CrxResponse deletePrinter(Printer printer) {
-        CrxResponse crxResponse = new CrxResponse(session, "OK", "Printer was deleted succesfully.");
+        CrxResponse crxResponse = new CrxResponse("OK", "Printer was deleted succesfully.");
         try {
             Device printerDevice = printer.getDevice();
             Map<String, String> tmpMap = new HashMap<>();
@@ -218,7 +216,7 @@ public class PrinterService extends Service {
             }
         } catch (Exception e) {
             logger.debug("deletePrinter :" + e.getMessage());
-            crxResponse = new CrxResponse(this.session, "ERROR", "Can not delete printer: %s", null, e.getMessage());
+            crxResponse = new CrxResponse("ERROR", "Can not delete printer: %s", null, e.getMessage());
         } finally {
             if (this.em.getTransaction().isActive()) {
                 this.em.getTransaction().rollback();
@@ -230,7 +228,7 @@ public class PrinterService extends Service {
     public CrxResponse activateWindowsDriver(Long id) {
         Printer printer = this.getById(id);
         if (printer == null) {
-            return new CrxResponse(session, "ERROR", "Can not find the printer.");
+            return new CrxResponse("ERROR", "Can not find the printer.");
         }
         return this.activateWindowsDriver(printer.getName());
     }
@@ -241,7 +239,7 @@ public class PrinterService extends Service {
         tmpMap.put("name",printerName);
         tmpMap.put("action","activateWindowsDriver");
         startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
-        return new CrxResponse(session, "OK", "Windows driver activation was started.");
+        return new CrxResponse("OK", "Windows driver activation was started.");
     }
 
     public CrxResponse addPrinter(
@@ -263,7 +261,7 @@ public class PrinterService extends Service {
         device.setMac(mac.trim());
         device.setName(name);
         device.setIp(ip);
-        device.setHwconfId(hwconf.getId());
+        device.setHwconf(hwconf);
         logger.debug(hwconf.getName() + "#" + hwconf.getId());
         List<Device> devices = new ArrayList<Device>();
         devices.add(device);
@@ -301,7 +299,7 @@ public class PrinterService extends Service {
             deviceHostName = device.getName();
         } catch (Exception e) {
             logger.debug("addPrinterQueue :" + e.getMessage());
-            return new CrxResponse(session, "ERROR", e.getMessage());
+            return new CrxResponse("ERROR", e.getMessage());
         }
         //Find the driver file
         String driverFile = "/usr/share/cups/model/Postscript.ppd.gz";
@@ -313,7 +311,7 @@ public class PrinterService extends Service {
                 Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
-                return new CrxResponse(session, "ERROR", e.getMessage());
+                return new CrxResponse("ERROR", e.getMessage());
             }
             driverFile = file.toPath().toString();
         } else {
@@ -328,7 +326,7 @@ public class PrinterService extends Service {
                 }
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
-                return new CrxResponse(session, "ERROR", e.getMessage());
+                return new CrxResponse("ERROR", e.getMessage());
             }
         }
         Map<String, String> tmpMap = new HashMap<>();
@@ -346,7 +344,7 @@ public class PrinterService extends Service {
         enablePrinter(name);
 
         return new CrxResponse(
-                session, "OK",
+                "OK",
                 "Printer was created succesfully.",
                 printer.getId()
         );
@@ -355,7 +353,7 @@ public class PrinterService extends Service {
     public CrxResponse enablePrinter(Long id) {
         Printer printer = this.getById(id);
         if (printer == null) {
-            return new CrxResponse(session, "ERROR", "Can not find the printer.");
+            return new CrxResponse("ERROR", "Can not find the printer.");
         }
         return this.enablePrinter(printer.getName());
     }
@@ -370,13 +368,13 @@ public class PrinterService extends Service {
         program[0] = "/usr/sbin/cupsaccept";
         program[1] = printerName;
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Printer was enabled succesfully.");
+        return new CrxResponse("OK", "Printer was enabled succesfully.");
     }
 
     public CrxResponse disablePrinter(Long id) {
         Printer printer = this.getById(id);
         if (printer == null) {
-            return new CrxResponse(session, "ERROR", "Can not find the printer.");
+            return new CrxResponse("ERROR", "Can not find the printer.");
         }
         return this.disablePrinter(printer.getName());
     }
@@ -391,7 +389,7 @@ public class PrinterService extends Service {
         program[0] = "/usr/sbin/cupsreject";
         program[1] = printerName;
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Printer was disabled succesfully.");
+        return new CrxResponse("OK", "Printer was disabled succesfully.");
     }
 
     public CrxResponse setDriver(
@@ -411,7 +409,7 @@ public class PrinterService extends Service {
                 Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
-                return new CrxResponse(session, "ERROR", e.getMessage());
+                return new CrxResponse("ERROR", e.getMessage());
             }
             driverFile = file.toPath().toString();
         } else {
@@ -426,7 +424,7 @@ public class PrinterService extends Service {
                 }
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
-                return new CrxResponse(session, "ERROR", e.getMessage());
+                return new CrxResponse("ERROR", e.getMessage());
             }
         }
         logger.debug("Add printer/usr/sbin/lpadmin -p " + printer.getName() + " -P " + driverFile + " -o printer-error-policy=abort-job -o PageSize=A4");
@@ -446,13 +444,13 @@ public class PrinterService extends Service {
         logger.debug("setDriver error" + stderr.toString());
         logger.debug("setDriver reply" + reply.toString());
         //TODO check output
-        return new CrxResponse(session, "OK", "Printer driver was set succesfully.");
+        return new CrxResponse("OK", "Printer driver was set succesfully.");
     }
 
     public CrxResponse resetPrinter(Long id) {
         Printer printer = this.getById(id);
         if (printer == null) {
-            return new CrxResponse(session, "ERROR", "Can not find the printer.");
+            return new CrxResponse("ERROR", "Can not find the printer.");
         }
         return resetPrinter(printer.getName());
     }
@@ -467,7 +465,7 @@ public class PrinterService extends Service {
         program[3] = "-";
         CrxSystemCmd.exec(program, reply, stderr, null);
         this.enablePrinter(printerName);
-        return new CrxResponse(session, "OK", "Printer was reseted succesfully.");
+        return new CrxResponse("OK", "Printer was reseted succesfully.");
     }
 
     static public Map<String, String[]> getAvailableDrivers() {

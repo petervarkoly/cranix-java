@@ -39,6 +39,7 @@ import java.util.List;
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 import static de.cranix.api.resources.Resource.TEXT;
 import static de.cranix.helper.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.CranixConstants.roleStudent;
 
 @Path("users")
 @Api(value = "users")
@@ -168,11 +169,35 @@ public class UserResource {
             @ApiParam(hidden = true) @Auth Session session
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final List<CrxResponse> crxResponses = new UserService(session, em).moveStudentsDevices();
+        final List<CrxResponse> crxResponses = new UserService(session, em).moveUsersDevices(roleStudent);
         em.close();
         return crxResponses;
     }
 
+    @PATCH
+    @Path("moveUserDevices/{role}")
+    @Produces(JSON_UTF8)
+    @ApiOperation(
+            value = "Move the devices of all students into the actual AdHocLan ClassRooms",
+            notes = "This call works under certain circumstances." +
+                    "<li>Global variable MAINTAIN_ADHOC_ROOM_FOR_CLASSES is set to yes." +
+                    "<li>The class adhoc-rooms were already created." +
+                    "<li>The students are only member in one class." +
+                    "<li>There are no other adhoc room where students can register devices only dhe Class-Adhoc-Rooms."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "User not found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
+    @RolesAllowed("user.manage")
+    public List<CrxResponse> moveStudentsDevices(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("role") String role
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final List<CrxResponse> crxResponses = new UserService(session, em).moveUsersDevices(role);
+        em.close();
+        return crxResponses;
+    }
     @PATCH
     @Path("text/{uid}/devices")
     @Produces(JSON_UTF8)
@@ -188,14 +213,14 @@ public class UserResource {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
     @RolesAllowed("user.manage")
-    public CrxResponse moveUserDevices(
+    public List<CrxResponse> moveUserDevices(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("uid") String uid
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final CrxResponse crxResponse = new UserService(session, em).moveUserDevices(uid);
+        final List<CrxResponse> crxResponses = new UserService(session, em).moveUserDevices(uid);
         em.close();
-        return crxResponse;
+        return crxResponses;
     }
 
     @DELETE
@@ -334,9 +359,9 @@ public class UserResource {
         }
         em.close();
         if (error.length() > 0) {
-            return new CrxResponse(session, "ERROR", error.toString());
+            return new CrxResponse("ERROR", error.toString());
         }
-        return new CrxResponse(session, "OK", "User was added to the additional group.");
+        return new CrxResponse("OK", "User was added to the additional group.");
     }
 
     @POST
@@ -781,7 +806,7 @@ public class UserResource {
             Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
-            return new CrxResponse(session, "ERROR", "Import file can not be saved" + e.getMessage());
+            return new CrxResponse("ERROR", "Import file can not be saved" + e.getMessage());
         }
         try {
             Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
@@ -797,7 +822,7 @@ public class UserResource {
                 Files.write(file.toPath(), utf8lines);
 
             } catch (IOException ioe2) {
-                return new CrxResponse(session, "ERROR", "Import file is not UTF-8 coded.");
+                return new CrxResponse("ERROR", "Import file is not UTF-8 coded.");
             }
         }
         if (password != null && !password.isEmpty()) {
@@ -866,7 +891,7 @@ public class UserResource {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Import was started.");
+        return new CrxResponse("OK", "Import was started.");
     }
 
     @GET
@@ -998,9 +1023,9 @@ public class UserResource {
             CrxSystemCmd.exec(program, reply, stderr, null);
             logger.debug("restartImport reply: " + reply.toString());
             logger.debug("restartImport error: " + reply.toString());
-            return new CrxResponse(session, "OK", "Import was started.");
+            return new CrxResponse("OK", "Import was started.");
         }
-        return new CrxResponse(session, "ERROR", "CAn not find the import.");
+        return new CrxResponse("ERROR", "CAn not find the import.");
     }
 
     @DELETE
@@ -1018,7 +1043,7 @@ public class UserResource {
         Service controller = new Service(session, null);
         StringBuilder importDir = controller.getImportDir(startTime);
         if (startTime == null || startTime.isEmpty()) {
-            return new CrxResponse(session, "ERROR", "Invalid import name.");
+            return new CrxResponse("ERROR", "Invalid import name.");
         }
         String[] program = new String[3];
         program[0] = "rm";
@@ -1027,7 +1052,7 @@ public class UserResource {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Import was deleted.");
+        return new CrxResponse("OK", "Import was deleted.");
     }
 
     @DELETE
@@ -1050,7 +1075,7 @@ public class UserResource {
         program[1] = "-f";
         program[2] = "/run/crx_import_user";
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Import was stopped.");
+        return new CrxResponse("OK", "Import was stopped.");
     }
 
     @GET
@@ -1124,7 +1149,7 @@ public class UserResource {
             }
         }
         em.close();
-        return new CrxResponse(session, "OK", "All teachers was put into all classes.");
+        return new CrxResponse("OK", "All teachers was put into all classes.");
     }
 
     @PUT
@@ -1204,7 +1229,7 @@ public class UserResource {
             groupService.addMember(group, user);
         }
         em.close();
-        return new CrxResponse(session, "OK", "User was put into all classes.");
+        return new CrxResponse("OK", "User was put into all classes.");
     }
 
     @POST
@@ -1258,7 +1283,7 @@ public class UserResource {
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         CrxSystemCmd.exec(program, reply, stderr, null);
-        return new CrxResponse(session, "OK", "Import was started.");
+        return new CrxResponse("OK", "Import was started.");
     }
 
     @POST

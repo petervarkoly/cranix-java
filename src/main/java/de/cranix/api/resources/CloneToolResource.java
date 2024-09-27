@@ -400,7 +400,7 @@ public class CloneToolResource {
 		device.setMac(macAddress);
 		device.setIp(IP);
 		if( room.getHwconf() != null ) {
-			device.setHwconfId(room.getHwconf().getId());
+			device.setHwconf(room.getHwconf());
 		}
 		ArrayList<Device> devices = new ArrayList<Device>();
 		devices.add(device);

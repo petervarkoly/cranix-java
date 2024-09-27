@@ -27,7 +27,7 @@ import static de.cranix.api.resources.Resource.TEXT;
 @Produces(JSON_UTF8)
 public class ChallengeResource {
 
-    Logger logger = LoggerFactory.getLogger(UserResource.class);
+    Logger logger = LoggerFactory.getLogger(ChallengeResource.class);
 
     public ChallengeResource() {
     }

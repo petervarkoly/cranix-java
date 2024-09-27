@@ -3,6 +3,8 @@ package de.cranix.api.resources;
 
 import static de.cranix.helper.CranixConstants.*;
 import static de.cranix.api.resources.Resource.*;
+
+import de.cranix.services.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 
@@ -34,11 +36,6 @@ import java.util.Map;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.CrxSystemCmd;
-import de.cranix.services.JobService;
-import de.cranix.services.ProxyService;
-import de.cranix.services.SessionService;
-import de.cranix.services.Service;
-import de.cranix.services.SystemService;
 
 @Path("system")
 @Api(value = "system")
@@ -181,9 +178,9 @@ public class SystemResource {
 			}
 		}
 		if( CrxSystemCmd.exec(program, reply, stderr, null) == 0 ) {
-			return new CrxResponse(session,"OK","Service state was set successfully.");
+			return new CrxResponse("OK","Service state was set successfully.");
 		} else {
-			return new CrxResponse(session,"ERROR",stderr.toString());
+			return new CrxResponse("ERROR",stderr.toString());
 		}
 	}
 
@@ -205,9 +202,9 @@ public class SystemResource {
 		try {
 			Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
-			return new CrxResponse(session,"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(session,"OK", "File was saved succesfully.");
+		return new CrxResponse("OK", "File was saved succesfully.");
 	}
 
 	@GET
@@ -325,10 +322,10 @@ public class SystemResource {
 		SystemService systemService = new SystemService(session,em);
 		if( systemService.setConfigValue(key, value) ) {
 			em.close();
-			return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
+			return new CrxResponse("OK","Global configuration value was set succesfully.");
 		} else {
 			em.close();
-			return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+			return new CrxResponse("ERROR","Global configuration value could not be set.");
 		}
 	}
 
@@ -350,12 +347,12 @@ public class SystemResource {
 		SystemService systemService = new SystemService(session,em);
 		try {
 			if( systemService.setConfigValue(config.get("key"), config.get("value")) ) {
-				return new CrxResponse(session,"OK","Global configuration value was set succesfully.");
+				return new CrxResponse("OK","Global configuration value was set succesfully.");
 			} else {
-				return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+				return new CrxResponse("ERROR","Global configuration value could not be set.");
 			}
 		} catch(Exception e) {
-			return new CrxResponse(session,"ERROR","Global configuration value could not be set.");
+			return new CrxResponse("ERROR","Global configuration value could not be set.");
 		} finally {
 			em.close();
 		}
@@ -537,18 +534,16 @@ public class SystemResource {
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("state") String state
 	) {
-		switch (state) {
-			case "stop": {
-				return this.setServicesStatus(session,"firewalld","active","false");
-			}
-			case "start": {
-				return this.setServicesStatus(session,"firewalld","active","true");
-			}
-			case "restart": {
-				return this.setServicesStatus(session,"firewalld","active","restart");
-			}
+		String[] program = new String[2];
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		program[0] = "/usr/sbin/cranix-firewall.py";
+		program[1] = state;
+		if( CrxSystemCmd.exec(program, reply, error, null) == 0 ) {
+			return new CrxResponse("OK","Service state was set successfully.");
+		} else {
+			return new CrxResponse("ERROR",error.toString());
 		}
-		return new CrxResponse(session,"ERROR","Bad firewall state.");
 	}
 
 	/*
@@ -732,7 +727,7 @@ public class SystemResource {
 		StringBuffer error = new StringBuffer();
 		CrxSystemCmd.exec(program, reply, error, acls);
 		//TODO check error
-		return new CrxResponse(session,"OK","Proxy basic configuration was written succesfully.");
+		return new CrxResponse("OK","Proxy basic configuration was written succesfully.");
 	}
 
 	@GET
@@ -818,11 +813,11 @@ public class SystemResource {
 			program[4] = "custom/" +list + "/domains";
 			CrxSystemCmd.exec(program, reply, error, null);
 			new Service(session,null).systemctl("try-restart", "squid");
-			return new CrxResponse(session,"OK","Custom list was written successfully");
+			return new CrxResponse("OK","Custom list was written successfully");
 		} catch( IOException e ) {
 			e.printStackTrace();
 		}
-		return new CrxResponse(session,"ERROR","Could not write custom list.");
+		return new CrxResponse("ERROR","Could not write custom list.");
 	}
 
 	@PUT
@@ -839,7 +834,58 @@ public class SystemResource {
 		StringBuffer error = new StringBuffer();
 		CrxSystemCmd.exec(program, reply, error, "");
 		//TODO check error
-		return new CrxResponse(session,"OK","DNS server configuration was written succesfully.");
+		return new CrxResponse("OK","DNS server configuration was written successfully.");
+	}
+
+	@GET
+	@Path("unbound/safesearch")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Reads the safe search configuration.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.unbound")
+	public Object getSafeSearch( @ApiParam(hidden = true) @Auth Session session)
+	{
+		String[] program   = new String[1];
+		program[0] = cranixBaseDir + "tools/unbound/report_safesearch_status.sh";
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		CrxSystemCmd.exec(program, reply, error, "");
+		return reply.toString();
+	}
+
+	@POST
+	@Path("unbound/safesearch")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Saves the safe search configuration.")
+	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	@RolesAllowed("system.unbound")
+	public CrxResponse setSafeSearch(
+			@ApiParam(hidden = true) @Auth Session session,
+			List<SafeSearch> safeSearchList
+	)
+	{
+		StringBuffer reply = new StringBuffer();
+		StringBuffer error = new StringBuffer();
+		String[] program;
+		for( SafeSearch safeSearch: safeSearchList) {
+			if( safeSearch.getActive()) {
+				program   = new String[5];
+				program[0] = "/usr/bin/ln";
+				program[1] = "-s";
+				program[2] = "-f";
+				program[3] = cranixBaseDir + "templates/unbound/safesearch/" +safeSearch.getName() + ".conf";
+				program[4] = "/etc/unbound/local.d/";
+			} else {
+				program   = new String[3];
+				program[0] = "/usr/bin/rm";
+				program[1] = "-f";
+				program[2] = "/etc/unbound/local.d/" + safeSearch.getName() + ".conf" ;
+			}
+			CrxSystemCmd.exec(program, reply, error, "");
+		}
+
+		//TODO check error
+		return new CrxResponse("OK","Safe Search configuration was written successfully.");
 	}
 
 	/*
@@ -872,7 +918,7 @@ public class SystemResource {
 		Job job
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<Job>   resp = new JobService(session,em).searchJobs(job.getDescription(), job.getStartTime(), job.getEndTime());
+		List<Job>   resp = new JobService(session,em).searchJobs(job);
 		em.close();
 		return resp;
 	}
@@ -1056,7 +1102,7 @@ public class SystemResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		Group group = em.find(Group.class, groupId);
-		CrxResponse resp = new CrxResponse(session,"OK","Acls was deleted succesfully.");
+		CrxResponse resp = new CrxResponse("OK","Acls was deleted succesfully.");
 		if( group != null ) {
 			em.getTransaction().begin();
 			for(Acl acl : group.getAcls() ) {
@@ -1066,7 +1112,7 @@ public class SystemResource {
 			em.merge(group);
 			em.getTransaction().commit();
 		} else {
-			resp = new CrxResponse(session,"ERROR","Group can not be find.");
+			resp = new CrxResponse("ERROR","Group can not be find.");
 		}
 		return resp;
 	}
@@ -1140,7 +1186,7 @@ public class SystemResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		User user = em.find(User.class, userId);
-		CrxResponse resp = new CrxResponse(session,"OK","Acls was deleted succesfully.");
+		CrxResponse resp = new CrxResponse("OK","Acls was deleted succesfully.");
 		if( user != null ) {
 			em.getTransaction().begin();
 			for(Acl acl : user.getAcls() ) {
@@ -1150,7 +1196,7 @@ public class SystemResource {
 			em.merge(user);
 			em.getTransaction().commit();
 		} else {
-			resp = new CrxResponse(session,"ERROR","Group can not be find.");
+			resp = new CrxResponse("ERROR","Group can not be find.");
 		}
 		return resp;
 	}
@@ -1342,21 +1388,21 @@ public class SystemResource {
 		program[0] = cranixBaseDir + "addons/" + name + "/action.sh";
 		program[1] =  action;
 		if( CrxSystemCmd.exec(program, reply, stderr, null) == 0 ) {
-			return new CrxResponse(session,"OK","Service state was set successfully.");
+			return new CrxResponse("OK","Service state was set successfully.");
 		} else {
-			return new CrxResponse(session,"ERROR",stderr.toString());
+			return new CrxResponse("ERROR",stderr.toString());
 		}
 	}
 
 	@GET
 	@Path("addon/{name}/{key}")
-	@Produces(JSON_UTF8)
+	@Produces(TEXT)
 	@ApiOperation(value = "Gets some data from an addon.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
 	})
 	@RolesAllowed("system.addons")
-	public String[] getDataFromAddon(
+	public String getDataFromAddon(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("name")	String name,
 			@PathParam("key")	String key
@@ -1367,6 +1413,49 @@ public class SystemResource {
 		program[0] = cranixBaseDir + "addons/" + name + "/getvalue.sh";
 		program[1] = key;
 		CrxSystemCmd.exec(program, reply, stderr, null);
-		return reply.toString().split("\\s");
+		return reply.toString();
+	}
+
+	@POST
+	@Path("mailserver/access")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a new acces.")
+	@RolesAllowed("system.mailserver")
+	public CrxResponse addMailserverAccess(
+			@ApiParam(hidden = true) @Auth Session session,
+			MailAccess mailAccess
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new MailserverService(session,em).addMailAccess(mailAccess);
+		em.close();
+		return resp;
+	}
+	@GET
+	@Path("mailserver/access")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a new acces.")
+	@RolesAllowed("system.mailserver")
+	public List<MailAccess> addMailserverAccess(
+			@ApiParam(hidden = true) @Auth Session session
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		List<MailAccess> resp = new MailserverService(session,em).getAllMailAccess();
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("mailserver/access/{id}")
+	@Produces(JSON_UTF8)
+	@ApiOperation(value = "Add a new acces.")
+	@RolesAllowed("system.mailserver")
+	public CrxResponse deleteMailserverAccess(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("id") Long id
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new MailserverService(session,em).deleteMailAccess(id);
+		em.close();
+		return resp;
 	}
 }

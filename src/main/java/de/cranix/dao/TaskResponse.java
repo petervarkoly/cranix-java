@@ -21,30 +21,12 @@ import javax.validation.constraints.Size;
 @NamedQueries({
         @NamedQuery(name="TaskResponse.findAll", query="SELECT t FROM TaskResponse t")
 })
-public class TaskResponse implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * The technical id of the task
-     */
-    @Id
-    @SequenceGenerator(name="TASKS_ID_GENERATOR" )
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="TASKS_ID_GENERATOR")
-    private Long id;
-
-    //bi-directional many-to-one association to User
-    @ManyToOne
-    private User owner;
-
-    @Column(name="owner_id", insertable=false, updatable=false)
-    private Long ownerId;
+public class TaskResponse extends AbstractEntity {
 
     @ManyToOne
     @JsonIgnore
+    @JoinColumn(name="parent_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private Announcement parent;
-
-    @Column(name="parent_id", insertable=false, updatable=false)
-    private Long parentId;
 
     /**
      * The content of the task response. Maximal length is 16MB
@@ -59,14 +41,6 @@ public class TaskResponse implements Serializable {
     public void TaskResponse() {
     }
 
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Announcement getParent() {
         return parent;
     }
@@ -76,27 +50,7 @@ public class TaskResponse implements Serializable {
     }
 
     public Long getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
-    public User getOwner() {
-        return this.owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+        return this.parent.getId();
     }
 
     public String getText() {
@@ -120,38 +74,5 @@ public class TaskResponse implements Serializable {
     }
     public Date getValidUntil() {
         return ( this.parent == null ) ? null : this.parent.getValidUntil();
-    }
-    @Override
-    public String toString() {
-        try {
-            return new ObjectMapper().writeValueAsString(this);
-        } catch (Exception e) {
-            return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        TaskResponse other = (TaskResponse) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
     }
 }

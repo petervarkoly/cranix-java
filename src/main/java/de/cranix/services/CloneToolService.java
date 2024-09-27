@@ -147,7 +147,7 @@ public class CloneToolService extends Service {
 	public CrxResponse addHWConf(HWConf hwconf){
 		// First we check if the parameter are unique.
 		if( this.getByName(hwconf.getName()) != null){
-			return new CrxResponse(this.getSession(),"ERROR", "Configuration name is not unique.");
+			return new CrxResponse("ERROR", "Configuration name is not unique.");
 		}
 		try {
 			hwconf.setCreator(this.session.getUser());
@@ -167,9 +167,9 @@ public class CloneToolService extends Service {
 			logger.debug("Created HWConf:" + hwconf );
 		} catch (Exception e) {
 			logger.error("addHWConf: "+ e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK","Hardware configuration was created.",hwconf.getId());
+		return new CrxResponse("OK","Hardware configuration was created.",hwconf.getId());
 	}
 
 	public CrxResponse modifyHWConf(Long hwconfId, HWConf hwconf){
@@ -177,7 +177,7 @@ public class CloneToolService extends Service {
 			HWConf oldHwconf = this.em.find(HWConf.class, hwconfId);
 			if( !oldHwconf.getName().equals(hwconf.getName()) && !this.isNameUnique(hwconf.getName())){
 				// Check only if name is unique if the name was changed.
-				return new CrxResponse(this.getSession(),"ERROR", "Configuration name is not unique.");
+				return new CrxResponse("ERROR", "Configuration name is not unique.");
 			}
 			if( hwconf.getPartitions() != null && hwconf.getPartitions().size() > 0 ) {
 				this.em.getTransaction().begin();
@@ -203,9 +203,9 @@ public class CloneToolService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("modifyHWConf" + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK", "Hardware configuration was modified.");
+		return new CrxResponse("OK", "Hardware configuration was modified.");
 	}
 
 	public CrxResponse addPartitionToHWConf(Long hwconfId, String name ) {
@@ -215,7 +215,7 @@ public class CloneToolService extends Service {
 		parameters.add(hwconf.getDeviceType());
 		for( Partition part : hwconf.getPartitions() ) {
 			if( part.getName().equals(name) ) {
-				return new CrxResponse(this.getSession(),"OK", "Partition: %s is already created in %s (%s)",null,parameters);
+				return new CrxResponse("OK", "Partition: %s is already created in %s (%s)",null,parameters);
 			}
 		}
 		Partition partition = new Partition();
@@ -230,9 +230,9 @@ public class CloneToolService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("addPartitionToHWConf: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK", "Partition: %s was created in %s (%s)",null,parameters);
+		return new CrxResponse("OK", "Partition: %s was created in %s (%s)",null,parameters);
 	}
 
 	public CrxResponse addPartitionToHWConf(Long hwconfId, Partition partition ) {
@@ -242,7 +242,7 @@ public class CloneToolService extends Service {
 		parameters.add(hwconf.getDeviceType());
 		for( Partition part : hwconf.getPartitions() ) {
 			if( part.getName().equals(partition.getName()) ) {
-				return new CrxResponse(this.getSession(),"OK", "Partition: %s is already created in %s (%s)",null,parameters);
+				return new CrxResponse("OK", "Partition: %s is already created in %s (%s)",null,parameters);
 			}
 		}
 		partition.setCreator(this.session.getUser());
@@ -254,9 +254,9 @@ public class CloneToolService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("addPartitionToHWConf: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK", "Partition: %s was created in %s (%s)",null,parameters);
+		return new CrxResponse("OK", "Partition: %s was created in %s (%s)",null,parameters);
 	}
 
 	public CrxResponse setConfigurationValue(Long hwconfId, String partitionName, String key, String value) {
@@ -265,7 +265,7 @@ public class CloneToolService extends Service {
 			this.addPartitionToHWConf(hwconfId, partitionName);
 			partition = this.getPartition(hwconfId, partitionName);
 			if( partition == null ) {
-				return new CrxResponse(this.getSession(),"ERROR", "Can not create partition in HWConf");
+				return new CrxResponse("ERROR", "Can not create partition in HWConf");
 			}
 			logger.debug("Creating partition '" + partitionName + "' in hwconf #" +hwconfId );
 		}
@@ -294,11 +294,11 @@ public class CloneToolService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("setConfigurationValue: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		parameters.add(key);
 		parameters.add(value);
-		return new CrxResponse(this.getSession(),"OK", "Partitions key: %s was set to %s.",partition.getId(),parameters);
+		return new CrxResponse("OK", "Partitions key: %s was set to %s.",partition.getId(),parameters);
 	}
 
 	public CrxResponse delete(Long hwconfId){
@@ -306,10 +306,10 @@ public class CloneToolService extends Service {
 			this.em.getTransaction().begin();
 			HWConf hwconf = this.em.find(HWConf.class, hwconfId);
 		if( this.isProtected(hwconf)) {
-		    return new CrxResponse(this.getSession(),"ERROR","This hardware configuration must not be deleted.");
+		    return new CrxResponse("ERROR","This hardware configuration must not be deleted.");
 		}
 		if( !this.mayModify(hwconf) ) {
-			return new CrxResponse(this.getSession(),"ERROR","You must not delete this hardware configuration.");
+			return new CrxResponse("ERROR","You must not delete this hardware configuration.");
 		}
 		startPlugin("delete_hwconf", hwconf);
 			if( ! this.em.contains(hwconf)) {
@@ -328,16 +328,16 @@ public class CloneToolService extends Service {
 			this.em.getEntityManagerFactory().getCache().evictAll();
 		} catch (Exception e) {
 			logger.error("delete: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK", "Hardware configuration was deleted successfully.");
+		return new CrxResponse("OK", "Hardware configuration was deleted successfully.");
 	}
 
 	public CrxResponse deletePartition(Long hwconfId, String partitionName) {
 		HWConf hwconf = this.getById(hwconfId);
 		Partition partition = this.getPartition(hwconfId, partitionName);
 		if( !this.mayModify(partition) ) {
-		return new CrxResponse(this.getSession(),"ERROR","You must not delete this partition.");
+		return new CrxResponse("ERROR","You must not delete this partition.");
 	}
 		hwconf.removePartition(partition);
 		try {
@@ -347,12 +347,12 @@ public class CloneToolService extends Service {
 			this.em.getEntityManagerFactory().getCache().evict(hwconf.getClass());
 		} catch (Exception e) {
 			logger.error("deletePartition: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		parameters.add(partitionName);
 		parameters.add(hwconf.getName());
 		parameters.add(hwconf.getDeviceType());
-		return new CrxResponse(this.getSession(),"OK", "Partition: %s was deleted from %s (%s)",hwconfId,parameters);
+		return new CrxResponse("OK", "Partition: %s was deleted from %s (%s)",hwconfId,parameters);
 	}
 
 	public CrxResponse deleteConfigurationValue(Long hwconfId, String partitionName, String key) {
@@ -383,10 +383,10 @@ public class CloneToolService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteConfigurationValue: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		parameters.add(key);
-		return new CrxResponse(this.getSession(),"OK", "Partitions key: %s was deleted",null,parameters );
+		return new CrxResponse("OK", "Partitions key: %s was deleted",null,parameters );
 	}
 
 	public List<HWConf> getAllHWConf() {
@@ -413,7 +413,7 @@ public class CloneToolService extends Service {
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		for(int i = 0; i < pxeBoot.size(); i++) {
 			String temp = pxeBoot.get(i);
@@ -459,10 +459,10 @@ public class CloneToolService extends Service {
 			}
 		}
 		if( ERROR.length() == 0 ) {
-			return new CrxResponse(this.getSession(),"OK", "Boot configuration was saved successfully for %s.",null,String.join(" ",deviceNames) );
+			return new CrxResponse("OK", "Boot configuration was saved successfully for %s.",null,String.join(" ",deviceNames) );
 		}
 		parameters.add(ERROR.toString());
-		return new CrxResponse(this.getSession(),"ERROR","Error(s) accoured during saving the boot configuration: %s",null,parameters);
+		return new CrxResponse("ERROR","Error(s) accoured during saving the boot configuration: %s",null,parameters);
 	}
 
 	public CrxResponse startCloning(Long hwconfId, Clone parameters) {
@@ -477,13 +477,13 @@ public class CloneToolService extends Service {
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		for( Long partitionId : parameters.getPartitionIds() ) {
 			Partition partition = this.getPartitionById(partitionId);
 			if( partition == null ) {
 				responseParameters.add(String.valueOf(partitionId));
-				return new CrxResponse(this.getSession(),"ERROR", "Can not find partition with id: %s",hwconfId,responseParameters);
+				return new CrxResponse("ERROR", "Can not find partition with id: %s",hwconfId,responseParameters);
 			}
 			partitions.add(partition.getName());
 		}
@@ -519,10 +519,10 @@ public class CloneToolService extends Service {
 			}
 		}
 		if( ERROR.length() == 0 ) {
-			return new CrxResponse(this.getSession(),"OK", "Boot configuration was saved successfully." );
+			return new CrxResponse("OK", "Boot configuration was saved successfully." );
 		}
 		responseParameters.add(ERROR.toString());
-		return new CrxResponse(this.getSession(),"ERROR","Error(s) accoured during saving the boot configuration: %s",hwconfId,responseParameters);
+		return new CrxResponse("ERROR","Error(s) accoured during saving the boot configuration: %s",hwconfId,responseParameters);
 	}
 
 	public CrxResponse stopCloning(String type, Long id) {
@@ -552,10 +552,10 @@ public class CloneToolService extends Service {
 			}
 		}
 		if( ERROR.length() == 0 ) {
-			return new CrxResponse(this.getSession(),"OK", "Boot configuration for %s was removed successfully.",null, String.join(" ",deviceNames));
+			return new CrxResponse("OK", "Boot configuration for %s was removed successfully.",null, String.join(" ",deviceNames));
 		}
 		parameters.add(ERROR.toString());
-		return new CrxResponse(this.getSession(),"ERROR","Error(s) accoured during removing the boot configuration: %s",null,parameters);
+		return new CrxResponse("ERROR","Error(s) accoured during removing the boot configuration: %s",null,parameters);
 	}
 
 	public String resetMinion(Long deviceId) {
@@ -598,9 +598,9 @@ public class CloneToolService extends Service {
 			CrxSystemCmd.exec(program, reply, error, null);
 		} catch (Exception e) {
 			logger.error("startMulticast: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR","Multicast imaging could not be started.");
+			return new CrxResponse("ERROR","Multicast imaging could not be started.");
 		}
-		return new CrxResponse(this.getSession(),"OK","Multicast imaging was started successfully.");
+		return new CrxResponse("OK","Multicast imaging was started successfully.");
 	}
 
 	public CrxResponse stopMulticast() {
@@ -615,16 +615,16 @@ public class CloneToolService extends Service {
 			logger.error("stopMulticast: " + e.getMessage());
 			return null;
 		}
-		return new CrxResponse(this.getSession(),"OK","Multicast imaging was stopped successfully.");
+		return new CrxResponse("OK","Multicast imaging was stopped successfully.");
 	}
 	public CrxResponse modifyPartition(Long partitionId, Partition partition) {
 		try {
 			if( partition.getId() != partitionId ) {
-				return new CrxResponse(this.getSession(),"ERROR","Partition id mismatch.");
+				return new CrxResponse("ERROR","Partition id mismatch.");
 			}
 			Partition oldPartition = this.em.find(Partition.class, partitionId);
 			if( oldPartition == null ) {
-				return new CrxResponse(this.getSession(),"ERROR","Cannot find partition.");
+				return new CrxResponse("ERROR","Cannot find partition.");
 			}
 			this.em.getTransaction().begin();
 			oldPartition.setDescription(partition.getDescription());
@@ -635,9 +635,9 @@ public class CloneToolService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("modifyPartition:" + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK","Multicast imaging was started successfully.");
+		return new CrxResponse("OK","Multicast imaging was started successfully.");
 	}
 }

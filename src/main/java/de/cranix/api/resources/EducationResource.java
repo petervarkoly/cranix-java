@@ -214,7 +214,7 @@ public class EducationResource {
 		List<CrxResponse> responses = new ArrayList<CrxResponse>();
 		logger.debug("crxActionMap" + crxActionMap);
 		if( crxActionMap.getName().equals("delete") ) {
-			responses.add(new CrxResponse(session,"ERROR","You must not delete rooms"));
+			responses.add(new CrxResponse("ERROR","You must not delete rooms"));
 
 		} else {
 			for( Long id: crxActionMap.getObjectIds() ) {

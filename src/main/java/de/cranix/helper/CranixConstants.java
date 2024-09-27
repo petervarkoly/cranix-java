@@ -22,7 +22,9 @@ public interface CranixConstants {
 	static String cranixPrinters   = cranixBaseDir + "templates/printers.txt";
 	static String cranixSysConfig  = "/etc/sysconfig/cranix";
 	static String cranixMdmConfig  = "/etc/sysconfig/CRX_MDM";
+	static String cranix2faConfig  = "/etc/sysconfig/CRX_2FA";
 	static String cranixSysPrefix  = "CRANIX_";
+	static String cranixFwConfig   = "/etc/cranix-firewall.conf";
 	static String cranixAdm        = "/var/adm/cranix/";
 	static String cranixScreenShots= "/var/adm/cranix/screenShots/";
 	static String cranixSupportUrl = "https://repo.cephalix.eu/api/tickets/add";
@@ -36,7 +38,7 @@ public interface CranixConstants {
 	static FileAttribute<Set<PosixFilePermission>> worldReadDirAttribute   = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rwxr-xr-x"));
 	static FileAttribute<Set<PosixFilePermission>> worldReadFileAttribute  = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rw-r--r--"));
 
-	static String[] vpnOsList = { "Win7","Win10","Mac","Linux" };
+	static String[] vpnOsList = { "Win10","Win11","Mac","Linux" };
 
 	static Set<PosixFilePermission> privatDirPermission      = PosixFilePermissions.fromString("rwx------");
 	static Set<PosixFilePermission> privatFilePermission     = PosixFilePermissions.fromString("rw-------");
@@ -48,4 +50,10 @@ public interface CranixConstants {
 	static Set<PosixFilePermission> worldWriteFilePermission = PosixFilePermissions.fromString("rw-rw-rw-");
 	static Set<PosixFilePermission> worldReadDirPermission   = PosixFilePermissions.fromString("rwxr-xr-x");
 	static Set<PosixFilePermission> worldWriteDirePermission = PosixFilePermissions.fromString("rwxrwxrwx");
+
+	static String[] firewallServices = { "domain/udp", "ftp/tcp", "http/tcp", "https/tcp", "microsoft-ds/tcp", "netbios-ssn/tcp", "ssh/tcp", "tftp/tcp" };
+
+	static enum Crx2faTypes {
+		SMS
+	}
 }
