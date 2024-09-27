@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name ="SubjectAreas")
@@ -22,26 +23,26 @@ public class SubjectArea extends AbstractEntity{
     @NotNull
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name="teachingsubject_id")
+    @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private TeachingSubject teachingSubject;
 
     @ManyToMany
     @JsonIgnore
     @JoinTable(
             name="ChallengesInArea",
-            joinColumns={ @JoinColumn(name="subjectarea_id") },
-            inverseJoinColumns={ @JoinColumn(name="crxchallenge_id") }
+            joinColumns={ @JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+            inverseJoinColumns={ @JoinColumn(name="crxchallenge_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
     )
-    private ArrayList<CrxChallenge> challenges;
+    private List<CrxChallenge> challenges;
 
     @ManyToMany
     @JsonIgnore
     @JoinTable(
             name="QuestionInArea",
-            joinColumns={ @JoinColumn(name="subjectarea_id") },
-            inverseJoinColumns={ @JoinColumn(name="crxquestion_id") }
+            joinColumns={ @JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
+            inverseJoinColumns={ @JoinColumn(name="crxquestion_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
     )
-    private ArrayList<CrxQuestion> questions;
+    private List<CrxQuestion> questions;
 
     public String getName() {
         return name;
@@ -59,19 +60,19 @@ public class SubjectArea extends AbstractEntity{
         this.teachingSubject = teachingSubject;
     }
 
-    public ArrayList<CrxChallenge> getChallenges() {
+    public List<CrxChallenge> getChallenges() {
         return challenges;
     }
 
-    public void setChallenges(ArrayList<CrxChallenge> challenges) {
+    public void setChallenges(List<CrxChallenge> challenges) {
         this.challenges = challenges;
     }
 
-    public ArrayList<CrxQuestion> getQuestions() {
+    public List<CrxQuestion> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(ArrayList<CrxQuestion> questions) {
+    public void setQuestions(List<CrxQuestion> questions) {
         this.questions = questions;
     }
 }

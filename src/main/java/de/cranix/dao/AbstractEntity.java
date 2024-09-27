@@ -9,31 +9,41 @@ import java.io.Serializable;
 import java.util.Date;
 
 import static javax.persistence.TemporalType.DATE;
+import static javax.persistence.TemporalType.TIMESTAMP;
 
 @MappedSuperclass
 public abstract class AbstractEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(
+            name = "id",
+            columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
+    )
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name="creator_id",nullable = false,updatable = false)
+    @JoinColumn(
+            name="creator_id",
+            columnDefinition ="BIGINT UNSIGNED"
+    )
     @JsonIgnore
     private User creator;
 
-    @Column(name = "creator_id", insertable = false, updatable = false)
-    private Long creatorId;
-
-    @Column(name = "created", updatable = false, columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
-    @JsonIgnore
-    @Temporal(DATE)
+    @Column(
+            name = "created",
+            updatable = false,
+            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
+    )
+    @Temporal(TIMESTAMP)
     private Date created;
 
-    @Column(name = "modified", columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ")
-    @JsonIgnore
-    @Temporal(DATE)
+    @Column(
+            name = "modified",
+            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    )
+    @Temporal(TIMESTAMP)
     private Date modified;
 
     /**
@@ -109,15 +119,10 @@ public abstract class AbstractEntity implements Serializable {
     public void setCreator(User creator)
     {
         this.creator = creator;
-        this.creatorId = creator.getId();
     }
 
     public Long getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(Long creatorId) {
-        this.creatorId = creatorId;
+        return this.creator != null ? this.creator.getId() : null;
     }
 
     /**

@@ -72,9 +72,9 @@ public class JobService extends Service {
 		 */
 		String scheduledTime = "now";
 		if( job.isPromptly() ) {
-			job.setStartTime(new Timestamp(System.currentTimeMillis()));
+			job.setCreated(new Timestamp(System.currentTimeMillis()));
 		} else {
-			Date date = new Date(job.getStartTime().getTime());
+			Date date = new Date(job.getCreated().getTime());
 			scheduledTime        = simpleDateFormat.format(date);
 		}
 
@@ -87,7 +87,7 @@ public class JobService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 
 		/*
@@ -109,7 +109,7 @@ public class JobService extends Service {
 			Files.write(jobFile, tmp );
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 
 		/*
@@ -124,34 +124,34 @@ public class JobService extends Service {
 		program[3] = scheduledTime;
 		CrxSystemCmd.exec(program, reply, error, null);
 		logger.debug("create job  : " + path.toString() + " : " + job.getCommand());
-		return new CrxResponse(this.getSession(),"OK","Job was created successfully",job.getId());
+		return new CrxResponse("OK","Job was created successfully",job.getId());
 	}
 
 	public CrxResponse setExitCode(Long jobId, Integer exitCode) {
 		try {
 			Job job = this.em.find(Job.class, jobId);
 			job.setExitCode(exitCode);
-			job.setEndTime(new Timestamp(System.currentTimeMillis()));
+			job.setModified(new Timestamp(System.currentTimeMillis()));
 			this.em.getTransaction().begin();
 			this.em.merge(job);
 			this.em.getTransaction().commit();
 		}  catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK","Jobs exit code was set successfully");
+		return new CrxResponse("OK","Jobs exit code was set successfully");
 	}
 
 	public CrxResponse restartJob(Long jobId) {
 		try {
 			Job job = this.em.find(Job.class, jobId);
-			job.setStartTime(new Timestamp(System.currentTimeMillis()));
+			job.setCreated(new Timestamp(System.currentTimeMillis()));
 			this.em.getTransaction().begin();
 			this.em.merge(job);
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("createJob" + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		String[] program   = new String[4];
 		StringBuffer reply = new StringBuffer();
@@ -161,19 +161,19 @@ public class JobService extends Service {
 		program[2] = basePath + String.valueOf(jobId);
 		program[3] = "now" ;
 		CrxSystemCmd.exec(program, reply, error, null);
-		return new CrxResponse(this.getSession(),"OK","Job was restarted successfully",jobId);
+		return new CrxResponse("OK","Job was restarted successfully",jobId);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Job> searchJobs(String description, Timestamp after, Timestamp befor) {
+	public List<Job> searchJobs(Job job) {
 		Query query = null;
-		if( after.equals(befor) ) {
-			query = this.em.createNamedQuery("Job.getByDescription").setParameter("description", description);
+		if( job.getCreated().equals(job.getModified()) ) {
+			query = this.em.createNamedQuery("Job.getByDescription").setParameter("description", job.getDescription());
 		} else {
 			query = this.em.createNamedQuery("Job.getByDescriptionAndTime")
-					.setParameter("description", description)
-					.setParameter("after", after)
-					.setParameter("befor", befor);
+					.setParameter("description", job.getDescription())
+					.setParameter("after", job.getCreated())
+					.setParameter("befor", job.getModified());
 		}
 		List<Job> jobs =  query.getResultList();
 		return jobs;

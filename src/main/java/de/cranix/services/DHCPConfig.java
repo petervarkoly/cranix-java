@@ -89,9 +89,9 @@ public class DHCPConfig extends Service {
         }
         if (result == 0) {
 
-            return new CrxResponse(session, "OK", "DHCPD configuration is ok");
+            return new CrxResponse("OK", "DHCPD configuration is ok");
         } else {
-            return new CrxResponse(session, "ERROR", stderr.toString());
+            return new CrxResponse("ERROR", stderr.toString());
         }
     }
 
@@ -145,7 +145,7 @@ public class DHCPConfig extends Service {
         for (Device device : room.getDevices()) {
             //Do not create configuration for devices without mac adress.
             logger.debug("Write DHCP Device: " + device.getName());
-            if (device.getMac().isEmpty()) {
+            if (device.getMac() == null || device.getMac().isEmpty()) {
                 continue;
             }
             //Dirty fix to avoid duplicate entries in dhcpd.conf

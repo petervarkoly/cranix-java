@@ -23,6 +23,7 @@ public class Translation implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
+	@Column(name = "id")
 	Long id;
 	private String lang;
 	private String string;

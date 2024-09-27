@@ -356,40 +356,4 @@ public class GroupResource {
         return resp;
     }
 
-    @PUT
-    @Path("text/{groupName}/owner/{userName}")
-    @Produces(TEXT)
-    @ApiOperation(value = "Set the owner of the group.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("group.manage")
-    public String setOwner(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("groupName") String groupName,
-            @PathParam("userName") String userName
-    ) {
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse crxResponse = new GroupService(session, em).setOwner(groupName,userName);
-        em.close();
-        return crxResponse.getCode();
-    }
-
-    @GET
-    @Path("text/{groupName}/owner")
-    @Produces(TEXT)
-    @ApiOperation(value = "Get the owner of the group.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "Group not found"),
-            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("group.manage")
-    public String getOwner(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("groupName") String groupName
-    ) {
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        String resp = new GroupService(session, em).getOwner(groupName);
-        em.close();
-        return resp;
-    }
 }

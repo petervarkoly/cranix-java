@@ -26,7 +26,7 @@ public class GuestUserService extends Service{
             categories = categoryService.getByType("guestUsers");
         } else {
             for (Category category : categoryService.getByType("guestUsers")) {
-                if (category.getOwner().equals(session.getUser()) || category.isPublicAccess()) {
+                if (category.getCreator().equals(session.getUser()) || category.isPublicAccess()) {
                     categories.add(category);
                 }
             }
@@ -65,7 +65,7 @@ public class GuestUserService extends Service{
         final RoomService roomService = new RoomService(this.session, this.em);
         Category category = categoryService.getById(guestUsersId);
         if( category == null ){
-            return new CrxResponse(this.session,"ERROR","Can not find category with id %s",null,guestUsersId.toString());
+            return new CrxResponse("ERROR","Can not find category with id %s",null,guestUsersId.toString());
         }
         ArrayList<Long> toRemove = new ArrayList<>();
         for (User user : category.getUsers()) {
@@ -107,7 +107,7 @@ public class GuestUserService extends Service{
         Room room = null;
         //TODO make it confiugrable
         if (guestUsers.getCount() > 255) {
-            return new CrxResponse(this.getSession(), "ERROR", "A guest group must not conains more the 255 members.");
+            return new CrxResponse("ERROR", "A guest group must not conains more the 255 members.");
         }
         UserService userService = new UserService(this.session, this.em);
         // Check the password
@@ -149,7 +149,7 @@ public class GuestUserService extends Service{
             room.setName(guestUsers.getName() + "-adhoc");
             room.setDescription(guestUsers.getDescription());
             room.setRoomControl("allTeachers");
-            room.setHwconfId(3L);
+            room.setHwconf(roomService.getBYODHwconf());
             room.setRoomType("adHocRoom");
             crxResponse = roomService.add(room);
             if (crxResponse.getCode().equals("ERROR")) {

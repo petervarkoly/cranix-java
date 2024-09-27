@@ -27,7 +27,6 @@ public class CategoryService extends Service {
 		try {
 			Query query = this.em.createNamedQuery("Category.findAll"); 
 			for( Category cat : (List<Category>) query.getResultList() ) {
-				cat.setIds();
 				res.add(cat);
 			}
 			return res;
@@ -41,7 +40,6 @@ public class CategoryService extends Service {
 	public Category getById(long categoryId) {
 		try {
 			 Category cat = this.em.find(Category.class, categoryId);
-			 cat.setIds();
 			 return cat;
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -67,7 +65,6 @@ public class CategoryService extends Service {
 		try {
 			Query query = this.em.createNamedQuery("Category.getByType").setParameter("type", search);
 			for( Category c :  (List<Category>) query.getResultList() ) {
-				c.setIds();
 				categories.add(c);
 			}
 		} catch (Exception e) {
@@ -96,30 +93,30 @@ public class CategoryService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", "Validation Error" + errorMessage.toString());
+			return new CrxResponse("ERROR", "Validation Error" + errorMessage.toString());
 		}
 		try {
 			// First we check if the parameter are unique.
 			Query query = this.em.createNamedQuery("Category.getByName").setParameter("name",category.getName());
 			if( !query.getResultList().isEmpty() ){
-				return new CrxResponse(this.getSession(),"ERROR","Category name is not unique.");
+				return new CrxResponse("ERROR","Category name is not unique.");
 			}
 			if( !category.getDescription().isEmpty() ) {
 				query = this.em.createNamedQuery("Category.getByDescription").setParameter("description",category.getDescription());
 				if( !query.getResultList().isEmpty() ){
-					return new CrxResponse(this.getSession(),"ERROR","Category description is not unique.");
+					return new CrxResponse("ERROR","Category description is not unique.");
 				}
 			}
-			category.setOwner(this.session.getUser());
+			category.setCreator(this.session.getUser());
 			this.em.getTransaction().begin();
 			this.em.persist(category);
 			this.em.getTransaction().commit();
 			logger.debug("Created Category:" + category );
 		} catch (Exception e) {
 			logger.error("Exeption: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK","Category was created",category.getId());
+		return new CrxResponse("OK","Category was created",category.getId());
 	}
 
 	public CrxResponse modify(Category category){
@@ -130,7 +127,7 @@ public class CategoryService extends Service {
 			errorMessage.append(violation.getMessage()).append(getNl());
 		}
 		if( errorMessage.length() > 0 ) {
-			return new CrxResponse(this.getSession(),"ERROR", errorMessage.toString());
+			return new CrxResponse("ERROR", errorMessage.toString());
 		}
 		Category oldCategory = this.getById(category.getId());
 		oldCategory.setDescription(category.getDescription());
@@ -143,9 +140,9 @@ public class CategoryService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK","Category was modified");
+		return new CrxResponse("OK","Category was modified");
 	}
 
 	public CrxResponse delete(Long categoryId){
@@ -154,7 +151,7 @@ public class CategoryService extends Service {
 
 	public CrxResponse delete(Category category) {
 		if( this.isProtected(category)) {
-			return new CrxResponse(this.getSession(),"ERROR","This category must not be deleted.");
+			return new CrxResponse("ERROR","This category must not be deleted.");
 		}
 		// Remove group from GroupMember of table
 		try {
@@ -215,11 +212,11 @@ public class CategoryService extends Service {
 			this.em.getEntityManagerFactory().getCache().evictAll();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		} finally {
 
 		}
-		return new CrxResponse(this.getSession(),"OK","Category was deleted");
+		return new CrxResponse("OK","Category was deleted");
 	}
 
 	public List<Long> getAvailableMembers(Long categoryId, String objectName ) {
@@ -445,9 +442,9 @@ public class CategoryService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("addMember: " + e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		}
-		return new CrxResponse(this.getSession(),"OK","Category was modified");
+		return new CrxResponse("OK","Category was modified");
 	}
 
 	public CrxResponse deleteMember(Long categoryId, String objectName, Long objectId ) {
@@ -536,10 +533,10 @@ public class CategoryService extends Service {
 			this.em.getTransaction().commit();
 		} catch (Exception e) {
 			logger.error("deleteMember:" +e.getMessage());
-			return new CrxResponse(this.getSession(),"ERROR",e.getMessage());
+			return new CrxResponse("ERROR",e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK","Category was modified");
+		return new CrxResponse("OK","Category was modified");
 	}
 
 	public List<Category> getCategories(List<Long> categoryIds) {

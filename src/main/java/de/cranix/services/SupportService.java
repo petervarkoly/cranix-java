@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManager;
 
@@ -19,8 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
 import de.cranix.dao.SupportRequest;
-import de.cranix.services.SystemService;
-import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.CrxSystemCmd;
 import static de.cranix.helper.CranixConstants.*;
 
@@ -79,7 +76,7 @@ public class SupportService extends Service {
 			writer.close();
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
-			return new CrxResponse(session,"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		}
 		if(supportUrl != null && supportUrl.length() > 0) {
 			String[] program    = new String[12];
@@ -109,15 +106,15 @@ public class SupportService extends Service {
 					parameters.add(suppres.getTicketno());
 					parameters.add(suppres.getEmail());
 					parameters.add(suppres.getTicketResponseInfo());
-					return new CrxResponse(session,"OK","Support request '%s' was created with ticket number '%s'. Answer will be sent to '%s'.",null,parameters);
+					return new CrxResponse("OK","Support request '%s' was created with ticket number '%s'. Answer will be sent to '%s'.",null,parameters);
 				} else {
 					parameters.add(suppres.getSubject());
 					parameters.add(suppres.getTicketResponseInfo());
-					return new CrxResponse(session,"ERROR","Support request '%s' was not created. The reason is:'%s'",null,parameters);
+					return new CrxResponse("ERROR","Support request '%s' was not created. The reason is:'%s'",null,parameters);
 				}
 			} catch (Exception e) {
 				logger.error("GETObject :" + e.getMessage());
-				return new CrxResponse(session,"ERROR","Can not send support request");
+				return new CrxResponse("ERROR","Can not send support request");
 			}
 		} else {
 			// Support via email
@@ -144,12 +141,12 @@ public class SupportService extends Service {
 			if (result == 0) {
 				parameters.add(supportRequest.getSubject());
 				parameters.add(supportRequest.getEmail());
-					return new CrxResponse(session,"OK","Support request '%s' was sent.  Answer will be sent to '%s'.",null,parameters);
+					return new CrxResponse("OK","Support request '%s' was sent.  Answer will be sent to '%s'.",null,parameters);
 			} else {
 				logger.error("Error sending support mail: " + error.toString());
 				parameters.add(supportRequest.getSubject());
 				parameters.add(error.toString());
-				return new CrxResponse(session,"ERROR","Sopport request '%s' could not be sent. Reason '%s'",null, parameters);
+				return new CrxResponse("ERROR","Sopport request '%s' could not be sent. Reason '%s'",null, parameters);
 			}
 		}
 	}

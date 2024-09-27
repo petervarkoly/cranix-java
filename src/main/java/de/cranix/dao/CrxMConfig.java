@@ -1,8 +1,9 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2023 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 /**
@@ -10,9 +11,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Entity
-@Table(name="CrxMConfig")
+@Table(
+	name="CrxMConfig",
+	uniqueConstraints = { @UniqueConstraint(columnNames = { "objectType", "objectId", "keyword", "value" }) }
+)
 @NamedQueries({
-		@NamedQuery(name="CrxMConfig.getAllForKey",query="SELECT c FROM CrxMConfig c WHERE c.keyword = :keyword"),
+	@NamedQuery(name="CrxMConfig.getAllForKey",query="SELECT c FROM CrxMConfig c WHERE c.keyword = :keyword"),
         @NamedQuery(name="CrxMConfig.getAllById",  query="SELECT c FROM CrxMConfig c WHERE c.objectType = :type AND c.objectId = :id"),
         @NamedQuery(name="CrxMConfig.getAllByKey", query="SELECT c FROM CrxMConfig c WHERE c.objectType = :type AND c.keyword  = :keyword"),
         @NamedQuery(name="CrxMConfig.get",         query="SELECT c FROM CrxMConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword"),
@@ -20,69 +24,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         @NamedQuery(name="CrxMConfig.check",       query="SELECT c FROM CrxMConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword AND c.value = :value")
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class CrxMConfig implements Serializable {
-        private static final long serialVersionUID = 1L;
+public class CrxMConfig extends AbstractEntity {
 
-        @Id
-        @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-        private Long id;
-
+	@Column(name = "objectType")
+        @Size(max=12, message="objectType must not be longer then 12 characters.")
         private String objectType;
 
-        private Long   objectId;
+        @Column(name = "objectId")
+        private Long  objectId;
 
+        @Column(name = "keyword")
+        @Size(max=64, message="keyword must not be longer then 64 characters.")
         private String keyword;
 
+        @Column(name = "value")
+        @Size(max=128, message="value must not be longer then 128 characters.")
         private String value;
-        
-        //bi-directional many-to-one association to User
-    	@ManyToOne
-    	@JsonIgnore
-    	private User creator;
-
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-
-        @Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((id == null) ? 0 : id.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			CrxMConfig other = (CrxMConfig) obj;
-			if (id == null) {
-				if (other.id != null)
-					return false;
-			} else if (!id.equals(other.id))
-				return false;
-			return true;
-		}
 
         public CrxMConfig() {
-        }
-
-        public Long getId() {
-                return this.id;
-        }
-
-        public void setId(Long id) {
-                this.id = id;
         }
 
         public String getObjectType() {
@@ -116,12 +75,4 @@ public class CrxMConfig implements Serializable {
         public void setValue(String value) {
                 this.value = value;
         }
-
-		public User getCreator() {
-			return creator;
-		}
-
-		public void setCreator(User creator) {
-			this.creator = creator;
-		}
 }

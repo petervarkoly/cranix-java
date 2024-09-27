@@ -1,253 +1,220 @@
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name="Printers")
+@Table(
+        name = "Printers",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})}
+)
 @NamedQueries({
-	@NamedQuery(name="Printer.findAll",   query="SELECT p FROM Printer p"),
-	@NamedQuery(name="Printer.findAllId", query="SELECT p.id FROM Printer p"),
-	@NamedQuery(name="Printer.getByName", query="SELECT p FROM Printer p WHERE p.name = :name")
+        @NamedQuery(name = "Printer.findAll", query = "SELECT p FROM Printer p"),
+        @NamedQuery(name = "Printer.findAllId", query = "SELECT p.id FROM Printer p"),
+        @NamedQuery(name = "Printer.getByName", query = "SELECT p FROM Printer p WHERE p.name = :name")
 })
-@SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
-public class Printer implements Serializable  {
-	private static final long serialVersionUID = 1L;
+@SequenceGenerator(name = "seq", initialValue = 1, allocationSize = 100)
+public class Printer extends AbstractEntity {
 
-	/*
-	 * Variables required for creating a printer
-	 */
-	@Id
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="seq")
-	private Long      id;
+    @Column(name = "name")
+    @Size(max = 32, message = "name must not be longer then 32 characters.")
+    private String name;
 
-	private String    name;
+    //bi-directional many-to-one association to HWConf
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "device_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")
+    private Device device;
 
-	//bi-directional many-to-one association to HWConf
-	@ManyToOne
-	@JsonIgnore
-	private Device    device;
+    //bi-directional many-to-many association to Device
+    @ManyToMany(mappedBy = "availablePrinters", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JsonIgnore
+    private List<Device> availableForDevices;
 
-	//bi-directional many-to-one association to User
-	@ManyToOne
-	@JsonIgnore
-	private User creator;
+    //bi-directional many-to-many association to Device
+    @OneToMany(mappedBy = "defaultPrinter")
+    @JsonIgnore
+    private List<Device> defaultForDevices;
 
-	//bi-directional many-to-many association to Device
-	@ManyToMany(mappedBy="availablePrinters",cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JsonIgnore
-	private List<Device> availableForDevices;
+    //bi-directional many-to-many association to Room
+    @ManyToMany(mappedBy = "availablePrinters", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JsonIgnore
+    private List<Room> availableInRooms;
 
-	//bi-directional many-to-many association to Device
-	@OneToMany(mappedBy="defaultPrinter")
-	@JsonIgnore
-	private List<Device> defaultForDevices;
+    //bi-directional many-to-many association to Room
+    @OneToMany(mappedBy = "defaultPrinter")
+    @JsonIgnore
+    private List<Room> defaultInRooms;
 
-	//bi-directional many-to-many association to Room
-	@ManyToMany(mappedBy="availablePrinters", cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JsonIgnore
-	private List<Room> availableInRooms;
+    // Transient variable:
 
-	//bi-directional many-to-many association to Room
-	@OneToMany(mappedBy="defaultPrinter")
-	@JsonIgnore
-	private List<Room> defaultInRooms;
+    @Transient
+    private String manufacturer;
 
-	// Transient variable:
+    @Transient
+    private String model;
 
-	@Transient
-	private String    manufacturer;
+    @Transient
+    private String mac;
 
-	@Transient
-	private String    model;
+    public String getIp() {
+        return ip;
+    }
 
-	@Transient
-	private String    mac;
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
-	public String getIp() {
-		return ip;
-	}
+    @Transient
+    private String ip;
 
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
+    @Transient
+    private Long roomId;
 
-	@Transient
-	private String  ip;
+    @Transient
+    private String deviceName;
 
-	@Transient
-	private Long      roomId;
+    @Transient
+    private boolean windowsDriver;
 
-	@Transient
-	private String     deviceName;
+    /*
+     * State variables
+     */
+    @Transient
+    private String state;
 
-	@Transient
-	private boolean   windowsDriver;
+    @Transient
+    private boolean acceptingJobs;
 
-	/*
-	 * State variables
-	 */
-	@Transient
-	private String    state;
+    @Transient
+    private int activeJobs;
 
-	@Transient
-	private boolean   acceptingJobs;
+    public Printer() {
+    }
 
-	@Transient
-	private int       activeJobs;
+    public String getName() {
+        return name;
+    }
 
-	public Printer() {
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getState() {
+        return state;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setState(String state) {
+        this.state = state;
+    }
 
-	public String getState() {
-		return state;
-	}
+    public boolean isAcceptingJobs() {
+        return acceptingJobs;
+    }
 
-	public void setState(String state) {
-		this.state = state;
-	}
+    public void setAcceptingJobs(boolean acceptingJobs) {
+        this.acceptingJobs = acceptingJobs;
+    }
 
-	public boolean isAcceptingJobs() {
-		return acceptingJobs;
-	}
+    public int getActiveJobs() {
+        return activeJobs;
+    }
 
-	public void setAcceptingJobs(boolean acceptingJobs) {
-		this.acceptingJobs = acceptingJobs;
-	}
+    public void setActiveJobs(int activeJobs) {
+        this.activeJobs = activeJobs;
+    }
 
-	public int getActiveJobs() {
-		return activeJobs;
-	}
+    public Device getDevice() {
+        return device;
+    }
 
-	public void setActiveJobs(int activeJobs) {
-		this.activeJobs = activeJobs;
-	}
+    public void setDevice(Device device) {
+        this.device = device;
+    }
 
-	public Device getDevice() {
-		return device;
-	}
+    public String getManufacturer() {
+        return manufacturer;
+    }
 
-	public void setDevice(Device device) {
-		this.device = device;
-	}
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public String getModel() {
+        return model;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setModel(String model) {
+        this.model = model;
+    }
 
-	public String getManufacturer() {
-		return manufacturer;
-	}
+    public String getMac() {
+        return mac;
+    }
 
-	public void setManufacturer(String manufacturer) {
-		this.manufacturer = manufacturer;
-	}
+    public void setMac(String mac) {
+        this.mac = mac;
+    }
 
-	public String getModel() {
-		return model;
-	}
+    public Long getRoomId() {
+        return roomId;
+    }
 
-	public void setModel(String model) {
-		this.model = model;
-	}
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
 
-	public String getMac() {
-		return mac;
-	}
+    public boolean isWindowsDriver() {
+        return windowsDriver;
+    }
 
-	public void setMac(String mac) {
-		this.mac = mac;
-	}
+    public void setWindowsDriver(boolean windowsDriver) {
+        this.windowsDriver = windowsDriver;
+    }
 
-	public Long getRoomId() {
-		return roomId;
-	}
+    public List<Device> getAvailableForDevices() {
+        return availableForDevices;
+    }
 
-	public void setRoomId(Long roomId) {
-		this.roomId = roomId;
-	}
+    public void setAvailableForDevices(List<Device> availableForDevices) {
+        this.availableForDevices = availableForDevices;
+    }
 
-	public boolean isWindowsDriver() {
-		return windowsDriver;
-	}
+    public List<Device> getDefaultForDevices() {
+        return defaultForDevices;
+    }
 
-	public void setWindowsDriver(boolean windowsDriver) {
-		this.windowsDriver = windowsDriver;
-	}
+    public void setDefaultForDevices(List<Device> defaultForDevices) {
+        this.defaultForDevices = defaultForDevices;
+    }
 
-	public User getCreator() {
-		return creator;
-	}
+    public List<Room> getAvailableInRooms() {
+        return availableInRooms;
+    }
 
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
+    public void setAvailableInRooms(List<Room> availableInRooms) {
+        this.availableInRooms = availableInRooms;
+    }
 
-	public List<Device> getAvailableForDevices() {
-		return availableForDevices;
-	}
+    public List<Room> getDefaultInRooms() {
+        return defaultInRooms;
+    }
 
-	public void setAvailableForDevices(List<Device> availableForDevices) {
-		this.availableForDevices = availableForDevices;
-	}
+    public void setDefaultInRooms(List<Room> defaultInRooms) {
+        this.defaultInRooms = defaultInRooms;
+    }
 
-	public List<Device> getDefaultForDevices() {
-		return defaultForDevices;
-	}
+    public String getDeviceName() {
+        return deviceName;
+    }
 
-	public void setDefaultForDevices(List<Device> defaultForDevices) {
-		this.defaultForDevices = defaultForDevices;
-	}
-
-	public List<Room> getAvailableInRooms() {
-		return availableInRooms;
-	}
-
-	public void setAvailableInRooms(List<Room> availableInRooms) {
-		this.availableInRooms = availableInRooms;
-	}
-
-	public List<Room> getDefaultInRooms() {
-		return defaultInRooms;
-	}
-
-	public void setDefaultInRooms(List<Room> defaultInRooms) {
-		this.defaultInRooms = defaultInRooms;
-	}
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
-	}
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
 }

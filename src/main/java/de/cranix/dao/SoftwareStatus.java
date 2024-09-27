@@ -1,33 +1,29 @@
-/* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 204 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
 import java.io.Serializable;
 import javax.persistence.*;
 
+import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
  * The persistent class for the SoftwareStatus database table.
+ * The state of the installation of a specific software version on a device.
  *
  */
 @Entity
-@Table(name="SoftwareStatus")
+@Table(
+		name="SoftwareStatus",
+		uniqueConstraints = { @UniqueConstraint(columnNames = {"softwareversion_id", "device_id"})}
+)
 @NamedQueries({
 	@NamedQuery(name="SoftwareStatus.findAll",		query="SELECT s FROM SoftwareStatus s"),
 	@NamedQuery(name="SoftwareStatus.findByStatus", query="SELECT s FROM SoftwareStatus s WHERE s.status = :STATUS"),
-	@NamedQuery(name="SoftwareStatus.getAllForOne", query="SELECT ss, sv FROM SoftwareStatus ss JOIN SoftwareVersion sv ON ss.softwarversion_id=sv.id WHERE ss.deviceId= :DEVICE AND sv.softwareId= :SOFTWARE"),
-	@NamedQuery(name="SoftwareStatus.getForOne",	query="SELECT ss, sv FROM SoftwareStatus ss JOIN SoftwareVersion sv ON ss.softwareversion_id=sv.id WHERE ss.deviceId= :DEVICE AND sv.softwareId= :SOFTWARE AND sv.version = :VERSION"),
 })
-
-public class SoftwareStatus implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	@Id
-	@SequenceGenerator(name="SOFTWARESTATUS_ID_GENERATOR" )
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SOFTWARESTATUS_ID_GENERATOR")
-	private Long id;
+public class SoftwareStatus extends AbstractEntity {
 
 	/**
 	 * The state of the installation can have following values:<br>
@@ -40,6 +36,8 @@ public class SoftwareStatus implements Serializable {
 	 * IF -> installation failed<br>
 	 * FR -> installed version is frozen: This must not be updated.<br>
 	 */
+	@Column(name = "status")
+	@Size(max = 2, message = "status must not be longer the 2 characters")
 	private String status;
 
 	/**
@@ -47,20 +45,13 @@ public class SoftwareStatus implements Serializable {
 	 */
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="softwareversion_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private SoftwareVersion softwareVersion;
-
-	/**
-	 * Bidirectional many to one read only association to a software version object.ZZZZZ
-	 */
-	@Column(name = "softwareversion_id", insertable = false, updatable = false)
-	private Long softwareversionId;
 
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private Device device;
-
-	@Column(name = "device_id", insertable = false, updatable = false)
-	private Long deviceId;
 
 	@Transient
 	private String roomName;
@@ -80,41 +71,6 @@ public class SoftwareStatus implements Serializable {
 	@Transient
 	private String version;
 
-	@Override
-	public String toString() {
-		try {
-			return new ObjectMapper().writeValueAsString(this);
-		} catch (Exception e) {
-			return "{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }";
-		}
-	}
-
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SoftwareStatus other = (SoftwareStatus) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
 	public SoftwareStatus() {
 	}
 
@@ -122,14 +78,6 @@ public class SoftwareStatus implements Serializable {
 		this.device = d;
 		this.softwareVersion = sv;
 		this.status = status;
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getStatus() {
@@ -154,14 +102,6 @@ public class SoftwareStatus implements Serializable {
 
 	public void setDevice(Device device) {
 		this.device = device;
-	}
-
-	public Long getSoftwareversionId() {
-		return softwareversionId;
-	}
-
-	public void setSoftwareversionId(Long versionId) {
-		this.softwareversionId = versionId;
 	}
 
 	public String getDeviceName() {
@@ -196,26 +136,17 @@ public class SoftwareStatus implements Serializable {
 		this.version = version;
 	}
 
-
 	public Long getDeviceId() {
-		return deviceId;
+		return this.device.getId();
 	}
-
-
-	public void setDeviceId(Long deviceId) {
-		this.deviceId = deviceId;
-	}
-
 
 	public Long getSoftwareId() {
 		return softwareId;
 	}
 
-
-	public void setSoftwareId(Long softwareId) {
-		this.softwareId = softwareId;
+	public void setSoftwareId(Long id) {
+		this.softwareId = id;
 	}
-
 
 	/**
 	 * @return the roomName
@@ -224,19 +155,10 @@ public class SoftwareStatus implements Serializable {
 		return roomName;
 	}
 
-
 	/**
 	 * @param roomName the roomName to set
 	 */
 	public void setRoomName(String roomName) {
 		this.roomName = roomName;
-	}
-
-
-	/**
-	 * @return the serialversionuid
-	 */
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 }

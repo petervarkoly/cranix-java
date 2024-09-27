@@ -192,7 +192,7 @@ public class ProxyService extends Service {
 		StringBuffer error = new StringBuffer();
 		logger.debug(output.toString());
 		CrxSystemCmd.exec(program, reply, error, output.toString());
-		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully.");
+		return new CrxResponse("OK","Proxy Setting was saved succesfully.");
 	}
 	/*
 	 * Writes the default proxy setting
@@ -220,7 +220,7 @@ public class ProxyService extends Service {
 		StringBuffer error = new StringBuffer();
 		logger.debug(output.toString());
 		CrxSystemCmd.exec(program, reply, error, output.toString());
-		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully.");
+		return new CrxResponse("OK","Proxy Setting was saved succesfully.");
 	}
 
 	public PositiveList getPositiveListById( Long positiveListId ) {
@@ -252,13 +252,13 @@ public class ProxyService extends Service {
 		logger.debug(positiveList.toString());
 		PositiveList oldPositiveList = this.getPositiveListById(positiveList.getId());
 		try {
-			positiveList.setOwner(session.getUser());
+			positiveList.setCreator(session.getUser());
 			this.em.getTransaction().begin();
 			if( oldPositiveList == null ) {
 				User user = this.session.getUser();
 				int count = user.getOwnedPositiveLists().size();
 				positiveList.setName(user.getUid() + String.valueOf(count));
-				positiveList.setOwner(user);
+				positiveList.setCreator(user);
 				if( positiveList.getSubject() == null || positiveList.getSubject().isEmpty() ) {
 					positiveList.setSubject(positiveList.getName());
 				}
@@ -278,10 +278,10 @@ public class ProxyService extends Service {
 			StringBuffer reply = new StringBuffer();
 			StringBuffer error = new StringBuffer();
 			CrxSystemCmd.exec(program, reply, error, positiveList.getDomains());
-			return new CrxResponse(this.getSession(),"OK", "Postive list was created/modified succesfully.",positiveList.getId());
+			return new CrxResponse("OK", "Postive list was created/modified succesfully.",positiveList.getId());
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
 	}
@@ -302,10 +302,10 @@ public class ProxyService extends Service {
 			CrxSystemCmd.exec(program, reply, error, acls);
 		}  catch (Exception e) {
 			logger.error("delete " + e.getMessage(),e);
-			return new CrxResponse(this.getSession(),"ERROR", e.getMessage());
+			return new CrxResponse("ERROR", e.getMessage());
 		} finally {
 		}
-		return new CrxResponse(this.getSession(),"OK", "Postive list was deleted succesfully.");
+		return new CrxResponse("OK", "Postive list was deleted succesfully.");
 	}
 
 	/*
@@ -409,7 +409,7 @@ public class ProxyService extends Service {
 		program[0] = cranixBaseDir + "tools/squidGuard.pl";
 		program[1] = "write";
 		CrxSystemCmd.exec(program, reply, error, acls.toString());
-		return new CrxResponse(this.session,"OK","Proxy Setting was saved succesfully in your room.");
+		return new CrxResponse("OK","Proxy Setting was saved succesfully in your room.");
 	}
 
 	/**
@@ -425,6 +425,6 @@ public class ProxyService extends Service {
 		Room room  = new RoomService(this.session,this.em).getById(roomId);
 		String acls = room.getName() + ":remove-this-list:true\n";
 		CrxSystemCmd.exec(program, reply, error, acls);
-		return new CrxResponse(this.session,"OK","Positive lists was succesfully deactivated in your room.");
+		return new CrxResponse("OK","Positive lists was succesfully deactivated in your room.");
 	}
 }
