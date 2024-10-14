@@ -1,18 +1,18 @@
 package de.cranix.services;
 
-import de.cranix.dao.Category;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.Session;
+import de.cranix.dao.*;
 import org.apache.commons.lang3.SerializationUtils;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class SoftwareSetService extends CategoryService {
 
     public SoftwareSetService(Session session, EntityManager em) {
-		super(session,em);
-	}
+        super(session, em);
+    }
 
     public CrxResponse addSet(Category category) {
         Category deepCopy = (Category) SerializationUtils.clone(category);
@@ -20,7 +20,7 @@ public class SoftwareSetService extends CategoryService {
         category.setPublicAccess(false);
         CrxResponse response = this.add(category);
         logger.debug("resp" + response);
-        if( response.getCode().equals("OK") ) {
+        if (response.getCode().equals("OK")) {
             CrxResponse resp1;
             long installationId = response.getObjectId();
             if (deepCopy.getSoftwareIds() != null) {
@@ -53,75 +53,71 @@ public class SoftwareSetService extends CategoryService {
     }
 
     public CrxResponse modifySet(Long installationId, Category category) {
-        Category oldCategory  = this.getById(installationId);
-        CrxResponse resp  = null;
+        Category oldCategory = this.getById(installationId);
+        CrxResponse resp = null;
         CrxResponse resp1;
         logger.debug("old:" + oldCategory);
         logger.debug("category:" + category);
         logger.debug("resp:" + resp);
-        if( category.getSoftwareIds() == null ) {
-            category.setSoftwareIds(new ArrayList<Long>());
-        }
-        if( category.getHwconfIds() == null ) {
-            category.setHwconfIds(new ArrayList<Long>());
-        }
-        if( category.getRoomIds() == null ) {
-            category.setRoomIds(new ArrayList<Long>());
-        }
-        if( category.getDeviceIds() == null ) {
-            category.setDeviceIds(new ArrayList<Long>());
-        }
+
         //First add new objects
-        for( long id : category.getSoftwareIds() ) {
-            if( ! oldCategory.getSoftwareIds().contains(id) ) {
+        for (long id : category.getSoftwareIds()) {
+            if (!oldCategory.getSoftwareIds().contains(id)) {
                 resp1 = this.addMember(installationId, "software", id);
                 logger.debug("software resp" + resp1);
             }
         }
-        for( long id : category.getHwconfIds() ) {
-            if( ! oldCategory.getHwconfIds().contains(id) ) {
+        for (long id : category.getHwconfIds()) {
+            if (!oldCategory.getHwconfIds().contains(id)) {
                 resp1 = this.addMember(installationId, "hwconf", id);
                 logger.debug("hwconf resp" + resp1);
             }
         }
-        for( long id : category.getRoomIds() ) {
-            if( ! oldCategory.getHwconfIds().contains(id) ) {
+        for (long id : category.getRoomIds()) {
+            if (!oldCategory.getHwconfIds().contains(id)) {
                 resp1 = this.addMember(installationId, "room", id);
                 logger.debug("room resp" + resp1);
             }
         }
-        for( long id : category.getDeviceIds() ) {
-            if( ! oldCategory.getDeviceIds().contains(id) ) {
+        for (long id : category.getDeviceIds()) {
+            if (!oldCategory.getDeviceIds().contains(id)) {
                 resp1 = this.addMember(installationId, "device", id);
                 logger.debug("device resp" + resp1);
             }
         }
         //Now remove objects
-        for( long id : oldCategory.getSoftwareIds() ) {
-            if( ! category.getSoftwareIds().contains(id) ) {
+        for (long id : oldCategory.getSoftwareIds()) {
+            if (!category.getSoftwareIds().contains(id)) {
                 resp1 = this.deleteMember(installationId, "software", id);
                 logger.debug("software resp" + resp1);
             }
         }
-        for( long id : oldCategory.getHwconfIds() ) {
-            if( ! category.getHwconfIds().contains(id) ) {
+        for (long id : oldCategory.getHwconfIds()) {
+            if (!category.getHwconfIds().contains(id)) {
                 resp1 = this.deleteMember(installationId, "hwconf", id);
                 logger.debug("hwconf resp" + resp1);
             }
         }
-        for( long id : oldCategory.getRoomIds() ) {
-            if( ! category.getRoomIds().contains(id) ) {
+        for (long id : oldCategory.getRoomIds()) {
+            if (!category.getRoomIds().contains(id)) {
                 resp1 = this.deleteMember(installationId, "room", id);
                 logger.debug("room resp" + resp1);
             }
         }
-        for( long id : oldCategory.getDeviceIds() ) {
-            if( ! category.getDeviceIds().contains(id) ) {
+        for (long id : oldCategory.getDeviceIds()) {
+            if (!category.getDeviceIds().contains(id)) {
                 resp1 = this.deleteMember(installationId, "device", id);
                 logger.debug("device resp" + resp1);
             }
         }
         this.modify(category);
-        return new SoftwareService(session,em).applySoftwareStateToHosts();
+        List<Device> devices = oldCategory.getDevices();
+        for (Room room : oldCategory.getRooms()) {
+            devices.addAll(room.getDevices());
+        }
+        for (HWConf hwConf : oldCategory.getHwconfs()) {
+            devices.addAll(hwConf.getDevices());
+        }
+        return new SoftwareService(session, em).applySoftwareStateToHosts(devices);
     }
 }
