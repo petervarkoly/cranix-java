@@ -77,19 +77,23 @@ public class User extends AbstractEntity {
 	private String role;
 
 	@Column(name="birthDay", columnDefinition = "DATE NOT NULL DEFAULT NOW()")
-	private String birthDay;
+	private String birthDay = new Date().toString();
 
 	@Column(name="fsQuotaUsed")
-	private Integer fsQuotaUsed;
+	private Integer fsQuotaUsed = 0;
 
 	@Column(name="fsQuota")
-	private Integer fsQuota;
+	private Integer fsQuota = 0;
 
 	@Column(name="msQuotaUsed")
-	private Integer msQuotaUsed;
+	private Integer msQuotaUsed = 0;
 
 	@Column(name="msQuota")
-	private Integer msQuota;
+	private Integer msQuota = 0;
+
+	@Column(name="color")
+	@Size(max=7, message="color must not be longer then 7 characters.")
+	protected String color = "#4832a8";
 
 	@JsonIgnore
 	@Column(name="initialPassword")
@@ -256,6 +260,10 @@ public class User extends AbstractEntity {
 			crx2faSession.setCreator(this);
 		}
 	}
+
+	@ManyToMany(mappedBy="users")
+	@JsonIgnore
+	private List<CrxCalendar> events = new ArrayList<>();
 
 	@Transient
 	private String password ="";
@@ -475,6 +483,15 @@ public class User extends AbstractEntity {
 	public Integer getMsQuota() {
 		return this.msQuota;
 	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
 	public List<Category> getCategories() {
 		return this.categories;
 	}
@@ -670,6 +687,36 @@ public class User extends AbstractEntity {
 		if( this.taskResponses.contains(taskResponse)) {
 			this.taskResponses.remove(taskResponse);
 			taskResponse.setCreator(null);
+		}
+	}
+
+	public void setCrx2fas(List<Crx2fa> crx2fas) {
+		this.crx2fas = crx2fas;
+	}
+
+	public void setCrx2faSessions(List<Crx2faSession> crx2faSessions) {
+		this.crx2faSessions = crx2faSessions;
+	}
+
+	public List<CrxCalendar> getEvents() {
+		return events;
+	}
+
+	public void setEvents(List<CrxCalendar> events) {
+		this.events = events;
+	}
+
+	public void addEvent(CrxCalendar event) {
+		if(! this.events.contains(event)) {
+			this.events.add(event);
+			event.getUsers().add(this);
+		}
+	}
+
+	public void removeEvent(CrxCalendar event) {
+		if( this.events.contains((event))) {
+			this.events.remove(event);
+			event.getUsers().remove(this);
 		}
 	}
 }

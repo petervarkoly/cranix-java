@@ -56,8 +56,6 @@ public class StaticHelpers {
 						replace("ü", "ue").
 						replace("ä", "ae"),
 				Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
-		//Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-		//return pattern.matcher(output).replaceAll("");
 	}
 	/**
 	 * Start a plugin for an object by creating modifying or deleting
@@ -226,5 +224,15 @@ public class StaticHelpers {
 		program[0] = "/usr/bin/firewall-cmd";
 		program[1] = "--reload";
 		CrxSystemCmd.exec(program, reply, error, null);
+	}
+
+	static public List<Long> aMinusB(List<Long>a, List<Long>b){
+		List<Long> c = new ArrayList<>();
+		for(Long x: a){
+			if( !b.contains(x)){
+				c.add(x);
+			}
+		}
+		return c;
 	}
 }
