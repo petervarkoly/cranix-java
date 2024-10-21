@@ -26,8 +26,8 @@ public class Session implements Principal {
 	private Long id;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "createdate")
-	private Date createDate;
+	@Column(name = "createdate", columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP")
+	private Date createDate = new Date();
 
 
 	//@OneToOne
