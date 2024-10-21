@@ -28,22 +28,20 @@ public class CalendarService extends Service {
         event.setCreator(session.getUser());
         event.setCreated(new Date());
         event.setUuid(UUID.randomUUID().toString().toUpperCase());
-        logger.debug("CalendarService.add " + event);
+        logger.debug("CalendarService.add ", event);
         try {
             em.getTransaction().begin();
             em.persist(event);
             em.getTransaction().commit();
         } catch (Exception e) {
-            logger.error("CalendarService.add " + e.getMessage());
+            logger.error("CalendarService.add error: ", e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());
         }
         for (Long id : event.getUserIds()) {
-            User user = em.find(User.class,id);
-            user.addEvent(event);
+            em.find(User.class,id).addEvent(event);
         }
         for (Long id : event.getGroupIds()) {
-            Group group = em.find(Group.class,id);
-            group.addEvent(event);
+            em.find(Group.class,id).addEvent(event);
         }
         return new CrxResponse("OK", "Event was created successfully");
     }
@@ -52,11 +50,13 @@ public class CalendarService extends Service {
         try {
             CrxCalendar event = em.find(CrxCalendar.class, id);
             em.getTransaction();
-            for (User user : event.getUsers()) {
+            for (Long userId: event.getUserIds()) {
+                User user = em.find(User.class,userId);
                 user.removeEvent(event);
                 em.merge(user);
             }
-            for (Group group : event.getGroups()) {
+            for (Long groupId : event.getGroupIds()) {
+                Group group = em.find(Group.class,groupId);
                 group.removeEvent(event);
                 em.merge(group);
             }
