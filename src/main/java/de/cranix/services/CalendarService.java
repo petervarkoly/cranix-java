@@ -32,17 +32,27 @@ public class CalendarService extends Service {
         try {
             em.getTransaction().begin();
             em.persist(event);
+            em.flush();
             em.getTransaction().commit();
+            em.getEntityManagerFactory().getCache().evictAll();
+            /*User user = em.find(User.class,session.getUserId());
+            user.getCreatedEvents().add(event);
+            em.merge(user);
+            for (Long id : event.getUserIds()) {
+                User user1 = em.find(User.class,id);
+                user1.addEvent(event);
+                em.merge(user1);
+            }
+            for (Long id : event.getGroupIds()) {
+                Group group = em.find(Group.class,id);
+                group.addEvent(event);
+                em.merge(group);
+            }*/
         } catch (Exception e) {
             logger.error("CalendarService.add error: ", e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());
         }
-        for (Long id : event.getUserIds()) {
-            em.find(User.class,id).addEvent(event);
-        }
-        for (Long id : event.getGroupIds()) {
-            em.find(Group.class,id).addEvent(event);
-        }
+
         return new CrxResponse("OK", "Event was created successfully");
     }
 
@@ -119,7 +129,7 @@ public class CalendarService extends Service {
         for (CrxCalendar event : me.getEvents()) {
             if (!myEvents.contains(event)) {
                 event.setColor(me.getColor());
-                event.setCategory("private");
+                event.setCategory("individual");
                 myEvents.add(event);
             }
         }
@@ -130,6 +140,13 @@ public class CalendarService extends Service {
                     event.setCategory(group.getName());
                     myEvents.add(event);
                 }
+            }
+        }
+        for(CrxCalendar event: me.getCreatedEvents()) {
+            if (!myEvents.contains(event)) {
+                event.setColor(me.getColor());
+                event.setCategory("private");
+                myEvents.add(event);
             }
         }
         return myEvents;

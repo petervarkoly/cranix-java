@@ -1,3 +1,8 @@
+/* (c) 2024 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
+/**
+ * @author Peter Varkoly <pvarkoly@cephalix.eu>
+ *
+ */
 package de.cranix.api.resources;
 import de.cranix.dao.CrxCalendar;
 import de.cranix.dao.CrxResponse;

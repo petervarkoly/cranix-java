@@ -186,6 +186,10 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
 
+	@OneToMany(mappedBy="creator")
+	@JsonIgnore
+	private List<CrxCalendar> createdEvents = new ArrayList<CrxCalendar>();
+
 	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="users")
 	@JsonIgnore
@@ -403,6 +407,10 @@ public class User extends AbstractEntity {
 	public List<Device> getOwnedDevices() {
 		return this.ownedDevices;
 	}
+
+	public List<CrxCalendar> getCreatedEvents() { return createdEvents;	}
+
+	public void setCreatedEvents(List<CrxCalendar> createdEvents) { this.createdEvents = createdEvents;	}
 
 	public void setOwnedDevices(List<Device> ownedDevices) {
 		this.ownedDevices = ownedDevices;
