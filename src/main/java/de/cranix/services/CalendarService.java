@@ -86,8 +86,8 @@ public class CalendarService extends Service {
             oldEvent.setDescription(event.getDescription());
             oldEvent.setLocation(event.getLocation());
             oldEvent.setAllDay(event.getAllDay());
-            oldEvent.setStartTime(event.getStartTime());
-            oldEvent.setEndTime(event.getEndTime());
+            oldEvent.setStart(event.getStart());
+            oldEvent.setEnd(event.getEnd());
             oldEvent.setRruleFreq(event.getRruleFreq());
             oldEvent.setRruleInterval(event.getRruleInterval());
             oldEvent.setRruleUntil(event.getRruleUntil());

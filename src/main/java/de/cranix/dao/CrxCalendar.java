@@ -26,18 +26,18 @@ public class CrxCalendar extends AbstractEntity {
     protected Boolean allDay = false;
 
     @Column(
-            name = "startTime",
+            name = "start",
             columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
     )
     @Temporal(TIMESTAMP)
-    protected Date startTime = new Date();
+    protected Date start = new Date();
 
     @Column(
-            name = "endTime",
+            name = "end",
             columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
     )
     @Temporal(TIMESTAMP)
-    protected Date endTime = new Date();
+    protected Date end = new Date();
 
     @Column(name = "title")
     @Size(max = 64, message = "title must not be longer then 64 characters.")
@@ -106,20 +106,20 @@ public class CrxCalendar extends AbstractEntity {
         this.allDay = allDay;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public Date getStart() {
+        return start;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
+    public void setStart(Date start) {
+        this.start = start;
     }
 
-    public Date getEndTime() {
-        return endTime;
+    public Date getEnd() {
+        return end;
     }
 
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
+    public void setEnd(Date end) {
+        this.end = end;
     }
 
     public String getTitle() {
