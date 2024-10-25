@@ -68,7 +68,7 @@ public class CrxCalendar extends AbstractEntity {
     private List<User> users = new ArrayList<User>();
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "rrul_id", referencedColumnName = "id")
+    @JoinColumn(name = "rrule_id", columnDefinition ="BIGINT UNSIGNED")
     private RRule rrule = null;
 
     @Transient

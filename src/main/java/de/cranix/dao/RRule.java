@@ -2,6 +2,7 @@ package de.cranix.dao;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class RRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(
             name = "id",
-            columnDefinition = "BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
+            columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
     )
     protected Long id;
 
@@ -36,33 +37,24 @@ public class RRule {
     @Column(name = "count")
     protected Integer count = 10;
 
-    @Convert(converter = StringToIntegerArrayConverter.class)
-    @Column(name = "interval")
-    protected List<Integer> interval = new ArrayList<>();
+    @Column(name = "interv")
+    protected Integer interval = null;
 
     @Convert(converter = StringListConverter.class)
-    @Column(name = "byweekday")
+    @Column(name = "byweekday", length = 32)
     protected List<String> byweekday = new ArrayList<>();
 
     @Convert(converter = StringToIntegerArrayConverter.class)
-    @Column(name = "bymonth")
+    @Column(name = "bymonth", length = 32)
     protected List<Integer> bymonth = new ArrayList<>();
 
     @Convert(converter = StringToIntegerArrayConverter.class)
-    @Column(name = "bysetpos")
+    @Column(name = "bysetpos", length = 32)
     protected List<Integer> bysetpos = new ArrayList<>();
 
     @Convert(converter = StringToIntegerArrayConverter.class)
-    @Column(name = "bymonthday")
+    @Column(name = "bymonthday", length = 32)
     protected List<Integer> bymonthday = new ArrayList<>();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Integer getFreq() {
         return freq;
@@ -88,11 +80,11 @@ public class RRule {
         this.count = count;
     }
 
-    public List<Integer> getInterval() {
+    public Integer getInterval() {
         return interval;
     }
 
-    public void setInterval(List<Integer> interval) {
+    public void setInterval(Integer interval) {
         this.interval = interval;
     }
 
