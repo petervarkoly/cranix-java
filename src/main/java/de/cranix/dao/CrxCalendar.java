@@ -39,32 +39,17 @@ public class CrxCalendar extends AbstractEntity {
     @Temporal(TIMESTAMP)
     protected Date end = new Date();
 
-    @Column(name = "title")
+    @Column(name = "title", length = 64)
     @Size(max = 64, message = "title must not be longer then 64 characters.")
     protected String title = "";
 
-    @Column(name = "description")
+    @Column(name = "description", length = 255)
     @Size(max = 255, message = "description must not be longer then 255 characters.")
     protected String description = "";
 
-    @Column(name = "location")
+    @Column(name = "location", length = 128)
     @Size(max = 128, message = "description must not be longer then 128 characters.")
     protected String location = "";
-
-    @Column(name = "rruleFreq")
-    @Size(max = 16, message = "rruleFreq must not be longer then 16 characters.")
-    protected String rruleFreq = "";
-
-    @Column(name = "rruleInterval")
-    @Size(max = 16, message = "rruleFreq must not be longer then 16 characters.")
-    protected String rruleInterval = "";
-
-    @Column(
-            name = "rruleUntil",
-            columnDefinition = "timestamp"
-    )
-    @Temporal(TIMESTAMP)
-    protected Date rruleUntil = null;
 
     @ManyToMany()
     @JoinTable(
@@ -81,6 +66,10 @@ public class CrxCalendar extends AbstractEntity {
             inverseJoinColumns = {@JoinColumn(name = "user_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
     )
     private List<User> users = new ArrayList<User>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "rrul_id", referencedColumnName = "id")
+    private RRule rrule = null;
 
     @Transient
     private String category = "";
@@ -142,30 +131,6 @@ public class CrxCalendar extends AbstractEntity {
 
     public void setLocation(String location) { this.location = location; }
 
-    public String getRruleFreq() {
-        return rruleFreq;
-    }
-
-    public void setRruleFreq(String rruleFreq) {
-        this.rruleFreq = rruleFreq;
-    }
-
-    public String getRruleInterval() {
-        return rruleInterval;
-    }
-
-    public void setRruleInterval(String rruleInterval) {
-        this.rruleInterval = rruleInterval;
-    }
-
-    public Date getRruleUntil() {
-        return rruleUntil;
-    }
-
-    public void setRruleUntil(Date rruleUntil) {
-        this.rruleUntil = rruleUntil;
-    }
-
     public List<Group> getGroups() {
         return groups;
     }
@@ -224,5 +189,13 @@ public class CrxCalendar extends AbstractEntity {
 
     public void setGroupIds(List<Long> groupIds) {
         this.groupIds = groupIds;
+    }
+
+    public RRule getRrule() {
+        return rrule;
+    }
+
+    public void setRrule(RRule rrule) {
+        this.rrule = rrule;
     }
 }
