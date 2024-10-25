@@ -1,9 +1,11 @@
 package de.cranix.dao;
 
 import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Converter
 public class StringToIntegerArrayConverter implements AttributeConverter<List<Integer>, String> {
     private static final String SPLIT_CHAR = ";";
 

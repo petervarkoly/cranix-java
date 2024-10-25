@@ -88,9 +88,7 @@ public class CalendarService extends Service {
             oldEvent.setAllDay(event.getAllDay());
             oldEvent.setStart(event.getStart());
             oldEvent.setEnd(event.getEnd());
-            oldEvent.setRruleFreq(event.getRruleFreq());
-            oldEvent.setRruleInterval(event.getRruleInterval());
-            oldEvent.setRruleUntil(event.getRruleUntil());
+            oldEvent.setRrule(event.getRrule());
             //New user
             for (Long id : aMinusB(event.getUserIds(), oldEvent.getUserIds())) {
                 User object = em.find(User.class, id);

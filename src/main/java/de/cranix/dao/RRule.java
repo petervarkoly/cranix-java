@@ -40,9 +40,9 @@ public class RRule {
     @Column(name = "interval")
     protected List<Integer> interval = new ArrayList<>();
 
-    @Convert(converter = StringToIntegerArrayConverter.class)
+    @Convert(converter = StringListConverter.class)
     @Column(name = "byweekday")
-    protected List<Integer> byweekday = new ArrayList<>();
+    protected List<String> byweekday = new ArrayList<>();
 
     @Convert(converter = StringToIntegerArrayConverter.class)
     @Column(name = "bymonth")
@@ -96,11 +96,11 @@ public class RRule {
         this.interval = interval;
     }
 
-    public List<Integer> getByweekday() {
+    public List<String> getByweekday() {
         return byweekday;
     }
 
-    public void setByweekday(List<Integer> byweekday) {
+    public void setByweekday(List<String> byweekday) {
         this.byweekday = byweekday;
     }
 
