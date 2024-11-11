@@ -13,7 +13,6 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
@@ -82,6 +81,22 @@ public class CrxCalendarResource {
         return crxResponse;
     }
 
+    @GET
+    @Path("{eventId}")
+    @ApiOperation(value = "Deletes an existing event.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed({"calendar.use","calendar.read"})
+    public CrxCalendar getById(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("eventId") Long eventId
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxCalendar crxCalendar = new CalendarService(session, em).getById(eventId);
+        em.close();
+        return crxCalendar;
+    }
     @DELETE
     @Path("{eventId}")
     @ApiOperation(value = "Deletes an existing event.")

@@ -48,8 +48,15 @@ public class CrxCalendar extends AbstractEntity {
     protected String description = "";
 
     @Column(name = "location", length = 128)
-    @Size(max = 128, message = "description must not be longer then 128 characters.")
+    @Size(max = 128, message = "location must not be longer then 128 characters.")
     protected String location = "";
+
+    @Column(name = "rrule", length = 300)
+    @Size(max = 300, message = "recurring rule must not be longer then 300 characters.")
+    private String rrule = "";
+
+    @Column(name = "duration")
+    private Integer duration = 0;
 
     @ManyToMany()
     @JoinTable(
@@ -66,10 +73,6 @@ public class CrxCalendar extends AbstractEntity {
             inverseJoinColumns = {@JoinColumn(name = "user_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
     )
     private List<User> users = new ArrayList<User>();
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "rrule_id", columnDefinition ="BIGINT UNSIGNED")
-    private RRule rrule = null;
 
     @Transient
     private String category = "";
@@ -163,6 +166,18 @@ public class CrxCalendar extends AbstractEntity {
         this.color = color;
     }
 
+    public Integer getDuration() { return duration; }
+
+    public void setDuration(Integer duration) { this.duration = duration; }
+
+    public String getRrule() {
+        return rrule;
+    }
+
+    public void setRrule(String rrule) {
+        this.rrule = rrule;
+    }
+
     public List<Long> getUserIds() {
         if (userIds == null) {
             userIds = new ArrayList<>();
@@ -172,7 +187,6 @@ public class CrxCalendar extends AbstractEntity {
         }
         return userIds;
     }
-
     public void setUserIds(List<Long> userIds) {
         this.userIds = userIds;
     }
@@ -186,16 +200,7 @@ public class CrxCalendar extends AbstractEntity {
         }
         return groupIds;
     }
-
     public void setGroupIds(List<Long> groupIds) {
         this.groupIds = groupIds;
-    }
-
-    public RRule getRrule() {
-        return rrule;
-    }
-
-    public void setRrule(RRule rrule) {
-        this.rrule = rrule;
     }
 }

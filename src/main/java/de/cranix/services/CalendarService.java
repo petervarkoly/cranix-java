@@ -24,6 +24,15 @@ public class CalendarService extends Service {
         super(session, em);
     }
 
+    public CrxCalendar getById(Long id) {
+        try {
+            return this.em.find(CrxCalendar.class, id);
+        } catch (Exception e) {
+            logger.debug("CalendarService getByID: " + e.getMessage());
+            return null;
+        }
+    }
+
     public CrxResponse add(CrxCalendar event) {
         event.setCreator(session.getUser());
         event.setCreated(new Date());
@@ -59,7 +68,7 @@ public class CalendarService extends Service {
     public CrxResponse delete(Long id) {
         try {
             CrxCalendar event = em.find(CrxCalendar.class, id);
-            em.getTransaction();
+            em.getTransaction().begin();
             for (Long userId: event.getUserIds()) {
                 User user = em.find(User.class,userId);
                 user.removeEvent(event);
@@ -88,6 +97,7 @@ public class CalendarService extends Service {
             oldEvent.setAllDay(event.getAllDay());
             oldEvent.setStart(event.getStart());
             oldEvent.setEnd(event.getEnd());
+            oldEvent.setDuration(event.getDuration());
             oldEvent.setRrule(event.getRrule());
             //New user
             for (Long id : aMinusB(event.getUserIds(), oldEvent.getUserIds())) {
