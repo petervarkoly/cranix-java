@@ -4,9 +4,7 @@
  *
  */
 package de.cranix.api.resources;
-import de.cranix.dao.CrxCalendar;
-import de.cranix.dao.CrxResponse;
-import de.cranix.dao.Session;
+import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
@@ -37,11 +35,31 @@ public class CrxCalendarResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed({"calendar.use","calendar.read"})
-    public List<CrxCalendar> getAll(
+    public List<CrxCalendar> getMyAll(
             @ApiParam(hidden = true) @Auth Session session
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final List<CrxCalendar> events = new CalendarService(session, em).getAll();
+        final List<CrxCalendar> events = new CalendarService(session, em).getMyAll();
+        em.close();
+        if (events == null) {
+            throw new WebApplicationException(404);
+        }
+        return events;
+    }
+
+    @POST
+    @Path("filter")
+    @ApiOperation(value = "Get all calendar entries of the session user.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed({"calendar.use","calendar.read"})
+    public List<CrxCalendar> getMyFiltered(
+            @ApiParam(hidden = true) @Auth Session session,
+            FilterObject map
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final List<CrxCalendar> events = new CalendarService(session, em).getMyFiltered(map);
         em.close();
         if (events == null) {
             throw new WebApplicationException(404);
@@ -113,4 +131,20 @@ public class CrxCalendarResource {
         em.close();
         return crxResponse;
     }
+
+    @PUT
+    @Path("sync")
+    @ApiOperation(value = "Sync events to the filesystem")
+    @RolesAllowed("calendar.manage")
+    public CrxResponse sync(
+            @ApiParam(hidden = true) @Auth Session session
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse crxResponse = new CalendarService(session, em).exportCalendar();
+        em.close();
+        return crxResponse;
+    }
+
+
 }
+

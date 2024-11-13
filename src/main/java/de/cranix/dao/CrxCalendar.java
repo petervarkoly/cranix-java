@@ -15,6 +15,9 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 	name="CrxCalendar",
 	uniqueConstraints = { @UniqueConstraint(columnNames = { "uuid" }) }
 )
+@NamedQueries({
+	@NamedQuery(name="CrxCalendar.findAll", query="SELECT c FROM CrxCalendar c")
+})
 public class CrxCalendar extends AbstractEntity {
 
     @Column( name = "uuid", updatable = false)
@@ -55,8 +58,13 @@ public class CrxCalendar extends AbstractEntity {
     @Size(max = 300, message = "recurring rule must not be longer then 300 characters.")
     private String rrule = "";
 
-    @Column(name = "duration")
-    private Integer duration = 0;
+    /*
+    @Column(name = "duration", columnDefinition ="BIGINT UNSIGNED")
+    private Integer duration = 0;*/
+
+    @ManyToOne
+    @JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED")
+    private Room room;
 
     @ManyToMany()
     @JoinTable(
@@ -166,9 +174,7 @@ public class CrxCalendar extends AbstractEntity {
         this.color = color;
     }
 
-    public Integer getDuration() { return duration; }
-
-    public void setDuration(Integer duration) { this.duration = duration; }
+    public Long getDuration() { return this.end.getTime() - this.start.getTime(); }
 
     public String getRrule() {
         return rrule;
@@ -177,6 +183,10 @@ public class CrxCalendar extends AbstractEntity {
     public void setRrule(String rrule) {
         this.rrule = rrule;
     }
+
+    public Room getRoom() { return room; }
+
+    public void setRoom(Room room) { this.room = room; }
 
     public List<Long> getUserIds() {
         if (userIds == null) {

@@ -118,19 +118,18 @@ public class GroupService extends Service {
         groups.sort(Comparator.comparing(Group::getName));
         return groups;
     }
-
     public List<Group> getAll() {
         List<Group> groups = new ArrayList<>();
         try {
             Query query = this.em.createNamedQuery("Group.findAll");
-            return query.getResultList();
+            groups = query.getResultList();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-        } finally {
         }
         groups.sort(Comparator.comparing(Group::getName));
         return groups;
     }
+
 
     public CrxResponse add(Group group) {
         //Check group parameter

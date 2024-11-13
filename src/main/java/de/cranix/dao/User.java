@@ -685,15 +685,15 @@ public class User extends AbstractEntity {
 	}
 
 	public void addTaskResponse(TaskResponse taskResponse) {
-		if( !this.taskResponses.contains(taskResponse)) {
-			this.taskResponses.add(taskResponse);
+		if( !taskResponses.contains(taskResponse)) {
+			taskResponses.add(taskResponse);
 			taskResponse.setCreator(this);
 		}
 	}
 
 	public void deleteTaskResponse(TaskResponse taskResponse) {
-		if( this.taskResponses.contains(taskResponse)) {
-			this.taskResponses.remove(taskResponse);
+		if( taskResponses.contains(taskResponse)) {
+			taskResponses.remove(taskResponse);
 			taskResponse.setCreator(null);
 		}
 	}
@@ -715,15 +715,15 @@ public class User extends AbstractEntity {
 	}
 
 	public void addEvent(CrxCalendar event) {
-		if(! this.events.contains(event)) {
-			this.events.add(event);
+		if(!events.contains(event)) {
+			events.add(event);
 			event.getUsers().add(this);
 		}
 	}
 
 	public void removeEvent(CrxCalendar event) {
-		if( this.events.contains((event))) {
-			this.events.remove(event);
+		if(events.contains((event))) {
+			events.remove(event);
 			event.getUsers().remove(this);
 		}
 	}
