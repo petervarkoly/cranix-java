@@ -136,7 +136,7 @@ public class CalendarService extends Service {
             }
             if (oldEvent.getRoom() == null && event.getRoom() != null) {
                 oldEvent.setRoom(event.getRoom());
-            } else if (!oldEvent.getRoom().equals(event.getRoom())) {
+            } else if (oldEvent.getRoom() != null && !oldEvent.getRoom().equals(event.getRoom())) {
                 oldEvent.getRoom().removeEvent(event);
                 em.merge(oldEvent.getRoom());
                 oldEvent.setRoom(event.getRoom());
@@ -146,6 +146,7 @@ public class CalendarService extends Service {
             exportEvent(event);
             return new CrxResponse("OK", "Event was modified successully");
         } catch (Exception e) {
+	    logger.error("modify:" + e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());
         }
     }
