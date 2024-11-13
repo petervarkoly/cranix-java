@@ -537,7 +537,7 @@ public class SystemResource {
 		String[] program = new String[2];
 		StringBuffer reply = new StringBuffer();
 		StringBuffer error = new StringBuffer();
-		program[0] = "/usr/sbin/cranix-firewall.py";
+		program[0] = "/usr/sbin/crx_firewall.py";
 		program[1] = state;
 		if( CrxSystemCmd.exec(program, reply, error, null) == 0 ) {
 			return new CrxResponse("OK","Service state was set successfully.");
