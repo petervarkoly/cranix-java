@@ -62,7 +62,10 @@ public class Category extends AbstractEntity {
 		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
 		inverseJoinColumns={ @JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
-	private List<Device> devices;
+	private List<Device> devices  = new ArrayList<Device>();
+
+	@Transient
+	private List<Long> deviceIds;
 
 	//bi-directional many-to-many association to Group
 	@JsonIgnore
@@ -74,6 +77,9 @@ public class Category extends AbstractEntity {
 	)
 	private List<Group> groups = new ArrayList<Group>();
 
+	@Transient
+	private List<Long> groupIds;
+
 	//bi-directional many-to-many association to Group
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -82,7 +88,10 @@ public class Category extends AbstractEntity {
 		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
 		inverseJoinColumns={ @JoinColumn(name="hwconf_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
-	private List<HWConf> hwconfs;
+	private List<HWConf> hwconfs = new ArrayList<>();
+
+	@Transient
+	private List<Long> hwconfIds;
 
 	//bi-directional many-to-many association to Room
 	@JsonIgnore
@@ -92,7 +101,10 @@ public class Category extends AbstractEntity {
 		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
 		inverseJoinColumns={ @JoinColumn(name="room_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
-	private List<Room> rooms;
+	private List<Room> rooms = new ArrayList<>();
+
+	@Transient
+	private List<Long> roomIds;
 
 	//bi-directional many-to-many association to Software
 	@JsonIgnore
@@ -102,7 +114,10 @@ public class Category extends AbstractEntity {
 		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
 		inverseJoinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
-	private List<Software> softwares;
+	private List<Software> softwares = new ArrayList<>();
+
+	@Transient
+	private List<Long> softwareIds;
 
 	//bi-directional many-to-many association to Software
 	@JsonIgnore
@@ -112,7 +127,7 @@ public class Category extends AbstractEntity {
 		joinColumns={ @JoinColumn(name="category_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
 		inverseJoinColumns={ @JoinColumn(name="software_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
-	private List<Software> removedSoftwares;
+	private List<Software> removedSoftwares = new ArrayList<>();
 
 	//bi-directional many-to-many association to User
 	@JsonIgnore
@@ -124,6 +139,9 @@ public class Category extends AbstractEntity {
 	)
 	private List<User> users = new ArrayList<User>();
 
+	@Transient
+	private List<Long> userIds;
+
 	//bi-directional many-to-many association to Announcement
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
@@ -132,7 +150,11 @@ public class Category extends AbstractEntity {
 		inverseJoinColumns={ @JoinColumn(name="announcement_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	@JsonIgnore
-	private List<Announcement> announcements;
+	private List<Announcement> announcements = new ArrayList<>();
+
+	@Transient
+	private List<Long> announcementIds;
+
 
 	//bi-directional many-to-many association to Contact
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -142,7 +164,10 @@ public class Category extends AbstractEntity {
 		inverseJoinColumns={ @JoinColumn(name="contact_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	@JsonIgnore
-	private List<Contact> contacts;
+	private List<Contact> contacts = new ArrayList<>();
+
+	@Transient
+	private List<Long> contactIds;
 
 	//bi-directional many-to-many association to FAQ
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -152,55 +177,21 @@ public class Category extends AbstractEntity {
 		inverseJoinColumns={ @JoinColumn(name="faq_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
 	)
 	@JsonIgnore
-	private List<FAQ> faqs;
-
-	@Transient
-	private List<Long> deviceIds;
-
-	@Transient
-	private List<Long> hwconfIds;
-
-	@Transient
-	private List<Long> roomIds;
-
-	@Transient
-	private List<Long> userIds;
-
-	@Transient
-	private List<Long> groupIds;
-
-	@Transient
-	private List<Long> softwareIds;
-
-	@Transient
-	private List<Long> announcementIds;
-
-	@Transient
-	private List<Long> contactIds;
+	private List<FAQ> faqs = new ArrayList<>();
 
 	@Transient
 	private List<Long> faqIds;
 
 	@Column(name = "studentsOnly", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	@Convert(converter=BooleanToStringConverter.class)
-	boolean studentsOnly;
+	boolean studentsOnly = false;
 
 	@Column(name = "publicAccess", columnDefinition = "CHAR(1) DEFAULT 'Y'")
 	@Convert(converter=BooleanToStringConverter.class)
-	boolean publicAccess;
+	boolean publicAccess = false;
 	
 	public Category() {
-		this.announcementIds = new ArrayList<Long>();
-		this.contactIds = new ArrayList<Long>();
-		this.deviceIds  = new ArrayList<Long>();
-		this.faqIds     = new ArrayList<Long>();
-		this.groupIds   = new ArrayList<Long>();
-		this.hwconfIds  = new ArrayList<Long>();
-		this.roomIds    = new ArrayList<Long>();
-		this.softwareIds= new ArrayList<Long>();
-		this.userIds    = new ArrayList<Long>();
 		this.validFrom  = new Date(System.currentTimeMillis());
-		this.rooms    = new ArrayList<Room>();
 	}
 
 	public String getName() {
@@ -272,8 +263,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getAnnouncementIds() {
-		this.announcementIds = new ArrayList<Long>();
-		if( this.announcements != null ) {
+		if( this.announcementIds == null ) {
+			this.announcementIds = new ArrayList<Long>();
 			for (Announcement a : this.announcements) {
 				this.announcementIds.add(a.getId());
 			}
@@ -295,8 +286,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getContactIds() {
-		this.contactIds = new ArrayList<Long>();
-		if( this.contacts != null ) {
+		if( this.contactIds == null ) {
+			this.contactIds = new ArrayList<Long>();
 			for (Contact c : this.contacts) {
 				this.contactIds.add(c.getId());
 			}
@@ -317,8 +308,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getDeviceIds() {
-		this.deviceIds = new ArrayList<Long>();
-		if( this.devices != null ) {
+		if( this.deviceIds == null ) {
+			this.deviceIds = new ArrayList<Long>();
 			for (Device d : this.devices) {
 				this.deviceIds.add(d.getId());
 			}
@@ -340,8 +331,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getFaqIds() {
-		this.faqIds          = new ArrayList<Long>();
-		if( this.faqs != null ) {
+		if( this.faqIds == null ) {
+			this.faqIds = new ArrayList<Long>();
 			for (FAQ f: this.faqs) {
 				this.faqIds.add(f.getId());
 			}
@@ -363,8 +354,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getGroupIds() {
-		this.groupIds = new ArrayList<Long>();
-		if( this.groups != null ) {
+		if( this.groupIds == null ) {
+			this.groupIds = new ArrayList<Long>();
 			for (Group g: this.groups) {
 				this.groupIds.add(g.getId());
 			}
@@ -386,8 +377,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getHwconfIds() {
-		this.hwconfIds = new ArrayList<Long>();
-		if( this.hwconfs != null ) {
+		if( this.hwconfIds == null ) {
+			this.hwconfIds = new ArrayList<Long>();
 			for (HWConf h: this.hwconfs) {
 				this.hwconfIds.add(h.getId());
 			}
@@ -409,8 +400,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getRoomIds() {
-		this.roomIds = new ArrayList<Long>();
-		if( this.rooms != null ) {
+		if( this.roomIds == null ) {
+			this.roomIds = new ArrayList<Long>();
 			for (Room r: this.rooms) {
 				this.roomIds.add(r.getId());
 			}
@@ -432,8 +423,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getSoftwareIds() {
-		this.softwareIds = new ArrayList<Long>();
-		if( this.softwares != null ) {
+		if( this.softwareIds == null ) {
+			this.softwareIds = new ArrayList<Long>();
 			for (Software s: this.softwares) {
 				this.softwareIds.add(s.getId());
 			}
@@ -464,8 +455,8 @@ public class Category extends AbstractEntity {
 	}
 
 	public List<Long> getUserIds() {
-		this.userIds         = new ArrayList<Long>();
-		if( this.users != null ) {
+		if( this.userIds == null ) {
+			this.userIds = new ArrayList<Long>();
 			for (User u: this.users) {
 				this.userIds.add(u.getId());
 			}
@@ -476,5 +467,4 @@ public class Category extends AbstractEntity {
 	public void setUserIds(List<Long> ids) {
 		this.userIds = ids;
 	}
-
 }

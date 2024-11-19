@@ -155,22 +155,27 @@ public class UserService extends Service {
     @SuppressWarnings("deprecation")
     public String createUid(String givenName, String surName, String birthDay) {
         String userId = "";
-        Pattern pattern = Pattern.compile("([GNY])(\\d+)");
-        for (Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME")); m.find(); ) {
-            int endIndex = Integer.parseInt(m.group(2));
-            //logger.debug("have found" + m.group(1) + " " + m.group(2) + " " + endIndex + " " + givenName );
+        Pattern pattern = Pattern.compile("([VGNSJY\\.\\-])(\\d+)?");
+	Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME"));
+        while (m.find()) {
+            int endIndex = 0;
+            logger.debug("have found " + m.group(1) + " userId " + userId);
             switch (m.group(1)) {
                 case "V":
                 case "G":
+                    endIndex = Integer.parseInt(m.group(2));
                     endIndex = Math.min(endIndex, givenName.length());
                     userId = userId.concat(givenName.substring(0, endIndex));
                     break;
                 case "N":
                 case "S":
+                    endIndex = Integer.parseInt(m.group(2));
                     endIndex = Math.min(endIndex, surName.length());
                     userId = userId.concat(surName.substring(0, endIndex));
                     break;
+                case "J":
                 case "Y":
+                    endIndex = Integer.parseInt(m.group(2));
                     String bds = birthDay.substring(0, 4);
                     switch (endIndex) {
                         case 2:
@@ -180,6 +185,8 @@ public class UserService extends Service {
                             userId = userId.concat(bds);
                     }
                     break;
+                default:
+                    userId = userId.concat(m.group(1));
             }
         }
         String newUserId = this.getConfigValue("LOGIN_PREFIX") + userId;
@@ -189,9 +196,9 @@ public class UserService extends Service {
             i++;
         }
         if(this.getConfigValue("LOGIN_TELEX").equals("yes")) {
-            return normalizeTelex(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9]", "");
+            return normalizeTelex(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9\\-\\.]", "");
         }
-        return normalize(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9]", "");
+        return normalize(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9\\-\\.]", "");
     }
 
     public CrxResponse add(User user) {

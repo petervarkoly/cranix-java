@@ -275,7 +275,7 @@ public class SystemService extends Service {
                 if (host.length == 1 || host[1].equals("32")) {
                     Device device = deviceService.getByMainIP(host[0]);
                     if (device == null) {
-                        logger.debug("not found");
+                        logger.error("getFirewallOutgoingRules device not found:" + host[0]);
                         continue;
                     }
                     statusMap.put("id", Long.toString(device.getId()));
@@ -325,8 +325,6 @@ public class SystemService extends Service {
             statusMap.put("dest", firewallRule.get("dest"));
             statusMap.put("source", source);
             CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
-            logger.debug("addFirewallOutgoingRule reply:", reply.toString());
-            logger.debug("addFirewallOutgoingRule error:", error.toString());
             return new CrxResponse("OK", "Firewall outgoing access rule was add successfully.");
         } catch (Exception e) {
             logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
@@ -354,12 +352,11 @@ public class SystemService extends Service {
             statusMap.put("proto", firewallRule.get("protocol"));
             statusMap.put("dest", firewallRule.get("dest"));
             statusMap.put("source", source);
-            if( firewallRule.containsKey("to_source"))
+            if(firewallRule.containsKey("to_source") && firewallRule.get("to_source") != "")
                 statusMap.put("to_source", firewallRule.get("to_source"));
-            else
-                statusMap.put("to_source", "");
+            /* else
+                statusMap.put("to_source", ""); */
             CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
-            logger.debug("deleteFirewallOutgoingRule error:", error.toString());
             return new CrxResponse("OK", "Firewall outgoing access rule was deleted successfully.");
         } catch (Exception e) {
             logger.debug("{ \"ERROR\" : \"CAN NOT MAP THE OBJECT\" }");
