@@ -162,9 +162,9 @@ public class SessionService extends Service {
             for (Crx2fa crx2fa : user.getCrx2fas()) {
                 this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
             }
-            if(crx2faSessionId > 0) {
-                Crx2faSession crx2faSession = this.em.find(Crx2faSession.class,crx2faSessionId);
-                if( crx2faSession != null && crx2faSession.isValid() ){
+            if (crx2faSessionId > 0) {
+                Crx2faSession crx2faSession = this.em.find(Crx2faSession.class, crx2faSessionId);
+                if (crx2faSession != null && crx2faSession.isValid()) {
                     this.session.setCrx2faSession(crx2faSession);
                 }
             }
@@ -341,13 +341,13 @@ public class SessionService extends Service {
     }
 
     public boolean authorize(Session session, String requiredRole) {
-	/**
-	 * Local token and token of cephalix must not be checked.
-	 */
+        /**
+         * Local token and token of cephalix must not be checked.
+         */
         if (
-	    session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost")) ||
-	    session.getUser().getUid().equals("cephalix")
-	) {
+                session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost")) ||
+                        session.getUser().getUid().equals("cephalix")
+        ) {
             return true;
         }
 
@@ -357,13 +357,13 @@ public class SessionService extends Service {
         if (session.getAcls().contains("2fa.use") && requiredRole.equals("2fa.use")) {
             return true;
         }
-	/**
-	 * Clone tool is a special case
-	 */
-	if(requiredRole.startsWith("hwconf.") && session.getAcls().contains(requiredRole)) {
+        /**
+         * Clone tool is a special case
+         */
+        if (requiredRole.startsWith("hwconf.") && session.getAcls().contains(requiredRole)) {
             logger.info("Token without checked CRX2FA session for clone tool" + requiredRole);
-	    return true;
-	}
+            return true;
+        }
         /**
          * User have to use 2FA but has no checked 2FA session.
          * Only 2FA setup is allowed.
@@ -411,10 +411,10 @@ public class SessionService extends Service {
         fileServerName = fileServerName + "." + this.getConfigValue("DOMAIN");
         batFile.add(
                 "net use z: \\\\" + fileServerName + "\\" + this.session.getUser().getUid()
-                + " /persisten:no /user:"
-                + this.getConfigValue("WORKGROUP") + "\\"
-                + this.session.getUser().getUid() + " \""
-                + this.session.getPassword() + "\""
+                        + " /persisten:no /user:"
+                        + this.getConfigValue("WORKGROUP") + "\\"
+                        + this.session.getUser().getUid() + " \""
+                        + this.session.getPassword() + "\""
         );
         program[0] = cranixBaseDir + "plugins/shares/netlogon/open/100-create-logon-script.sh";
         program[1] = this.session.getUser().getUid();
