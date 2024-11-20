@@ -46,7 +46,7 @@ import de.cranix.helper.SslCrypto;
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class User extends AbstractEntity {
 
-	@Column(name="uid", updatable=false)
+	@Column(name="uid", updatable=false, length=32)
 	@Pattern.List({
 		@Pattern(
                         regexp = "^[^/\\\\#,;=]+$",
@@ -60,19 +60,19 @@ public class User extends AbstractEntity {
 	@Size(max=32, message="Uid must not be longer then 32 characters.")
 	private String uid;
 
-	@Column(name="uuid", updatable=false)
+	@Column(name="uuid", updatable=false, length=64)
 	@Size(max=64, message="UUID must not be longer then 64 characters.")
 	private String uuid;
 
-	@Column(name="givenName")
+	@Column(name="givenName", length=64)
 	@Size(max=64, message="Givenname must not be longer then 64 characters.")
 	private String givenName;
 
-	@Column(name="surName")
+	@Column(name="surName", length=64)
 	@Size(max=64, message="Surname must not be longer then 64 characters.")
 	private String surName;
 
-	@Column(name="role")
+	@Column(name="role", length=16)
 	@Size(max=16, message="Role must not be longer then 16 characters.")
 	private String role;
 
@@ -91,12 +91,12 @@ public class User extends AbstractEntity {
 	@Column(name="msQuota")
 	private Integer msQuota = 0;
 
-	@Column(name="color")
+	@Column(name="color", length=7)
 	@Size(max=7, message="color must not be longer then 7 characters.")
 	protected String color = "#4832a8";
 
 	@JsonIgnore
-	@Column(name="initialPassword")
+	@Column(name="initialPassword", length=32)
 	@Size(max=32, message="initialPassword must not be longer then 32 characters.")
 	private String initialPassword;
 
