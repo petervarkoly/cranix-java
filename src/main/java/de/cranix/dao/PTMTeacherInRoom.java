@@ -9,9 +9,11 @@ import java.util.Date;
 
 @Entity
 @Table(name="PTMTeacherInRoom")
+@
 public class PTMTeacherInRoom extends AbstractEntity{
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "ptm_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private ParentTeacherMeeting parentTeacherMeeting;
 

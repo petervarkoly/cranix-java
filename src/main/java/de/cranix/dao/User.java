@@ -45,6 +45,7 @@ import de.cranix.helper.SslCrypto;
 )
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class User extends AbstractEntity {
+	SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Column(name="uid", updatable=false, length=32)
 	@Pattern.List({
@@ -58,26 +59,26 @@ public class User extends AbstractEntity {
                 message = "Uid must not start with '-' '.'.")
 	})
 	@Size(max=32, message="Uid must not be longer then 32 characters.")
-	private String uid;
+	private String uid = "";
 
 	@Column(name="uuid", updatable=false, length=64)
 	@Size(max=64, message="UUID must not be longer then 64 characters.")
-	private String uuid;
+	private String uuid = "";
 
 	@Column(name="givenName", length=64)
 	@Size(max=64, message="Givenname must not be longer then 64 characters.")
-	private String givenName;
+	private String givenName = "";
 
 	@Column(name="surName", length=64)
 	@Size(max=64, message="Surname must not be longer then 64 characters.")
-	private String surName;
+	private String surName = "";
 
 	@Column(name="role", length=16)
 	@Size(max=16, message="Role must not be longer then 16 characters.")
-	private String role;
+	private String role = "";
 
 	@Column(name="birthDay", columnDefinition = "DATE NOT NULL DEFAULT NOW()")
-	private String birthDay = new Date().toString();
+	private String birthDay = fmt.format(new Date());
 
 	@Column(name="fsQuotaUsed")
 	private Integer fsQuotaUsed = 0;
@@ -98,7 +99,7 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	@Column(name="initialPassword", length=32)
 	@Size(max=32, message="initialPassword must not be longer then 32 characters.")
-	private String initialPassword;
+	private String initialPassword = "";
 
 	/* bi-directional many-to-one associations */
 	@OneToMany(mappedBy="user", cascade ={CascadeType.ALL})
@@ -275,22 +276,8 @@ public class User extends AbstractEntity {
 	@Transient
 	private boolean mustChange = false;
 
-	public User() {
-		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-		this.setId(null);
-		this.uid = "";
-		this.uuid = "";
-		this.surName = "";
-		this.givenName = "";
-		this.password = "";
-		this.role = "";
-		this.fsQuota = 0;
-		this.fsQuotaUsed = 0;
-		this.msQuota = 0;
-		this.msQuotaUsed = 0;
-		this.birthDay = fmt.format(new Date());
-		this.mustChange = false;
-	}
+	public User() {	}
+	public User(Session session) { this.setCreator(session.getUser()); }
 
 	public boolean isMustChange() {
 		return mustChange;

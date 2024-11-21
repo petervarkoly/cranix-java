@@ -9,7 +9,14 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 
 @Entity
 @Table(name = "ParentTeacherMeetings")
-public class ParentTeacherMeeting extends AbstractEntity{
+@NamedQueries({
+        @NamedQuery(name = "PTMs.findAll", query = "SELECT p FROM ParentTeacherMeetings p"),
+        @NamedQuery(name = "PTMs.findActual", query = "SELECT p FROM ParentTeacherMeetings p WHERE p.start > NOW() ORDER BY p.start")
+})
+public class ParentTeacherMeeting extends AbstractEntity {
+
+    @Column(name = "title", lenght=64)
+    private String title = "";
 
     @Column(
             name = "start",
@@ -25,7 +32,7 @@ public class ParentTeacherMeeting extends AbstractEntity{
     @Temporal(TIMESTAMP)
     private Date end = new Date();
 
-    @Column( name = "duration")
+    @Column(name = "duration")
     private Integer duration = 10;
 
     @Column(
@@ -45,7 +52,9 @@ public class ParentTeacherMeeting extends AbstractEntity{
     @OneToMany(mappedBy = "parentTeacherMeeting", cascade = CascadeType.ALL)
     List<PTMTeacherInRoom> ptmTeacherInRoomList = new ArrayList<>();
 
-    public ParentTeacherMeeting(Session session) { super(session);}
+    public ParentTeacherMeeting(Session session) {
+        super(session);
+    }
 
     public ParentTeacherMeeting(
             Session session,
@@ -56,7 +65,7 @@ public class ParentTeacherMeeting extends AbstractEntity{
             Date endRegistration
     ) {
         super(session);
-        this.start =start;
+        this.start = start;
         this.end = end;
         this.duration = duration;
         this.startRegistration = startRegistration;

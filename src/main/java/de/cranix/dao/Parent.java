@@ -8,13 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name="Parents")
-public class Parent extends AbstractEntity {
-
-    @Column(name = "givenName", length = 64)
-    private String givenName = "";
-
-    @Column(name = "surName", length = 64)
-    private String surName = "";
+public class Parent extends User {
 
     @Column(name = "emailAddress", length = 64)
     private String emailAddress = "";
@@ -47,9 +41,41 @@ public class Parent extends AbstractEntity {
             List<User> children
     ){
         super(session);
-        this.givenName = givenName;
-        this.surName = surName;
+        this.setGivenName(givenName);
+        this.setSurName(surName)
         this.emailAddress = emailAddress;
         this.children = children;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
+
+    public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+
+    public List<User> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<User> children) {
+        this.children = children;
+    }
+
+    public List<ParentRequest> getRequests() {
+        return requests;
+    }
+
+    public void setRequests(List<ParentRequest> requests) {
+        this.requests = requests;
     }
 }

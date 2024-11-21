@@ -10,18 +10,23 @@ import java.util.Date;
 public class PTMEvent extends AbstractEntity {
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "ptmtir_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")
     private PTMTeacherInRoom teacherInRoom;
-
-    @ManyToOne
-    @JoinColumn(name = "parent_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")
-    private Parent parent;
 
     @Column(name = "start")
     private Date start;
 
     @Column(name = "end")
     private Date end;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id", columnDefinition = "BIGINT UNSIGNED")
+    private Parent parent;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id", columnDefinition = "BIGINT UNSIGNED")
+    private Parent student;
 
     public PTMEvent(Session session) {
         super(session);
@@ -70,4 +75,8 @@ public class PTMEvent extends AbstractEntity {
     public void setParent(Parent parent) {
         this.parent = parent;
     }
+
+    public Parent getStudent() { return student; }
+
+    public void setStudent(Parent student) { this.student = student; }
 }
