@@ -1,4 +1,4 @@
-/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 /**
  * @author Peter Varkoly <peter@varkoly.de>
  *

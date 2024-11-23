@@ -43,25 +43,29 @@ public class Group extends AbstractEntity {
                 message = "Group name must not start with '-' '.'.")
 	})
 	@Size(max=32, message="Name must not be longer then 32 characters.")
-	private String name;
+	private String name = "";
 
 	@Column(name = "description")
 	@Size(max=64, message="Description must not be longer then 64 characters.")
-	private String description;
+	private String description = "";
 
 	@Column(name = "groupType")
 	@Size(max=16, message="Description must not be longer then 16 characters.")
-	private String groupType;
+	private String groupType = "";
+
+	@Column(name="color")
+	@Size(max=7, message="color must not be longer then 7 characters.")
+	protected String color = "#AABBCC";
 
 	/* bi-directional one-to-many associations */
 	@OneToMany(mappedBy="group")
 	@JsonIgnore
-	private List<Acl> acls;
+	private List<Acl> acls = new ArrayList<>();
 
 	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="groups")
 	@JsonIgnore
-	private List<Category> categories;
+	private List<Category> categories = new ArrayList<>();
 
 	@ManyToMany(mappedBy="groups")
 	@JsonIgnore
@@ -69,7 +73,11 @@ public class Group extends AbstractEntity {
 
 	@ManyToMany(mappedBy="groups")
 	@JsonIgnore
-	private List<User> users;
+	private List<User> users = new ArrayList<>();
+
+	@ManyToMany(mappedBy="groups")
+	@JsonIgnore
+	private List<CrxCalendar> events = new ArrayList<>();
 
 	public Group() {
 		this.setId(null);
@@ -142,6 +150,36 @@ public class Group extends AbstractEntity {
 	public void removeUser(User user) {
 		this.users.remove(user);
 		user.getGroups().remove(this);
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	public List<CrxCalendar> getEvents() {
+		return events;
+	}
+
+	public void setEvents(List<CrxCalendar> events) {
+		this.events = events;
+	}
+
+	public void addEvent(CrxCalendar event) {
+		if(! this.events.contains(event)) {
+			this.events.add(event);
+			event.getGroups().add(this);
+		}
+	}
+
+	public void removeEvent(CrxCalendar event) {
+		if( this.events.contains((event))) {
+			this.events.remove(event);
+			event.getGroups().remove(this);
+		}
 	}
 
 	public List<Category> getCategories() {

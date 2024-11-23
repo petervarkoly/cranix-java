@@ -62,6 +62,9 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final AdHocLanResource adHocLanResource = new AdHocLanResource();
 		environment.jersey().register(adHocLanResource);
 
+		final CrxCalendarResource crxCalendarResource = new CrxCalendarResource();
+		environment.jersey().register(crxCalendarResource);
+
 		final CategoryResource categoryResource = new CategoryResource();
 		environment.jersey().register(categoryResource);
 

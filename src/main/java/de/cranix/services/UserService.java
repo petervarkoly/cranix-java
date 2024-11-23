@@ -156,7 +156,7 @@ public class UserService extends Service {
     public String createUid(String givenName, String surName, String birthDay) {
         String userId = "";
         Pattern pattern = Pattern.compile("([VGNSJY\\.\\-])(\\d+)?");
-	Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME"));
+	    Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME"));
         while (m.find()) {
             int endIndex = 0;
             logger.debug("have found " + m.group(1) + " userId " + userId);
@@ -888,11 +888,18 @@ public class UserService extends Service {
                 o.setCreator(newCreator);
                 this.em.merge(o);
             }
+            creator.setCreatedCrxConfig(null);
             //CrxMConfig
             for (CrxMConfig o : creator.getCreatedCrxMConfig()) {
                 o.setCreator(newCreator);
                 this.em.merge(o);
             }
+            creator.setCreatedCrxMConfig(null);
+            for (CrxCalendar o : creator.getCreatedEvents()) {
+                o.setCreator(newCreator);
+                this.em.merge(o);
+            }
+            creator.setCreatedEvents(null);
             //Sessions will be deleted
             for (Session o : creator.getSessions()) {
                 this.em.remove(o);
