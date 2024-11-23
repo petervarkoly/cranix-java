@@ -1,9 +1,8 @@
-/*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.11.9-MariaDB, for Linux (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.6-MariaDB, for Linux (x86_64)
 --
 -- Host: localhost    Database: CRX
 -- ------------------------------------------------------
--- Server version	10.11.9-MariaDB
+-- Server version	10.11.6-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -58,7 +57,7 @@ CREATE TABLE `AccessInRooms` (
   KEY `FK_AccessInRooms_creator_id` (`creator_id`),
   CONSTRAINT `FK_AccessInRooms_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
   CONSTRAINT `FK_AccessInRooms_room_id` FOREIGN KEY (`room_id`) REFERENCES `Rooms` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,13 +69,13 @@ DROP TABLE IF EXISTS `Acls`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Acls` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) unsigned DEFAULT NULL,
-  `group_id` bigint(20) unsigned DEFAULT NULL,
-  `acl` varchar(32) NOT NULL,
-  `allowed` char(1) NOT NULL DEFAULT 'Y',
-  `creator_id` bigint(20) unsigned DEFAULT NULL,
+  `acl` varchar(255) DEFAULT NULL,
+  `allowed` char(1) DEFAULT 'Y',
   `created` timestamp NULL DEFAULT current_timestamp(),
   `modified` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `creator_id` bigint(20) unsigned DEFAULT NULL,
+  `group_id` bigint(20) unsigned DEFAULT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNQ_Acls_0` (`acl`,`group_id`,`user_id`),
   KEY `FK_Acls_creator_id` (`creator_id`),
@@ -85,7 +84,7 @@ CREATE TABLE `Acls` (
   CONSTRAINT `FK_Acls_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
   CONSTRAINT `FK_Acls_group_id` FOREIGN KEY (`group_id`) REFERENCES `Groups` (`id`),
   CONSTRAINT `FK_Acls_user_id` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -194,7 +193,7 @@ CREATE TABLE `Categories` (
   UNIQUE KEY `UNQ_Categories_0` (`name`,`categoryType`),
   KEY `FK_Categories_creator_id` (`creator_id`),
   CONSTRAINT `FK_Categories_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -315,22 +314,21 @@ CREATE TABLE `CrxCalendar` (
   `created` timestamp NULL DEFAULT current_timestamp(),
   `description` varchar(255) DEFAULT NULL,
   `end` timestamp NULL DEFAULT current_timestamp(),
-  `location` varchar(255) DEFAULT NULL,
+  `location` varchar(128) DEFAULT NULL,
   `modified` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `rruleFreq` varchar(255) DEFAULT NULL,
-  `rruleInterval` varchar(255) DEFAULT NULL,
-  `rruleUntil` timestamp NULL DEFAULT NULL,
+  `rrule` varchar(300) DEFAULT NULL,
   `start` timestamp NULL DEFAULT current_timestamp(),
-  `title` varchar(255) DEFAULT NULL,
+  `title` varchar(64) DEFAULT NULL,
   `uuid` varchar(255) DEFAULT NULL,
   `creator_id` bigint(20) unsigned DEFAULT NULL,
-  `rrule` varchar(300) DEFAULT NULL,
-  `duration` int(11) DEFAULT NULL,
+  `room_id` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNQ_CrxCalendar_0` (`uuid`),
   KEY `FK_CrxCalendar_creator_id` (`creator_id`),
-  CONSTRAINT `FK_CrxCalendar_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+  KEY `FK_CrxCalendar_room_id` (`room_id`),
+  CONSTRAINT `FK_CrxCalendar_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
+  CONSTRAINT `FK_CrxCalendar_room_id` FOREIGN KEY (`room_id`) REFERENCES `Rooms` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -424,20 +422,6 @@ CREATE TABLE `CrxMConfig` (
   KEY `FK_CrxMConfig_creator_id` (`creator_id`),
   CONSTRAINT `FK_CrxMConfig_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `CrxNextID`
---
-
-DROP TABLE IF EXISTS `CrxNextID`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `CrxNextID` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `recTime` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4000107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -558,7 +542,7 @@ CREATE TABLE `Devices` (
   CONSTRAINT `FK_Devices_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
   CONSTRAINT `FK_Devices_hwconf_id` FOREIGN KEY (`hwconf_id`) REFERENCES `HWConfs` (`id`),
   CONSTRAINT `FK_Devices_room_id` FOREIGN KEY (`room_id`) REFERENCES `Rooms` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -579,7 +563,7 @@ CREATE TABLE `Enumerates` (
   UNIQUE KEY `UNQ_Enumerates_0` (`name`,`value`),
   KEY `FK_Enumerates_creator_id` (`creator_id`),
   CONSTRAINT `FK_Enumerates_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=138 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -680,18 +664,18 @@ DROP TABLE IF EXISTS `Groups`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Groups` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `color` varchar(255) DEFAULT NULL,
   `created` timestamp NULL DEFAULT current_timestamp(),
   `description` varchar(255) DEFAULT NULL,
   `groupType` varchar(255) DEFAULT NULL,
   `modified` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `name` varchar(255) DEFAULT NULL,
   `creator_id` bigint(20) unsigned DEFAULT NULL,
-  `color` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNQ_Groups_0` (`name`),
   KEY `FK_Groups_creator_id` (`creator_id`),
   CONSTRAINT `FK_Groups_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -748,7 +732,7 @@ CREATE TABLE `HWConfs` (
   UNIQUE KEY `UNQ_HWConfs_0` (`name`),
   KEY `FK_HWConfs_creator_id` (`creator_id`),
   CONSTRAINT `FK_HWConfs_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -867,7 +851,7 @@ CREATE TABLE `Partitions` (
   KEY `FK_Partitions_creator_id` (`creator_id`),
   CONSTRAINT `FK_Partitions_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
   CONSTRAINT `FK_Partitions_hwconf_id` FOREIGN KEY (`hwconf_id`) REFERENCES `HWConfs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -911,7 +895,7 @@ CREATE TABLE `Printers` (
   KEY `FK_Printers_creator_id` (`creator_id`),
   CONSTRAINT `FK_Printers_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
   CONSTRAINT `FK_Printers_device_id` FOREIGN KEY (`device_id`) REFERENCES `Devices` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -997,7 +981,7 @@ CREATE TABLE `Rooms` (
   KEY `FK_Rooms_creator_id` (`creator_id`),
   CONSTRAINT `FK_Rooms_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
   CONSTRAINT `FK_Rooms_hwconf_id` FOREIGN KEY (`hwconf_id`) REFERENCES `HWConfs` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1025,7 +1009,7 @@ CREATE TABLE `Sessions` (
   CONSTRAINT `FK_Sessions_device_id` FOREIGN KEY (`device_id`) REFERENCES `Devices` (`id`),
   CONSTRAINT `FK_Sessions_room_id` FOREIGN KEY (`room_id`) REFERENCES `Rooms` (`id`),
   CONSTRAINT `FK_Sessions_user_id` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=229 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1259,7 +1243,7 @@ CREATE TABLE `TeachingSubjects` (
   UNIQUE KEY `UNQ_TeachingSubjects_0` (`name`),
   KEY `FK_TeachingSubjects_creator_id` (`creator_id`),
   CONSTRAINT `FK_TeachingSubjects_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1322,6 +1306,7 @@ DROP TABLE IF EXISTS `Users`;
 CREATE TABLE `Users` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `birthDay` date NOT NULL DEFAULT current_timestamp(),
+  `color` varchar(255) DEFAULT NULL,
   `created` timestamp NULL DEFAULT current_timestamp(),
   `fsQuota` int(11) DEFAULT NULL,
   `fsQuotaUsed` int(11) DEFAULT NULL,
@@ -1335,12 +1320,11 @@ CREATE TABLE `Users` (
   `uid` varchar(255) DEFAULT NULL,
   `uuid` varchar(255) DEFAULT NULL,
   `creator_id` bigint(20) unsigned DEFAULT NULL,
-  `color` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNQ_Users_0` (`uid`),
   KEY `FK_Users_creator_id` (`creator_id`),
   CONSTRAINT `FK_Users_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1369,4 +1353,4 @@ CREATE TABLE `UsersOfChallenges` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-23 12:11:27
+-- Dump completed on 2024-11-23 15:36:05
