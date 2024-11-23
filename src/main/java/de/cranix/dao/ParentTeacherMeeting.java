@@ -15,7 +15,7 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 })
 public class ParentTeacherMeeting extends AbstractEntity {
 
-    @Column(name = "title", lenght=64)
+    @Column(name = "title", length=64)
     private String title = "";
 
     @Column(

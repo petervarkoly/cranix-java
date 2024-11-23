@@ -42,7 +42,7 @@ public class Parent extends User {
     ){
         super(session);
         this.setGivenName(givenName);
-        this.setSurName(surName)
+        this.setSurName(surName);
         this.emailAddress = emailAddress;
         this.children = children;
     }

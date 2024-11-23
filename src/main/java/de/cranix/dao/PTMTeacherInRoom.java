@@ -9,7 +9,6 @@ import java.util.Date;
 
 @Entity
 @Table(name="PTMTeacherInRoom")
-@
 public class PTMTeacherInRoom extends AbstractEntity{
 
     @ManyToOne
