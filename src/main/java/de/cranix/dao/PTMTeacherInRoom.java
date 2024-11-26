@@ -27,6 +27,8 @@ public class PTMTeacherInRoom extends AbstractEntity{
     @OneToMany(mappedBy = "teacherInRoom", cascade = {CascadeType.ALL})
     private List<PTMEvent> events = new ArrayList<>();
 
+    public PTMTeacherInRoom() { super(); }
+
     public PTMTeacherInRoom(Session session){
         super(session);
     }

@@ -31,6 +31,8 @@ public class ParentRequest extends AbstractEntity{
     @JoinColumn(name = "parent_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private Parent parent;
 
+    public ParentRequest() {super();}
+
     public String getGivenName() {
         return givenName;
     }

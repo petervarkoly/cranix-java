@@ -48,7 +48,7 @@ public class PTMService extends Service {
 
     public ParentTeacherMeeting get() {
         try {
-            Query query = this.em.createNamedQuery("PTMs.findActual");
+            Query query = this.em.createNamedQuery("PTMs.findAll");
             if (!query.getResultList().isEmpty()) {
                 return (ParentTeacherMeeting) query.getResultList().get(0);
             }
@@ -61,7 +61,7 @@ public class PTMService extends Service {
     public List<ParentTeacherMeeting> getAll() {
         try {
             Query query = this.em.createNamedQuery("PTMs.findAll");
-            return (List<ParentTeacherMeeting>) query.getResultList().get(0);
+            return (List<ParentTeacherMeeting>) query.getResultList();
         } catch (Exception e) {
             logger.error("getAll:" + e.getMessage());
         }

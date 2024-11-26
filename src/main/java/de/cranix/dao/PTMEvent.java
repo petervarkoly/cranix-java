@@ -28,6 +28,10 @@ public class PTMEvent extends AbstractEntity {
     @JoinColumn(name = "student_id", columnDefinition = "BIGINT UNSIGNED")
     private Parent student;
 
+    public PTMEvent() {
+        super();
+    }
+
     public PTMEvent(Session session) {
         super(session);
     }

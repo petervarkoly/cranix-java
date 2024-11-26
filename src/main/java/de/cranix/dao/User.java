@@ -45,7 +45,7 @@ import de.cranix.helper.SslCrypto;
 )
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class User extends AbstractEntity {
-	SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+	static SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Column(name="uid", updatable=false, length=32)
 	@Pattern.List({
@@ -91,6 +91,13 @@ public class User extends AbstractEntity {
 
 	@Column(name="msQuota")
 	private Integer msQuota = 0;
+
+	@Column(name = "emailAddress", length = 64)
+	@Size(max=16, message="emailAddress must not be longer then 64 characters.")
+	private String emailAddress = "";
+
+	@Column(name = "otp", length = 64)
+	private String otp = "";
 
 	@Column(name="color", length=7)
 	@Size(max=7, message="color must not be longer then 7 characters.")
@@ -713,5 +720,21 @@ public class User extends AbstractEntity {
 			events.remove(event);
 			event.getUsers().remove(this);
 		}
+	}
+
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
+
+	public String getOtp() {
+		return otp;
+	}
+
+	public void setOtp(String otp) {
+		this.otp = otp;
 	}
 }

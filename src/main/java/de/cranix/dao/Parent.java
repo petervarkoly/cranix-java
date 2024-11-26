@@ -10,12 +10,6 @@ import java.util.List;
 @Table(name="Parents")
 public class Parent extends User {
 
-    @Column(name = "emailAddress", length = 64)
-    private String emailAddress = "";
-
-    @Column(name = "otp", length = 64)
-    private String otp = "";
-
     @ManyToMany
     @JoinTable(
             name = "MyChildren",
@@ -43,24 +37,8 @@ public class Parent extends User {
         super(session);
         this.setGivenName(givenName);
         this.setSurName(surName);
-        this.emailAddress = emailAddress;
+        this.setEmailAddress(emailAddress);
         this.children = children;
-    }
-
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
-
-    public String getOtp() {
-        return otp;
-    }
-
-    public void setOtp(String otp) {
-        this.otp = otp;
     }
 
     public List<User> getChildren() {
