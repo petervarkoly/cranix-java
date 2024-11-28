@@ -136,6 +136,7 @@ public class Device extends AbstractEntity {
 
     //bi-directional many-to-one association to HWConf
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "hwconf_id", columnDefinition ="BIGINT UNSIGNED")
     private HWConf hwconf;
 
@@ -165,6 +166,9 @@ public class Device extends AbstractEntity {
     private String loggedInName = "nobody";
 
     @Transient
+    private Long hwconfId;
+
+    @Transient
     private char[] screenShot;
 
     public Device() {
@@ -175,8 +179,12 @@ public class Device extends AbstractEntity {
         this.wlanMac = "";
     }
 
-    public Long getHwconfId() {
-        return this.hwconf == null ? null: this.hwconf.getId();
+    public Long getHwconfId()
+    {
+        if( this.hwconfId == null ) {
+            this.hwconfId = this.hwconf == null ? null : this.hwconf.getId();
+        }
+        return this.hwconfId;
     }
 
     public String getName() {

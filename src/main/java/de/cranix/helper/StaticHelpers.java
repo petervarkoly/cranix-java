@@ -16,6 +16,7 @@ public class StaticHelpers {
 	static Logger logger = LoggerFactory.getLogger(StaticHelpers.class);
 
 	static public SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm yyyy-MM-dd");
+	static public SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-MM-dd");
 
 	static public String createRandomPassword() {
 		String[] salt = new String[3];

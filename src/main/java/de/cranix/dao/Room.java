@@ -164,6 +164,9 @@ public class Room extends AbstractEntity {
 	@Transient
 	private boolean ignoreNetbios = false;
 
+	@Transient
+	private Long hwconfId;
+
 	public Room() {
 		this.convertNmToCount();
 	}
@@ -176,8 +179,12 @@ public class Room extends AbstractEntity {
 		this.netMask = countToNm.get(this.devCount);
 	}
 
-	public Long getHwconfId() {
-		return this.hwconf == null ? null: this.hwconf.getId();
+	public Long getHwconfId()
+	{
+		if( this.hwconfId == null ){
+			this.hwconfId = this.hwconf == null ? null: this.hwconf.getId();
+		}
+		return this.hwconfId;
 	}
 
 	public String getName() {

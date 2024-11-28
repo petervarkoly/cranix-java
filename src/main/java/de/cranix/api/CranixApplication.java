@@ -119,6 +119,10 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final ObjectResource objectResource = new ObjectResource();
 		environment.jersey().register(objectResource);
 
+		// TODO: we have to check the licence
+		final ParentResource parentResource = new ParentResource();
+		environment.jersey().register(parentResource);
+
 		//Start some APIs only if they are configured.
 		File config_file = new File(cranixMdmConfig);
 		if( config_file.exists() ) {

@@ -1,8 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 INSERT INTO AccessInRooms SET id=1,room_id=2,accessType='DEF',pointInTime='06:00',monday='Y',tuesday='Y',wednesday='Y',thursday='Y',friday='Y',saturday='Y',sunday='Y',holiday='Y',direct='N',login='N',proxy='N',printing='N',portal='N';
 INSERT INTO Enumerates SET name='apiAcl',value='myself.modify';
-INSERT INTO Enumerates SET name='apiAcl',value='myself.search';
-INSERT INTO Enumerates SET name='apiAcl',value='software.manage';
 INSERT INTO Enumerates SET name='apiAcl',value='room.direct';
 INSERT INTO Acls SET acl='myself.modify',allowed='Y';
 INSERT INTO Acls SET acl='myself.modify',allowed='Y';

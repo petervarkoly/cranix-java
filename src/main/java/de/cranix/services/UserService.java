@@ -103,33 +103,6 @@ public class UserService extends Service {
     }
 
     @OrderBy("uid,surName")
-    public List<User> findByName(String givenName, String surName) {
-        try {
-            Query query = this.em.createNamedQuery("User.findByName");
-            query.setParameter("givenName", givenName);
-            query.setParameter("surName", surName);
-            return query.getResultList();
-        } catch (Exception e) {
-            logger.error("findByName: " + e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    @OrderBy("uid,surName")
-    public List<User> findByNameAndRole(String givenName, String surName, String role) {
-        try {
-            Query query = this.em.createNamedQuery("User.findByNameAndRole");
-            query.setParameter("givenName", givenName);
-            query.setParameter("surName", surName);
-            query.setParameter("role", role);
-            return query.getResultList();
-        } catch (Exception e) {
-            logger.error("findByNameAndRole: " + e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    @OrderBy("uid,surName")
     public List<User> getAll() {
         List<User> users = new ArrayList<User>();
         boolean userManage = this.isAllowed("user.manage");

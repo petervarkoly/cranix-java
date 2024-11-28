@@ -37,14 +37,14 @@ public abstract class AbstractEntity implements Serializable {
             columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
     )
     @Temporal(TIMESTAMP)
-    protected Date created;
+    protected Date created = new Date();
 
     @Column(
             name = "modified",
             columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
     )
     @Temporal(TIMESTAMP)
-    protected Date modified;
+    protected Date modified = new Date();
 
     /**
      * Gets created.
@@ -128,9 +128,7 @@ public abstract class AbstractEntity implements Serializable {
     /*
     * Constructor set the creation time to now
      */
-    public AbstractEntity() {
-        this.created = new Date();
-    }
+    public AbstractEntity() { }
 
     /*
      * Constructor set the creation time to now and the creator to session user.
