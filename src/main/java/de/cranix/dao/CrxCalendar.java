@@ -94,6 +94,10 @@ public class CrxCalendar extends AbstractEntity {
     @Transient
     private List<Long> groupIds = null;
 
+    public CrxCalendar() { super();}
+
+    public CrxCalendar(Session session) { super(session);}
+
     public String getUuid() { return uuid; }
 
     public void setUuid(String uuid) { this.uuid = uuid; }

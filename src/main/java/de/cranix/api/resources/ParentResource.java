@@ -62,22 +62,6 @@ public class ParentResource {
         em.close();
         return resp;
     }
-
-    @POST
-    @Path("{id}")
-    @RolesAllowed("parent.manage")
-    @ApiOperation(value = "Deletes a parent.")
-    public CrxResponse delete(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("id") Long id,
-            List<User> children
-    ){
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse resp = new ParentService(session,em).setChildren(id, children);
-        em.close();
-        return resp;
-    }
-
     @GET
     @RolesAllowed("parent.manage")
     @ApiOperation(value = "Gets the parents.")
@@ -103,6 +87,40 @@ public class ParentResource {
         em.close();
         if(resp.getRole().equals("parents")) {
             return resp;
+        } else {
+            return null;
+        }
+    }
+
+
+    @POST
+    @Path("{id}/children")
+    @RolesAllowed("parent.manage")
+    @ApiOperation(value = "Deletes a parent.")
+    public CrxResponse setChildren(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id,
+            List<User> children
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new ParentService(session,em).setChildren(id, children);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("{id}/children")
+    @RolesAllowed("parent.manage")
+    @ApiOperation(value = "Gets the parents.")
+    public List<User> getChildren(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        User parent = new UserService(session,em).getById(id);
+        em.close();
+        if(parent.getRole().equals("parents")) {
+            return parent.getChildren();
         } else {
             return null;
         }

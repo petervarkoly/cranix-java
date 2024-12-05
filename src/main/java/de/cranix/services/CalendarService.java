@@ -1,14 +1,15 @@
 package de.cranix.services;
 
 import de.cranix.dao.*;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -146,7 +147,7 @@ public class CalendarService extends Service {
             exportEvent(event);
             return new CrxResponse("OK", "Event was modified successully");
         } catch (Exception e) {
-	    logger.error("modify:" + e.getMessage());
+            logger.error("modify:" + e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());
         }
     }
@@ -256,7 +257,7 @@ public class CalendarService extends Service {
                 FileWriter myWriter = new FileWriter(
                         calendarPath + "GROUPS/" + Base64.getEncoder().encodeToString(group.getName().getBytes()) +
                                 "/" + event.getUuid() + ".ics");
-                entry.set(5,"UID:" + event.getUuid() + '-' + group.getName());
+                entry.set(5, "UID:" + event.getUuid() + '-' + group.getName());
                 for (String string : entry) {
                     myWriter.write(string);
                     myWriter.write("\r\n");
@@ -270,7 +271,7 @@ public class CalendarService extends Service {
             try {
                 FileWriter myWriter = new FileWriter(
                         calendarPath + user.getUid() + "/" + event.getUuid() + ".ics");
-                entry.set(5,"UID:" + event.getUuid() + '-' + user.getUid());
+                entry.set(5, "UID:" + event.getUuid() + '-' + user.getUid());
                 for (String string : entry) {
                     myWriter.write(string);
                     myWriter.write("\r\n");
@@ -297,26 +298,96 @@ public class CalendarService extends Service {
 
     public List<CrxCalendar> getMyFiltered(FilterObject map) {
         List<CrxCalendar> events = new ArrayList<>();
-        for(CrxCalendar event: getMyAll()){
-            if(map.isShowPrivate() && event.getCategory().equals("private")) {
+        for (CrxCalendar event : getMyAll()) {
+            if (map.isShowPrivate() && event.getCategory().equals("private")) {
                 events.add(event);
                 continue;
             }
-            if(map.isShowIndividual() && event.getCategory().equals("individual")) {
+            if (map.isShowIndividual() && event.getCategory().equals("individual")) {
                 events.add(event);
                 continue;
             }
-            if(map.getRooms().contains(event.getRoom())) {
+            if (map.getRooms().contains(event.getRoom())) {
                 events.add(event);
                 continue;
             }
-            for(Group group: map.getGroups()){
-                if(event.getGroups().contains(group)) {
+            for (Group group : map.getGroups()) {
+                if (event.getGroups().contains(group)) {
                     events.add(event);
                     break;
                 }
             }
         }
         return events;
+    }
+
+    static String courses ="08:00:08:45#" +
+            "09:00:09:45#" +
+            "10:00:10:45#" +
+            "11:00:11:45#" +
+            "12:00:12:45#" +
+            "13:00:13:45#" +
+            "14:00:14:45#" +
+            "15:00:15:45#" +
+            "16:00:16:45#" +
+            "17:00:17:45#" +
+            "18:00:18:45#" +
+            "19:00:19:45";
+
+    public CrxResponse importTimetable(InputStream fileInputStream, String start, String end) {
+        RoomService roomService = new RoomService(this.session, this.em);
+        UserService userService = new UserService(this.session, this.em);
+        GroupService groupService = new GroupService(this.session, this.em);
+        DateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+        List<String[]> hours = new ArrayList<>();
+        for(String line: courses.split("#")) {
+            logger.debug(line);
+            hours.add(line.split(":"));
+        }
+        logger.debug("Hours: " + hours.get(0) + hours.get(1));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] fields = line.split(",");
+                CrxCalendar event = new CrxCalendar();
+                event.setUuid(UUID.randomUUID().toString().toUpperCase());
+                event.setTitle(fields[3]);
+                User user = userService.getByUid(fields[2]);
+                if( user != null ) event.getUsers().add(user);
+                Group group = groupService.getByName(fields[1]);
+                if( group != null ) event.getGroups().add(group);
+                Room room = roomService.getByName(fields[4]);
+                if( room != null ) event.setRoom(room);
+                event.setLocation(fields[4]);
+                event.setDescription(fields[3] + " in " + fields[4] + " " + fields[2]);
+                logger.debug("Fields: " + fields);
+                Integer lesson = Integer.parseInt(fields[6]);
+                StringBuilder rrule = new StringBuilder();
+                rrule.append("DTSTART:").append(start).append("\\n");
+                rrule.append("RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;UNTIL=").append(end)
+                        .append("BYDAY").append(fields[5])
+                        .append("BYHOUR").append(hours.get(lesson)[0])
+                        .append("BYMINUTE").append(hours.get(lesson)[1])
+                        .append("BYSECOND=0");
+                event.setRrule(rrule.toString());
+                try {
+                    Date startDate = df.parse(start.substring(0,11)+hours.get(lesson)[0]+hours.get(lesson)[1]+"00Z");
+                    Date endDate = df.parse(start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z");
+                    event.setStart(startDate);
+                    event.setEnd(endDate);
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                this.em.getTransaction().begin();
+                this.em.persist(event);
+                this.em.getTransaction().commit();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.em.getEntityManagerFactory().getCache().evictAll();
+        return new CrxResponse("OK", "Timetable was imported successfully.");
     }
 }

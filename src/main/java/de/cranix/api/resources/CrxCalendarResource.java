@@ -8,13 +8,17 @@ import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
@@ -144,7 +148,33 @@ public class CrxCalendarResource {
         em.close();
         return crxResponse;
     }
-
+	@POST
+	@Path("import")
+	@Produces(JSON_UTF8)
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@ApiOperation(
+		value = "Import Timetable from CSV file",
+		notes = "* Separator is the colon ''.<br>" +
+			"* A header line must not be provided.<br>" +
+			"* List and order of the fields is obligatory:<br>" +
+			"* ID,Class,Teacher,Course,Room,Day,Hour<br>" 
+	)
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	@RolesAllowed("device.manage")
+	public CrxResponse importDevices(
+	    @ApiParam(hidden = true) @Auth Session session,
+            @FormDataParam("start") String start,
+            @FormDataParam("end") String end,
+            @FormDataParam("file") final InputStream fileInputStream,
+	    @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new CalendarService(session, em).importTimetable(fileInputStream, start, end);
+		em.close();
+		return resp;
+	}
 
 }
 
