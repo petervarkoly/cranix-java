@@ -28,19 +28,13 @@ public class CrxCalendar extends AbstractEntity {
     @Column(name = "allDay", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     protected Boolean allDay = false;
 
-    @Column(
-            name = "start",
-            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
-    )
+    @Column( name = "start", columnDefinition = "timestamp")
     @Temporal(TIMESTAMP)
-    protected Date start = new Date();
+    protected Date start;
 
-    @Column(
-            name = "end",
-            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
-    )
+    @Column( name = "end", columnDefinition = "timestamp")
     @Temporal(TIMESTAMP)
-    protected Date end = new Date();
+    protected Date end;
 
     @Column(name = "title", length = 64)
     @Size(max = 64, message = "title must not be longer then 64 characters.")
@@ -58,9 +52,8 @@ public class CrxCalendar extends AbstractEntity {
     @Size(max = 300, message = "recurring rule must not be longer then 300 characters.")
     private String rrule = "";
 
-    /*
     @Column(name = "duration", columnDefinition ="BIGINT UNSIGNED")
-    private Integer duration = 0;*/
+    private Long duration;
 
     @ManyToOne
     @JoinColumn(name = "room_id", columnDefinition ="BIGINT UNSIGNED")
@@ -178,7 +171,16 @@ public class CrxCalendar extends AbstractEntity {
         this.color = color;
     }
 
-    public Long getDuration() { return this.end.getTime() - this.start.getTime(); }
+    public Long getDuration() {
+	    if( this.duration == null ) {
+	     	this.duration = this.end.getTime() - this.start.getTime();
+	    }
+	    return this.duration;
+    }
+
+    public void setDuration(Long duration) {
+	    this.duration = duration;
+    }
 
     public String getRrule() {
         return rrule;

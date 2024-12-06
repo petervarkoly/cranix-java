@@ -42,6 +42,10 @@ public class StaticHelpers {
 		return builder.toString();
 	}
 
+	static public String cleanString(String s){
+		return s.replaceAll("^\"", "").replaceAll("\"$", "");
+	}	
+
 	static public String normalize(String input) {
 		return Normalizer.normalize(
 				input.replace("ß", "s"),

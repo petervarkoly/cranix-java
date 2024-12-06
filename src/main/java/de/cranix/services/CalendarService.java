@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static de.cranix.helper.StaticHelpers.aMinusB;
+import static de.cranix.helper.StaticHelpers.cleanString;
 
 public class CalendarService extends Service {
 
@@ -183,7 +184,7 @@ public class CalendarService extends Service {
 
     public List<CrxCalendar> getAll() {
         try {
-            Query query = this.em.createNamedQuery("Group.findAll");
+            Query query = this.em.createNamedQuery("CrxCalendar.findAll");
             return query.getResultList();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -321,18 +322,28 @@ public class CalendarService extends Service {
         return events;
     }
 
-    static String courses ="08:00:08:45#" +
-            "09:00:09:45#" +
-            "10:00:10:45#" +
-            "11:00:11:45#" +
-            "12:00:12:45#" +
-            "13:00:13:45#" +
-            "14:00:14:45#" +
-            "15:00:15:45#" +
-            "16:00:16:45#" +
-            "17:00:17:45#" +
-            "18:00:18:45#" +
-            "19:00:19:45";
+    static String courses ="08:00:45#" +
+            "09:00:45#" +
+            "10:00:45#" +
+            "11:00:45#" +
+            "12:00:45#" +
+            "13:00:45#" +
+            "14:00:45#" +
+            "15:00:45#" +
+            "16:00:45#" +
+            "17:00:45#" +
+            "18:00:45#" +
+            "19:00:45";
+    public static Map<String, String> days = new HashMap<String, String>() {{
+	    put("1", "MO");
+	    put("2", "TU");
+	    put("3", "WE");
+	    put("4", "TH");
+	    put("5", "FR");
+	    put("6", "SA");
+	    put("7", "SU");
+
+    }};
 
     public CrxResponse importTimetable(InputStream fileInputStream, String start, String end) {
         RoomService roomService = new RoomService(this.session, this.em);
@@ -351,30 +362,35 @@ public class CalendarService extends Service {
                 String[] fields = line.split(",");
                 CrxCalendar event = new CrxCalendar();
                 event.setUuid(UUID.randomUUID().toString().toUpperCase());
-                event.setTitle(fields[3]);
-                User user = userService.getByUid(fields[2]);
+                event.setTitle(cleanString(fields[3]));
+                User user = userService.getByUid(cleanString(fields[2]));
                 if( user != null ) event.getUsers().add(user);
-                Group group = groupService.getByName(fields[1]);
+                Group group = groupService.getByName(cleanString(fields[1]));
                 if( group != null ) event.getGroups().add(group);
-                Room room = roomService.getByName(fields[4]);
+                Room room = roomService.getByName(cleanString(fields[4]));
                 if( room != null ) event.setRoom(room);
-                event.setLocation(fields[4]);
-                event.setDescription(fields[3] + " in " + fields[4] + " " + fields[2]);
-                logger.debug("Fields: " + fields);
+                event.setLocation(cleanString(fields[4]));
+                event.setDescription(cleanString(fields[3]) + " in " + cleanString(fields[4]) + " " + cleanString(fields[2]));
                 Integer lesson = Integer.parseInt(fields[6]);
                 StringBuilder rrule = new StringBuilder();
-                rrule.append("DTSTART:").append(start).append("\\n");
-                rrule.append("RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;UNTIL=").append(end)
-                        .append("BYDAY").append(fields[5])
-                        .append("BYHOUR").append(hours.get(lesson)[0])
-                        .append("BYMINUTE").append(hours.get(lesson)[1])
+                rrule.append("DTSTART:").append(start).append("\n");
+                rrule.append("RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;UNTIL=").append(end).append(";")
+                        .append("BYDAY=").append(days.get(fields[5])).append(";")
+                        .append("BYHOUR=").append(hours.get(lesson)[0]).append(";")
+                        .append("BYMINUTE=").append(hours.get(lesson)[1]).append(";")
                         .append("BYSECOND=0");
                 event.setRrule(rrule.toString());
+		Long duration = Long.parseLong(hours.get(lesson)[2]) * 6000;
+		event.setDuration(duration);
                 try {
+		    String startS = start.substring(0,11)+hours.get(lesson)[0]+hours.get(lesson)[1]+"00Z";
+		    //String endD = start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z";
+		    logger.debug(startS);
+		    //logger.debug(endD);
                     Date startDate = df.parse(start.substring(0,11)+hours.get(lesson)[0]+hours.get(lesson)[1]+"00Z");
-                    Date endDate = df.parse(start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z");
+                    //Date endDate = df.parse(start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z");
                     event.setStart(startDate);
-                    event.setEnd(endDate);
+                    //event.setEnd(endDate);
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
                 }

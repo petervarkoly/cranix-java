@@ -38,12 +38,31 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.use","calendar.read"})
+    @RolesAllowed({"calendar.manage","calendar.use","calendar.read"})
     public List<CrxCalendar> getMyAll(
             @ApiParam(hidden = true) @Auth Session session
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         final List<CrxCalendar> events = new CalendarService(session, em).getMyAll();
+        em.close();
+        if (events == null) {
+            throw new WebApplicationException(404);
+        }
+        return events;
+    }
+
+    @GET
+    @Path("all")
+    @ApiOperation(value = "Get all calendar entries of the session user.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed({"calendar.manage"})
+    public List<CrxCalendar> getAll(
+            @ApiParam(hidden = true) @Auth Session session
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final List<CrxCalendar> events = new CalendarService(session, em).getAll();
         em.close();
         if (events == null) {
             throw new WebApplicationException(404);
@@ -57,7 +76,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.use","calendar.read"})
+    @RolesAllowed({"calendar.manage","calendar.use","calendar.read"})
     public List<CrxCalendar> getMyFiltered(
             @ApiParam(hidden = true) @Auth Session session,
             FilterObject map
@@ -76,7 +95,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed("calendar.use")
+    @RolesAllowed({"calendar.manage","calendar.use"})
     public CrxResponse add(
             @ApiParam(hidden = true) @Auth Session session,
             CrxCalendar event
@@ -92,7 +111,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed("calendar.use")
+    @RolesAllowed({"calendar.manage","calendar.use"})
     public CrxResponse modify(
             @ApiParam(hidden = true) @Auth Session session,
             CrxCalendar event
@@ -109,7 +128,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.use","calendar.read"})
+    @RolesAllowed({"calendar.manage","calendar.use","calendar.read"})
     public CrxCalendar getById(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("eventId") Long eventId
@@ -125,7 +144,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed("calendar.use")
+    @RolesAllowed({"calendar.manage","calendar.use"})
     public CrxResponse modify(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("eventId") Long eventId
@@ -139,7 +158,7 @@ public class CrxCalendarResource {
     @PUT
     @Path("sync")
     @ApiOperation(value = "Sync events to the filesystem")
-    @RolesAllowed("calendar.manage")
+    @RolesAllowed({"calendar.manage"})
     public CrxResponse sync(
             @ApiParam(hidden = true) @Auth Session session
     ) {
@@ -162,7 +181,7 @@ public class CrxCalendarResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("device.manage")
+	@RolesAllowed({"device.manage"})
 	public CrxResponse importDevices(
 	    @ApiParam(hidden = true) @Auth Session session,
             @FormDataParam("start") String start,
