@@ -322,7 +322,7 @@ public class CalendarService extends Service {
         return events;
     }
 
-    static String courses ="08:00:45#" +
+    static String courses = "08:00:45#" +
             "09:00:45#" +
             "10:00:45#" +
             "11:00:45#" +
@@ -335,13 +335,13 @@ public class CalendarService extends Service {
             "18:00:45#" +
             "19:00:45";
     public static Map<String, String> days = new HashMap<String, String>() {{
-	    put("1", "MO");
-	    put("2", "TU");
-	    put("3", "WE");
-	    put("4", "TH");
-	    put("5", "FR");
-	    put("6", "SA");
-	    put("7", "SU");
+        put("1", "MO");
+        put("2", "TU");
+        put("3", "WE");
+        put("4", "TH");
+        put("5", "FR");
+        put("6", "SA");
+        put("7", "SU");
 
     }};
 
@@ -351,7 +351,7 @@ public class CalendarService extends Service {
         GroupService groupService = new GroupService(this.session, this.em);
         DateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
         List<String[]> hours = new ArrayList<>();
-        for(String line: courses.split("#")) {
+        for (String line : courses.split("#")) {
             logger.debug(line);
             hours.add(line.split(":"));
         }
@@ -364,36 +364,37 @@ public class CalendarService extends Service {
                 event.setUuid(UUID.randomUUID().toString().toUpperCase());
                 event.setTitle(cleanString(fields[3]));
                 User user = userService.getByUid(cleanString(fields[2]));
-                if( user != null ) event.getUsers().add(user);
+                if (user != null) event.getUsers().add(user);
                 Group group = groupService.getByName(cleanString(fields[1]));
-                if( group != null ) event.getGroups().add(group);
+                if (group != null) event.getGroups().add(group);
                 Room room = roomService.getByName(cleanString(fields[4]));
-                if( room != null ) event.setRoom(room);
+                if (room != null) event.setRoom(room);
                 event.setLocation(cleanString(fields[4]));
                 event.setDescription(cleanString(fields[3]) + " in " + cleanString(fields[4]) + " " + cleanString(fields[2]));
                 Integer lesson = Integer.parseInt(fields[6]);
                 StringBuilder rrule = new StringBuilder();
-                rrule.append("DTSTART:").append(start).append("\n");
+                rrule.append("DTSTART:").append(start).append("T").append(hours.get(lesson)[0]).append(hours.get(lesson)[1]).append("00\n");
                 rrule.append("RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;UNTIL=").append(end).append(";")
                         .append("BYDAY=").append(days.get(fields[5])).append(";")
                         .append("BYHOUR=").append(hours.get(lesson)[0]).append(";")
                         .append("BYMINUTE=").append(hours.get(lesson)[1]).append(";")
                         .append("BYSECOND=0");
                 event.setRrule(rrule.toString());
-		Long duration = Long.parseLong(hours.get(lesson)[2]) * 6000;
-		event.setDuration(duration);
-                try {
-		    String startS = start.substring(0,11)+hours.get(lesson)[0]+hours.get(lesson)[1]+"00Z";
-		    //String endD = start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z";
-		    logger.debug(startS);
-		    //logger.debug(endD);
-                    Date startDate = df.parse(start.substring(0,11)+hours.get(lesson)[0]+hours.get(lesson)[1]+"00Z");
+                Long duration = Long.parseLong(hours.get(lesson)[2]) * 60000;
+                event.setDuration(duration);
+                event.setEditable(false);
+                /* try {
+                    String startS = start.substring(0, 11) + hours.get(lesson)[0] + hours.get(lesson)[1] + "00";
+                    //String endD = start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z";
+                    logger.debug(startS);
+                    //logger.debug(endD);
+                    Date startDate = df.parse(start.substring(0, 11) + hours.get(lesson)[0] + hours.get(lesson)[1] + "00");
                     //Date endDate = df.parse(start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z");
                     event.setStart(startDate);
                     //event.setEnd(endDate);
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
-                }
+                }"DTSTART:20241207T090000\nRRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;UNTIL=20250718;BYDAY=WE;BYHOUR=09;BYMINUTE=00;BYSECOND=0"*/
                 this.em.getTransaction().begin();
                 this.em.persist(event);
                 this.em.getTransaction().commit();

@@ -25,8 +25,12 @@ public class CrxCalendar extends AbstractEntity {
     private String uuid = "";
 
     @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "allDay", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    @Column(name = "allDay", columnDefinition = "CHAR(1)")
     protected Boolean allDay = false;
+
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "editable", columnDefinition = "CHAR(1)")
+    protected Boolean editable = true;
 
     @Column( name = "start", columnDefinition = "timestamp")
     @Temporal(TIMESTAMP)
@@ -102,6 +106,10 @@ public class CrxCalendar extends AbstractEntity {
     public void setAllDay(Boolean allDay) {
         this.allDay = allDay;
     }
+
+    public Boolean getEditable() { return editable; }
+
+    public void setEditable(Boolean editable) { this.editable = editable; }
 
     public Date getStart() {
         return start;
