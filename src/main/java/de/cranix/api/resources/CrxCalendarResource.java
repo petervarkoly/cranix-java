@@ -138,6 +138,7 @@ public class CrxCalendarResource {
         em.close();
         return crxCalendar;
     }
+
     @DELETE
     @Path("{eventId}")
     @ApiOperation(value = "Deletes an existing event.")
@@ -167,33 +168,33 @@ public class CrxCalendarResource {
         em.close();
         return crxResponse;
     }
-	@POST
-	@Path("import")
-	@Produces(JSON_UTF8)
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@ApiOperation(
-		value = "Import Timetable from CSV file",
-		notes = "* Separator is the colon ''.<br>" +
-			"* A header line must not be provided.<br>" +
-			"* List and order of the fields is obligatory:<br>" +
-			"* ID,Class,Teacher,Course,Room,Day,Hour<br>" 
-	)
-	@ApiResponses(value = {
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed({"device.manage"})
-	public CrxResponse importDevices(
-	    @ApiParam(hidden = true) @Auth Session session,
-            @FormDataParam("start") String start,
-            @FormDataParam("end") String end,
-            @FormDataParam("file") final InputStream fileInputStream,
-	    @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new CalendarService(session, em).importTimetable(fileInputStream, start, end);
-		em.close();
-		return resp;
-	}
+
+    @POST
+    @Path("import")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ApiOperation(
+    	value = "Import Timetable from CSV file",
+    	notes = "* Separator is the colon ''.<br>" +
+    		"* A header line must not be provided.<br>" +
+    		"* List and order of the fields is obligatory:<br>" +
+    		"* ID,Class,Teacher,Course,Room,Day,Hour<br>"
+    )
+    @ApiResponses(value = {
+    	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed({"device.manage"})
+    public CrxResponse importDevices(
+        @ApiParam(hidden = true) @Auth Session session,
+        @FormDataParam("start") String start,
+        @FormDataParam("end") String end,
+        @FormDataParam("file") final InputStream fileInputStream,
+        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+    ) {
+    	EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+    	CrxResponse resp = new CalendarService(session, em).importTimetable(fileInputStream, start, end);
+    	em.close();
+    	return resp;
+    }
 
 }
 
