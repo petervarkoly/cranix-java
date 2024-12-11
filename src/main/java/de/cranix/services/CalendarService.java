@@ -8,11 +8,15 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static de.cranix.helper.CranixConstants.cranixTmpDir;
 import static de.cranix.helper.StaticHelpers.aMinusB;
 import static de.cranix.helper.StaticHelpers.cleanString;
 
@@ -299,12 +303,12 @@ public class CalendarService extends Service {
 
     public List<CrxCalendar> getMyFiltered(FilterObject map) {
         List<CrxCalendar> events = new ArrayList<>();
-        for (CrxCalendar event : getMyAll()) {
-            if (map.isShowPrivate() && event.getCategory().equals("private")) {
+        for (CrxCalendar event : this.getAll()) {
+            if (map.isShowPrivate() && event.getCreator() != null && event.getCreator().equals(this.session.getUser())) {
                 events.add(event);
                 continue;
             }
-            if (map.isShowIndividual() && event.getCategory().equals("individual")) {
+            if (map.isShowIndividual() && event.getUsers().contains(this.session.getUser())) {
                 events.add(event);
                 continue;
             }
@@ -356,9 +360,33 @@ public class CalendarService extends Service {
             hours.add(line.split(":"));
         }
         logger.debug("Hours: " + hours.get(0) + hours.get(1));
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
+        File file = null;
+        try {
+            file = File.createTempFile("crx", "importTimetable", new File(cranixTmpDir));
+            Files.copy(fileInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return new CrxResponse("ERROR", "Import file can not be saved" + e.getMessage());
+        }
+        try {
+            Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+        } catch (IOException ioe) {
+            logger.debug("Import file is not UTF-8 try ISO-8859-1");
+            try {
+                List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.ISO_8859_1);
+                List<String> utf8lines = new ArrayList<String>();
+                for (String line : lines) {
+                    byte[] utf8 = new String(line.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1).getBytes(StandardCharsets.UTF_8);
+                    utf8lines.add(new String(utf8, StandardCharsets.UTF_8));
+                }
+                Files.write(file.toPath(), utf8lines);
+
+            } catch (IOException ioe2) {
+                return new CrxResponse("ERROR", "Import file is not UTF-8 coded.");
+            }
+        }
+        try {
+            for(String line: Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)){
                 String[] fields = line.split(",");
                 CrxCalendar event = new CrxCalendar();
                 event.setUuid(UUID.randomUUID().toString().toUpperCase());
@@ -383,18 +411,6 @@ public class CalendarService extends Service {
                 Long duration = Long.parseLong(hours.get(lesson)[2]) * 60000;
                 event.setDuration(duration);
                 event.setEditable(false);
-                /* try {
-                    String startS = start.substring(0, 11) + hours.get(lesson)[0] + hours.get(lesson)[1] + "00";
-                    //String endD = start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z";
-                    logger.debug(startS);
-                    //logger.debug(endD);
-                    Date startDate = df.parse(start.substring(0, 11) + hours.get(lesson)[0] + hours.get(lesson)[1] + "00");
-                    //Date endDate = df.parse(start.substring(0,11)+hours.get(lesson)[2]+hours.get(lesson)[3]+"00Z");
-                    event.setStart(startDate);
-                    //event.setEnd(endDate);
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                }"DTSTART:20241207T090000\nRRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;UNTIL=20250718;BYDAY=WE;BYHOUR=09;BYMINUTE=00;BYSECOND=0"*/
                 this.em.getTransaction().begin();
                 this.em.persist(event);
                 this.em.getTransaction().commit();

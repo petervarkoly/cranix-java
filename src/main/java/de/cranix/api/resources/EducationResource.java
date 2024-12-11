@@ -24,6 +24,7 @@ import de.cranix.services.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 
 @Path("education")
+@Produces(JSON_UTF8)
 @Api(value = "education")
 public class EducationResource {
 
@@ -37,7 +38,6 @@ public class EducationResource {
 
 	@GET
 	@Path("myRooms")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the of the rooms the session user may control.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -52,7 +52,6 @@ public class EducationResource {
 
 	@GET
 	@Path("rooms/{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Gets the state of a room.",
 		notes = "This call delivers a list of list with the logged in users. " +
@@ -74,7 +73,6 @@ public class EducationResource {
 
 	@GET
 	@Path("rooms/{roomId}/details")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the state of a room. This call delivers all Informations about a room."
 		    )
 	@ApiResponses(value = {
@@ -93,7 +91,6 @@ public class EducationResource {
 
 	@GET
 	@Path("rooms/{roomId}/control/{minutes}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the control for a room for an amount of time."
 		    )
 	@ApiResponses(value = {
@@ -113,7 +110,6 @@ public class EducationResource {
 
 	@GET
 	@Path("rooms/{roomId}/accessStatus")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the actual access in a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -131,7 +127,6 @@ public class EducationResource {
 
 	@POST
 	@Path("rooms/{roomId}/accessStatus")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the actual access in a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -151,7 +146,6 @@ public class EducationResource {
 
 	@GET
 	@Path("rooms/{roomId}/actions")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a room.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -172,7 +166,6 @@ public class EducationResource {
 	 */
 	@PUT
 	@Path("rooms/{roomId}/{action}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a room. Valid actions are download, open, close, reboot, shutdown, wol, logout, lockInput, unlockInput, .")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -196,7 +189,6 @@ public class EducationResource {
 
 	@POST
 	@Path("rooms/applyAction")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin."
 			+ "This version of call allows to send a map with some parametrs:"
 			+ "graceTime : seconds to wait befor execute action."
@@ -227,7 +219,6 @@ public class EducationResource {
 
 	@POST
 	@Path("rooms/upload")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
@@ -255,7 +246,6 @@ public class EducationResource {
 
 	@POST
 	@Path("rooms/collect")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
@@ -287,7 +277,6 @@ public class EducationResource {
 
 	@POST
 	@Path("groups/add")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new workgroup.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -305,7 +294,6 @@ public class EducationResource {
 
 	@POST
 	@Path("groups/{groupId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a workgroup.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -324,7 +312,6 @@ public class EducationResource {
 
 	@GET
 	@Path("groups/{groupId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a workgroup.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -342,7 +329,6 @@ public class EducationResource {
 
 	@DELETE
 	@Path("groups/{groupId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delete a workgroup.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -360,7 +346,6 @@ public class EducationResource {
 
 	@GET
 	@Path("groups/all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the workgroups that are owned by the session user and classes in which he is member of.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -377,7 +362,6 @@ public class EducationResource {
 
 	@POST
 	@Path("groups/applyAction")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Apply an action for the members of some groups once.",
 		notes = "The following actions are available:<br>"
@@ -406,7 +390,6 @@ public class EducationResource {
 
 	@GET
 	@Path("groups/{groupId}/availableMembers")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get users which are not member in this group.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Group not found"),
@@ -425,7 +408,6 @@ public class EducationResource {
 
 	@GET
 	@Path("groups/{groupId}/members")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get users which are member in this group.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Group not found"),
@@ -443,7 +425,6 @@ public class EducationResource {
 
 	@POST
 	@Path("groups/{groupId}/members")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the member of this group.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Group not found"),
@@ -462,7 +443,6 @@ public class EducationResource {
 
 	@DELETE
 	@Path("groups/{groupId}/{userId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes a member of a group by userId.")
 	@ApiResponses(value = {
 	@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
@@ -480,7 +460,6 @@ public class EducationResource {
 
 	@PUT
 	@Path("groups/{groupId}/{userId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a member to a group by userId.")
 	@ApiResponses(value = {
 	@ApiResponse(code = 404, message = "Group not found"),
@@ -499,7 +478,6 @@ public class EducationResource {
 
 	@POST
 	@Path("groups/upload")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of groups. groupIds contains a comma separated list of groups." )
 	@ApiResponses(value = {
@@ -526,7 +504,6 @@ public class EducationResource {
 
 	@POST
 	@Path("groups/collect")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Collects data from the students member of the corresponding group." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -552,7 +529,6 @@ public class EducationResource {
 
 	@GET
 	@Path("users/all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a list of users by the userids." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -567,7 +543,6 @@ public class EducationResource {
 
 	@GET
 	@Path("users/{userId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a user by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -585,7 +560,6 @@ public class EducationResource {
 
 	@DELETE
 	@Path("users/{userId}/{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Log out a user from a device. If device is -1 user will be logged out from all devices." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -604,7 +578,6 @@ public class EducationResource {
 
 	@PUT
 	@Path("users/{userId}/{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Log in a user to a device." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -623,7 +596,6 @@ public class EducationResource {
 
 	@GET
 	@Path("users/{userId}/actions")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -641,7 +613,6 @@ public class EducationResource {
 
 	@POST
 	@Path("users/upload")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to selected users." )
 	@ApiResponses(value = {
@@ -662,7 +633,6 @@ public class EducationResource {
 
 	@POST
 	@Path("users/collect")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Collect file from selected users" )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -687,7 +657,6 @@ public class EducationResource {
 
 	@POST
 	@Path("users/applyAction")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Apply an action for a lot of user once.",
 		notes = "The following actions are available:<br>"
@@ -720,7 +689,6 @@ public class EducationResource {
 	/****************************/
 	@POST
 	@Path("devices/{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Updates a device. Only row and place can be changed here.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -739,7 +707,6 @@ public class EducationResource {
 
 	@GET
 	@Path("devices/{deviceId}/actions")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a device.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -757,7 +724,6 @@ public class EducationResource {
 
 	@POST
 	@Path("devices/applyAction")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Manage a device.",
 		notes = "Valid actions are open, close, reboot, shutdown, wol, logout, cleanuploggedin."
@@ -781,7 +747,6 @@ public class EducationResource {
 
 	@POST
 	@Path("devices/upload")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation( value = "Puts data to te member of the smart rooms" )
 	@ApiResponses(value = {
@@ -808,7 +773,6 @@ public class EducationResource {
 
 	@POST
 	@Path("devices/collect")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Collects data from the students member of the corresponding group." )
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -835,7 +799,6 @@ public class EducationResource {
 
 	@GET
 	@Path("rooms/{roomId}/defaultPrinter")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets the default printer in the room." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -853,7 +816,6 @@ public class EducationResource {
 
 	@GET
 	@Path("rooms/{roomId}/availablePrinters")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets the list fo the available printers in the room." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -875,7 +837,6 @@ public class EducationResource {
 	/*******************************************/
 	@GET
 	@Path("proxy/positiveLists/all")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets all positive lists." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -890,7 +851,6 @@ public class EducationResource {
 
 	@GET
 	@Path("proxy/myPositiveLists")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets owned positive lists." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -905,7 +865,6 @@ public class EducationResource {
 
 	@POST
 	@Path("proxy/positiveLists/add")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Creates a new positive list." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -923,7 +882,6 @@ public class EducationResource {
 
 	@GET
 	@Path("proxy/positiveLists/{positiveListId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets the content of a positive list." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -941,7 +899,6 @@ public class EducationResource {
 
 	@DELETE
 	@Path("proxy/positiveLists/{positiveListId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Deletes a positive list." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -960,7 +917,6 @@ public class EducationResource {
 	//TODO these must be safer. Only the own controlled room may be modified
 	@POST
 	@Path("proxy/rooms/{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Activates positive lists in a room." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -979,7 +935,6 @@ public class EducationResource {
 
 	@DELETE
 	@Path("proxy/rooms/{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Deactivates positive lists in a room." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -997,7 +952,6 @@ public class EducationResource {
 
 	@GET
 	@Path("proxy/rooms/{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation( value = "Gets the active positive lists in a room." )
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1018,7 +972,6 @@ public class EducationResource {
 	 */
 	@POST
 	@Path("guestUsers")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new guest users accounts.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
@@ -1035,7 +988,6 @@ public class EducationResource {
 
 	@GET
 	@Path("guestUsers/all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all actual gast users. Sysadmins get the lists all guest users. Normal users gets the owned gast users.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "User not found"),
@@ -1052,7 +1004,6 @@ public class EducationResource {
 
 	@GET
 	@Path("guestUsers/{guestUsersId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a guest users category.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "User not found"),
@@ -1070,7 +1021,6 @@ public class EducationResource {
 
 	@DELETE
 	@Path("guestUsers/{guestUsersId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delete a guest users category.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "User not found"),
@@ -1088,7 +1038,6 @@ public class EducationResource {
 
 	@GET
 	@Path("guestUsers/rooms")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of rooms can be reserved for guest users. At the moment this are all the rooms which can be controlled.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "User not found"),

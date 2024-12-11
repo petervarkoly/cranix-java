@@ -48,6 +48,7 @@ import de.cranix.helper.CrxEntityManagerFactory;
 
 @Path("clonetool")
 @Api(value = "clonetool")
+@Produces(JSON_UTF8)
 public class CloneToolResource {
 
 	public CloneToolResource() {}
@@ -203,7 +204,6 @@ public class CloneToolResource {
 
 	@DELETE
 	@Path("devicesByIP/{deviceIP}/cloning")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes the boot configuration for the automatical partitioning for a workstations")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse stopCloningOnDevice(
@@ -222,7 +222,6 @@ public class CloneToolResource {
 	 */
 	@GET
 	@Path("all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -239,7 +238,6 @@ public class CloneToolResource {
 
 	@GET
 	@Path("{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -317,7 +315,6 @@ public class CloneToolResource {
 
 	@GET
 	@Path("{hwconfId}/{partitionName}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the configuration of a partition to a given hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -379,7 +376,6 @@ public class CloneToolResource {
 
 	@PUT
 	@Path("rooms/{roomId}/{macAddress}/{IP}/{name}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -411,7 +407,6 @@ public class CloneToolResource {
 
 	@PUT
 	@Path("{hwconfId}/{partitionName}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new not configured partition to a given hardware configuration." +
 			      "Only the name (like sdaXXX) is given. The other parameter must be set with an other put calls." )
 	@ApiResponses(value = {
@@ -431,7 +426,6 @@ public class CloneToolResource {
 
 	@PUT
 	@Path("{hwconfId}/{partitionName}/{key}/{value}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the value of a key to a given partition." +
 			      "The keys may be: OS, Description, Join, Format, Itool" )
 	@ApiResponses(value = {
@@ -453,7 +447,6 @@ public class CloneToolResource {
 
 	@DELETE
 	@Path("{hwconfId}/{partitionName}/{key}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a key an the correspondig value from a partition." +
 			      "The key may be: OS, Description, Join, Format, Itool" )
 	@ApiResponses(value = {
@@ -479,7 +472,6 @@ public class CloneToolResource {
 	 */	
 	@POST
 	@Path("hwconf")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -497,7 +489,6 @@ public class CloneToolResource {
 
 	@POST
 	@Path("{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Updates a hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -519,7 +510,6 @@ public class CloneToolResource {
 	 */
 	@POST
 	@Path("{hwconfId}/addPartition")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new partition to a given hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -541,7 +531,6 @@ public class CloneToolResource {
 	 */
 	@DELETE
 	@Path("{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes a hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -559,7 +548,6 @@ public class CloneToolResource {
 
 	@DELETE
 	@Path("{hwconfId}/{partitionName}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a partition to a given hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -578,7 +566,6 @@ public class CloneToolResource {
 
 	@POST
 	@Path("{hwconfId}/cloning")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning." +
 			"This call have to provide a hash with following informations" +
 			" devices    : [ IDs of devices ] " +
@@ -599,7 +586,6 @@ public class CloneToolResource {
 
 	@PUT
 	@Path("{hwconfId}/cloning/{multiCast}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for all workstations in a hwconf." +
 			  "Multicast can be 0 or 1"
 	)
@@ -615,7 +601,6 @@ public class CloneToolResource {
 
 	@PUT
 	@Path("rooms/{roomId}/cloning/{multiCast}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for all workstations in a room." +
 			  "Multicast can be 0 or 1"
 	)
@@ -633,7 +618,6 @@ public class CloneToolResource {
 
 	@PUT
 	@Path("devices/{deviceId}/cloning")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for a workstations")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse startCloningOnDevice(
@@ -648,7 +632,6 @@ public class CloneToolResource {
 
 	@DELETE
 	@Path("{hwconfId}/cloning")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes the boot configuration for the automatical partitioning.")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse stopCloning(
@@ -663,7 +646,6 @@ public class CloneToolResource {
 
 	@DELETE
 	@Path("rooms/{roomId}/cloning")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes the boot configuration for the automatical partitioning for all workstations in a room." )
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse stopCloningInRoom(
@@ -678,7 +660,6 @@ public class CloneToolResource {
 
 	@DELETE
 	@Path("devices/{deviceId}/cloning")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for a workstations")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse stopCloningOnDevice(
@@ -694,7 +675,6 @@ public class CloneToolResource {
 
 	@GET
 	@Path("multicastDevices")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of the network devices for multicast cloning.")
 	@RolesAllowed("hwconf.manage")
 	public String[] getMulticastDevices(
@@ -713,7 +693,6 @@ public class CloneToolResource {
 	 */
 	@PUT
 	@Path("partitions/{partitionId}/multicast/{networkDevice}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Start multicast imaging with a given partition.")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse startMulticast(
@@ -765,7 +744,6 @@ public class CloneToolResource {
 	 */
 	@POST
 	@Path("partitions/{partitionId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the parameters of an existing partition.")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse modifyPartition(
@@ -781,7 +759,6 @@ public class CloneToolResource {
 
 	@PUT
 	@Path("devices/{deviceId}/resetMinion")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes the pubkey of the minion.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),

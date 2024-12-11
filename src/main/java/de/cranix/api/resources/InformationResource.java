@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 @Path("informations")
 @Api(value = "informations")
+@Produces(JSON_UTF8)
 public class InformationResource {
 
 	Logger logger = LoggerFactory.getLogger(InformationResource.class);
@@ -40,7 +41,6 @@ public class InformationResource {
 
 	@POST
 	@Path("announcements")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a ne announcement.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -58,7 +58,6 @@ public class InformationResource {
 
 	@POST
 	@Path("tasks")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a ne announcement.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -76,7 +75,6 @@ public class InformationResource {
 
 	@POST
 	@Path("contacts")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new contact.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -94,7 +92,6 @@ public class InformationResource {
 
 	@POST
 	@Path("faqs")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new FAQ.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -112,7 +109,6 @@ public class InformationResource {
 
 	@GET
 	@Path("announcements")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the announcements corresponding to an user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -127,7 +123,6 @@ public class InformationResource {
 
 	@GET
 	@Path("newAnnouncements")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the announcements corresponding to an user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -142,7 +137,6 @@ public class InformationResource {
 
 	@PUT
 	@Path("announcements/{announcementId}/seen")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Mark the announcement for the user as have seen.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -160,7 +154,6 @@ public class InformationResource {
 
 	@GET
 	@Path("tasks")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the announcements corresponding to an user.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -175,7 +168,6 @@ public class InformationResource {
 
 	@GET
 	@Path("newTasks")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the announcements corresponding to an user.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -190,7 +182,6 @@ public class InformationResource {
 
 	@PUT
 	@Path("tastks/{taskId}/seen")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Mark the announcement for the user as have seen.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -208,7 +199,6 @@ public class InformationResource {
 
 	@GET
 	@Path("contacts")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the contacts corresponding to an user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -223,7 +213,6 @@ public class InformationResource {
 
 	@GET
 	@Path("faqs")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the FAQs corresponding to an user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -238,7 +227,6 @@ public class InformationResource {
 
 	@GET
 	@Path("my/announcements")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the announcements of an user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -258,7 +246,6 @@ public class InformationResource {
 
 	@GET
 	@Path("my/tasks")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the announcements of an user.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -277,7 +264,6 @@ public class InformationResource {
 
 	@GET
 	@Path("my/contacts")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the contacts of an user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -289,7 +275,6 @@ public class InformationResource {
 
 	@GET
 	@Path("my/faqs")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the FAQs of an user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -306,7 +291,6 @@ public class InformationResource {
 
 	@PATCH
 	@Path("announcements/{announcementId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify an announcement.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -325,7 +309,6 @@ public class InformationResource {
 	}
 	@PATCH
 	@Path("tasks/{taskId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify an announcement.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -345,7 +328,6 @@ public class InformationResource {
 
 	@PATCH
 	@Path("contacts/{contactId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a contact.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -365,7 +347,6 @@ public class InformationResource {
 
 	@PATCH
 	@Path("faqs/{faqId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a FAQ.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -385,7 +366,6 @@ public class InformationResource {
 
 	@PATCH
 	@Path("taskResponses/{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a task response.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -404,7 +384,6 @@ public class InformationResource {
 
 	@GET
 	@Path("announcements/{announcementId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get an announcement by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -422,7 +401,6 @@ public class InformationResource {
 
 	@GET
 	@Path("tasks/{taskId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get a task by id.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -440,7 +418,6 @@ public class InformationResource {
 
 	@GET
 	@Path("tasks/{taskId}/responses")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the responses for a task by task id.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -458,7 +435,6 @@ public class InformationResource {
 
 	@POST
 	@Path("taskResponses")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Rate task response. This call only modifies the rating of the task response.<br>" +
 			"Only the owner of the parent task is allowed to do it")
 	@ApiResponses(value = {
@@ -477,7 +453,6 @@ public class InformationResource {
 
 	@GET
 	@Path("taskResponses/{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get a task response.<br>" +
 			"Only the owner of the task is allowed to do it")
 	@ApiResponses(value = {
@@ -495,7 +470,6 @@ public class InformationResource {
 	}
 	@GET
 	@Path("contacts/{contactId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get a contact by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -513,7 +487,6 @@ public class InformationResource {
 
 	@GET
 	@Path("faqs/{faqId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get a FAQ by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -531,7 +504,6 @@ public class InformationResource {
 
 	@DELETE
 	@Path("announcements/{announcementId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes an announcement.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -549,7 +521,6 @@ public class InformationResource {
 
 	@DELETE
 	@Path("contacts/{contactId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes a contact.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -567,7 +538,6 @@ public class InformationResource {
 
 	@DELETE
 	@Path("faqs/{faqId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a FAQ.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -585,7 +555,6 @@ public class InformationResource {
 
 	@GET
 	@Path("categories")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the contacts corresponding to an user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")

@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 @Path("hwconfs")
 @Api(value = "hwconfs")
+@Produces(JSON_UTF8)
 public class HwconfResource {
 
 	Logger logger = LoggerFactory.getLogger(HwconfResource.class);
@@ -45,7 +46,6 @@ public class HwconfResource {
 
 	@GET
 	@Path("all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -60,7 +60,6 @@ public class HwconfResource {
 
 	@GET
 	@Path("{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -81,7 +80,6 @@ public class HwconfResource {
 
 	@POST
 	@Path("add")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -99,7 +97,6 @@ public class HwconfResource {
 
 	@POST
 	@Path("{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Updates a hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -118,7 +115,6 @@ public class HwconfResource {
 
 	@POST
 	@Path("import")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Import a list of ne hardware configurations.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -143,7 +139,6 @@ public class HwconfResource {
 
 	@POST
 	@Path("{hwconfId}/addPartition")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new partition to a given hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -162,7 +157,6 @@ public class HwconfResource {
 
 	@DELETE
 	@Path("{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Updates a hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -180,7 +174,6 @@ public class HwconfResource {
 
 	@DELETE
 	@Path("{hwconfId}/{partitionName}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a partition to a given hardware configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
@@ -200,7 +193,6 @@ public class HwconfResource {
 
 	@POST
 	@Path("{hwconfId}/recover")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning." +
 				"This call have to provide a hash with following informations" +
 				" devices    : [ IDs of devices ] " +
@@ -221,7 +213,6 @@ public class HwconfResource {
 
 	@PUT
 	@Path("{hwconfId}/recover/{multiCast}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the boot configuration for the automatical partitioning for all workstations in a hwconf." +
 			  "Multicast can be 0 or 1"
 	)
@@ -239,7 +230,6 @@ public class HwconfResource {
 
 	@DELETE
 	@Path("{hwconfId}/recover")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes the boot configuration for the automatical partitioning.")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse stopRecover(
@@ -254,7 +244,6 @@ public class HwconfResource {
 
 	@PUT
 	@Path("partitions/{partitionId}/multicast/{networkDevice}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Start multicast imaging with a given partition.")
 	@RolesAllowed("hwconf.manage")
 	public CrxResponse startMulticast(
@@ -270,7 +259,6 @@ public class HwconfResource {
 
 	@POST
 	@Path("partitions/{partitionId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the parameters of an existing partition.")
 	@RolesAllowed("hwconf.modify")
 	public CrxResponse modifyPartition(
@@ -286,7 +274,6 @@ public class HwconfResource {
 
 	@POST
 	@Path("applyAction")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Apply actions on selected hwconfs.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})

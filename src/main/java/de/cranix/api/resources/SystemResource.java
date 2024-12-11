@@ -39,6 +39,7 @@ import de.cranix.helper.CrxSystemCmd;
 
 @Path("system")
 @Api(value = "system")
+@Produces(JSON_UTF8)
 public class SystemResource {
 
 	public SystemResource() {}
@@ -82,7 +83,6 @@ public class SystemResource {
 
 	@GET
 	@Path("status")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the system status.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -98,7 +98,6 @@ public class SystemResource {
 
 	@GET
 	@Path("diskStatus")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Gets the status of the disk(s) in system.",
 		notes = "The format of the response:<br>" +
@@ -119,7 +118,6 @@ public class SystemResource {
 
 	@GET
 	@Path("services")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Gets the status of the monitored services.",
 		notes = "The for mat of the response:<br>" +
@@ -140,7 +138,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("services/{name}/{what}/{value}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Modify service.",
 		notes = "* name is the name of the service.<br>" +
@@ -186,7 +183,6 @@ public class SystemResource {
 
 	@POST
 	@Path("customize")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Upload picture for crx logon site.")
 	@ApiResponses(value = {
@@ -209,7 +205,6 @@ public class SystemResource {
 
 	@GET
 	@Path("enumerates/{type}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "get session status")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -228,7 +223,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("enumerates/{type}/{value}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new enumerate")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -248,7 +242,6 @@ public class SystemResource {
 
 	@DELETE
 	@Path("enumerates/{type}/{value}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes an enumerate")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -269,7 +262,6 @@ public class SystemResource {
 	// Global Configuration
 	@GET
 	@Path("configuration")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the whole system configuration in a list of maps.",
 		notes =  "* A map has folloing format:<br>" +
 			 "* {\"path\":\"Basic\",\"readOnly\":\"yes\",\"type\":\"string\",\"value\":\"DE\",\"key\":\"CCODE\"}")
@@ -307,7 +299,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("configuration/{key}/{value}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets a system configuration.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -331,7 +322,6 @@ public class SystemResource {
 
 	@POST
 	@Path("configuration")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets a system configuration in a map.<br>"
 			+ "* The map must have following format:<br>"
 			+ "* {key:<key>,value:<value>}")
@@ -361,7 +351,6 @@ public class SystemResource {
 	// Firewall configuration
 	@GET
 	@Path("firewall/services")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the incoming firewall rules.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -378,7 +367,6 @@ public class SystemResource {
 
 	@GET
 	@Path("firewall/incomingRules")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the incoming firewall rules.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -395,7 +383,6 @@ public class SystemResource {
 
 	@POST
 	@Path("firewall/incomingRules")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the incoming firewall rules.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -414,7 +401,6 @@ public class SystemResource {
 
 	@GET
 	@Path("firewall/outgoingRules")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the outgoing firewall rules.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -431,7 +417,6 @@ public class SystemResource {
 
 	@POST
 	@Path("firewall/outgoingRules")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the outgoing firewall rules.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -450,7 +435,6 @@ public class SystemResource {
 
 	@POST
 	@Path("firewall/outgoingRules/delete")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the outgoing firewall rules.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -469,7 +453,6 @@ public class SystemResource {
 
 	@GET
 	@Path("firewall/remoteAccessRules")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the remote access firewall rules.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -486,7 +469,6 @@ public class SystemResource {
 
 	@POST
 	@Path("firewall/remoteAccessRules")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the remote access firewall rules.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -505,7 +487,6 @@ public class SystemResource {
 
 	@POST
 	@Path("firewall/remoteAccessRules/delete")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the remote access firewall rules.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -524,7 +505,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("firewall/{state}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the remote access firewall rules.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -551,7 +531,6 @@ public class SystemResource {
 	 */
 	@PUT
 	@Path("register")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Register the server againts the update server.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -570,7 +549,6 @@ public class SystemResource {
 	 */
 	@GET
 	@Path("packages/{filter}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Searches packages.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.packages")
@@ -586,7 +564,6 @@ public class SystemResource {
 
 	@POST
 	@Path("packages")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Install packages.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.packages")
@@ -602,7 +579,6 @@ public class SystemResource {
 
 	@POST
 	@Path("packages/update")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Update packages.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.packages")
@@ -618,7 +594,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("update")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Install all updates on the system.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.update")
@@ -632,7 +607,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("reboot")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Install all updates on the system.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.update")
@@ -645,7 +619,6 @@ public class SystemResource {
 	}
 	@PUT
 	@Path("shutDown")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Install all updates on the system.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.update")
@@ -662,7 +635,6 @@ public class SystemResource {
 	 */
 	@GET
 	@Path("proxy/default/{role}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
@@ -678,7 +650,6 @@ public class SystemResource {
 
 	@POST
 	@Path("proxy/default/{role}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
@@ -695,7 +666,6 @@ public class SystemResource {
 
 	@GET
 	@Path("proxy/basic")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
@@ -712,7 +682,6 @@ public class SystemResource {
 
 	@POST
 	@Path("proxy/basic")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Writes the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
@@ -732,7 +701,6 @@ public class SystemResource {
 
 	@GET
 	@Path("proxy/lists")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the proxy lists.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed({"system.proxy","system.unbound"})
@@ -742,7 +710,6 @@ public class SystemResource {
 
 	@GET
 	@Path("proxy/defaults")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
@@ -755,7 +722,6 @@ public class SystemResource {
 
 	@POST
 	@Path("proxy/defaults")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default setting for proxy.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.proxy")
@@ -773,7 +739,6 @@ public class SystemResource {
 
 	@GET
 	@Path("proxy/custom/{list}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the custom lists of the proxy: good or bad.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed({"system.proxy","system.unbound"})
@@ -792,7 +757,6 @@ public class SystemResource {
 
 	@POST
 	@Path("proxy/custom/{list}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the custom lists of the proxy: good or bad.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed({"system.proxy","system.unbound"})
@@ -822,7 +786,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("unbound")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Resets the unbound server reading the new configuration.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.unbound")
@@ -839,7 +802,6 @@ public class SystemResource {
 
 	@GET
 	@Path("unbound/safesearch")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Reads the safe search configuration.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.unbound")
@@ -855,7 +817,6 @@ public class SystemResource {
 
 	@POST
 	@Path("unbound/safesearch")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Saves the safe search configuration.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.unbound")
@@ -893,7 +854,6 @@ public class SystemResource {
 	 */
 	@POST
 	@Path("jobs/add")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new job")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
@@ -909,7 +869,6 @@ public class SystemResource {
 
 	@POST
 	@Path("jobs/search")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Searching for jobs by description and time.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
@@ -925,7 +884,6 @@ public class SystemResource {
 
 	@GET
 	@Path("jobs/{jobId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the job with all parameters inclusive log.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
@@ -941,7 +899,6 @@ public class SystemResource {
 
 	@GET
 	@Path("jobs/running")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the job with all parameters inclusive log.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
@@ -954,7 +911,6 @@ public class SystemResource {
 
 	@GET
 	@Path("jobs/failed")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the job with all parameters inclusive log.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
@@ -967,7 +923,6 @@ public class SystemResource {
 
 	@GET
 	@Path("jobs/succeeded")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the job with all parameters inclusive log.")
 	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	@RolesAllowed("system.jobs")
@@ -980,7 +935,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("jobs/{jobId}/exit/{exitValue}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set the exit value of a job.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -999,7 +953,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("jobs/{jobId}/restart")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set the exit value of a job.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1020,7 +973,6 @@ public class SystemResource {
 	 */
 	@GET
 	@Path("acls")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get all existing acls.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1035,7 +987,6 @@ public class SystemResource {
 
 	@GET
 	@Path("acls/groups/{groupId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the acls of a group.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1053,7 +1004,6 @@ public class SystemResource {
 
 	@GET
 	@Path("acls/groups/{groupId}/available")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the available acls for a group.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1071,7 +1021,6 @@ public class SystemResource {
 
 	@POST
 	@Path("acls/groups/{groupId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set an ACL of a group. This can be an existing or a new acl.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1090,7 +1039,6 @@ public class SystemResource {
 
 	@DELETE
 	@Path("acls/groups/{groupId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes all ACLs of a group.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1119,7 +1067,6 @@ public class SystemResource {
 
 	@GET
 	@Path("acls/users/{userId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the acls of a user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1137,7 +1084,6 @@ public class SystemResource {
 
 	@GET
 	@Path("acls/users/{userId}/available")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the available acls for a user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1155,7 +1101,6 @@ public class SystemResource {
 
 	@POST
 	@Path("acls/users/{userId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set an ACL of a user. This can be an existing or a new acl.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1174,7 +1119,6 @@ public class SystemResource {
 
 	@DELETE
 	@Path("acls/users/{userId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes all ACLs of a user.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1203,7 +1147,6 @@ public class SystemResource {
 
 	@GET
 	@Path("dns/domains")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the list of the DNS-Domains the server is responsible for these.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1218,7 +1161,6 @@ public class SystemResource {
 
 	@POST
 	@Path("dns/domains")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Creates a new DNS domain.")
 	@ApiResponses(value = {
@@ -1237,7 +1179,6 @@ public class SystemResource {
 
 	@POST
 	@Path("dns/domains/delete")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Deleets an existing DNS domain.")
 	@ApiResponses(value = {
@@ -1256,7 +1197,6 @@ public class SystemResource {
 
 	@POST
 	@Path("dns/domains/records")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Delivers the list of the dns records in a domain.")
 	@ApiResponses(value = {
@@ -1275,7 +1215,6 @@ public class SystemResource {
 
 	@POST
 	@Path("dns/domains/addRecord")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new DNS record. The following Record types are allowed: A|AAAA|PTR|CNAME|NS|MX|SRV|TXT")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1293,7 +1232,6 @@ public class SystemResource {
 
 	@POST
 	@Path("dns/domains/deleteRecord")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets an existing DNS record.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1311,7 +1249,6 @@ public class SystemResource {
 
 	@POST
 	@Path("find/{objectType}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Searches for an object giben by the objectType and the object.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -1349,7 +1286,6 @@ public class SystemResource {
 
 	@GET
 	@Path("addon")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of available addon.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
@@ -1371,7 +1307,6 @@ public class SystemResource {
 
 	@PUT
 	@Path("addon/{name}/{action}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Executes an action for an addon.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
@@ -1418,7 +1353,6 @@ public class SystemResource {
 
 	@POST
 	@Path("mailserver/access")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a new acces.")
 	@RolesAllowed("system.mailserver")
 	public CrxResponse addMailserverAccess(
@@ -1432,7 +1366,6 @@ public class SystemResource {
 	}
 	@GET
 	@Path("mailserver/access")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a new acces.")
 	@RolesAllowed("system.mailserver")
 	public List<MailAccess> addMailserverAccess(
@@ -1446,7 +1379,6 @@ public class SystemResource {
 
 	@DELETE
 	@Path("mailserver/access/{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a new acces.")
 	@RolesAllowed("system.mailserver")
 	public CrxResponse deleteMailserverAccess(

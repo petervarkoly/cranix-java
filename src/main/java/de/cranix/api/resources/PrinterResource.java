@@ -42,13 +42,13 @@ import static de.cranix.helper.CranixConstants.*;
 
 @Path("printers")
 @Api(value = "printers")
+@Produces(JSON_UTF8)
 public class PrinterResource {
 
 	public PrinterResource() { }
 
 	@POST
 	@Path("add")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Creates a new printer.")
 	@ApiResponses(value = {
@@ -73,7 +73,6 @@ public class PrinterResource {
 
 	@POST
 	@Path("addQueue")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Creates a new printer.")
 	@ApiResponses(value = {
@@ -96,7 +95,6 @@ public class PrinterResource {
 
 	@POST
 	@Path("{printerId}/setDriver")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Creates a new printer.")
 	@ApiResponses(value = {
@@ -118,7 +116,6 @@ public class PrinterResource {
 
 	@GET
 	@Path("all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the lis of printers.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
@@ -133,7 +130,6 @@ public class PrinterResource {
 
 	@GET
 	@Path("allDevices")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets thes lis of all printer devices.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
@@ -148,7 +144,6 @@ public class PrinterResource {
 
 	@GET
 	@Path("{printerId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the a printer by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
@@ -166,7 +161,6 @@ public class PrinterResource {
 
 	@DELETE
 	@Path("{printerId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes a printer")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
@@ -185,7 +179,6 @@ public class PrinterResource {
 
 	@PUT
 	@Path("{printerId}/reset")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Resets a printer")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
@@ -204,7 +197,6 @@ public class PrinterResource {
 
 	@PUT
 	@Path("{printerId}/enable")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Enable a printer")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
@@ -223,7 +215,6 @@ public class PrinterResource {
 
 	@PUT
 	@Path("{printerId}/disable")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Disable a printer")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
@@ -242,7 +233,6 @@ public class PrinterResource {
 
 	@PUT
 	@Path("{printerId}/activateWindowsDriver")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a new group or user to a giwen AdHocLan room")
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "No device was found"),
@@ -261,7 +251,6 @@ public class PrinterResource {
 
 	@GET
 	@Path("availableDrivers")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the list of the available drivers sorted by printer manufacturer",
 			notes = "The result is a hashmap of arrays:"
 			+ "{<br>"
@@ -281,7 +270,6 @@ public class PrinterResource {
 
 	@GET
 	@Path("getDrivers")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the list of the available drivers of a manufacturer",
 			notes = "The result is a hashmap of arrays:"
 			+ "{<br>"
@@ -300,7 +288,6 @@ public class PrinterResource {
 
 	@POST
 	@Path("applyAction")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Apply actions on selected printers.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")})

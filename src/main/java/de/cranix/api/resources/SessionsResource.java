@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 			@ApiKeyAuthDefinition( key = "apiKeyAuth", name = "Authorization", in = ApiKeyAuthDefinition.ApiKeyLocation.HEADER)
 	})
 )
+@Produces(JSON_UTF8)
 public class SessionsResource {
 
 	Logger logger = LoggerFactory.getLogger(SessionsResource.class);
@@ -42,7 +43,6 @@ public class SessionsResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new session and delivers the session.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 401, message = "Login is incorrect"),
@@ -84,7 +84,6 @@ public class SessionsResource {
 
 	@POST
 	@Path("create")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a new session and delivers the token.",
 	    notes = "Following parameter are required:<br>"
 				+ "'username' The login name of the user."
@@ -134,7 +133,6 @@ public class SessionsResource {
 	}
 
 	@GET
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "get session status")
 	@ApiResponses(value = {
 		@ApiResponse(code = 401, message = "Token is not valid or no token given"),
@@ -149,7 +147,6 @@ public class SessionsResource {
 
 	@DELETE
 	@Path("{token}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "delete session")
 	@ApiResponses(value = {
 		@ApiResponse(code = 401, message = "Token is not valid or no token given"),

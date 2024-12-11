@@ -20,6 +20,7 @@ import static de.cranix.api.resources.Resource.JSON_UTF8;
 
 @Path("mdm")
 @Api(value = "mdm")
+@Produces(JSON_UTF8)
 public class MdmResource {
 
     public MdmResource() {
@@ -28,7 +29,6 @@ public class MdmResource {
 
     @GET
     @Path("enrollments")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Gets all created enrollments.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No room was found"),
@@ -43,7 +43,6 @@ public class MdmResource {
 
     @POST
     @Path("enrollments")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Create an enrollment for a devices.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No room was found"),

@@ -496,7 +496,6 @@ public class UserResource {
 
     @GET
     @Path("uidsByRole/{role}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get users from a rolle")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -522,7 +521,6 @@ public class UserResource {
      */
     @GET
     @Path("guestUsers")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Gets all actual gast users. Systadmins get the lists all guest users. Normal users gets the own gast users.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),

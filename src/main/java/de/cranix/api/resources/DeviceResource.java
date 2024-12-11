@@ -30,6 +30,7 @@ import static de.cranix.api.resources.Resource.TEXT;
 
 @Path("devices")
 @Api(value = "devices")
+@Produces(JSON_UTF8)
 public class DeviceResource {
 
 	Logger logger = LoggerFactory.getLogger(DeviceResource.class);
@@ -39,7 +40,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get device by id")
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Device not found"),
@@ -60,7 +60,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get all devices")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -80,7 +79,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("byHWConf/{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get device by hwconfId.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 404, message = "Device not found"),
@@ -98,7 +96,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("byIP/{IP}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get device by IP address")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -119,7 +116,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("byMAC/{MAC}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get device by MAC address")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -140,7 +136,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("byName/{Name}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get device by Name")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -161,7 +156,6 @@ public class DeviceResource {
 
 	@PUT
         @Path("byName/{deviceName}/actions/{action}")
-        @Produces(JSON_UTF8)
         @ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, unlockInput, lockInput, cleanUpLoggedIn.")
         @ApiResponses(value = {
                         @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -240,7 +234,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("{deviceId}/defaultPrinter")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get default printer Name")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -258,7 +251,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("byIP/{IP}/defaultPrinter")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get default printer Name")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -285,7 +277,6 @@ public class DeviceResource {
 
 	@POST
 	@Path("{deviceId}/printers")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Modify the printers of one device.",
 		notes = "The printers object has following format<br>"
@@ -311,7 +302,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("{deviceId}/availablePrinters")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the list of name of the available printers")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -330,7 +320,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("byIP/{IP}/availablePrinters")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the list of name of the available printers")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -357,7 +346,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("loggedInUsers/{IP}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the logged on users on a device defined by IP.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -375,7 +363,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("{deviceId}/loggedInUsers")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the logged on users on a device defined by the deviceId.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -415,7 +402,6 @@ public class DeviceResource {
 
 	@PUT
 	@Path("loggedInUsers/{IP}/{userName}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set the logged on user on a device defined by IP. All other users logged on users will be removed.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -458,7 +444,6 @@ public class DeviceResource {
 
 	@DELETE
 	@Path("loggedInUsers/{IP}/{userName}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Remove the logged on users from a device defined by IP.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -506,7 +491,6 @@ public class DeviceResource {
 	 */
 	@PUT
 	@Path("refreshConfig")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Refresh the DHCP and DNS Configuration.",
 		notes = "The SALT configuration can be refreshed by the call /softwares/saveState"
@@ -525,7 +509,6 @@ public class DeviceResource {
 
 	@POST
 	@Path("{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify the configuration of one device.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -545,7 +528,6 @@ public class DeviceResource {
 
 	@POST
 	@Path("forceModify")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify the configuration of one device.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -563,7 +545,6 @@ public class DeviceResource {
 
 	@DELETE
 	@Path("{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes a device.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -581,7 +562,6 @@ public class DeviceResource {
 
 	@DELETE
 	@Path("{deviceId}/remove")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Removes a device without rewriting the DHCP and salt configuration.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -599,7 +579,6 @@ public class DeviceResource {
 
 	@POST
 	@Path("import")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(
 		value = "Import devices from a CSV file. This MUST have following format:",
@@ -626,7 +605,6 @@ public class DeviceResource {
 
 	@GET
 	@Path("{deviceId}/actions")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a device.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -651,7 +629,6 @@ public class DeviceResource {
 	 */
 	@POST
 	@Path("applyAction")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Apply actions on selected devices.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")
@@ -671,7 +648,6 @@ public class DeviceResource {
 
 	@DELETE
 	@Path("cleanUpLoggedIn")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Cleans up all logged in users on all devices")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -699,7 +675,6 @@ public class DeviceResource {
 	 */
 	@GET
 	@Path("{deviceId}/dhcp")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Gets the active dhcp parameter of a device:",
 		notes = "How to evaluate the CrxMConfig object:<br>"
@@ -734,7 +709,6 @@ public class DeviceResource {
 
 	@POST
 	@Path("{deviceId}/dhcp")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 		value = "Adds a new dhcp parameter to a device",
 		notes = "How to setup the CrxMConfig object:<br>"
@@ -758,7 +732,6 @@ public class DeviceResource {
 
 	@DELETE
 	@Path("{deviceId}/dhcp/{parameterId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes dhcp parameter to a device")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator")

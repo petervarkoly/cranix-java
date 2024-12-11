@@ -26,6 +26,7 @@ import static de.cranix.api.resources.Resource.TEXT;
 
 @Path("groups")
 @Api(value = "groups")
+@Produces(JSON_UTF8)
 public class GroupResource {
 
     Logger logger = LoggerFactory.getLogger(GroupResource.class);
@@ -35,7 +36,6 @@ public class GroupResource {
 
     @POST
     @Path("add")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Create new group")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -53,7 +53,6 @@ public class GroupResource {
 
     @POST
     @Path("{groupId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Modify an existing group")
     @ApiResponses(value = {
             // TODO so oder anders? @ApiResponse(code = 404, message = "At least one group was not found"),
@@ -74,7 +73,6 @@ public class GroupResource {
 
     @DELETE
     @Path("{groupId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Deletes group by id")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
@@ -92,7 +90,6 @@ public class GroupResource {
 
     @GET
     @Path("all")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get all groups")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -107,7 +104,6 @@ public class GroupResource {
 
     @GET
     @Path("{groupId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get group by id")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
@@ -125,7 +121,6 @@ public class GroupResource {
 
     @GET
     @Path("{groupId}/members")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get users which are member in this group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
@@ -144,7 +139,6 @@ public class GroupResource {
 
     @GET
     @Path("{groupId}/availableMembers")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get users which are not member in this group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
@@ -162,7 +156,6 @@ public class GroupResource {
 
     @GET
     @Path("byType/{type}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get groups from a type")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -181,7 +174,6 @@ public class GroupResource {
 
     @POST
     @Path("import")
-    @Produces(JSON_UTF8)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(
 	value = "Import groups from a CSV file. This MUST have following format:",
@@ -208,7 +200,6 @@ public class GroupResource {
 
     @POST
     @Path("{groupId}/members")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Sets the member of this group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
@@ -227,7 +218,6 @@ public class GroupResource {
 
     @DELETE
     @Path("{groupId}/{userId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Deletes a member of a group by userId.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
@@ -245,7 +235,6 @@ public class GroupResource {
 
     @PUT
     @Path("{groupId}/{userId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Add a member to a group by userId.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
@@ -271,7 +260,6 @@ public class GroupResource {
      */
     @POST
     @Path("applyAction")
-    @Produces(JSON_UTF8)
     @ApiOperation(
             value = "Apply actions on the selected groups.",
             notes = "Valid actions are:<br>" +

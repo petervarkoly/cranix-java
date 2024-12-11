@@ -25,6 +25,7 @@ import static de.cranix.helper.CranixConstants.vpnOsList;
 
 @Path("selfmanagement")
 @Api(value = "selfmanagement")
+@Produces(JSON_UTF8)
 public class SelfManagementResource {
 
     public SelfManagementResource() {
@@ -32,7 +33,6 @@ public class SelfManagementResource {
 
     @GET
     @Path("me")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get my own datas")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -44,7 +44,6 @@ public class SelfManagementResource {
 
     @POST
     @Path("modify")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Modify my own datas")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -72,7 +71,6 @@ public class SelfManagementResource {
      */
     @GET
     @Path("vpn/have")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Checks if a user is allowed to use vpn connection to the school")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -94,7 +92,6 @@ public class SelfManagementResource {
      */
     @GET
     @Path("vpn/OS")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Delivers the list of supported clients OS for the VPN.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -195,7 +192,6 @@ public class SelfManagementResource {
      */
     @GET
     @Path("rooms")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Gets all defined AdHocLan Rooms which a user may use. Superuser get the list of all AdHocLan rooms.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No room was found"),
@@ -216,7 +212,6 @@ public class SelfManagementResource {
      */
     @GET
     @Path("devices")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Gets all owned AdHocLan Devices of a user.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -228,7 +223,6 @@ public class SelfManagementResource {
 
     @DELETE
     @Path("devices/{deviceId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Delets an owned AdHocLan Devices of a user.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -246,7 +240,6 @@ public class SelfManagementResource {
 
     @POST
     @Path("devices/{deviceId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Modify an owned AdHocLan Devices of a user.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "No category was found"),
@@ -265,7 +258,6 @@ public class SelfManagementResource {
 
     @POST
     @Path("devices/add")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -283,7 +275,6 @@ public class SelfManagementResource {
 
     @POST
     @Path("taskResponses")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -302,7 +293,6 @@ public class SelfManagementResource {
 
     @PATCH
     @Path("taskResponses")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Modify task response. This call only modifies the text of the task response.<br>" +
             " Only the owner of the task response is allowed to do it")
     @ApiResponses(value = {
@@ -321,7 +311,6 @@ public class SelfManagementResource {
 
     @GET
     @Path("taskResponses")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Delivers all owned task responses.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
