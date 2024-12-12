@@ -305,12 +305,12 @@ public class CalendarService extends Service {
         List<CrxCalendar> events = new ArrayList<>();
         for (CrxCalendar event : this.getAll()) {
             if (map.isShowPrivate() && event.getCreator() != null && event.getCreator().equals(this.session.getUser())) {
-                event.setColor(user.getColor());
+                event.setColor(this.session.getUser().getColor());
                 events.add(event);
                 continue;
             }
             if (map.isShowIndividual() && event.getUsers().contains(this.session.getUser())) {
-                event.setColor(user.getColor());
+                event.setColor(this.session.getUser().getColor());
                 events.add(event);
                 continue;
             }
