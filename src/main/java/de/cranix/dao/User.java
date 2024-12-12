@@ -73,9 +73,9 @@ public class User extends AbstractEntity {
 	@Column(name="birthDay", columnDefinition = "DATE NOT NULL DEFAULT NOW()")
 	private String birthDay = simpleDate.format(new Date());
 
-    @Column(name = "emailAddress", length = 64)
+	@Column(name = "emailAddress", length = 64)
 	@Size(max=64, message="emailAddress must not be longer then 16 characters.")
-    private String emailAddress = "";
+	private String emailAddress = "";
 
 	@Column(name = "telefonNumber", length = 64)
 	@Size(max=64, message="telefonNumber must not be longer then 16 characters.")
