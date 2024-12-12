@@ -10,17 +10,24 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @Entity
 @Table( name="ParentRequests" )
 public class ParentRequest extends AbstractEntity{
+
     @Column(name = "givenName", length = 64)
     private String givenName = "";
 
     @Column(name = "surName", length = 64)
     private String surName = "";
 
-    @Column(name = "className", length = 32)
-    private String className = "";
+    @Column(name = "childGivenName", length = 64)
+    private String childGivenName = "";
 
-    @Column(name = "birthDay", length = 10)
-    private String birthDay = "";
+    @Column(name = "childSurName", length = 64)
+    private String childSurName = "";
+
+    @Column(name = "childClasses", length = 32)
+    private String childClasses = "";
+
+    @Column(name = "childBirthDay", length = 10)
+    private String childBirthDay = "";
 
     @Convert(converter=BooleanToStringConverter.class)
     @Column(name = "proceeded", columnDefinition = "CHAR(1) DEFAULT 'Y'")
@@ -28,7 +35,7 @@ public class ParentRequest extends AbstractEntity{
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "parent_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
+    @JoinColumn(name = "parent_id", columnDefinition ="BIGINT UNSIGNED")
     private User parent;
 
     public String getGivenName() {
@@ -47,22 +54,6 @@ public class ParentRequest extends AbstractEntity{
         this.surName = surName;
     }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public String getBirthDay() {
-        return birthDay;
-    }
-
-    public void setBirthDay(String birthDay) {
-        this.birthDay = birthDay;
-    }
-
     public Boolean getProceeded() {
         return proceeded;
     }
@@ -77,5 +68,37 @@ public class ParentRequest extends AbstractEntity{
 
     public void setParent(User parent) {
         this.parent = parent;
+    }
+
+    public String getChildGivenName() {
+        return childGivenName;
+    }
+
+    public void setChildGivenName(String childGivenName) {
+        this.childGivenName = childGivenName;
+    }
+
+    public String getChildSurName() {
+        return childSurName;
+    }
+
+    public void setChildSurName(String childSurName) {
+        this.childSurName = childSurName;
+    }
+
+    public String getChildClasses() {
+        return childClasses;
+    }
+
+    public void setChildClasses(String childClasses) {
+        this.childClasses = childClasses;
+    }
+
+    public String getChildBirthDay() {
+        return childBirthDay;
+    }
+
+    public void setChildBirthDay(String childBirthDay) {
+        this.childBirthDay = childBirthDay;
     }
 }

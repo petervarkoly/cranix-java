@@ -4,6 +4,7 @@ import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.services.PTMService;
 import de.cranix.services.ParentService;
+import de.cranix.services.SessionService;
 import de.cranix.services.UserService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.Api;
@@ -12,7 +13,9 @@ import io.swagger.annotations.ApiParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 
 import java.util.List;
 
@@ -23,6 +26,25 @@ import static de.cranix.api.resources.Resource.JSON_UTF8;
 @Produces(JSON_UTF8)
 public class ParentResource {
 
+    /*
+    * Handle parent requests
+    * */
+    @POST
+    @Path("parentRequest")
+    @ApiOperation(value = "Creates a new parent request")
+    public CrxResponse createParentRequest(
+           @Context HttpServletRequest req,
+           ParentRequest parentRequest
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Session session = new SessionService(em).getLocalhostSession();
+        CrxResponse resp = new ParentService(session,em).createParentRequest(parentRequest, req);
+        em.close();
+        return resp;
+    }
+    /*
+    * Handle parents
+    * */
     @POST
     @RolesAllowed("parent.manage")
     @ApiOperation(value = "Creates a new parent.")
@@ -62,6 +84,7 @@ public class ParentResource {
         em.close();
         return resp;
     }
+
     @GET
     @RolesAllowed("parent.manage")
     @ApiOperation(value = "Gets the parents.")

@@ -1,11 +1,13 @@
 package de.cranix.services;
 
 import de.cranix.dao.CrxResponse;
+import de.cranix.dao.ParentRequest;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
 import org.checkerframework.checker.units.qual.C;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public class ParentService extends Service{
@@ -78,5 +80,18 @@ public class ParentService extends Service{
             return new CrxResponse("ERROR",e.getMessage());
         }
         return new CrxResponse("OK","Parent was deleted successfully");
+    }
+
+    public CrxResponse createParentRequest(ParentRequest parentRequest, HttpServletRequest req) {
+        //TODO not allow to much from same IP
+        try {
+            this.em.getTransaction().begin();
+            this.em.persist(parentRequest);
+            this.em.getTransaction().commit();
+        }catch (Exception e){
+            logger.error("ParentService createParentRequest" + e.getMessage());
+            return new CrxResponse("ERROR","Your request was not created.");
+        }
+        return new CrxResponse("OK","Your request was created successfully.");
     }
 }
