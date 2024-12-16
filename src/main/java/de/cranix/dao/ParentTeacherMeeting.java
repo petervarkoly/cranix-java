@@ -11,7 +11,8 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @Table(name = "ParentTeacherMeetings")
 @NamedQueries({
         @NamedQuery(name = "PTMs.findAll", query = "SELECT p FROM ParentTeacherMeeting p"),
-        @NamedQuery(name = "PTMs.findActual", query = "SELECT p FROM ParentTeacherMeeting p WHERE p.start > CURRENT_TIMESTAMP")
+        @NamedQuery(name = "PTMs.findActual", query = "SELECT p FROM ParentTeacherMeeting p WHERE p.start > CURRENT_TIMESTAMP"),
+        @NamedQuery(name = "PTMs.findFormer", query = "SELECT p FROM ParentTeacherMeeting p WHERE p.start < CURRENT_TIMESTAMP")
 })
 public class ParentTeacherMeeting extends AbstractEntity {
 
@@ -51,6 +52,9 @@ public class ParentTeacherMeeting extends AbstractEntity {
 
     @OneToMany(mappedBy = "parentTeacherMeeting", cascade = CascadeType.ALL)
     List<PTMTeacherInRoom> ptmTeacherInRoomList = new ArrayList<>();
+
+    @Transient
+    private Long templateId;
 
     public ParentTeacherMeeting() {
         super();
@@ -111,4 +115,12 @@ public class ParentTeacherMeeting extends AbstractEntity {
     public String getTitle() {return title;}
 
     public void setTitle(String title) {this.title = title;}
+
+    public Long getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(Long templateId) {
+        this.templateId = templateId;
+    }
 }

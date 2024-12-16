@@ -28,6 +28,26 @@ public class PTMService extends Service {
             this.em.getTransaction().begin();
             this.em.persist(parentTeacherMeeting);
             this.em.getTransaction().commit();
+            if (parentTeacherMeeting.getTemplateId() != null) {
+                ParentTeacherMeeting oldPTM = this.em.find(ParentTeacherMeeting.class, parentTeacherMeeting.getTemplateId())
+                for (PTMTeacherInRoom ptmTeacherInRoom : oldPTM.getPtmTeacherInRoomList()) {
+                    PTMTeacherInRoom newPTMTiT = new PTMTeacherInRoom(
+                            this.session,
+                            ptmTeacherInRoom.getTeacher(),
+                            ptmTeacherInRoom.getRoom(),
+                            parentTeacherMeeting
+                    );
+                    try {
+                        this.em.getTransaction().begin();
+                        parentTeacherMeeting.getPtmTeacherInRoomList().add(newPTMTiT);
+                        this.em.merge(parentTeacherMeeting);
+                        this.em.getTransaction().commit();
+                    } catch (Exception e) {
+                        logger.error("add register room failed:" + ptmTeacherInRoom.getTeacher().getUid() + " " +  ptmTeacherInRoom.getRoom().getName());
+                    }
+
+                }
+            }
             return new CrxResponse("OK", "Parent teacher meeting was created successfully.");
         } catch (Exception e) {
             return new CrxResponse("ERROR", e.getMessage());
@@ -46,11 +66,23 @@ public class PTMService extends Service {
         }
     }
 
-    public ParentTeacherMeeting get() {
+    public List<ParentTeacherMeeting> get() {
         try {
             Query query = this.em.createNamedQuery("PTMs.findActual");
             if (!query.getResultList().isEmpty()) {
-                return (ParentTeacherMeeting) query.getResultList().get(0);
+                return (List<ParentTeacherMeeting>) query.getResultList();
+            }
+        } catch (Exception e) {
+            logger.error("get:" + e.getMessage());
+        }
+        return null;
+    }
+
+    public List<ParentTeacherMeeting> getFormer() {
+        try {
+            Query query = this.em.createNamedQuery("PTMs.findFormer");
+            if (!query.getResultList().isEmpty()) {
+                return (List<ParentTeacherMeeting>) query.getResultList();
             }
         } catch (Exception e) {
             logger.error("get:" + e.getMessage());
@@ -82,17 +114,20 @@ public class PTMService extends Service {
         try {
             ParentTeacherMeeting parentTeacherMeeting = this.em.find(ParentTeacherMeeting.class, id);
             List<Room> reservedRooms = new ArrayList<>();
-            for(PTMTeacherInRoom teacherInRoom: parentTeacherMeeting.getPtmTeacherInRoomList()) {
+            for (PTMTeacherInRoom teacherInRoom : parentTeacherMeeting.getPtmTeacherInRoomList()) {
                 reservedRooms.add(teacherInRoom.getRoom());
             }
             List<Room> freeRooms = new ArrayList<>();
-            for(Room room : new RoomService(session, em).getAll()) {
-                if(!reservedRooms.contains(room) && !room.getRoomType().equals("adHoc")){
+            for (Room room : new RoomService(session, em).getAll()) {
+                if(room.getRoomType().equals("AdHocAccess") || room.getRoomType().equals("technicalRoom") ) {
+                    continue;
+                }
+                if (this.getConfigValue("PTM_ALLOW_MULTI_USE_OF_ROOMS").equals("yes") || !reservedRooms.contains(room)) {
                     freeRooms.add(room);
                 }
             }
             return freeRooms;
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.error("getFreeRooms:" + id + "ERROR" + e.getMessage());
             return new ArrayList<>();
         }
@@ -102,17 +137,17 @@ public class PTMService extends Service {
         try {
             ParentTeacherMeeting parentTeacherMeeting = this.em.find(ParentTeacherMeeting.class, id);
             List<User> reservedUsers = new ArrayList<>();
-            for(PTMTeacherInRoom teacherInRoom: parentTeacherMeeting.getPtmTeacherInRoomList()) {
+            for (PTMTeacherInRoom teacherInRoom : parentTeacherMeeting.getPtmTeacherInRoomList()) {
                 reservedUsers.add(teacherInRoom.getTeacher());
             }
             List<User> freeUsers = new ArrayList<>();
-            for(User teacher : new UserService(session, em).getByRole("teachers")) {
-                if(!reservedUsers.contains(teacher)){
+            for (User teacher : new UserService(session, em).getByRole("teachers")) {
+                if (!reservedUsers.contains(teacher)) {
                     freeUsers.add(teacher);
                 }
             }
             return freeUsers;
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.error("getFreeRooms:" + id + "ERROR" + e.getMessage());
             return new ArrayList<>();
         }
@@ -195,8 +230,16 @@ public class PTMService extends Service {
     public CrxResponse modify(ParentTeacherMeeting parentTeacherMeeting) {
         try {
             logger.debug("modify:" + parentTeacherMeeting);
+            ParentTeacherMeeting oldPTM = this.em.find(ParentTeacherMeeting.class, parentTeacherMeeting.getId());
             this.em.getTransaction().begin();
-            this.em.merge(parentTeacherMeeting);
+            oldPTM.setTitle(parentTeacherMeeting.getTitle());
+            if (oldPTM.getPtmTeacherInRoomList().isEmpty()) {
+                oldPTM.setStart(parentTeacherMeeting.getStart());
+                oldPTM.setEnd(parentTeacherMeeting.getEnd());
+                oldPTM.setStartRegistration(parentTeacherMeeting.getStartRegistration());
+                oldPTM.setEndRegistration(parentTeacherMeeting.getEndRegistration());
+            }
+            this.em.merge(oldPTM);
             this.em.getTransaction().commit();
             return new CrxResponse("OK", "The parent teacher meeting was modified successfully.");
         } catch (Exception e) {

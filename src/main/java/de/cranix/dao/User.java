@@ -241,6 +241,10 @@ public class User extends AbstractEntity {
     @JsonIgnore
     private List<User> children = new ArrayList<User>();
 
+	@ManyToMany(mappedBy="children")
+	@JsonIgnore
+	private List<User> parents = new ArrayList<>();
+
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
 	@JsonIgnore
     List<ParentRequest> paretnRequests = new ArrayList<>();
@@ -772,4 +776,8 @@ public class User extends AbstractEntity {
 	public void setTelefonNumber(String telefonNumber) {
 		this.telefonNumber = telefonNumber;
 	}
+
+	public List<User> getParents() { return parents;}
+
+	public void setParents(List<User> parents) {this.parents = parents;}
 }

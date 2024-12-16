@@ -28,6 +28,10 @@ public class PTMEvent extends AbstractEntity {
     @JoinColumn(name = "student_id", columnDefinition = "BIGINT UNSIGNED")
     private User student;
 
+    @Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "blocked", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+	private Boolean blocked = false;
+
     public PTMEvent() {
         super();
     }
@@ -86,5 +90,13 @@ public class PTMEvent extends AbstractEntity {
 
     public void setStudent(User student) {
         this.student = student;
+    }
+
+    public Boolean getBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(Boolean blocked) {
+        this.blocked = blocked;
     }
 }

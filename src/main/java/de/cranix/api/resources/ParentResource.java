@@ -199,11 +199,25 @@ public class ParentResource {
     @Path("ptms")
     @RolesAllowed({"ptm.manage","ptm.registerRoom","ptm.registerEvent"})
     @ApiOperation(value = "Gets the next parent teacher meeting.")
-    public ParentTeacherMeeting getPtms(
+    public List<ParentTeacherMeeting> getPtms(
             @ApiParam(hidden = true) @Auth Session session
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        ParentTeacherMeeting resp = new PTMService(session,em).get();
+        List<ParentTeacherMeeting> resp = new PTMService(session,em).get();
+        em.close();
+        return resp;
+    }
+
+
+    @GET
+    @Path("ptms/former")
+    @RolesAllowed({"ptm.manage","ptm.registerRoom","ptm.registerEvent"})
+    @ApiOperation(value = "Gets the next parent teacher meeting.")
+    public List<ParentTeacherMeeting> getPtms(
+            @ApiParam(hidden = true) @Auth Session session
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        List<ParentTeacherMeeting> resp = new PTMService(session,em).getFormer();
         em.close();
         return resp;
     }
