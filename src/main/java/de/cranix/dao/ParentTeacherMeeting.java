@@ -50,6 +50,14 @@ public class ParentTeacherMeeting extends AbstractEntity {
     @Temporal(TIMESTAMP)
     private Date endRegistration = new Date();
 
+    @ManyToMany()
+    @JoinTable(
+            name = "ClassInPtm",
+            joinColumns = {@JoinColumn(name = "ptm_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")},
+            inverseJoinColumns = {@JoinColumn(name = "group_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
+    )
+    private List<Group> classes = new ArrayList<Group>();
+
     @OneToMany(mappedBy = "parentTeacherMeeting", cascade = CascadeType.ALL)
     List<PTMTeacherInRoom> ptmTeacherInRoomList = new ArrayList<>();
 
@@ -123,4 +131,8 @@ public class ParentTeacherMeeting extends AbstractEntity {
     public void setTemplateId(Long templateId) {
         this.templateId = templateId;
     }
+
+    public List<Group> getClasses() { return classes; }
+
+    public void setClasses(List<Group> classes) { this.classes = classes; }
 }

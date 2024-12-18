@@ -29,7 +29,7 @@ public class PTMEvent extends AbstractEntity {
     private User student;
 
     @Convert(converter=BooleanToStringConverter.class)
-	@Column(name = "blocked", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+	@Column(name = "blocked", columnDefinition = "CHAR(1) DEFAULT 'N'")
 	private Boolean blocked = false;
 
     public PTMEvent() {

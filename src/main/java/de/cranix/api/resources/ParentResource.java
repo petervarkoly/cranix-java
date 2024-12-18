@@ -150,7 +150,7 @@ public class ParentResource {
     }
 
     /**
-     * Fuctions to manage parent teacher meetings
+     * Functions to manage parent teacher meetings
      */
 
     @POST
@@ -198,7 +198,7 @@ public class ParentResource {
     @GET
     @Path("ptms")
     @RolesAllowed({"ptm.manage","ptm.registerRoom","ptm.registerEvent"})
-    @ApiOperation(value = "Gets the next parent teacher meeting.")
+    @ApiOperation(value = "Gets the next parent teacher meetings.")
     public List<ParentTeacherMeeting> getPtms(
             @ApiParam(hidden = true) @Auth Session session
     ){
@@ -211,9 +211,9 @@ public class ParentResource {
 
     @GET
     @Path("ptms/former")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom","ptm.registerEvent"})
+    @RolesAllowed({"ptm.manage"})
     @ApiOperation(value = "Gets the next parent teacher meeting.")
-    public List<ParentTeacherMeeting> getPtms(
+    public List<ParentTeacherMeeting> getFormerPtms(
             @ApiParam(hidden = true) @Auth Session session
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
@@ -296,7 +296,7 @@ public class ParentResource {
     @POST
     @Path("ptms/events")
     @RolesAllowed({"ptm.manage","ptm.registerRoom"})
-    @ApiOperation(value = "Register a teacher in a room.")
+    @ApiOperation(value = "Register an event for a student  in a room.")
     public CrxResponse registerEvent(
             @ApiParam(hidden = true) @Auth Session session,
             PTMEvent ptmEvent

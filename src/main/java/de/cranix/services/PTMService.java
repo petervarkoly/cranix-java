@@ -29,7 +29,7 @@ public class PTMService extends Service {
             this.em.persist(parentTeacherMeeting);
             this.em.getTransaction().commit();
             if (parentTeacherMeeting.getTemplateId() != null) {
-                ParentTeacherMeeting oldPTM = this.em.find(ParentTeacherMeeting.class, parentTeacherMeeting.getTemplateId())
+                ParentTeacherMeeting oldPTM = this.em.find(ParentTeacherMeeting.class, parentTeacherMeeting.getTemplateId());
                 for (PTMTeacherInRoom ptmTeacherInRoom : oldPTM.getPtmTeacherInRoomList()) {
                     PTMTeacherInRoom newPTMTiT = new PTMTeacherInRoom(
                             this.session,
@@ -43,7 +43,7 @@ public class PTMService extends Service {
                         this.em.merge(parentTeacherMeeting);
                         this.em.getTransaction().commit();
                     } catch (Exception e) {
-                        logger.error("add register room failed:" + ptmTeacherInRoom.getTeacher().getUid() + " " +  ptmTeacherInRoom.getRoom().getName());
+                        logger.error("add register room failed:" + ptmTeacherInRoom.getTeacher().getUid() + " " + ptmTeacherInRoom.getRoom().getName());
                     }
 
                 }
@@ -70,7 +70,19 @@ public class PTMService extends Service {
         try {
             Query query = this.em.createNamedQuery("PTMs.findActual");
             if (!query.getResultList().isEmpty()) {
-                return (List<ParentTeacherMeeting>) query.getResultList();
+                if (this.session.getAcls().contains("ptm.manage")) {
+                    return (List<ParentTeacherMeeting>) query.getResultList();
+                }
+                List<ParentTeacherMeeting> ptms = new ArrayList<>();
+                for (ParentTeacherMeeting ptm : (List<ParentTeacherMeeting>) query.getResultList()) {
+                    for (Group g : ptm.getClasses()) {
+                        if (this.session.getUser().getGroups().contains(g)) {
+                            ptms.add(ptm);
+                            break;
+                        }
+                    }
+                }
+                return ptms;
             }
         } catch (Exception e) {
             logger.error("get:" + e.getMessage());
@@ -119,7 +131,7 @@ public class PTMService extends Service {
             }
             List<Room> freeRooms = new ArrayList<>();
             for (Room room : new RoomService(session, em).getAll()) {
-                if(room.getRoomType().equals("AdHocAccess") || room.getRoomType().equals("technicalRoom") ) {
+                if (room.getRoomType().equals("AdHocAccess") || room.getRoomType().equals("technicalRoom")) {
                     continue;
                 }
                 if (this.getConfigValue("PTM_ALLOW_MULTI_USE_OF_ROOMS").equals("yes") || !reservedRooms.contains(room)) {
