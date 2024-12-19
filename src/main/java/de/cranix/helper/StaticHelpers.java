@@ -240,4 +240,14 @@ public class StaticHelpers {
 		}
 		return c;
 	}
+
+	static public String getRandomColor(){
+		Random random = new Random();
+        // Generiere zufällige Werte für R, G und B
+        int r = random.nextInt(256); // Zufälliger Wert zwischen 0 und 255
+        int g = random.nextInt(256);
+        int b = random.nextInt(256);
+        // Konvertiere die Werte in hexadezimale Formate und formatiere sie
+        return String.format("#%02X%02X%02X", r, g, b);
+	}
 }

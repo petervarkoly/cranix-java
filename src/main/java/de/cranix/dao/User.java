@@ -17,6 +17,8 @@ import org.eclipse.persistence.annotations.Cache;
 import org.eclipse.persistence.annotations.CacheType;
 
 import de.cranix.helper.SslCrypto;
+
+import static de.cranix.helper.StaticHelpers.getRandomColor;
 import static de.cranix.helper.StaticHelpers.simpleDate;
 
 /**
@@ -95,7 +97,7 @@ public class User extends AbstractEntity {
 
 	@Column(name="color", length=7)
 	@Size(max=7, message="color must not be longer then 7 characters.")
-	protected String color = "#4832a8";
+	protected String color = getRandomColor();
 
 	@JsonIgnore
 	@Column(name="initialPassword", length=32)
@@ -258,6 +260,12 @@ public class User extends AbstractEntity {
 
 	@Transient
 	String fullName;
+
+	@Transient
+	List<Long> childIds = new ArrayList<>();
+
+	@Transient
+	List<Long> parentIds = new ArrayList<>();
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
 	@JsonIgnore
@@ -761,6 +769,29 @@ public class User extends AbstractEntity {
 		this.children = children;
 	}
 
+	public List<Long> getChildIds() {
+		if(this.childIds.isEmpty()){
+			for(User child: this.children){
+				this.childIds.add(child.getId());
+			}
+		}
+		return this.childIds;
+	}
+
+	public void setChildIds(List<Long> childIds) {
+		this.childIds = childIds;
+	}
+	public List<Long> getParentIds() {
+		if(this.parentIds.isEmpty()){
+			for(User parent: this.parents){
+				this.parentIds.add(parent.getId());
+			}
+		}
+		return this.parentIds;
+	}
+	public void setParentIds(List<Long> parentIds){
+		this.parentIds = parentIds;
+	}
 	public List<ParentRequest> getParetnRequests() {
 		return paretnRequests;
 	}

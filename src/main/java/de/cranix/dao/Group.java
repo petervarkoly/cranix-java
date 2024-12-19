@@ -11,6 +11,8 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static de.cranix.helper.StaticHelpers.getRandomColor;
+
 /**
  * The persistent class for the Groups database table.
  * 
@@ -31,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class Group extends AbstractEntity {
 
-	@Column(name = "name", updatable = false)
+	@Column(name = "name", updatable = false, length = 32)
 	@Pattern.List({
 		@Pattern(
                         regexp = "^[^/\\\\#,;=]+$",
@@ -45,17 +47,17 @@ public class Group extends AbstractEntity {
 	@Size(max=32, message="Name must not be longer then 32 characters.")
 	private String name = "";
 
-	@Column(name = "description")
+	@Column(name = "description", length = 64)
 	@Size(max=64, message="Description must not be longer then 64 characters.")
 	private String description = "";
 
-	@Column(name = "groupType")
+	@Column(name = "groupType", length = 16)
 	@Size(max=16, message="Description must not be longer then 16 characters.")
 	private String groupType = "";
 
-	@Column(name="color")
+	@Column(name="color", length = 7)
 	@Size(max=7, message="color must not be longer then 7 characters.")
-	protected String color = "#AABBCC";
+	protected String color = getRandomColor();
 
 	/* bi-directional one-to-many associations */
 	@OneToMany(mappedBy="group")
@@ -80,13 +82,11 @@ public class Group extends AbstractEntity {
 	private List<CrxCalendar> events = new ArrayList<>();
 
 	public Group() {
-		this.setId(null);
-		this.name = "";
-		this.description = "";
-		this.groupType = "";
+		super();
 	}
 
 	public Group(String name, String description, String groupType) {
+		super();
 		this.setId(null);
 		this.name = name;
 		this.description = description;
