@@ -149,6 +149,23 @@ public class ParentResource {
         }
     }
 
+    @GET
+    @Path("myChildren")
+    @RolesAllowed("parent")
+    @ApiOperation(value = "Gets the parents.")
+    public List<User> getMyChildren(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        User parent = new UserService(session,em).getById(session.getUser().getId());
+        em.close();
+        if(parent.getRole().equals("parents")) {
+            return parent.getChildren();
+        } else {
+            return null;
+        }
+    }
     /**
      * Functions to manage parent teacher meetings
      */
@@ -317,6 +334,21 @@ public class ParentResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         CrxResponse resp = new PTMService(session,em).cancelEvent(id);
+        em.close();
+        return resp;
+    }
+
+    @PUT
+    @Path("ptms/events/{id}/{block}")
+    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @ApiOperation(value = "Blocks or unblocks an event.")
+    public CrxResponse setBlockEvent(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id,
+            @PathParam("block") String block
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new PTMService(session,em).setBlockEvent(id, block.equals("true"));
         em.close();
         return resp;
     }

@@ -87,7 +87,7 @@ public class PTMService extends Service {
         } catch (Exception e) {
             logger.error("get:" + e.getMessage());
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public List<ParentTeacherMeeting> getFormer() {
@@ -99,7 +99,7 @@ public class PTMService extends Service {
         } catch (Exception e) {
             logger.error("get:" + e.getMessage());
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public List<ParentTeacherMeeting> getAll() {
@@ -109,7 +109,7 @@ public class PTMService extends Service {
         } catch (Exception e) {
             logger.error("getAll:" + e.getMessage());
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public ParentTeacherMeeting getById(Long id) {
@@ -210,8 +210,15 @@ public class PTMService extends Service {
         if (oldEvent == null) {
             return new CrxResponse("ERROR", "Can not find the PTM event.");
         }
-        oldEvent.setParent(event.getParent());
         oldEvent.setStudent(event.getStudent());
+        if( event.getParent() != null) {
+            User student = this.em.find(User.class, event.getStudent().getId());
+            if(!student.getParents().isEmpty()){
+                oldEvent.setParent(student.getParents().get(0));
+            }
+        } else {
+            oldEvent.setParent(event.getParent());
+        }
         try {
             this.em.getTransaction().begin();
             this.em.merge(oldEvent);
@@ -234,6 +241,25 @@ public class PTMService extends Service {
             this.em.merge(oldEvent);
             this.em.getTransaction().commit();
             return new CrxResponse("OK", "You was registered for the parent teacher meeting successfully.");
+        } catch (Exception e) {
+            return new CrxResponse("ERROR", e.getMessage());
+        }
+    }
+
+    public CrxResponse setBlockEvent(Long id, Boolean block) {
+        PTMEvent oldEvent = this.em.find(PTMEvent.class, id);
+        if (oldEvent == null) {
+            return new CrxResponse("ERROR", "Can not find the PTM event.");
+        }
+        oldEvent.setBlocked(block);
+        try {
+            this.em.getTransaction().begin();
+            this.em.merge(oldEvent);
+            this.em.getTransaction().commit();
+            if(block)  {
+                return new CrxResponse("OK", "Event was blocked");
+            }
+            return new CrxResponse("OK", "Event was released");
         } catch (Exception e) {
             return new CrxResponse("ERROR", e.getMessage());
         }
