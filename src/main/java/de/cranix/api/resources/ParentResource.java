@@ -255,7 +255,7 @@ public class ParentResource {
 
     @GET
     @Path("ptms/{id}/rooms")
-    @RolesAllowed("ptm.manage")
+    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
     @ApiOperation(value = "Gets the free rooms of a parent teacher meeting.")
     public List<Room> getFreeRooms(
             @ApiParam(hidden = true) @Auth Session session,
