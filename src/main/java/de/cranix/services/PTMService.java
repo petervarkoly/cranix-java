@@ -170,6 +170,11 @@ public class PTMService extends Service {
         if (parentTeacherMeeting == null) {
             return new CrxResponse("ERROR", "Can not find parent teacher meeting.");
         }
+	if(ptmTeacherInRoom.getTeacher() == null && isAllowed("ptm.registerRoom")) {
+		ptmTeacherInRoom.setTeacher(this.session.getUser());
+	} else {
+            return new CrxResponse("ERROR", "Can not register the room.");
+        }
         PTMTeacherInRoom newPTMTiT = new PTMTeacherInRoom(
                 this.session,
                 ptmTeacherInRoom.getTeacher(),
