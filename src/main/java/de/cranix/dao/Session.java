@@ -30,6 +30,14 @@ public class Session implements Principal {
 	private Date createDate = new Date();
 
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "validFrom", columnDefinition = "timestamp")
+	private Date validFrom;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "validUntil", columnDefinition = "timestamp")
+	private Date validUntil;
+
 	//@OneToOne
 	@ManyToOne
 	@JsonIgnore
@@ -55,6 +63,9 @@ public class Session implements Principal {
 
 	@Column(name = "token")
 	private String token;
+
+	@Column(name = "gotoPath")
+	private String gotoPath;
 
 	/**
 	 * Transient variables to make the life in front end more simply.
@@ -98,6 +109,13 @@ public class Session implements Principal {
 		this.password = password;
 		this.token = token;
 		this.schoolId="dummy";
+	}
+
+	public Session(String token, User user, Date validFrom, Date validUntil) {
+		this.token = token;
+		this.user = user;
+		this.validFrom = validFrom;
+		this.validUntil = validUntil;
 	}
 
 	public Session() {
@@ -320,6 +338,7 @@ public class Session implements Principal {
 		List<String> modules = new ArrayList<String>();
 		//Modules with right permit all is allowed for all authorized users.
 		modules.add("permitall");
+		modules.add(user.getRole());
 		//Is it allowed by the groups.
 		for( Group group : user.getGroups() ) {
 		    for( Acl acl : group.getAcls() ) {
@@ -338,5 +357,29 @@ public class Session implements Principal {
 		    }
 		}
 		return modules;
+	}
+
+	public Date getValidFrom() {
+		return validFrom;
+	}
+
+	public void setValidFrom(Date validFrom) {
+		this.validFrom = validFrom;
+	}
+
+	public Date getValidUntil() {
+		return validUntil;
+	}
+
+	public void setValidUntil(Date validUntil) {
+		this.validUntil = validUntil;
+	}
+
+	public String getGotoPath() {
+		return gotoPath;
+	}
+
+	public void setGotoPath(String gotoPath) {
+		this.gotoPath = gotoPath;
 	}
 }

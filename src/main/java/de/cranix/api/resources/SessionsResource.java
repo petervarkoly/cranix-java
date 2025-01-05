@@ -5,6 +5,8 @@ import static de.cranix.api.resources.Resource.*;
 
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -79,6 +81,35 @@ public class SessionsResource {
 		} else {
 			throw new WebApplicationException(401);
 		}
+		return session;
+	}
+
+	@GET
+	@Path("byToken/{token}")
+	@ApiOperation(value = "Find a session based on the token and delivers it.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 401, message = "Token was not found"),
+			@ApiResponse(code = 402, message = "Token is not yet valid"),
+			@ApiResponse(code = 403, message = "Token is not valid anymore"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	public Session getSessionByToken(
+			@Context HttpServletRequest req,
+			@PathParam("token") String token
+	) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Session session  = new SessionService(em).getByToken(token);
+		if(session == null){
+			throw new WebApplicationException(401);
+		}
+		Date now = new Date();
+		if(now.before(session.getValidFrom())){
+			throw new WebApplicationException(402);
+		}
+		if(now.after(session.getValidUntil())){
+			throw new WebApplicationException(403);
+		}
+		em.close();
 		return session;
 	}
 

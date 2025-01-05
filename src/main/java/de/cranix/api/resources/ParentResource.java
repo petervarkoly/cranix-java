@@ -169,7 +169,6 @@ public class ParentResource {
     /**
      * Functions to manage parent teacher meetings
      */
-
     @POST
     @Path("ptms")
     @RolesAllowed("ptm.manage")
@@ -214,7 +213,7 @@ public class ParentResource {
 
     @GET
     @Path("ptms")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom","ptm.registerEvent"})
+    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
     @ApiOperation(value = "Gets the next parent teacher meetings.")
     public List<ParentTeacherMeeting> getPtms(
             @ApiParam(hidden = true) @Auth Session session
@@ -241,7 +240,7 @@ public class ParentResource {
 
     @GET
     @Path("ptms/{id}")
-    @RolesAllowed("ptm.manage")
+    @RolesAllowed({"ptm.manage","parents"})
     @ApiOperation(value = "Gets one parent teacher meeting by id.")
     public ParentTeacherMeeting getPtmById(
             @ApiParam(hidden = true) @Auth Session session,
@@ -312,7 +311,7 @@ public class ParentResource {
 
     @POST
     @Path("ptms/events")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @RolesAllowed({"ptm.manage","ptm.registerRoom","parents"})
     @ApiOperation(value = "Register an event for a student  in a room.")
     public CrxResponse registerEvent(
             @ApiParam(hidden = true) @Auth Session session,
@@ -326,7 +325,7 @@ public class ParentResource {
 
     @DELETE
     @Path("ptms/events/{id}")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @RolesAllowed({"ptm.manage","ptm.registerRoom","parents"})
     @ApiOperation(value = "Deletes a room registration.")
     public CrxResponse cancelEvent(
             @ApiParam(hidden = true) @Auth Session session,
