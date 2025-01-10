@@ -179,22 +179,21 @@ public class SessionService extends Service {
         return this.session;
     }
 
-    public CrxResponse createSession(User user, Date from, Date until){
-        Session newSession = new Session();
-        newSession.setUser(user);
-        String token = createSessionToken(user.getUid());
-        newSession.setToken(token);
-        newSession.setValidFrom(from);
-        newSession.setValidUntil(until);
+    public Session createSession(User user, Date from, Date until, String gotoPath){
+        String token =  createSessionToken(user.getUid());
+        Session newSession = new Session(
+                token, user, from, until, gotoPath
+        );
         newSession.setRole(user.getRole());
         try {
             this.em.getTransaction().begin();
             this.em.persist(newSession);
             this.em.getTransaction().commit();
-            return new CrxResponse("OK","Session was created successfully");
+            sessions.put(token, newSession);
+            return newSession;
         } catch (Exception e){
             logger.error("Create session " + e.getMessage());
-            return new CrxResponse("ERROR","Session could not be created." + e.getMessage());
+            return null;
         }
     }
 

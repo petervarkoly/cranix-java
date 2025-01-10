@@ -252,6 +252,20 @@ public class ParentResource {
         return resp;
     }
 
+    @PUT
+    @Path("ptms/{id}")
+    @RolesAllowed({"ptm.manage"})
+    @ApiOperation(value = "Send mails to the parents")
+    public CrxResponse sendNotifications(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new PTMService(session,em).sendNotifications(id);
+        em.close();
+        return resp;
+    }
+
     @GET
     @Path("ptms/{id}/rooms")
     @RolesAllowed({"ptm.manage","ptm.registerRoom"})

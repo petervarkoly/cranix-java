@@ -4,11 +4,11 @@ import de.cranix.dao.CrxResponse;
 import de.cranix.dao.ParentRequest;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
-import org.checkerframework.checker.units.qual.C;
 
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.UUID;
 
 public class ParentService extends Service{
 
@@ -19,6 +19,7 @@ public class ParentService extends Service{
     public CrxResponse add(User user){
         try{
             user.setRole("parents");
+            user.setUuid(UUID.randomUUID().toString().toUpperCase());
             this.em.getTransaction().begin();
             this.em.persist(user);
             this.em.getTransaction().commit();

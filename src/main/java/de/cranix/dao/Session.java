@@ -111,11 +111,12 @@ public class Session implements Principal {
 		this.schoolId="dummy";
 	}
 
-	public Session(String token, User user, Date validFrom, Date validUntil) {
+	public Session(String token, User user, Date validFrom, Date validUntil, String gotoPath) {
 		this.token = token;
 		this.user = user;
 		this.validFrom = validFrom;
 		this.validUntil = validUntil;
+		this.gotoPath = gotoPath;
 	}
 
 	public Session() {
