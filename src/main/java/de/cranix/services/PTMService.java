@@ -22,12 +22,21 @@ public class PTMService extends Service {
     Logger logger = LoggerFactory.getLogger(PTMService.class);
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+    /*
+    * Following variables are supported in /etc/sysconfig/cranix-ptm
+    * ALLOW_MULTI_USE_OF_ROOMS
+    * SEND_NOTIFICATION_TO_STUDENTS
+     */
+    Config ptmConfig;
+
     public PTMService() {
         super();
     }
 
-    public PTMService(Session session, EntityManager em) {
+    public PTMService(Session session, EntityManager em)
+    {
         super(session, em);
+        ptmConfig = new Config("/etc/sysconfig/cranix-ptm","");
     }
 
     public CrxResponse add(ParentTeacherMeeting parentTeacherMeeting) {
@@ -131,6 +140,7 @@ public class PTMService extends Service {
     }
 
     public List<Room> getFreeRooms(Long id) {
+        Boolean allowMultipleUseOfRooms = this.ptmConfig.getConfigValue("ALLOW_MULTI_USE_OF_ROOMS").equals("yes");
         try {
             ParentTeacherMeeting parentTeacherMeeting = this.em.find(ParentTeacherMeeting.class, id);
             List<Room> reservedRooms = new ArrayList<>();
@@ -142,7 +152,7 @@ public class PTMService extends Service {
                 if (room.getRoomType().equals("AdHocAccess") || room.getRoomType().equals("technicalRoom")) {
                     continue;
                 }
-                if (this.getConfigValue("PTM_ALLOW_MULTI_USE_OF_ROOMS").equals("yes") || !reservedRooms.contains(room)) {
+                if (allowMultipleUseOfRooms || !reservedRooms.contains(room)) {
                     freeRooms.add(room);
                 }
             }
@@ -180,7 +190,7 @@ public class PTMService extends Service {
         }
         if (ptmTeacherInRoom.getTeacher() == null && isAllowed("ptm.registerRoom")) {
             ptmTeacherInRoom.setTeacher(this.session.getUser());
-        } else {
+        } else if(ptmTeacherInRoom.getTeacher() == null){
             return new CrxResponse("ERROR", "Can not register the room.");
         }
         PTMTeacherInRoom newPTMTiT = new PTMTeacherInRoom(
@@ -307,14 +317,18 @@ public class PTMService extends Service {
     public CrxResponse sendNotifications(Long id) {
         ParentTeacherMeeting parentTeacherMeeting = this.em.find(ParentTeacherMeeting.class, id);
         File dirName = new File(cranixTmpDir + "PTM" + dateFormat.format(parentTeacherMeeting.getStart()) + "/");
+        Boolean sendNotificationToStudents = this.ptmConfig.getConfigValue("SEND_NOTIFICATION_TO_STUDENTS").equals("yes");
         try {
             Files.createDirectories(dirName.toPath(), privatDirAttribute);
             for (Group group : parentTeacherMeeting.getClasses()) {
                 for (User student : group.getUsers()) {
                     if (!student.getRole().equals("students")) continue;
                     logger.debug("Student:" + student.getUid());
+                    if(sendNotificationToStudents) {
+                        sendNotification(parentTeacherMeeting, student, dirName.getPath());
+                    }
                     for (User parent : student.getParents()) {
-                        sendNotification(parentTeacherMeeting,parent, dirName.getPath());
+                        sendNotification(parentTeacherMeeting, parent, dirName.getPath());
                     }
                 }
             }
@@ -325,8 +339,9 @@ public class PTMService extends Service {
         }
     }
 
-    void sendNotification(ParentTeacherMeeting parentTeacherMeeting, User parent, String dirName){
+    void sendNotification(ParentTeacherMeeting parentTeacherMeeting, User user, String dirName){
         String fileName;
+        String mailAddress;
         SessionService sessionService = new SessionService(em);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -334,8 +349,8 @@ public class PTMService extends Service {
             final String template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/ptmLetterTemplate.html")));
             final String gotoPath = "trusted/registerPTM/" + parentTeacherMeeting.getId();
             Session parentSession = null;
-            logger.debug("parent:" + parent.getUid());
-            for (Session session1 : parent.getSessions()) {
+            logger.debug("parent:" + user.getUid());
+            for (Session session1 : user.getSessions()) {
                 if (session1.getGotoPath() != null && session1.getGotoPath().equals(gotoPath)) {
                     parentSession = session1;
                     break;
@@ -343,7 +358,7 @@ public class PTMService extends Service {
             }
             if (parentSession == null) {
                 parentSession = sessionService.createSession(
-                        parent,
+                        user,
                         parentTeacherMeeting.getStartRegistration(),
                         parentTeacherMeeting.getEndRegistration(),
                         gotoPath
@@ -351,16 +366,25 @@ public class PTMService extends Service {
             }
             String message = template
                     .replaceAll("#TOKEN#", parentSession.getToken())
-                    .replaceAll("#EMAIL#", parent.getEmailAddress())
-                    .replaceAll("#SURNAME#", parent.getSurName())
-                    .replaceAll("#GIVENNAME#", parent.getGivenName())
+                    .replaceAll("#SURNAME#", user.getSurName())
+                    .replaceAll("#GIVENNAME#", user.getGivenName())
                     .replaceAll("#DATE#", dateFormat.format(parentTeacherMeeting.getStart()))
                     .replaceAll("#FROM#", timeFormat.format(parentTeacherMeeting.getStart()))
                     .replaceAll("#UNTIL#", timeFormat.format(parentTeacherMeeting.getEnd()))
                     .replaceAll("#REGSART#", dateTimeFormat.format(parentTeacherMeeting.getStartRegistration()))
                     .replaceAll("#REGEND#", dateTimeFormat.format(parentTeacherMeeting.getEndRegistration()));
-            fileName = dirName + "/" + parent.getUuid();
+            if( user.getRole().equals("parents")) {
+                fileName = dirName + "/" + user.getUuid();
+            }else {
+                fileName = dirName + "/" + user.getUid();
+            }
             Files.write(Paths.get(fileName), message.getBytes());
+            if( user.getEmailAddress().isEmpty()) {
+                mailAddress = user.getUid();
+            } else {
+                mailAddress = user.getEmailAddress();
+            }
+            Files.write(Paths.get(fileName + ".mailAddress"), mailAddress.getBytes());
         } catch (Exception e){
             logger.error("sendNotification" + e.getMessage() );
         }
