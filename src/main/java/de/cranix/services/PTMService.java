@@ -193,30 +193,42 @@ public class PTMService extends Service {
         } else if(ptmTeacherInRoom.getTeacher() == null){
             return new CrxResponse("ERROR", "Can not register the room.");
         }
-        PTMTeacherInRoom newPTMTiT = new PTMTeacherInRoom(
-                this.session,
-                ptmTeacherInRoom.getTeacher(),
-                ptmTeacherInRoom.getRoom(),
-                parentTeacherMeeting
-        );
-        try {
-            this.em.getTransaction().begin();
-            parentTeacherMeeting.getPtmTeacherInRoomList().add(newPTMTiT);
-            this.em.merge(parentTeacherMeeting);
-            this.em.getTransaction().commit();
-            return new CrxResponse("OK", "You was registered for the parent teacher meeting successfully.");
-        } catch (Exception e) {
-            return new CrxResponse("ERROR", e.getMessage());
+        if(ptmTeacherInRoom.getId() == 0 ){
+            PTMTeacherInRoom newPTMTiT = new PTMTeacherInRoom(
+                    this.session,
+                    ptmTeacherInRoom.getTeacher(),
+                    ptmTeacherInRoom.getRoom(),
+                    parentTeacherMeeting
+            );
+            try {
+                this.em.getTransaction().begin();
+                parentTeacherMeeting.getPtmTeacherInRoomList().add(newPTMTiT);
+                this.em.merge(parentTeacherMeeting);
+                this.em.getTransaction().commit();
+                return new CrxResponse("OK", "Room was registered for parent teacher meeting successfully.");
+            } catch (Exception e) {
+                return new CrxResponse("ERROR", e.getMessage());
+            }
+        } else {
+            //update
+            try {
+                this.em.getTransaction().begin();
+                this.em.merge(ptmTeacherInRoom);
+                this.em.getTransaction().commit();
+                return new CrxResponse("OK", "Room was changed for parent teacher meeting successfully.");
+            } catch (Exception e){
+                return new CrxResponse("ERROR", e.getMessage());
+            }
         }
     }
 
     public CrxResponse cancelRoomRegistration(Long id) {
         PTMTeacherInRoom ptmTeacherInRoom = this.em.find(PTMTeacherInRoom.class, id);
         if (ptmTeacherInRoom == null) {
-            return new CrxResponse("ERROR", "Can not find the PTM event.");
+            return new CrxResponse("ERROR", "Can not find the PTM Teacher in Room.");
         }
         ParentTeacherMeeting parentTeacherMeeting = ptmTeacherInRoom.getParentTeacherMeeting();
-        parentTeacherMeeting.getPtmTeacherInRoomList().remove(parentTeacherMeeting);
+        parentTeacherMeeting.getPtmTeacherInRoomList().remove(ptmTeacherInRoom);
         try {
             this.em.getTransaction().begin();
             this.em.merge(parentTeacherMeeting);
