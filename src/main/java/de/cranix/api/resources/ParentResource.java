@@ -240,7 +240,7 @@ public class ParentResource {
 
     @GET
     @Path("ptms/{id}")
-    @RolesAllowed({"ptm.manage","parents"})
+    @RolesAllowed({"ptm.manage","parents","students"})
     @ApiOperation(value = "Gets one parent teacher meeting by id.")
     public ParentTeacherMeeting getPtmById(
             @ApiParam(hidden = true) @Auth Session session,

@@ -210,10 +210,12 @@ public class PTMService extends Service {
                 return new CrxResponse("ERROR", e.getMessage());
             }
         } else {
-            //update
+            PTMTeacherInRoom ptmTeacherInRoom1 = this.em.find(PTMTeacherInRoom.class,ptmTeacherInRoom.getId());
+            ptmTeacherInRoom1.setRoom(ptmTeacherInRoom.getRoom());
+            //ptmTeacherInRoom1.setTeacher(ptmTeacherInRoom.getTeacher());
             try {
                 this.em.getTransaction().begin();
-                this.em.merge(ptmTeacherInRoom);
+                this.em.merge(ptmTeacherInRoom1);
                 this.em.getTransaction().commit();
                 return new CrxResponse("OK", "Room was changed for parent teacher meeting successfully.");
             } catch (Exception e){
@@ -247,7 +249,7 @@ public class PTMService extends Service {
         }
         for (PTMEvent ptmEvent : oldEvent.getTeacherInRoom().getEvents()) {
             if (ptmEvent.equals(event)) continue;
-            if (ptmEvent.getStudent().equals(event.getStudent())) {
+            if (ptmEvent.getStudent() != null && ptmEvent.getStudent().equals(event.getStudent())) {
                 return new CrxResponse("ERROR", "There is already an event reserved for the student by this teacher.");
             }
         }
@@ -312,11 +314,11 @@ public class PTMService extends Service {
             ParentTeacherMeeting oldPTM = this.em.find(ParentTeacherMeeting.class, parentTeacherMeeting.getId());
             this.em.getTransaction().begin();
             oldPTM.setTitle(parentTeacherMeeting.getTitle());
+            oldPTM.setStartRegistration(parentTeacherMeeting.getStartRegistration());
+            oldPTM.setEndRegistration(parentTeacherMeeting.getEndRegistration());
             if (oldPTM.getPtmTeacherInRoomList().isEmpty()) {
                 oldPTM.setStart(parentTeacherMeeting.getStart());
                 oldPTM.setEnd(parentTeacherMeeting.getEnd());
-                oldPTM.setStartRegistration(parentTeacherMeeting.getStartRegistration());
-                oldPTM.setEndRegistration(parentTeacherMeeting.getEndRegistration());
             }
             this.em.merge(oldPTM);
             this.em.getTransaction().commit();

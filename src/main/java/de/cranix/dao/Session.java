@@ -44,8 +44,9 @@ public class Session implements Principal {
 	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED")
 	private Device device;
 
+
+	//@JsonIgnore
 	@ManyToOne
-	@JsonIgnore
 	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private User user;
 
@@ -108,7 +109,7 @@ public class Session implements Principal {
 		this.user = user;
 		this.password = password;
 		this.token = token;
-		this.schoolId="dummy";
+		this.ip = ip;
 	}
 
 	public Session(String token, User user, Date validFrom, Date validUntil, String gotoPath) {
@@ -165,14 +166,6 @@ public class Session implements Principal {
 		data.append("mac: '" + this.mac).append("' ");
 		data.append("role: '" + this.role).append("' ");
 		return data.toString();
-	}
-
-	public String getSchoolId() {
-		return this.schoolId;
-	}
-
-	public void setSchoolId(String schoolId) {
-		this.schoolId = schoolId;
 	}
 
 	public Room getRoom() {
