@@ -62,7 +62,9 @@ public class Job extends AbstractEntity {
 	}
 
 	public void setDescription(String description) {
-		this.description = description.length() > 128 ? description.substring(0,128) : description;
+		if(description != null) {
+			this.description = description.length() > 128 ? description.substring(0, 128) : description;
+		}
 	}
 
 	public String getCommand() {

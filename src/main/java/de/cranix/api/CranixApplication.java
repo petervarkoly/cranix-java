@@ -22,6 +22,7 @@ import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import static de.cranix.helper.CranixConstants.cranix2faConfig;
 import static de.cranix.helper.CranixConstants.cranixMdmConfig;
+import static de.cranix.helper.CranixConstants.cranixPTCConfig;
 
 public class CranixApplication extends Application<ServerConfiguration> {
 
@@ -120,11 +121,14 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		environment.jersey().register(objectResource);
 
 		// TODO: we have to check the licence
-		final ParentResource parentResource = new ParentResource();
-		environment.jersey().register(parentResource);
+		File config_file = new File(cranixPTCConfig);
+		if( config_file.exists() ) {
+			final ParentResource parentResource = new ParentResource();
+			environment.jersey().register(parentResource);
+		}
 
 		//Start some APIs only if they are configured.
-		File config_file = new File(cranixMdmConfig);
+		config_file = new File(cranixMdmConfig);
 		if( config_file.exists() ) {
 			final MdmResource mdmResource = new MdmResource();
 			environment.jersey().register(mdmResource);

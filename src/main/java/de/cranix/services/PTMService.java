@@ -15,15 +15,15 @@ import java.util.List;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
 import static de.cranix.helper.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.CranixConstants.cranixPTCConfig;
 import static de.cranix.helper.CranixConstants.privatDirAttribute;
 
 public class PTMService extends Service {
 
     Logger logger = LoggerFactory.getLogger(PTMService.class);
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
     /*
-    * Following variables are supported in /etc/sysconfig/cranix-ptm
+    * Following variables are supported in cranixPTCConfig
     * ALLOW_MULTI_USE_OF_ROOMS
     * SEND_NOTIFICATION_TO_STUDENTS
      */
@@ -31,12 +31,13 @@ public class PTMService extends Service {
 
     public PTMService() {
         super();
+        ptmConfig = new Config(cranixPTCConfig,"");
     }
 
     public PTMService(Session session, EntityManager em)
     {
         super(session, em);
-        ptmConfig = new Config("/etc/sysconfig/cranix-ptm","");
+        ptmConfig = new Config(cranixPTCConfig,"");
     }
 
     public CrxResponse add(ParentTeacherMeeting parentTeacherMeeting) {

@@ -53,6 +53,8 @@ public class SoftwareFullName extends AbstractEntity {
 	}
 
 	public void setFullName(String fullName) {
-		this.fullName = fullName.length() > 128 ? fullName.substring(0,128) : fullName;
+		if(fullName!= null) {
+			this.fullName = fullName.length() > 128 ? fullName.substring(0, 128) : fullName;
+		}
 	}
 }
