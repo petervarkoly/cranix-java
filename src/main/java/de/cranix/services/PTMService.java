@@ -23,21 +23,20 @@ public class PTMService extends Service {
     Logger logger = LoggerFactory.getLogger(PTMService.class);
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     /*
-    * Following variables are supported in cranixPTCConfig
-    * ALLOW_MULTI_USE_OF_ROOMS
-    * SEND_NOTIFICATION_TO_STUDENTS
+     * Following variables are supported in cranixPTCConfig
+     * ALLOW_MULTI_USE_OF_ROOMS
+     * SEND_NOTIFICATION_TO_STUDENTS
      */
     Config ptmConfig;
 
     public PTMService() {
         super();
-        ptmConfig = new Config(cranixPTCConfig,"");
+        ptmConfig = new Config(cranixPTCConfig, "");
     }
 
-    public PTMService(Session session, EntityManager em)
-    {
+    public PTMService(Session session, EntityManager em) {
         super(session, em);
-        ptmConfig = new Config(cranixPTCConfig,"");
+        ptmConfig = new Config(cranixPTCConfig, "");
     }
 
     public CrxResponse add(ParentTeacherMeeting parentTeacherMeeting) {
@@ -191,10 +190,10 @@ public class PTMService extends Service {
         }
         if (ptmTeacherInRoom.getTeacher() == null && isAllowed("ptm.registerRoom")) {
             ptmTeacherInRoom.setTeacher(this.session.getUser());
-        } else if(ptmTeacherInRoom.getTeacher() == null){
+        } else if (ptmTeacherInRoom.getTeacher() == null) {
             return new CrxResponse("ERROR", "Can not register the room.");
         }
-        if(ptmTeacherInRoom.getId() == 0 ){
+        if (ptmTeacherInRoom.getId() == 0) {
             PTMTeacherInRoom newPTMTiT = new PTMTeacherInRoom(
                     this.session,
                     ptmTeacherInRoom.getTeacher(),
@@ -211,7 +210,7 @@ public class PTMService extends Service {
                 return new CrxResponse("ERROR", e.getMessage());
             }
         } else {
-            PTMTeacherInRoom ptmTeacherInRoom1 = this.em.find(PTMTeacherInRoom.class,ptmTeacherInRoom.getId());
+            PTMTeacherInRoom ptmTeacherInRoom1 = this.em.find(PTMTeacherInRoom.class, ptmTeacherInRoom.getId());
             ptmTeacherInRoom1.setRoom(ptmTeacherInRoom.getRoom());
             //ptmTeacherInRoom1.setTeacher(ptmTeacherInRoom.getTeacher());
             try {
@@ -219,7 +218,7 @@ public class PTMService extends Service {
                 this.em.merge(ptmTeacherInRoom1);
                 this.em.getTransaction().commit();
                 return new CrxResponse("OK", "Room was changed for parent teacher meeting successfully.");
-            } catch (Exception e){
+            } catch (Exception e) {
                 return new CrxResponse("ERROR", e.getMessage());
             }
         }
@@ -248,6 +247,9 @@ public class PTMService extends Service {
         if (oldEvent == null) {
             return new CrxResponse("ERROR", "Can not find the PTM event.");
         }
+        if (oldEvent.getStudent() != null) {
+            return new CrxResponse("ERROR", "This appointment is already reserved.");
+        }
         for (PTMEvent ptmEvent : oldEvent.getTeacherInRoom().getEvents()) {
             if (ptmEvent.equals(event)) continue;
             if (ptmEvent.getStudent() != null && ptmEvent.getStudent().equals(event.getStudent())) {
@@ -255,7 +257,7 @@ public class PTMService extends Service {
             }
         }
         oldEvent.setStudent(event.getStudent());
-        if (event.getParent() != null) {
+        if (event.getParent() == null) {
             User student = this.em.find(User.class, event.getStudent().getId());
             if (!student.getParents().isEmpty()) {
                 oldEvent.setParent(student.getParents().get(0));
@@ -339,11 +341,11 @@ public class PTMService extends Service {
                 for (User student : group.getUsers()) {
                     if (!student.getRole().equals("students")) continue;
                     logger.debug("Student:" + student.getUid());
-                    if(sendNotificationToStudents) {
-                        sendNotification(parentTeacherMeeting, student, dirName.getPath());
+                    if (sendNotificationToStudents) {
+                        sendNotification(parentTeacherMeeting, student, null, dirName.getPath());
                     }
                     for (User parent : student.getParents()) {
-                        sendNotification(parentTeacherMeeting, parent, dirName.getPath());
+                        sendNotification(parentTeacherMeeting, student, parent, dirName.getPath());
                     }
                 }
             }
@@ -354,18 +356,24 @@ public class PTMService extends Service {
         }
     }
 
-    void sendNotification(ParentTeacherMeeting parentTeacherMeeting, User user, String dirName){
+    void sendNotification(ParentTeacherMeeting parentTeacherMeeting, User student, User parent, String dirName) {
         String fileName;
         String mailAddress;
+        String template;
+        String message;
         SessionService sessionService = new SessionService(em);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         try {
-            final String template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/ptmLetterTemplate.html")));
+            if (parent != null) {
+                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/ptmLetterParentTemplate.html")));
+            } else {
+                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/ptmLetterStudentTemplate.html")));
+            }
             final String gotoPath = "trusted/registerPTM/" + parentTeacherMeeting.getId();
             Session parentSession = null;
-            logger.debug("parent:" + user.getUid());
-            for (Session session1 : user.getSessions()) {
+            logger.debug("student:" + student.getUid());
+            for (Session session1 : student.getSessions()) {
                 if (session1.getGotoPath() != null && session1.getGotoPath().equals(gotoPath)) {
                     parentSession = session1;
                     break;
@@ -373,35 +381,53 @@ public class PTMService extends Service {
             }
             if (parentSession == null) {
                 parentSession = sessionService.createSession(
-                        user,
+                        student,
                         parentTeacherMeeting.getStartRegistration(),
                         parentTeacherMeeting.getEndRegistration(),
                         gotoPath
                 );
             }
-            String message = template
-                    .replaceAll("#TOKEN#", parentSession.getToken())
-                    .replaceAll("#SURNAME#", user.getSurName())
-                    .replaceAll("#GIVENNAME#", user.getGivenName())
-                    .replaceAll("#DATE#", dateFormat.format(parentTeacherMeeting.getStart()))
-                    .replaceAll("#FROM#", timeFormat.format(parentTeacherMeeting.getStart()))
-                    .replaceAll("#UNTIL#", timeFormat.format(parentTeacherMeeting.getEnd()))
-                    .replaceAll("#REGSART#", dateTimeFormat.format(parentTeacherMeeting.getStartRegistration()))
-                    .replaceAll("#REGEND#", dateTimeFormat.format(parentTeacherMeeting.getEndRegistration()));
-            if( user.getRole().equals("parents")) {
-                fileName = dirName + "/" + user.getUuid();
-            }else {
-                fileName = dirName + "/" + user.getUid();
+            if (parent == null) {
+                message = template
+                        .replaceAll("#TOKEN#", parentSession.getToken())
+                        .replaceAll("#SURNAME#", student.getSurName())
+                        .replaceAll("#GIVENNAME#", student.getGivenName())
+                        .replaceAll("#DATE#", dateFormat.format(parentTeacherMeeting.getStart()))
+                        .replaceAll("#FROM#", timeFormat.format(parentTeacherMeeting.getStart()))
+                        .replaceAll("#UNTIL#", timeFormat.format(parentTeacherMeeting.getEnd()))
+                        .replaceAll("#REGSART#", dateTimeFormat.format(parentTeacherMeeting.getStartRegistration()))
+                        .replaceAll("#REGEND#", dateTimeFormat.format(parentTeacherMeeting.getEndRegistration()));
+                fileName = dirName + "/" + student.getUid();
+                if (student.getEmailAddress().isEmpty()) {
+                    mailAddress = student.getUid();
+                } else {
+                    mailAddress = student.getEmailAddress();
+                }
+            } else {
+                message = template
+                        .replaceAll("#TOKEN#", parentSession.getToken())
+                        .replaceAll("#SURNAME#", student.getSurName())
+                        .replaceAll("#GIVENNAME#", student.getGivenName())
+                        .replaceAll("#DATE#", dateFormat.format(parentTeacherMeeting.getStart()))
+                        .replaceAll("#PARENT_SURNAME#", parent.getSurName())
+                        .replaceAll("#PARENT_GIVENNAME#", parent.getGivenName())
+                        .replaceAll("#FROM#", timeFormat.format(parentTeacherMeeting.getStart()))
+                        .replaceAll("#UNTIL#", timeFormat.format(parentTeacherMeeting.getEnd()))
+                        .replaceAll("#REGSART#", dateTimeFormat.format(parentTeacherMeeting.getStartRegistration()))
+                        .replaceAll("#REGEND#", dateTimeFormat.format(parentTeacherMeeting.getEndRegistration()));
+                fileName = dirName + "/" + parent.getUuid();
+                mailAddress = parent.getEmailAddress();
             }
             Files.write(Paths.get(fileName), message.getBytes());
-            if( user.getEmailAddress().isEmpty()) {
-                mailAddress = user.getUid();
-            } else {
-                mailAddress = user.getEmailAddress();
-            }
             Files.write(Paths.get(fileName + ".mailAddress"), mailAddress.getBytes());
-        } catch (Exception e){
-            logger.error("sendNotification" + e.getMessage() );
+            //Create subject
+            String subjectTemplate = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/ptmLetterSubjectTemplate")));
+            String subject = subjectTemplate.replaceAll("#SURNAME#", student.getSurName())
+                    .replaceAll("#GIVENNAME#", student.getGivenName())
+                    .replaceAll("#DATE#", dateFormat.format(parentTeacherMeeting.getStart()));
+            Files.write(Paths.get(fileName + ".subject"), subject.getBytes());
+        } catch (Exception e) {
+            logger.error("sendNotification" + e.getMessage());
         }
     }
 }

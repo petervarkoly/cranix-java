@@ -325,7 +325,7 @@ public class ParentResource {
 
     @POST
     @Path("ptms/events")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom","parents"})
+    @RolesAllowed({"ptm.manage","ptm.registerRoom","parents","students"})
     @ApiOperation(value = "Register an event for a student  in a room.")
     public CrxResponse registerEvent(
             @ApiParam(hidden = true) @Auth Session session,
@@ -339,7 +339,7 @@ public class ParentResource {
 
     @DELETE
     @Path("ptms/events/{id}")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom","parents"})
+    @RolesAllowed({"ptm.manage","ptm.registerRoom","parents","students"})
     @ApiOperation(value = "Deletes a room registration.")
     public CrxResponse cancelEvent(
             @ApiParam(hidden = true) @Auth Session session,

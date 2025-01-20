@@ -267,6 +267,9 @@ public class User extends AbstractEntity {
 	@Transient
 	List<Long> parentIds = new ArrayList<>();
 
+	@Transient
+	List<Long> classIds;
+
 	@OneToMany(fetch = FetchType.EAGER, mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
 	@JsonIgnore
 	private List<Crx2fa> crx2fas;
@@ -811,4 +814,14 @@ public class User extends AbstractEntity {
 	public List<User> getParents() { return parents;}
 
 	public void setParents(List<User> parents) {this.parents = parents;}
+
+	public List<Long> getClassIds(){
+		classIds = new ArrayList<>();
+		for(Group group: groups){
+			if(group.getGroupType().equals("class")){
+				classIds.add(group.getId());
+			}
+		}
+		return classIds;
+	}
 }

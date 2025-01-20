@@ -118,6 +118,7 @@ public class Session implements Principal {
 		this.validFrom = validFrom;
 		this.validUntil = validUntil;
 		this.gotoPath = gotoPath;
+		this.role = user.getRole();
 	}
 
 	public Session() {
