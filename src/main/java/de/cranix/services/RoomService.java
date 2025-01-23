@@ -332,6 +332,13 @@ public class RoomService extends Service {
         if (!room.isIgnoreNetbios() && !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10) {
             return new CrxResponse("ERROR", "Room name is to long.");
         }
+        if(room.getDevCount() != null && room.getDevCount() == 0){
+            room.setCreator(this.session.getUser());
+            this.em.getTransaction().begin();
+            this.em.persist(room);
+            this.em.getTransaction().commit();
+            return new CrxResponse("OK", "Room was created successfully.", room.getId())
+        }
         //If no devCount was set we calculate the net mask
         if (room.getDevCount() != null) {
             room.convertCountToNm();
@@ -461,8 +468,18 @@ public class RoomService extends Service {
      */
     public List<String> getAvailableIPAddresses(long roomId) {
         Room room = this.getById(roomId);
-        IPv4Net net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
-        List<String> allIPs = net.getAvailableIPs(0);
+        List<String> allIPs = new ArrayList<String>();
+        if(room.getNetMask() == 0 || room.getStartIP() == null || room.getStartIP().isEmpty()){
+            return allIPs;
+        }
+        IPv4Net net;
+        try {
+            net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
+        } catch (Exception e) {
+            logger.debug("Room has no IP:" + room.getName());
+            return allIPs;
+        }
+        allIPs = net.getAvailableIPs(0);
         List<String> usedIPs = new ArrayList<String>();
         IPv4Net subNetwork = null;
         for (String subnet : this.getEnumerates("network")) {
@@ -500,6 +517,9 @@ public class RoomService extends Service {
     public List<String> getAvailableIPAddresses(Room room, long count) {
         logger.debug("getAvailableIPAddresses: Room:" + room + " RoomId:" + room.getId());
         List<String> availableIPs = new ArrayList<String>();
+        if(room.getNetMask() == 0 || room.getStartIP() == null || room.getStartIP().isEmpty()){
+            return availableIPs;
+        }
         IPv4Net net = new IPv4Net(room.getStartIP() + "/" + room.getNetMask());
         IPv4Net subNetwork = null;
         for (String subnet : this.getEnumerates("network")) {
