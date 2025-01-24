@@ -349,6 +349,13 @@ public class PTMService extends Service {
                     }
                 }
             }
+            Job sendMails = new Job(
+                    "Send notification for the PTM on "+ dateFormat.format(parentTeacherMeeting.getStart()),
+                    null,
+                    cranixBaseDir + "tools/PTM/send_mails " + dirName,
+                    true
+            );
+            new JobService(session,em).createJob(sendMails);
             return new CrxResponse("OK", "Sending notifications was started.");
         } catch (Exception e) {
             logger.error("sendNotifications:" + e.getMessage());
@@ -366,9 +373,9 @@ public class PTMService extends Service {
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         try {
             if (parent != null) {
-                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/ptmLetterParentTemplate.html")));
+                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterParentTemplate.html")));
             } else {
-                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/ptmLetterStudentTemplate.html")));
+                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterStudentTemplate.html")));
             }
             final String gotoPath = "trusted/registerPTM/" + parentTeacherMeeting.getId();
             Session parentSession = null;
@@ -421,7 +428,7 @@ public class PTMService extends Service {
             Files.write(Paths.get(fileName), message.getBytes());
             Files.write(Paths.get(fileName + ".mailAddress"), mailAddress.getBytes());
             //Create subject
-            String subjectTemplate = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/ptmLetterSubjectTemplate")));
+            String subjectTemplate = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterSubjectTemplate")));
             String subject = subjectTemplate.replaceAll("#SURNAME#", student.getSurName())
                     .replaceAll("#GIVENNAME#", student.getGivenName())
                     .replaceAll("#DATE#", dateFormat.format(parentTeacherMeeting.getStart()));
