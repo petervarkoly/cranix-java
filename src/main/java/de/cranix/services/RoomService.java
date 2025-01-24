@@ -328,16 +328,17 @@ public class RoomService extends Service {
         if (room.getDescription() != null && !room.getDescription().isEmpty() && !this.isDescriptionUnique(room.getDescription())) {
             return new CrxResponse("ERROR", "Room description is not unique.");
         }
-        //Only adHocRooms name can be longer then 10 char
-        if (!room.isIgnoreNetbios() && !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10) {
-            return new CrxResponse("ERROR", "Room name is to long.");
-        }
+	// This is a room without IP-addresse. Needed for PTM and other room reservations tools.
         if(room.getDevCount() != null && room.getDevCount() == 0){
             room.setCreator(this.session.getUser());
             this.em.getTransaction().begin();
             this.em.persist(room);
             this.em.getTransaction().commit();
-            return new CrxResponse("OK", "Room was created successfully.", room.getId())
+            return new CrxResponse("OK", "Room was created successfully.", room.getId());
+        }
+        //Only adHocRooms name can be longer then 10 char
+        if (!room.isIgnoreNetbios() && !room.getRoomType().equals("AdHocAccess") && room.getName().length() > 10) {
+            return new CrxResponse("ERROR", "Room name is to long.");
         }
         //If no devCount was set we calculate the net mask
         if (room.getDevCount() != null) {
