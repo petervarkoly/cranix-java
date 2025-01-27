@@ -89,6 +89,15 @@ public class SessionService extends Service {
             return null;
         }
 
+        /**
+         * For debug reason.
+         * Create Variable CRANIX_MAP_USER_<USERNAME>_TO="<username to map>" in /etc/sysconfig/cranix
+         * And the user will be mapped to an other user
+         **/
+        if (!this.getConfigValue("USER_MAP_USER_" + username + "_TO").isEmpty()) {
+            user = this.getConfigValue("USER_MAP_USER_" + username + "_TO";
+        }
+
         //TODO what to do with deviceType
         User user = userService.getByUid(username);
         if (user == null) {
