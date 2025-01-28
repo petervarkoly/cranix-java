@@ -16,6 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static de.cranix.helper.CranixConstants.cranixCalConfig;
 import static de.cranix.helper.CranixConstants.cranixTmpDir;
 import static de.cranix.helper.StaticHelpers.aMinusB;
 import static de.cranix.helper.StaticHelpers.cleanString;
@@ -26,6 +27,18 @@ public class CalendarService extends Service {
     String timeZone = ";TZID=Europe/Berlin:";
     String calendarPath = "/var/lib/radicale/collections/collection-root/";
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+    public static Map<String, String> days = new HashMap<String, String>() {{
+        put("1", "MO");
+        put("2", "TU");
+        put("3", "WE");
+        put("4", "TH");
+        put("5", "FR");
+        put("6", "SA");
+        put("7", "SU");
+
+    }};
+    static Config calConfig = new Config(cranixCalConfig, "");
+    static List<String[]> courseScheduler;
 
     public CalendarService() {
         super();
@@ -33,6 +46,29 @@ public class CalendarService extends Service {
 
     public CalendarService(Session session, EntityManager em) {
         super(session, em);
+        if(courseScheduler == null ) {
+            courseScheduler = new ArrayList<>();
+
+            for (String line : calConfig.getConfigValue("COURSE_SCHEDULER").split("#")) {
+                courseScheduler.add(line.split(":"));
+            }
+            logger.debug("courseScheduler: " + courseScheduler.get(0) + courseScheduler.get(1));
+        }
+
+    }
+
+    public List<String[]> getCourseScheduler() {
+        return courseScheduler;
+    }
+
+    public CrxResponse setCourseScheduler(List<String[]> scheduler){
+        courseScheduler = scheduler;
+        List<String> newScheduler = new ArrayList<>();
+        for(String[] tmp : scheduler){
+            newScheduler.add(String.join(":", tmp));
+        }
+        calConfig.setConfigValue("COURSE_SCHEDULER",String.join("#",newScheduler));
+        return new CrxResponse("OK","New Course Scheduler was written successfully");
     }
 
     public CrxCalendar getById(Long id) {
@@ -329,41 +365,10 @@ public class CalendarService extends Service {
         }
         return events;
     }
-
-    static String courses = "08:00:45#" +
-            "09:00:45#" +
-            "10:00:45#" +
-            "11:00:45#" +
-            "12:00:45#" +
-            "13:00:45#" +
-            "14:00:45#" +
-            "15:00:45#" +
-            "16:00:45#" +
-            "17:00:45#" +
-            "18:00:45#" +
-            "19:00:45";
-    public static Map<String, String> days = new HashMap<String, String>() {{
-        put("1", "MO");
-        put("2", "TU");
-        put("3", "WE");
-        put("4", "TH");
-        put("5", "FR");
-        put("6", "SA");
-        put("7", "SU");
-
-    }};
-
     public CrxResponse importTimetable(InputStream fileInputStream, String start, String end) {
         RoomService roomService = new RoomService(this.session, this.em);
         UserService userService = new UserService(this.session, this.em);
         GroupService groupService = new GroupService(this.session, this.em);
-        DateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-        List<String[]> hours = new ArrayList<>();
-        for (String line : courses.split("#")) {
-            logger.debug(line);
-            hours.add(line.split(":"));
-        }
-        logger.debug("Hours: " + hours.get(0) + hours.get(1));
         File file = null;
         try {
             file = File.createTempFile("crx", "importTimetable", new File(cranixTmpDir));
@@ -405,14 +410,14 @@ public class CalendarService extends Service {
                 event.setDescription(cleanString(fields[3]) + " in " + cleanString(fields[4]) + " " + cleanString(fields[2]));
                 Integer lesson = Integer.parseInt(fields[6]);
                 StringBuilder rrule = new StringBuilder();
-                rrule.append("DTSTART:").append(start).append("T").append(hours.get(lesson)[0]).append(hours.get(lesson)[1]).append("00\n");
+                rrule.append("DTSTART:").append(start).append("T").append(courseScheduler.get(lesson)[0]).append(courseScheduler.get(lesson)[1]).append("00\n");
                 rrule.append("RRULE:FREQ=WEEKLY;INTERVAL=1;WKST=MO;UNTIL=").append(end).append(";")
                         .append("BYDAY=").append(days.get(fields[5])).append(";")
-                        .append("BYHOUR=").append(hours.get(lesson)[0]).append(";")
-                        .append("BYMINUTE=").append(hours.get(lesson)[1]).append(";")
+                        .append("BYHOUR=").append(courseScheduler.get(lesson)[0]).append(";")
+                        .append("BYMINUTE=").append(courseScheduler.get(lesson)[1]).append(";")
                         .append("BYSECOND=0");
                 event.setRrule(rrule.toString());
-                Long duration = Long.parseLong(hours.get(lesson)[2]) * 60000;
+                Long duration = Long.parseLong(courseScheduler.get(lesson)[2]) * 60000;
                 event.setDuration(duration);
                 event.setEditable(false);
                 this.em.getTransaction().begin();

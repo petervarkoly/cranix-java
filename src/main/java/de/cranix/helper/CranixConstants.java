@@ -21,6 +21,7 @@ public interface CranixConstants {
 	static String cranixBaseDir    = "/usr/share/cranix/";
 	static String cranixPrinters   = cranixBaseDir + "templates/printers.txt";
 	static String cranixSysConfig  = "/etc/sysconfig/cranix";
+	static String cranixCalConfig  = "/etc/sysconfig/CRX_CAL";
 	static String cranixMdmConfig  = "/etc/sysconfig/CRX_MDM";
 	static String cranix2faConfig  = "/etc/sysconfig/CRX_2FA";
 	static String cranixPTCConfig  = "/etc/sysconfig/CRX_PTC";

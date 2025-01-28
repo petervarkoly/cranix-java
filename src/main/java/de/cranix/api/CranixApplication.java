@@ -20,9 +20,7 @@ import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
-import static de.cranix.helper.CranixConstants.cranix2faConfig;
-import static de.cranix.helper.CranixConstants.cranixMdmConfig;
-import static de.cranix.helper.CranixConstants.cranixPTCConfig;
+import static de.cranix.helper.CranixConstants.*;
 
 public class CranixApplication extends Application<ServerConfiguration> {
 
@@ -62,9 +60,6 @@ public class CranixApplication extends Application<ServerConfiguration> {
 
 		final AdHocLanResource adHocLanResource = new AdHocLanResource();
 		environment.jersey().register(adHocLanResource);
-
-		final CrxCalendarResource crxCalendarResource = new CrxCalendarResource();
-		environment.jersey().register(crxCalendarResource);
 
 		final CategoryResource categoryResource = new CategoryResource();
 		environment.jersey().register(categoryResource);
@@ -126,7 +121,11 @@ public class CranixApplication extends Application<ServerConfiguration> {
 			final ParentResource parentResource = new ParentResource();
 			environment.jersey().register(parentResource);
 		}
-
+		config_file = new File(cranixCalConfig);
+		if(config_file.exists()){
+			final CrxCalendarResource crxCalendarResource = new CrxCalendarResource();
+			environment.jersey().register(crxCalendarResource);
+		}
 		//Start some APIs only if they are configured.
 		config_file = new File(cranixMdmConfig);
 		if( config_file.exists() ) {

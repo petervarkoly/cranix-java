@@ -34,6 +34,39 @@ public class CrxCalendarResource {
     }
 
     @GET
+    @Path("courseScheduler")
+    @ApiOperation(value = "Get all calendar entries of the session user.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed({"calendar.manage"})
+    public List<String[]> getCourseScheduler(
+            @ApiParam(hidden = true) @Auth Session session
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final List<String[]> scheduler = new CalendarService(session, em).getCourseScheduler();
+        em.close();
+        return scheduler;
+    }
+
+    @POST
+    @Path("courseScheduler")
+    @ApiOperation(value = "Get all calendar entries of the session user.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed({"calendar.manage"})
+    public CrxResponse getCourseScheduler(
+            @ApiParam(hidden = true) @Auth Session session,
+            List<String[]> newScheduler
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final CrxResponse response = new CalendarService(session, em).setCourseScheduler(newScheduler);
+        em.close();
+        return response;
+    }
+
+    @GET
     @ApiOperation(value = "Get all calendar entries of the session user.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -182,7 +215,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
     	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"device.manage"})
+    @RolesAllowed({"calendar.manage"})
     public CrxResponse importDevices(
         @ApiParam(hidden = true) @Auth Session session,
         @FormDataParam("start") String start,
