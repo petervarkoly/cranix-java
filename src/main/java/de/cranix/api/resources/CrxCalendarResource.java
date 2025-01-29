@@ -1,9 +1,9 @@
 /* (c) 2024 Péter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 /**
  * @author Peter Varkoly <pvarkoly@cephalix.eu>
- *
  */
 package de.cranix.api.resources;
+
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import io.dropwizard.auth.Auth;
@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
+
 import de.cranix.services.CalendarService;
 
 @Path("calendar")
@@ -71,7 +72,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.manage","calendar.use","calendar.read"})
+    @RolesAllowed({"calendar.manage", "calendar.use", "calendar.read"})
     public List<CrxCalendar> getMyAll(
             @ApiParam(hidden = true) @Auth Session session
     ) {
@@ -109,7 +110,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.manage","calendar.use","calendar.read"})
+    @RolesAllowed({"calendar.manage", "calendar.use", "calendar.read"})
     public List<CrxCalendar> getMyFiltered(
             @ApiParam(hidden = true) @Auth Session session,
             FilterObject map
@@ -128,7 +129,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.manage","calendar.use"})
+    @RolesAllowed({"calendar.manage", "calendar.use"})
     public CrxResponse add(
             @ApiParam(hidden = true) @Auth Session session,
             CrxCalendar event
@@ -144,7 +145,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.manage","calendar.use"})
+    @RolesAllowed({"calendar.manage", "calendar.use"})
     public CrxResponse modify(
             @ApiParam(hidden = true) @Auth Session session,
             CrxCalendar event
@@ -161,7 +162,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.manage","calendar.use","calendar.read"})
+    @RolesAllowed({"calendar.manage", "calendar.use", "calendar.read"})
     public CrxCalendar getById(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("eventId") Long eventId
@@ -178,7 +179,7 @@ public class CrxCalendarResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed({"calendar.manage","calendar.use"})
+    @RolesAllowed({"calendar.manage", "calendar.use"})
     public CrxResponse modify(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("eventId") Long eventId
@@ -206,27 +207,27 @@ public class CrxCalendarResource {
     @Path("import")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(
-    	value = "Import Timetable from CSV file",
-    	notes = "* Separator is the colon ''.<br>" +
-    		"* A header line must not be provided.<br>" +
-    		"* List and order of the fields is obligatory:<br>" +
-    		"* ID,Class,Teacher,Course,Room,Day,Hour<br>"
+            value = "Import Timetable from CSV file",
+            notes = "* Separator is the colon ''.<br>" +
+                    "* A header line must not be provided.<br>" +
+                    "* List and order of the fields is obligatory:<br>" +
+                    "* ID,Class,Teacher,Course,Room,Day,Hour<br>"
     )
     @ApiResponses(value = {
-    	@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed({"calendar.manage"})
     public CrxResponse importDevices(
-        @ApiParam(hidden = true) @Auth Session session,
-        @FormDataParam("start") String start,
-        @FormDataParam("end") String end,
-        @FormDataParam("file") final InputStream fileInputStream,
-        @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
+            @ApiParam(hidden = true) @Auth Session session,
+            @FormDataParam("start") String start,
+            @FormDataParam("end") String end,
+            @FormDataParam("file") final InputStream fileInputStream,
+            @FormDataParam("file") final FormDataContentDisposition contentDispositionHeader
     ) {
-    	EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-    	CrxResponse resp = new CalendarService(session, em).importTimetable(fileInputStream, start, end);
-    	em.close();
-    	return resp;
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new CalendarService(session, em).importTimetable(fileInputStream, start, end);
+        em.close();
+        return resp;
     }
 
 }
