@@ -61,6 +61,10 @@ public class ParentTeacherMeeting extends AbstractEntity {
     @OneToMany(mappedBy = "parentTeacherMeeting", cascade = CascadeType.ALL)
     List<PTMTeacherInRoom> ptmTeacherInRoomList = new ArrayList<>();
 
+    @Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "released", columnDefinition = "CHAR(1) DEFAULT 'N'")
+	private Boolean released = false;
+
     @Transient
     private Long templateId;
 
@@ -135,4 +139,12 @@ public class ParentTeacherMeeting extends AbstractEntity {
     public List<Group> getClasses() { return classes; }
 
     public void setClasses(List<Group> classes) { this.classes = classes; }
+
+    public Boolean getReleased() {
+        return released;
+    }
+
+    public void setReleased(Boolean value) {
+        this.released = value;
+    }
 }
