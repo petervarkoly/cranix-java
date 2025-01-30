@@ -333,7 +333,7 @@ public class PTMService extends Service {
 
     public CrxResponse sendNotifications(Long id) {
         ParentTeacherMeeting parentTeacherMeeting = this.em.find(ParentTeacherMeeting.class, id);
-        File dirName = new File(cranixTmpDir + "PTM" + dateFormat.format(parentTeacherMeeting.getStart()) + "/");
+        File dirName = new File(cranixTmpDir + "PTMs/" + dateFormat.format(parentTeacherMeeting.getStart()) + "/");
         Boolean sendNotificationToStudents = this.ptmConfig.getConfigValue("SEND_NOTIFICATION_TO_STUDENTS").equals("yes");
         try {
             Files.createDirectories(dirName.toPath(), privatDirAttribute);
@@ -372,10 +372,10 @@ public class PTMService extends Service {
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         try {
-            if (parent != null) {
-                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterParentTemplate.html")));
-            } else {
+            if (parent == null) {
                 template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterStudentTemplate.html")));
+            } else {
+                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterParentTemplate.html")));
             }
             final String gotoPath = "trusted/registerPTM/" + parentTeacherMeeting.getId();
             Session parentSession = null;
@@ -405,7 +405,7 @@ public class PTMService extends Service {
                         .replaceAll("#REGSART#", dateTimeFormat.format(parentTeacherMeeting.getStartRegistration()))
                         .replaceAll("#REGEND#", dateTimeFormat.format(parentTeacherMeeting.getEndRegistration()));
                 fileName = dirName + "/" + student.getUid();
-                if (student.getEmailAddress().isEmpty()) {
+                if (student.getEmailAddress() == null || student.getEmailAddress().isEmpty()) {
                     mailAddress = student.getUid();
                 } else {
                     mailAddress = student.getEmailAddress();
