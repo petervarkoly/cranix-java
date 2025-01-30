@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 
+import java.util.Date;
 import java.util.List;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
@@ -262,6 +263,20 @@ public class ParentResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         CrxResponse resp = new PTMService(session,em).sendNotifications(id);
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("ptms/{id}/lastChange")
+    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @ApiOperation(value = "Gets the last modification time of the PTM.")
+    public Date getLastChange(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id") Long id
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Date resp = new PTMService(session,em).getLastChange(id);
         em.close();
         return resp;
     }
