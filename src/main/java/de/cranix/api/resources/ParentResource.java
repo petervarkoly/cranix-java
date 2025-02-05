@@ -11,6 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
@@ -214,7 +215,7 @@ public class ParentResource {
 
     @GET
     @Path("ptms")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @RolesAllowed({"ptm.manage","ptm.use"})
     @ApiOperation(value = "Gets the next parent teacher meetings.")
     public List<ParentTeacherMeeting> getPtms(
             @ApiParam(hidden = true) @Auth Session session
@@ -241,7 +242,7 @@ public class ParentResource {
 
     @GET
     @Path("ptms/{id}")
-    @RolesAllowed({"ptm.manage","parents","students"})
+    @RolesAllowed({"ptm.manage","ptm.use","parents","students"})
     @ApiOperation(value = "Gets one parent teacher meeting by id.")
     public ParentTeacherMeeting getPtmById(
             @ApiParam(hidden = true) @Auth Session session,
@@ -269,7 +270,7 @@ public class ParentResource {
 
     @GET
     @Path("ptms/{id}/lastChange")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @PermitAll
     @ApiOperation(value = "Gets the last modification time of the PTM.")
     public Date getLastChange(
             @ApiParam(hidden = true) @Auth Session session,
@@ -283,7 +284,7 @@ public class ParentResource {
 
     @GET
     @Path("ptms/{id}/rooms")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @RolesAllowed({"ptm.manage","ptm.use"})
     @ApiOperation(value = "Gets the free rooms of a parent teacher meeting.")
     public List<Room> getFreeRooms(
             @ApiParam(hidden = true) @Auth Session session,
@@ -311,7 +312,7 @@ public class ParentResource {
 
     @POST
     @Path("ptms/{id}/rooms")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @RolesAllowed({"ptm.manage","ptm.use"})
     @ApiOperation(value = "Register a teacher in a room.")
     public CrxResponse registerRoom(
             @ApiParam(hidden = true) @Auth Session session,
@@ -326,7 +327,7 @@ public class ParentResource {
 
     @DELETE
     @Path("ptms/rooms/{id}")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @RolesAllowed({"ptm.manage","ptm.use"})
     @ApiOperation(value = "Deletes a room registration.")
     public CrxResponse cancelRoomRegistration(
             @ApiParam(hidden = true) @Auth Session session,
@@ -340,7 +341,7 @@ public class ParentResource {
 
     @POST
     @Path("ptms/events")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom","parents","students"})
+    @RolesAllowed({"ptm.manage","ptm.use","parents","students"})
     @ApiOperation(value = "Register an event for a student  in a room.")
     public CrxResponse registerEvent(
             @ApiParam(hidden = true) @Auth Session session,
@@ -354,7 +355,7 @@ public class ParentResource {
 
     @DELETE
     @Path("ptms/events/{id}")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom","parents","students"})
+    @RolesAllowed({"ptm.manage","ptm.use","parents","students"})
     @ApiOperation(value = "Deletes a room registration.")
     public CrxResponse cancelEvent(
             @ApiParam(hidden = true) @Auth Session session,
@@ -368,7 +369,7 @@ public class ParentResource {
 
     @PUT
     @Path("ptms/events/{id}/{block}")
-    @RolesAllowed({"ptm.manage","ptm.registerRoom"})
+    @RolesAllowed({"ptm.manage","ptm.use"})
     @ApiOperation(value = "Blocks or unblocks an event.")
     public CrxResponse setBlockEvent(
             @ApiParam(hidden = true) @Auth Session session,

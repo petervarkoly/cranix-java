@@ -32,12 +32,12 @@ public class PTMService extends Service {
 
     public PTMService() {
         super();
-        if( ptmConfig == null) ptmConfig = new Config(cranixPTCConfig, "");
+        if (ptmConfig == null) ptmConfig = new Config(cranixPTCConfig, "");
     }
 
     public PTMService(Session session, EntityManager em) {
         super(session, em);
-        if( ptmConfig == null) ptmConfig = new Config(cranixPTCConfig, "");
+        if (ptmConfig == null) ptmConfig = new Config(cranixPTCConfig, "");
     }
 
     public CrxResponse add(ParentTeacherMeeting parentTeacherMeeting) {
@@ -66,7 +66,7 @@ public class PTMService extends Service {
 
                 }
             }
-            return new CrxResponse("OK", "Parent teacher meeting was created successfully.",parentTeacherMeeting.getId());
+            return new CrxResponse("OK", "Parent teacher meeting was created successfully.", parentTeacherMeeting.getId());
         } catch (Exception e) {
             return new CrxResponse("ERROR", e.getMessage());
         }
@@ -93,7 +93,7 @@ public class PTMService extends Service {
                 }
                 List<ParentTeacherMeeting> ptms = new ArrayList<>();
                 for (ParentTeacherMeeting ptm : (List<ParentTeacherMeeting>) query.getResultList()) {
-                    if(!ptm.getReleased()) continue;
+                    if (!ptm.getReleased()) continue;
                     for (Group g : ptm.getClasses()) {
                         if (this.session.getUser().getGroups().contains(g)) {
                             ptms.add(ptm);
@@ -131,10 +131,36 @@ public class PTMService extends Service {
         return new ArrayList<>();
     }
 
+    private boolean haveSameClass(User user1, User user2) {
+        for (Long clasId : user1.getClassIds()) {
+            if (user2.getClassIds().contains(clasId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public ParentTeacherMeeting getById(Long id) {
         try {
             ParentTeacherMeeting parentTeacherMeeting = this.em.find(ParentTeacherMeeting.class, id);
-            if (this.session.getAcls().contains("ptm.manage") || parentTeacherMeeting.getReleased()) {
+            if (this.session.getAcls().contains("ptm.manage")) {
+                return parentTeacherMeeting;
+            }
+            if (this.session.getAcls().contains("ptm.use") && parentTeacherMeeting.getReleased()) {
+                return parentTeacherMeeting;
+            }
+            if (parentTeacherMeeting.getReleased()) {
+                for (PTMTeacherInRoom ptmTeacherInRoom : parentTeacherMeeting.getPtmTeacherInRoomList()) {
+                    if (ptmTeacherInRoom.getRoom() != null  && haveSameClass(this.session.getUser(), ptmTeacherInRoom.getTeacher())) {
+                        for (PTMEvent ptmEvent : ptmTeacherInRoom.getEvents()) {
+                            if (ptmEvent.getStudent() != null) {
+                                ptmEvent.getStudent().setBirthDay("");
+                            }
+                        }
+                    } else {
+                        ptmTeacherInRoom.setEvents(new ArrayList<>());
+                    }
+                }
                 return parentTeacherMeeting;
             }
             return null;
@@ -365,12 +391,12 @@ public class PTMService extends Service {
                 }
             }
             Job sendMails = new Job(
-                    "Send notification for the PTM on "+ dateFormat.format(parentTeacherMeeting.getStart()),
+                    "Send notification for the PTM on " + dateFormat.format(parentTeacherMeeting.getStart()),
                     null,
                     cranixBaseDir + "tools/PTM/send_mails " + dirName,
                     true
             );
-            new JobService(session,em).createJob(sendMails);
+            new JobService(session, em).createJob(sendMails);
             return new CrxResponse("OK", "Sending notifications was started.");
         } catch (Exception e) {
             logger.error("sendNotifications:" + e.getMessage());
@@ -453,8 +479,8 @@ public class PTMService extends Service {
         }
     }
 
-    public Date getLastChange(Long id){
-        if(lastChange.containsKey(id)) {
+    public Date getLastChange(Long id) {
+        if (lastChange.containsKey(id)) {
             return lastChange.get(id);
         }
         return null;
