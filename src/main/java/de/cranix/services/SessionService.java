@@ -307,6 +307,7 @@ public class SessionService extends Service {
                 List<Session> sessions = q.getResultList();
                 if ((sessions != null) && (sessions.size() > 0)) {
                     data = sessions.get(0);
+                    data.setInstituteName(this.getConfigValue("NAME"));
                 }
             } catch (Exception e) {
                 logger.error(e.getMessage());
