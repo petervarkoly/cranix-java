@@ -81,7 +81,7 @@ public class Session implements Principal {
 	private Boolean mustChange = false;
 
 	@Transient
-	private String schoolId = "dummy";
+	private String instituteName = "dummy";
 
 	@Transient
 	private String mac;
@@ -376,5 +376,13 @@ public class Session implements Principal {
 
 	public void setGotoPath(String gotoPath) {
 		this.gotoPath = gotoPath;
+	}
+
+	public String getInstituteName() {
+		return instituteName;
+	}
+
+	public void setInstituteName(String instituteName) {
+		this.instituteName = instituteName;
 	}
 }
