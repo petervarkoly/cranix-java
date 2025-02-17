@@ -3,6 +3,7 @@ package de.cranix.api.resources;
 
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
+import de.cranix.services.IdRequestService;
 import de.cranix.services.InformationService;
 import de.cranix.services.RoomService;
 import de.cranix.services.SelfService;

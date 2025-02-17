@@ -134,7 +134,6 @@ public abstract class AbstractEntity implements Serializable {
      * Constructor set the creation time to now and the creator to session user.
      */
     public AbstractEntity(Session session) {
-        this.created = new Date();
         this.creator = session.getUser();
     }
 
