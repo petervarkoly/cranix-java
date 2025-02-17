@@ -157,7 +157,7 @@ public class Device extends AbstractEntity {
     private List<User> loggedIn = new ArrayList<User>();
 
     @Transient
-    private String ownerName;
+    private String ownerName = "";
 
     @Transient
     private Long loggedInId = 0L;
@@ -349,7 +349,7 @@ public class Device extends AbstractEntity {
     }
 
     public Long getRoomId() {
-        return this.room.getId();
+        return this.room == null ? null : this.room.getId();
     }
 
     public List<Printer> getPrinterQueue() {
