@@ -72,7 +72,7 @@ public class IdRequestResource {
     }
 
     @POST
-    @Path("idRequest")
+    @Path("my")
     @ApiOperation(value = "Creates an ID request.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -89,7 +89,7 @@ public class IdRequestResource {
     }
 
     @GET
-    @Path("idRequest")
+    @Path("my")
     @ApiOperation(value = "Gets the own ID request.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
