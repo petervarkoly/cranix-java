@@ -36,6 +36,7 @@ public class CrxEntityManagerFactory {
             properties.put("eclipselink.logging.session", "true");
             properties.put("eclipselink.logging.thread", "true");
             properties.put("eclipselink.logging.exceptions", "true");
+	    properties.put("javax.persistence.jdbc.url", "jdbc:mysql://localhost:3306/CRX?serverTimezone=Europe/Berlin&zeroDateTimeBehavior=convertToNull");
 	    try {
 			File file = new File(cranixPropFile);
 			FileInputStream fileInput = new FileInputStream(file);
