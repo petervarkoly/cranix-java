@@ -4,6 +4,8 @@ import de.cranix.dao.CrxResponse;
 import de.cranix.dao.IdRequest;
 import de.cranix.dao.Session;
 import de.cranix.dao.User;
+import de.cranix.helper.CrxSystemCmd;
+import org.json.JSONObject;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -13,23 +15,32 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 
-import static de.cranix.helper.CranixConstants.cranixTmpDir;
+import static de.cranix.helper.CranixConstants.*;
 import static de.cranix.helper.StaticHelpers.createLiteralJson;
 
 public class IdRequestService extends Service{
 
+    private static String crxIDUrl;
+    private static String crxIDPicturesDir;
+    private static String crxIDRequestsDir;
     public IdRequestService(){
         super();
     }
     public IdRequestService(Session session, EntityManager em){
         super(session,em);
+        if( crxIDUrl == null ) {
+            Config config = new Config(cranixIDConfig, "CRXID_");
+            this.crxIDUrl = config.getConfigValue("URL");
+            this.crxIDRequestsDir = config.getConfigValue("REQUESTS_DIR");
+            this.crxIDPicturesDir = config.getConfigValue("PICTURES_DIR");
+        }
     }
 
     public CrxResponse add(IdRequest idRequest){
         IdRequest oldIdRequest = getMyIdRequest();
         if(oldIdRequest != null) {
             if( oldIdRequest.equals(idRequest)) {
-                return this.modify(idRequest);
+                return this.savePicture(idRequest);
             }
             return new CrxResponse("ERROR","You have already created an ID request. You must not create a new one.");
         }
@@ -41,37 +52,48 @@ public class IdRequestService extends Service{
         } catch (Exception e){
             return new CrxResponse("ERROR","Could not create id request:" + e.getMessage());
         }
-        File outputFile = new File(cranixTmpDir + "pictures/" + newIdRequest.getUuid());
-        try {
-            Files.write(outputFile.toPath(), idRequest.getPicture());
-        } catch (IOException e) {
-            return new CrxResponse("ERROR","Could not create id request:" + e.getMessage());
-        }
+        newIdRequest.setPicture(idRequest.getPicture());
+        savePicture(newIdRequest);
         return new CrxResponse("OK","Id request was created successfully");
     }
 
-    public CrxResponse modify(IdRequest idRequest){
-        File outputFile = new File(cranixTmpDir + "pictures/" + idRequest.getUuid());
+    public CrxResponse savePicture(IdRequest idRequest){
+        File outputFile = new File(crxIDPicturesDir + "/" + idRequest.getUuid());
         try {
             Files.write(outputFile.toPath(), idRequest.getPicture());
         } catch (IOException e) {
             return new CrxResponse("ERROR","Could not create id request:" + e.getMessage());
         }
-        return new CrxResponse("OK","Id request was created successfully");
+        return new CrxResponse("OK","Picture was saved successfully");
     }
 
     private void getPicture(IdRequest idRequest){
-        File inputFile = new File(cranixTmpDir + "pictures/" + idRequest.getUuid());
-        try {
-            idRequest.setPicture(Files.readAllBytes(inputFile.toPath()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        File inputFile = new File(crxIDPicturesDir + "/" + idRequest.getUuid());
+        if(inputFile.exists()) {
+            try {
+                idRequest.setPicture(Files.readAllBytes(inputFile.toPath()));
+            } catch (IOException e) {
+                logger.error("getPicture" + e.getMessage());
+            }
         }
     }
 
+    private void getUrls(IdRequest idRequest){
+        File idUrlsFile = new File(crxIDRequestsDir + "/" + idRequest.getUuid());
+        if(idUrlsFile.exists()){
+            try {
+                JSONObject urls = new JSONObject(Files.readString(idUrlsFile.toPath()));
+                idRequest.setAppleUrl(urls.getString("appleUrl"));
+                idRequest.setGoogleUrl(urls.getString("googleUrl"));
+            } catch (Exception e){
+                logger.error("getMyIdRequest" + e.getMessage());
+            }
+        }
+    }
     public IdRequest getById(Long id){
         IdRequest idRequest = em.find(IdRequest.class, id);
         getPicture(idRequest);
+        getUrls(idRequest);
         return idRequest;
     }
 
@@ -81,17 +103,24 @@ public class IdRequestService extends Service{
 
     public CrxResponse delete(Long id){
         IdRequest idRequest = em.find(IdRequest.class, id);
-        File inputFile = new File(cranixTmpDir + "pictures/" + idRequest.getUuid());
-        inputFile.delete();
         em.getTransaction().begin();
         em.remove(idRequest);
         em.getTransaction().commit();
+        File inputFile = new File(crxIDPicturesDir + "/" + idRequest.getUuid());
+        inputFile.delete();
+        inputFile = new File(crxIDRequestsDir + "/" + idRequest.getUuid());
+        inputFile.delete();
         return new CrxResponse("OK","Id request was removed successfully.");
     }
 
-    public CrxResponse setAllowedSatus(IdRequest idRequest){
+    public CrxResponse setAllowedSate(IdRequest idRequest){
         IdRequest oldIdRequest = em.find(IdRequest.class, idRequest.getId());
-        oldIdRequest.setAllowed(session, idRequest.getAllowed(), idRequest.getValidUntil());
+        oldIdRequest.setAllowed(
+                session,
+                idRequest.getAllowed(),
+                idRequest.getAllowed() ? "" : idRequest.getComment(),
+                idRequest.getValidUntil()
+        );
         em.getTransaction().begin();
         em.merge(oldIdRequest);
         em.getTransaction().commit();
@@ -104,21 +133,37 @@ public class IdRequestService extends Service{
     public IdRequest getMyIdRequest() {
         User me = this.em.find(User.class,this.session.getUserId());
         if( !me.getCreatedRequests().isEmpty()) {
-            return me.getCreatedRequests().get(0);
+            IdRequest idRequest = me.getCreatedRequests().get(0);
+            getPicture(idRequest);
+            getUrls(idRequest);
+            return idRequest;
         }
         return null;
     }
 
     private CrxResponse createId(IdRequest idRequest){
         getPicture(idRequest);
-        String jsonPath = cranixTmpDir + "pictures/" + idRequest.getUuid() + ".json";
-        File outputFile = new File(jsonPath);
+        String[] program = new String[11];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer stderr = new StringBuffer();
+        program[0] = "/usr/bin/curl";
+        program[1] = "-s";
+        program[2] = "-X";
+        program[3] = "POST";
+        program[4] = "--header";
+        program[5] = "Content-Type: application/json";
+        program[6] = "--header";
+        program[7] = "Accept: application/json";
+        program[8] = "-d";
+        program[9] = idRequest.toString();
+        program[10] = crxIDUrl;
+        CrxSystemCmd.exec(program, reply, stderr, null);
+        File outputFile = new File(crxIDRequestsDir + "/" + idRequest.getUuid());
         try {
-            Files.write(outputFile.toPath(), createLiteralJson(idRequest).getBytes(StandardCharsets.UTF_8));
+            Files.write(outputFile.toPath(), reply.toString().getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             return new CrxResponse("ERROR","Could not create id request:" + e.getMessage());
         }
-        //TODO
         return new CrxResponse("OK","Id was created successfully.");
     }
 }

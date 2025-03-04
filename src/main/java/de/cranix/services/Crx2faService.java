@@ -17,14 +17,16 @@ import static de.cranix.helper.CranixConstants.cranix2faConfig;
 
 public class Crx2faService extends Service {
     Logger logger = LoggerFactory.getLogger(Crx2faService.class);
-    String crx2faUrl;
-    String crx2faCheck;
+    private static String crx2faUrl;
+    private static String crx2faCheck;
 
     public Crx2faService(Session session, EntityManager em) {
         super(session, em);
-        Config config = new Config(cranix2faConfig, "CRX2FA_");
-        this.crx2faUrl = config.getConfigValue("URL");
-        this.crx2faCheck = config.getConfigValue("CHECK_URL");
+        if( crx2faUrl == null ) {
+            Config config = new Config(cranix2faConfig, "CRX2FA_");
+            this.crx2faUrl = config.getConfigValue("URL");
+            this.crx2faCheck = config.getConfigValue("CHECK_URL");
+        }
     }
 
     public List<Crx2fa> geAll(){

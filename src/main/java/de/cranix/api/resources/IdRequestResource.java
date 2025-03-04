@@ -66,7 +66,7 @@ public class IdRequestResource {
             IdRequest idRequest
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse response = new IdRequestService(session,em).setAllowedSatus(idRequest);
+        CrxResponse response = new IdRequestService(session,em).setAllowedSate(idRequest);
         em.close();
         return response;
     }

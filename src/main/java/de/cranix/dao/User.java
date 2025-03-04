@@ -178,11 +178,11 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	private List<Contact> myContacts = new ArrayList<Contact>();
 
-	@OneToMany(mappedBy="creator")
+	@OneToMany(mappedBy="creator", cascade = {CascadeType.ALL})
 	@JsonIgnore
 	private List<Announcement> myAnnouncements = new ArrayList<Announcement>();
 
-	@OneToMany(mappedBy="creator")
+	@OneToMany(mappedBy="creator", cascade = {CascadeType.ALL})
 	@JsonIgnore
 	public List<CrxChallenge> challenges = new ArrayList<CrxChallenge>();
 
@@ -190,18 +190,15 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
 
-	@OneToMany(mappedBy="creator")
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
 	@JsonIgnore
 	private List<CrxCalendar> createdEvents = new ArrayList<CrxCalendar>();
 
-	@OneToMany(mappedBy="creator")
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
 	@JsonIgnore
 	private List<OneTimePassword> oneTimePasswords = new ArrayList<OneTimePassword>();
 
-	@OneToMany(
-			mappedBy="creator",
-			cascade ={CascadeType.REMOVE}
-	)
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
 	@JsonIgnore
 	private List<IdRequest> createdRequests = new ArrayList<IdRequest>();
 

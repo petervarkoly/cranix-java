@@ -27,13 +27,21 @@ public class IdRequest extends AbstractEntity {
     @Column(name = "allowed", columnDefinition = "CHAR(1) DEFAULT 'N'")
     private Boolean allowed = false;
 
+    @Size(max = 128, message = "Comment must not be longer then 128 characters")
+    private String comment = "";
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "validUntil", columnDefinition = "timestamp")
     private Date validUntil;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", columnDefinition = "BIGINT UNSIGNED")
-    private User requester;
+    @Column(name = "reviwerId", columnDefinition =  "BIGINT UNSIGNED")
+    private Long reviewerId;
+
+    @Transient
+    String appleUrl;
+
+    @Transient
+    String googleUrl;
 
     @Transient
     private byte[] picture;
@@ -41,8 +49,7 @@ public class IdRequest extends AbstractEntity {
     public IdRequest() { super(); }
 
     public IdRequest(Session session) {
-        super();
-        this.setRequester(session.getUser());
+        super(session);
     }
 
     public String getUuid() {
@@ -56,43 +63,45 @@ public class IdRequest extends AbstractEntity {
     public Boolean getAllowed() {
         return allowed;
     }
-
-    public void setAllowed(Session session, Boolean allowed, Date validUntil) {
+    public void setAllowed(Boolean allowed) {
+        this.allowed = allowed;
+    }
+    public void setAllowed(
+            Session session,
+            Boolean allowed,
+            String comment,
+            Date validUntil
+    ) {
         setModified(new Date());
-        this.creator = session.getUser();
+        this.reviewerId = session.getUserId();
         this.allowed = allowed;
         this.validUntil= validUntil;
+        this.comment = comment.length() > 128 ? comment.substring(0,128): comment;
     }
 
-    public User getRequester() {
-        return requester;
-    }
-
-    public void setRequester(User requester) {
-        this.requester = requester;
-    }
+    public Long getReviewerId() {return reviewerId;}
+    public void setReviewerId(Long reviewerId) {this.reviewerId = reviewerId; }
 
     public byte[] getPicture() {
         return picture;
     }
-
     public void setPicture(byte[] picture) {
         this.picture = picture;
     }
 
-    public void setAllowed(Boolean allowed) {
-        this.allowed = allowed;
+    public String getComment() {return  comment; }
+    public void setComment(String comment) {
+        if(comment != null) {
+            this.comment = comment.length() > 128 ? comment.substring(0,128): comment;
+        }
     }
 
-    public Date getValidUntil() {
-        return validUntil;
-    }
+    public Date getValidUntil() { return validUntil; }
+    public void setValidUntil(Date validUntil) { this.validUntil = validUntil; }
 
-    public void setValidUntil(Date validUntil) {
-        this.validUntil = validUntil;
-    }
+    public String getAppleUrl() { return appleUrl; }
+    public void setAppleUrl(String appleUrl) { this.appleUrl = appleUrl; }
 
-    public Long getReviewerId(){
-        return getCreatorId();
-    }
+    public String getGoogleUrl() { return googleUrl; }
+    public void setGoogleUrl(String googleUrl) { this.googleUrl = googleUrl; }
 }
