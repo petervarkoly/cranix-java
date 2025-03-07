@@ -4,7 +4,7 @@
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/CRX?serverTimezone=Europe/Berlin"/>
+      <!-- property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/CRX?serverTimezone=Europe/Berlin&zeroDateTimeBehavior=convertToNull"/  -->
       <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
       <property name="javax.persistence.validation.mode" value="none"/>
       <property name="eclipselink.ddl-generation.output-mode" value="database"/>
