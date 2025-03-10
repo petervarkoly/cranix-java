@@ -137,6 +137,11 @@ public class CranixApplication extends Application<ServerConfiguration> {
 			final Crx2faResource crx2faResource = new Crx2faResource();
 			environment.jersey().register(crx2faResource);
 		}
+		config_file = new File(cranixIDConfig);
+		if( config_file.exists()){
+			final IdRequestResource idRequestResource = new IdRequestResource();
+			environment.jersey().register(idRequestResource);
+		}
 		final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
 		environment.healthChecks().register("template", healthCheck);
 

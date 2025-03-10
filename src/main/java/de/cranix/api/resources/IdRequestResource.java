@@ -28,7 +28,7 @@ public class IdRequestResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed("id_request.manage")
+    @RolesAllowed("idrequest.manage")
     public List<IdRequest> get(
             @ApiParam(hidden = true) @Auth Session session
     ) {
@@ -44,7 +44,7 @@ public class IdRequestResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed("id_request.manage")
+    @RolesAllowed("idrequest.manage")
     public IdRequest getById(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("id")  Long id
@@ -60,7 +60,7 @@ public class IdRequestResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed("id_request.manage")
+    @RolesAllowed("idrequest.manage")
     public CrxResponse setAllowedStatus(
             @ApiParam(hidden = true) @Auth Session session,
             IdRequest idRequest
@@ -77,7 +77,7 @@ public class IdRequestResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed("id_request.use")
+    @RolesAllowed("idrequest.use")
     public CrxResponse createIdRequest(
             @ApiParam(hidden = true) @Auth Session session,
             IdRequest idRequest
