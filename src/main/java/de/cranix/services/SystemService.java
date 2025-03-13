@@ -352,8 +352,9 @@ public class SystemService extends Service {
             statusMap.put("proto", firewallRule.get("protocol"));
             statusMap.put("dest", firewallRule.get("dest"));
             statusMap.put("source", source);
-            if(firewallRule.containsKey("to_source") && firewallRule.get("to_source") != "")
+            if(firewallRule.containsKey("to_source")) {
                 statusMap.put("to_source", firewallRule.get("to_source"));
+	    }
             /* else
                 statusMap.put("to_source", ""); */
             CrxSystemCmd.exec(program, reply, error, createLiteralJson(statusMap));
