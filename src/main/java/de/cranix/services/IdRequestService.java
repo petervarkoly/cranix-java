@@ -8,21 +8,24 @@ import de.cranix.helper.CrxSystemCmd;
 import org.json.JSONObject;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static de.cranix.helper.CranixConstants.*;
-import static de.cranix.helper.StaticHelpers.createLiteralJson;
+import static de.cranix.helper.StaticHelpers.getYear;
+import static de.cranix.helper.StaticHelpers.simpleDate;
 
 public class IdRequestService extends Service{
 
     private static String crxIDUrl;
     private static String crxIDPicturesDir;
     private static String crxIDRequestsDir;
+    private static String crxIDValid;
     public IdRequestService(){
         super();
     }
@@ -33,37 +36,53 @@ public class IdRequestService extends Service{
             this.crxIDUrl = config.getConfigValue("URL");
             this.crxIDRequestsDir = config.getConfigValue("REQUESTS_DIR");
             this.crxIDPicturesDir = config.getConfigValue("PICTURES_DIR");
+            this.crxIDValid = config.getConfigValue("VALID");
         }
     }
 
     public CrxResponse add(IdRequest idRequest){
+        User me = this.em.find(User.class,this.session.getUserId());
+        if(idRequest.getPicture() == null || idRequest.getPicture().isEmpty()){
+            return new CrxResponse("ERROR","You have to provide a picture.");
+        }
         IdRequest oldIdRequest = getMyIdRequest();
         if(oldIdRequest != null) {
             if( oldIdRequest.equals(idRequest)) {
-                return this.savePicture(idRequest);
+                this.savePicture(idRequest);
+                oldIdRequest.setAvatar(idRequest.getAvatar());
+                em.getTransaction().begin();
+                em.merge(oldIdRequest);
+                em.getTransaction().commit();
+            } else {
+                return new CrxResponse("ERROR","You have already created an ID request. You must not create a new one.");
             }
-            return new CrxResponse("ERROR","You have already created an ID request. You must not create a new one.");
         }
         IdRequest newIdRequest = new IdRequest(session);
+        newIdRequest.setPicture(idRequest.getPicture());
+        savePicture(newIdRequest);
+        String validUntil = getYear() + "-" + crxIDValid;
         try {
+            newIdRequest.setValidUntil(simpleDate.parse(validUntil));
+            me.setCreatedRequests(List.of(newIdRequest));
             em.getTransaction().begin();
-            em.persist(newIdRequest);
+            em.persist(me);
             em.getTransaction().commit();
+        } catch (ParseException e) {
+            return new CrxResponse("ERROR","Could not create id request:" + e.getMessage());
         } catch (Exception e){
             return new CrxResponse("ERROR","Could not create id request:" + e.getMessage());
         }
-        newIdRequest.setPicture(idRequest.getPicture());
-        savePicture(newIdRequest);
         return new CrxResponse("OK","Id request was created successfully");
     }
 
     public CrxResponse savePicture(IdRequest idRequest){
-        File outputFile = new File(crxIDPicturesDir + "/" + idRequest.getUuid());
-        try {
-            Files.write(outputFile.toPath(), idRequest.getPicture());
-        } catch (IOException e) {
-            return new CrxResponse("ERROR","Could not create id request:" + e.getMessage());
-        }
+        String[] program = new String[2];
+        StringBuffer reply = new StringBuffer();
+        StringBuffer stderr = new StringBuffer();
+        program[0] = cranixBaseDir +"tools/idrequest/convert_id_picture.sh";
+        program[1] = idRequest.getUuid();
+        CrxSystemCmd.exec(program, reply, stderr, idRequest.getPicture());
+        idRequest.setAvatar("data:image/jpg;base64," + reply);
         return new CrxResponse("OK","Picture was saved successfully");
     }
 
@@ -71,7 +90,7 @@ public class IdRequestService extends Service{
         File inputFile = new File(crxIDPicturesDir + "/" + idRequest.getUuid());
         if(inputFile.exists()) {
             try {
-                idRequest.setPicture(Files.readAllBytes(inputFile.toPath()));
+                idRequest.setPicture(Files.readString(inputFile.toPath()));
             } catch (IOException e) {
                 logger.error("getPicture" + e.getMessage());
             }
@@ -160,7 +179,7 @@ public class IdRequestService extends Service{
         CrxSystemCmd.exec(program, reply, stderr, null);
         File outputFile = new File(crxIDRequestsDir + "/" + idRequest.getUuid());
         try {
-            Files.write(outputFile.toPath(), reply.toString().getBytes(StandardCharsets.UTF_8));
+            Files.writeString(outputFile.toPath(), reply.toString());
         } catch (IOException e) {
             return new CrxResponse("ERROR","Could not create id request:" + e.getMessage());
         }

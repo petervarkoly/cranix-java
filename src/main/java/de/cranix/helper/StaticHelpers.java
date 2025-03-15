@@ -18,6 +18,7 @@ public class StaticHelpers {
 	static public SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm yyyy-MM-dd");
 	static public SimpleDateFormat simpleDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	static public SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-MM-dd");
+	static public SimpleDateFormat simpleYear = new SimpleDateFormat("yyyy");
 
 	static public String createRandomPassword() {
 		String[] salt = new String[3];
@@ -222,6 +223,15 @@ public class StaticHelpers {
 	static public String convertJavaDate(Long times) {
 		return simpleDateFormat.format(new Date(times));
 	}
+
+	static public String getYear(Long times) {
+		return simpleYear.format(new Date(times));
+	}
+	static public String getYear() {
+		return simpleYear.format(new Date());
+	}
+
+
 
 	static public void reloadFirewall() {
 		String[] program = new String[2];

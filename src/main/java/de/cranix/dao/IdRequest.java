@@ -27,6 +27,7 @@ public class IdRequest extends AbstractEntity {
     @Column(name = "allowed", columnDefinition = "CHAR(1) DEFAULT 'N'")
     private Boolean allowed = false;
 
+    @Column(name = "comment", length = 128)
     @Size(max = 128, message = "Comment must not be longer then 128 characters")
     private String comment = "";
 
@@ -37,6 +38,9 @@ public class IdRequest extends AbstractEntity {
     @Column(name = "reviwerId", columnDefinition =  "BIGINT UNSIGNED")
     private Long reviewerId;
 
+    @Column(name = "avatar", columnDefinition = "text")
+    private String avatar;
+
     @Transient
     String appleUrl;
 
@@ -44,7 +48,7 @@ public class IdRequest extends AbstractEntity {
     String googleUrl;
 
     @Transient
-    private byte[] picture;
+    private String picture;
 
     public IdRequest() { super(); }
 
@@ -82,10 +86,10 @@ public class IdRequest extends AbstractEntity {
     public Long getReviewerId() {return reviewerId;}
     public void setReviewerId(Long reviewerId) {this.reviewerId = reviewerId; }
 
-    public byte[] getPicture() {
+    public String getPicture() {
         return picture;
     }
-    public void setPicture(byte[] picture) {
+    public void setPicture(String picture) {
         this.picture = picture;
     }
 
@@ -104,4 +108,12 @@ public class IdRequest extends AbstractEntity {
 
     public String getGoogleUrl() { return googleUrl; }
     public void setGoogleUrl(String googleUrl) { this.googleUrl = googleUrl; }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 }

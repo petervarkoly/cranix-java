@@ -55,7 +55,7 @@ public class IdRequestResource {
         return response;
     }
 
-    @POST
+    @PATCH
     @ApiOperation(value = "Sets the allowed status of an ID request")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
