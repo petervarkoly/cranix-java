@@ -198,9 +198,9 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	private List<OneTimePassword> oneTimePasswords = new ArrayList<OneTimePassword>();
 
-	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
+	@OneToOne(mappedBy="creator", cascade ={CascadeType.ALL})
 	@JsonIgnore
-	private List<IdRequest> createdRequests = new ArrayList<IdRequest>();
+	private IdRequest createdRequest;
 
 	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="users")
@@ -829,11 +829,11 @@ public class User extends AbstractEntity {
 		return classIds;
 	}
 
-	public List<IdRequest> getCreatedRequests() {
-		return createdRequests;
+	public IdRequest getCreatedRequest() {
+		return createdRequest;
 	}
 
-	public void setCreatedRequests(List<IdRequest> createdRequests) {
-		this.createdRequests = createdRequests;
+	public void setCreatedRequest(IdRequest createdRequest) {
+		this.createdRequest = createdRequest;
 	}
 }

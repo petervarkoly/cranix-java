@@ -1,7 +1,7 @@
 package de.cranix.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -17,7 +17,37 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @NamedQueries({
         @NamedQuery(name = "IdRequests.findAll", query = "SELECT r FROM IdRequest r")
 })
-public class IdRequest extends AbstractEntity {
+public class IdRequest {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(
+            name = "id",
+            columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
+    )
+    private Long id;
+
+    @OneToOne(optional = false)
+    @JoinColumn(
+            name="creator_id",
+            columnDefinition ="BIGINT UNSIGNED"
+    )
+    private User creator;
+
+    @Column(
+            name = "created",
+            updatable = false,
+            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
+    )
+    @Temporal(TIMESTAMP)
+    private Date created = new Date();
+
+    @Column(
+            name = "modified",
+            columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    )
+    @Temporal(TIMESTAMP)
+    private Date modified = new Date();
 
     @Column(name = "uuid", updatable = false, length = 64)
     @Size(max = 64, message = "UUID must not be longer then 64 characters.")
@@ -31,9 +61,8 @@ public class IdRequest extends AbstractEntity {
     @Size(max = 128, message = "Comment must not be longer then 128 characters")
     private String comment = "";
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "validUntil", columnDefinition = "timestamp")
-    private Date validUntil;
+    @Column(name = "validUntil", columnDefinition = "date")
+    private String validUntil;
 
     @Column(name = "reviwerId", columnDefinition =  "BIGINT UNSIGNED")
     private Long reviewerId;
@@ -41,19 +70,19 @@ public class IdRequest extends AbstractEntity {
     @Column(name = "avatar", columnDefinition = "text")
     private String avatar;
 
-    @Transient
+    @Column(name = "appleUrl", length = 255)
     String appleUrl;
 
-    @Transient
+    @Column(name = "googleUrl", columnDefinition = "text")
     String googleUrl;
 
     @Transient
     private String picture;
 
-    public IdRequest() { super(); }
+    public IdRequest() { }
 
     public IdRequest(Session session) {
-        super(session);
+        this.creator = session.getUser();
     }
 
     public String getUuid() {
@@ -74,7 +103,7 @@ public class IdRequest extends AbstractEntity {
             Session session,
             Boolean allowed,
             String comment,
-            Date validUntil
+            String validUntil
     ) {
         setModified(new Date());
         this.reviewerId = session.getUserId();
@@ -100,8 +129,8 @@ public class IdRequest extends AbstractEntity {
         }
     }
 
-    public Date getValidUntil() { return validUntil; }
-    public void setValidUntil(Date validUntil) { this.validUntil = validUntil; }
+    public String getValidUntil() { return validUntil; }
+    public void setValidUntil(String validUntil) { this.validUntil = validUntil; }
 
     public String getAppleUrl() { return appleUrl; }
     public void setAppleUrl(String appleUrl) { this.appleUrl = appleUrl; }
@@ -115,5 +144,37 @@ public class IdRequest extends AbstractEntity {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Date getModified() {
+        return modified;
+    }
+
+    public void setModified(Date modified) {
+        this.modified = modified;
     }
 }

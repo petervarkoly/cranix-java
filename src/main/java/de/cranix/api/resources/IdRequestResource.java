@@ -61,16 +61,33 @@ public class IdRequestResource {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
     @RolesAllowed("idrequest.manage")
-    public CrxResponse setAllowedStatus(
+    public CrxResponse setIdRequest(
             @ApiParam(hidden = true) @Auth Session session,
             IdRequest idRequest
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse response = new IdRequestService(session,em).setAllowedSate(idRequest);
+        CrxResponse response = new IdRequestService(session,em).setIdRequest(idRequest);
         em.close();
         return response;
     }
 
+
+    @DELETE
+    @Path("{id}")
+    @ApiOperation(value = "Get all id requests")
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    @RolesAllowed("idrequest.manage")
+    public CrxResponse delete(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("id")  Long id
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse response = new IdRequestService(session,em).delete(id);
+        em.close();
+        return response;
+    }
     @POST
     @Path("my")
     @ApiOperation(value = "Creates an ID request.")
