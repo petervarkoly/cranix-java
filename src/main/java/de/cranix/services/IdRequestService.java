@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 import static de.cranix.helper.CranixConstants.*;
+import static de.cranix.helper.StaticHelpers.createLiteralJson;
 import static de.cranix.helper.StaticHelpers.getYear;
 
 public class IdRequestService extends Service {
@@ -164,6 +165,7 @@ public class IdRequestService extends Service {
         program[10] = crxIDUrl;
         CrxSystemCmd.exec(program, reply, stderr, null);
         try {
+            logger.debug("createId reply:" + reply);
             JSONObject urls = new JSONObject(reply.toString());
             oldIdRequest.setAppleUrl(urls.getString("appleUrl"));
             oldIdRequest.setGoogleUrl(urls.getString("googleUrl"));
