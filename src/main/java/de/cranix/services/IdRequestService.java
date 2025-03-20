@@ -105,14 +105,23 @@ public class IdRequestService extends Service {
 
     public CrxResponse delete(Long id) {
         IdRequest idRequest = em.find(IdRequest.class, id);
-        em.getTransaction().begin();
-        em.remove(idRequest);
-        em.getTransaction().commit();
-        File inputFile = new File(crxIDPicturesDir + "/" + idRequest.getUuid());
-        inputFile.delete();
-        inputFile = new File(crxIDRequestsDir + "/" + idRequest.getUuid());
-        inputFile.delete();
-        return new CrxResponse("OK", "Id request was removed successfully.");
+        if(idRequest == null) {
+            return new CrxResponse("ERROR", "Can not find the request");
+        }
+        if(this.isSuperuser() || idRequest.getCreator().equals(this.session.getUser())) {
+            User creator = idRequest.getCreator();
+            File inputFile = new File(crxIDPicturesDir + "/" + idRequest.getUuid());
+            inputFile.delete();
+            inputFile = new File(crxIDRequestsDir + "/" + idRequest.getUuid());
+            inputFile.delete();
+            creator.setCreatedRequest(null);
+            em.getTransaction().begin();
+            em.merge(creator);
+            em.remove(idRequest);
+            em.getTransaction().commit();
+            return new CrxResponse("OK", "Id request was removed successfully.");
+        }
+        return new CrxResponse("ERROR", "You are not allowed to delete this reques");
     }
 
     public CrxResponse setIdRequest(IdRequest idRequest) {

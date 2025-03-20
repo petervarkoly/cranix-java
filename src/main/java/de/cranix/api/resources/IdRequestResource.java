@@ -78,7 +78,7 @@ public class IdRequestResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @RolesAllowed("idrequest.manage")
+    @RolesAllowed({"idrequest.manage","idrequest.use"})
     public CrxResponse delete(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("id")  Long id
