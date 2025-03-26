@@ -24,7 +24,7 @@ public interface CranixConstants {
 	static String cranixCalConfig  = "/etc/sysconfig/CRX_CAL";
 	static String cranixMdmConfig  = "/etc/sysconfig/CRX_MDM";
 	static String cranix2faConfig  = "/etc/sysconfig/CRX_2FA";
-	static String cranixPTCConfig  = "/etc/sysconfig/CRX_PTC";
+	static String cranixPTMConfig  = "/etc/sysconfig/CRX_PTM";
 	static String cranixSysPrefix  = "CRANIX_";
 	static String cranixFwConfig   = "/etc/cranix-firewall.conf";
 	static String cranixAdm        = "/var/adm/cranix/";

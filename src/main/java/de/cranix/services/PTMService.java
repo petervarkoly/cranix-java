@@ -14,7 +14,7 @@ import java.util.*;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
 import static de.cranix.helper.CranixConstants.cranixTmpDir;
-import static de.cranix.helper.CranixConstants.cranixPTCConfig;
+import static de.cranix.helper.CranixConstants.cranixPTMConfig;
 import static de.cranix.helper.CranixConstants.privatDirAttribute;
 
 public class PTMService extends Service {
@@ -22,7 +22,7 @@ public class PTMService extends Service {
     Logger logger = LoggerFactory.getLogger(PTMService.class);
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     /*
-     * Following variables are supported in cranixPTCConfig
+     * Following variables are supported in cranixPTMConfig
      * ALLOW_MULTI_USE_OF_ROOMS
      * SEND_NOTIFICATION_TO_STUDENTS
      */
@@ -32,12 +32,12 @@ public class PTMService extends Service {
 
     public PTMService() {
         super();
-        if (ptmConfig == null) ptmConfig = new Config(cranixPTCConfig, "");
+        if (ptmConfig == null) ptmConfig = new Config(cranixPTMConfig, "");
     }
 
     public PTMService(Session session, EntityManager em) {
         super(session, em);
-        if (ptmConfig == null) ptmConfig = new Config(cranixPTCConfig, "");
+        if (ptmConfig == null) ptmConfig = new Config(cranixPTMConfig, "");
     }
 
     public CrxResponse add(ParentTeacherMeeting parentTeacherMeeting) {
