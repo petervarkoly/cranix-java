@@ -116,7 +116,7 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		environment.jersey().register(objectResource);
 
 		// TODO: we have to check the licence
-		File config_file = new File(cranixPTCConfig);
+		File config_file = new File(cranixPTMConfig);
 		if( config_file.exists() ) {
 			final ParentResource parentResource = new ParentResource();
 			environment.jersey().register(parentResource);
