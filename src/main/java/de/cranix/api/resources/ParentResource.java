@@ -20,6 +20,7 @@ import javax.ws.rs.core.Context;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 
@@ -236,6 +237,33 @@ public class ParentResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         List<ParentTeacherMeeting> resp = new PTMService(session,em).getFormer();
+        em.close();
+        return resp;
+    }
+
+    @GET
+    @Path("ptms/settings")
+    @RolesAllowed({"ptm.manage"})
+    @ApiOperation(value = "Gets the settings of the PTMS")
+    public Map<String, String> getPtmSettings(
+            @ApiParam(hidden = true) @Auth Session session
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Map<String, String> resp = new PTMService(session,em).getPtmSettings();
+        em.close();
+        return resp;
+    }
+
+    @POST
+    @Path("ptms/settings")
+    @RolesAllowed({"ptm.manage"})
+    @ApiOperation(value = "Gets the settings of the PTMS")
+    public CrxResponse setPtmSettings(
+            @ApiParam(hidden = true) @Auth Session session,
+            Map<String, String> settings
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new PTMService(session,em).setPtmSettings(settings);
         em.close();
         return resp;
     }

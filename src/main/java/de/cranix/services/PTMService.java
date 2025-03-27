@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -414,9 +415,9 @@ public class PTMService extends Service {
         SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         try {
             if (parent == null) {
-                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterStudentTemplate.html")));
+                template = Files.readString(Paths.get(cranixBaseDir + "templates/PTM/LetterStudentTemplate.html"));
             } else {
-                template = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterParentTemplate.html")));
+                template = Files.readString(Paths.get(cranixBaseDir + "templates/PTM/LetterParentTemplate.html"));
             }
             final String gotoPath = "trusted/registerPTM/" + parentTeacherMeeting.getId();
             Session parentSession = null;
@@ -469,7 +470,7 @@ public class PTMService extends Service {
             Files.write(Paths.get(fileName), message.getBytes());
             Files.write(Paths.get(fileName + ".mailAddress"), mailAddress.getBytes());
             //Create subject
-            String subjectTemplate = new String(Files.readAllBytes(Paths.get(cranixBaseDir + "templates/PTM/LetterSubjectTemplate")));
+            String subjectTemplate = Files.readString(Paths.get(cranixBaseDir + "templates/PTM/LetterSubjectTemplate"));
             String subject = subjectTemplate.replaceAll("#SURNAME#", student.getSurName())
                     .replaceAll("#GIVENNAME#", student.getGivenName())
                     .replaceAll("#DATE#", dateFormat.format(parentTeacherMeeting.getStart()));
@@ -484,5 +485,44 @@ public class PTMService extends Service {
             return lastChange.get(id);
         }
         return null;
+    }
+
+    public Map<String, String> getPtmSettings() {
+        Map<String, String> result = new HashMap<>();
+        for(Map<String, String> tmp: this.ptmConfig.getConfig()){
+         result.put(tmp.get("key"),tmp.get("value"));
+        }
+        try {
+            result.put("LetterSubjectTemplate", Files.readString(Paths.get(cranixBaseDir + "templates/PTM/LetterSubjectTemplate")));
+            result.put("LetterStudentTemplate", Files.readString(Paths.get(cranixBaseDir + "templates/PTM/LetterStudentTemplate")));
+            result.put("LetterParentTemplate", Files.readString(Paths.get(cranixBaseDir + "templates/PTM/LetterParentTemplate")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return  result;
+    }
+
+    public CrxResponse setPtmSettings(Map<String, String> settings) {
+        for(String key: settings.keySet()){
+            try {
+                switch (key) {
+                    case "LetterSubjectTemplate":
+                        Files.writeString(Paths.get(cranixBaseDir + "templates/PTM/LetterSubjectTemplate"), settings.get(key));
+                        break;
+                    case "LetterStudentTemplate":
+                        Files.writeString(Paths.get(cranixBaseDir + "templates/PTM/LetterStudentTemplate"), settings.get(key));
+                        break;
+                    case "LetterParentTemplate":
+                        Files.writeString(Paths.get(cranixBaseDir + "templates/PTM/LetterParentTemplate"), settings.get(key));
+                        break;
+                    default:
+                        this.ptmConfig.setConfig(key, settings.get(key));
+                }
+            } catch (IOException e){
+                logger.error(e.getMessage());
+                return new CrxResponse("ERROR",e.getMessage());
+            }
+        }
+        return new CrxResponse("OK","PTM Settings was saved successfully");
     }
 }
