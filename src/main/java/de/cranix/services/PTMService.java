@@ -516,7 +516,7 @@ public class PTMService extends Service {
                         Files.writeString(Paths.get(cranixBaseDir + "templates/PTM/LetterParentTemplate"), settings.get(key));
                         break;
                     default:
-                        this.ptmConfig.setConfig(key, settings.get(key));
+                        this.ptmConfig.setConfigValue(key, settings.get(key));
                 }
             } catch (IOException e){
                 logger.error(e.getMessage());
