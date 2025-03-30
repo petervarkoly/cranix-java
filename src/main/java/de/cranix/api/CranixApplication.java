@@ -70,6 +70,9 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final CloneToolResource cloneToolResource = new CloneToolResource();
 		environment.jersey().register(cloneToolResource);
 
+		final CrxNoticeResource crxNoticeResource = new CrxNoticeResource();
+		environment.jersey().register(crxNoticeResource);
+
 		final DeviceResource devicesResource = new DeviceResource();
 		environment.jersey().register(devicesResource);
 

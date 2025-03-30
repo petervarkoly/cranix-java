@@ -202,6 +202,10 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	private IdRequest createdRequest;
 
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
+	@JsonIgnore
+	private List<CrxNotice> crxNotices = new ArrayList<CrxNotice>();
+
 	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="users")
 	@JsonIgnore
@@ -835,5 +839,26 @@ public class User extends AbstractEntity {
 
 	public void setCreatedRequest(IdRequest createdRequest) {
 		this.createdRequest = createdRequest;
+	}
+
+	public List<CrxNotice> getCrxNotices() {
+		return crxNotices;
+	}
+
+	public void setCrxNotices(List<CrxNotice> crxNotices) {
+		this.crxNotices = crxNotices;
+	}
+
+	public void addCrxNotice(CrxNotice crxNotice){
+		if(!this.crxNotices.contains(crxNotice)){
+			crxNotice.setCreator(this);
+			this.crxNotices.add((crxNotice));
+		}
+	}
+	public void removeCrxNotice(CrxNotice crxNotice){
+		if(this.crxNotices.contains(crxNotice)){
+			this.crxNotices.remove((crxNotice));
+			crxNotice.setCreator(null);
+		}
 	}
 }

@@ -29,7 +29,7 @@ public class CrxConfig extends AbstractEntity {
     @Size(max = 12, message = "objectType must not be longer then 12 characters.")
     private String objectType;
 
-    @Column(name = "objectId")
+    @Column(name = "objectId", columnDefinition ="BIGINT UNSIGNED")
     private Long objectId;
 
     @Column(name = "keyword")

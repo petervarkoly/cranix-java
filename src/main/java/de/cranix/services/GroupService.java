@@ -81,7 +81,6 @@ public class GroupService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return null;
-        } finally {
         }
     }
 
@@ -101,7 +100,6 @@ public class GroupService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return null;
-        } finally {
         }
     }
 
@@ -113,7 +111,6 @@ public class GroupService extends Service {
             groups = query.getResultList();
         } catch (Exception e) {
             logger.error(e.getMessage());
-        } finally {
         }
         groups.sort(Comparator.comparing(Group::getName));
         return groups;
@@ -272,7 +269,6 @@ public class GroupService extends Service {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return new CrxResponse("ERROR", e.getMessage());
-        } finally {
         }
         return new CrxResponse("OK", "Group was deleted.");
     }
@@ -401,7 +397,6 @@ public class GroupService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse("ERROR", e.getMessage());
-        } finally {
         }
         changeMemberPlugin("addmembers", group, usersToAdd);
         changeMemberPlugin("removemembers", group, usersToRemove);
@@ -427,7 +422,6 @@ public class GroupService extends Service {
             this.em.getTransaction().commit();
         } catch (Exception e) {
             return new CrxResponse("ERROR", e.getMessage());
-        } finally {
         }
         changeMemberPlugin("addmembers", group, user);
         return new CrxResponse("OK", "User %s was added to group %s.", null, parameters);
@@ -449,7 +443,6 @@ public class GroupService extends Service {
             }
         } catch (Exception e) {
             return new CrxResponse("ERROR", e.getMessage());
-        } finally {
         }
         changeMemberPlugin("addmembers", group, users);
         return new CrxResponse("OK", "User %s was added to group %s.", null, parameters);
@@ -608,5 +601,4 @@ public class GroupService extends Service {
         }
         return responses;
     }
-
 }
