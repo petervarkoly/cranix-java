@@ -43,6 +43,7 @@ import static de.cranix.helper.CranixConstants.roleStudent;
 
 @Path("users")
 @Api(value = "users")
+@Produces(JSON_UTF8)
 public class UserResource {
 
     Logger logger = LoggerFactory.getLogger(UserResource.class);
@@ -52,7 +53,6 @@ public class UserResource {
 
     @GET
     @Path("all")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get all users")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -73,7 +73,6 @@ public class UserResource {
 
     @POST
     @Path("add")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Create new user and syncing it to squidGuard.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -94,7 +93,6 @@ public class UserResource {
 
     @POST
     @Path("insert")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Create new user without syncing it to squidGuard. This function will be used only by import.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -112,7 +110,6 @@ public class UserResource {
 
     @POST
     @Path("addList")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Create new users")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -131,7 +128,6 @@ public class UserResource {
 
     @GET
     @Path("{userId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get user by id")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -152,7 +148,6 @@ public class UserResource {
 
     @PATCH
     @Path("moveStudentsDevices")
-    @Produces(JSON_UTF8)
     @ApiOperation(
             value = "Move the devices of all students into the actual AdHocLan ClassRooms",
             notes = "This call works under certain circumstances." +
@@ -176,7 +171,6 @@ public class UserResource {
 
     @PATCH
     @Path("moveUserDevices/{role}")
-    @Produces(JSON_UTF8)
     @ApiOperation(
             value = "Move the devices of all students into the actual AdHocLan ClassRooms",
             notes = "This call works under certain circumstances." +
@@ -198,9 +192,9 @@ public class UserResource {
         em.close();
         return crxResponses;
     }
+
     @PATCH
     @Path("text/{uid}/devices")
-    @Produces(JSON_UTF8)
     @ApiOperation(
             value = "Move the devices of a user into the actual AdHocLan ClassRoom",
             notes = "This call works under certain circumstances." +
@@ -225,7 +219,6 @@ public class UserResource {
 
     @DELETE
     @Path("{userId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "delete user by id")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -243,7 +236,6 @@ public class UserResource {
 
     @POST
     @Path("modify")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "modify an existing user")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -262,7 +254,6 @@ public class UserResource {
 
     @POST
     @Path("{userId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "modify an existing user")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -279,12 +270,11 @@ public class UserResource {
 
     @GET
     @Path("{userId}/groups")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get groups the user is member in it.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.search")
+    @PermitAll
     public List<Group> groups(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("userId") Long userId
@@ -294,7 +284,6 @@ public class UserResource {
 
     @GET
     @Path("{userId}/availableGroups")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get groups the user is not member in it.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -315,7 +304,6 @@ public class UserResource {
 
     @GET
     @Path("byRole/{role}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get users from a rolle")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -337,7 +325,6 @@ public class UserResource {
 
     @POST
     @Path("{userId}/groups")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Put the user to this groups as member additionaly.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
@@ -366,7 +353,6 @@ public class UserResource {
 
     @POST
     @Path("{userId}/groups/set")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Put the user to this groups as member. The user will be removed from all other group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Group not found"),
@@ -386,7 +372,6 @@ public class UserResource {
 
     @DELETE
     @Path("{userId}/{groupId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Removes the user from a group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -406,7 +391,6 @@ public class UserResource {
 
     @PUT
     @Path("{userId}/{groupId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Add user to a group.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -512,7 +496,6 @@ public class UserResource {
 
     @GET
     @Path("uidsByRole/{role}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get users from a rolle")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -538,7 +521,6 @@ public class UserResource {
      */
     @GET
     @Path("guestUsers")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Gets all actual gast users. Systadmins get the lists all guest users. Normal users gets the own gast users.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -555,7 +537,6 @@ public class UserResource {
 
     @GET
     @Path("guestUsers/{guestUsersId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Gets a guest users category.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -573,7 +554,6 @@ public class UserResource {
 
     @DELETE
     @Path("guestUsers/{guestUsersId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Delete a guest users category.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -591,7 +571,6 @@ public class UserResource {
 
     @POST
     @Path("guestUsers/add")
-    @Produces(JSON_UTF8)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(value = "Creates a new printer.")
     @ApiResponses(value = {
@@ -766,7 +745,6 @@ public class UserResource {
      */
     @POST
     @Path("import")
-    @Produces(JSON_UTF8)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ApiOperation(value = "Import a list of users. The parameters:"
             + "* role The role of the users to import."
@@ -896,7 +874,6 @@ public class UserResource {
 
     @GET
     @Path("imports")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get the list of imports.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -920,7 +897,6 @@ public class UserResource {
 
     @GET
     @Path("imports/{startTime}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get the result of an import.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Import not found"),
@@ -955,7 +931,6 @@ public class UserResource {
 
     @PUT
     @Path("imports/{startTime}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Restart an user import.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Import import not found"),
@@ -1030,7 +1005,6 @@ public class UserResource {
 
     @DELETE
     @Path("imports/{startTime}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Remove an user import.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User import not found"),
@@ -1057,7 +1031,6 @@ public class UserResource {
 
     @DELETE
     @Path("imports/running")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Stops the running import.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "There is no running import found"),
@@ -1080,7 +1053,6 @@ public class UserResource {
 
     @GET
     @Path("imports/running")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get the running import.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
@@ -1133,7 +1105,6 @@ public class UserResource {
      */
     @PUT
     @Path("allTeachersInAllClasses")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Get the list of imports.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -1212,7 +1183,6 @@ public class UserResource {
 
     @PUT
     @Path("{userId}/allClasses")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Add user to all classes.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -1234,7 +1204,6 @@ public class UserResource {
 
     @POST
     @Path("syncFsQuotas")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Synchronize the file system quota values into the JPA")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -1253,7 +1222,6 @@ public class UserResource {
 
     @POST
     @Path("syncMsQuotas")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Synchronize the mail system quota values into the JPA")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -1271,7 +1239,6 @@ public class UserResource {
 
     @POST
     @Path("sync")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Synchronize group lists into squid.")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
@@ -1288,7 +1255,6 @@ public class UserResource {
 
     @POST
     @Path("applyAction")
-    @Produces(JSON_UTF8)
     @ApiOperation(
             value = "Apply actions on selected users.",
             notes = "Valid actions are:<br>" +

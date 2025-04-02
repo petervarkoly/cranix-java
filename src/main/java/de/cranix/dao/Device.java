@@ -136,6 +136,7 @@ public class Device extends AbstractEntity {
 
     //bi-directional many-to-one association to HWConf
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "hwconf_id", columnDefinition ="BIGINT UNSIGNED")
     private HWConf hwconf;
 
@@ -156,13 +157,16 @@ public class Device extends AbstractEntity {
     private List<User> loggedIn = new ArrayList<User>();
 
     @Transient
-    private String ownerName;
+    private String ownerName = "";
 
     @Transient
     private Long loggedInId = 0L;
 
     @Transient
     private String loggedInName = "nobody";
+
+    @Transient
+    private Long hwconfId;
 
     @Transient
     private char[] screenShot;
@@ -175,8 +179,12 @@ public class Device extends AbstractEntity {
         this.wlanMac = "";
     }
 
-    public Long getHwconfId() {
-        return this.hwconf == null ? null: this.hwconf.getId();
+    public Long getHwconfId()
+    {
+        if( this.hwconfId == null ) {
+            this.hwconfId = this.hwconf == null ? null : this.hwconf.getId();
+        }
+        return this.hwconfId;
     }
 
     public String getName() {
@@ -341,7 +349,7 @@ public class Device extends AbstractEntity {
     }
 
     public Long getRoomId() {
-        return this.room.getId();
+        return this.room == null ? null : this.room.getId();
     }
 
     public List<Printer> getPrinterQueue() {

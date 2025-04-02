@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.text.SimpleDateFormat;
 import javax.persistence.*;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
@@ -19,6 +18,8 @@ import org.eclipse.persistence.annotations.CacheType;
 
 import de.cranix.helper.SslCrypto;
 
+import static de.cranix.helper.StaticHelpers.getRandomColor;
+import static de.cranix.helper.StaticHelpers.simpleDate;
 
 /**
  * The persistent class for the Users database table.
@@ -26,17 +27,12 @@ import de.cranix.helper.SslCrypto;
 @Entity
 @Table(
 	name="Users",
-	uniqueConstraints = { @UniqueConstraint(columnNames = { "uid" }) }
+	uniqueConstraints = { @UniqueConstraint(columnNames = { "uid", "emailAddress" }) }
 )
 @NamedQueries({
-	@NamedQuery(name="User.findAll", query="SELECT u FROM User u WHERE NOT u.role = 'internal'"),
-	@NamedQuery(name="User.findAllId", query="SELECT u.id FROM User u WHERE NOT u.role = 'internal'"),
-	@NamedQuery(name="User.findAllStudents", query="SELECT u FROM User u WHERE u.role = 'students' "),
-	@NamedQuery(name="User.findAllTeachers", query="SELECT u FROM User u WHERE u.role = 'teachers' "),
+	@NamedQuery(name="User.findAll", query="SELECT u FROM User u WHERE NOT u.role = 'internal' AND NOT u.role = 'parents'"),
 	@NamedQuery(name="User.getByRole",  query="SELECT u FROM User u WHERE u.role = :role "),
 	@NamedQuery(name="User.getByUid",   query="SELECT u FROM User u WHERE u.uid = :uid "),
-	@NamedQuery(name="User.findByName",   query="SELECT u FROM User u WHERE u.givenName = :givenName and u.surName = :surName"),
-	@NamedQuery(name="User.findByNameAndRole",   query="SELECT u FROM User u WHERE u.givenName = :givenName and u.surName = :surName and u.role = :role"),
 	@NamedQuery(name="User.search", query="SELECT u FROM User u WHERE u.uid LIKE :search OR u.givenName LIKE :search OR u.surName LIKE :search")
 })
 @Cache(
@@ -46,55 +42,67 @@ import de.cranix.helper.SslCrypto;
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class User extends AbstractEntity {
 
-	@Column(name="uid", updatable=false)
+	@Column(name="uid", updatable=false, length=32)
 	@Pattern.List({
 		@Pattern(
-                        regexp = "^[^/\\\\#,;=]+$",
-                        flags = Pattern.Flag.CASE_INSENSITIVE,
-                        message = "Uid must not contains: '/' '\\' '#' ',' ';' '='."),
+				regexp = "^[^/\\\\#,;=]+$",
+				flags = Pattern.Flag.CASE_INSENSITIVE,
+				message = "Uid must not contains: '/' '\\' '#' ',' ';' '='."),
 		@Pattern(
                 regexp = "^[^-\\.].*",
                 flags = Pattern.Flag.CASE_INSENSITIVE,
                 message = "Uid must not start with '-' '.'.")
 	})
 	@Size(max=32, message="Uid must not be longer then 32 characters.")
-	private String uid;
+	private String uid = "";
 
-	@Column(name="uuid", updatable=false)
+	@Column(name="uuid", updatable=false, length=64)
 	@Size(max=64, message="UUID must not be longer then 64 characters.")
-	private String uuid;
+	private String uuid = "";
 
-	@Column(name="givenName")
+	@Column(name="givenName", length=64)
 	@Size(max=64, message="Givenname must not be longer then 64 characters.")
-	private String givenName;
+	private String givenName = "";
 
-	@Column(name="surName")
+	@Column(name="surName", length=64)
 	@Size(max=64, message="Surname must not be longer then 64 characters.")
-	private String surName;
+	private String surName = "";
 
-	@Column(name="role")
+	@Column(name="role", length=16)
 	@Size(max=16, message="Role must not be longer then 16 characters.")
-	private String role;
+	private String role = "";
 
 	@Column(name="birthDay", columnDefinition = "DATE NOT NULL DEFAULT NOW()")
-	private String birthDay;
+	private String birthDay = simpleDate.format(new Date());
+
+	@Column(name = "emailAddress", length = 64)
+	@Size(max=64, message="emailAddress must not be longer then 16 characters.")
+	private String emailAddress = "";
+
+	@Column(name = "telefonNumber", length = 64)
+	@Size(max=64, message="telefonNumber must not be longer then 16 characters.")
+	private String telefonNumber = "";
 
 	@Column(name="fsQuotaUsed")
-	private Integer fsQuotaUsed;
+	private Integer fsQuotaUsed = 0;
 
 	@Column(name="fsQuota")
-	private Integer fsQuota;
+	private Integer fsQuota = 0;
 
 	@Column(name="msQuotaUsed")
-	private Integer msQuotaUsed;
+	private Integer msQuotaUsed = 0;
 
 	@Column(name="msQuota")
-	private Integer msQuota;
+	private Integer msQuota = 0;
+
+	@Column(name="color", length=7)
+	@Size(max=7, message="color must not be longer then 7 characters.")
+	protected String color = getRandomColor();
 
 	@JsonIgnore
-	@Column(name="initialPassword")
+	@Column(name="initialPassword", length=32)
 	@Size(max=32, message="initialPassword must not be longer then 32 characters.")
-	private String initialPassword;
+	private String initialPassword = "";
 
 	/* bi-directional many-to-one associations */
 	@OneToMany(mappedBy="user", cascade ={CascadeType.ALL})
@@ -170,17 +178,33 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	private List<Contact> myContacts = new ArrayList<Contact>();
 
-	@OneToMany(mappedBy="creator")
+	@OneToMany(mappedBy="creator", cascade = {CascadeType.ALL})
 	@JsonIgnore
 	private List<Announcement> myAnnouncements = new ArrayList<Announcement>();
 
-	@OneToMany(mappedBy="creator")
+	@OneToMany(mappedBy="creator", cascade = {CascadeType.ALL})
 	@JsonIgnore
 	public List<CrxChallenge> challenges = new ArrayList<CrxChallenge>();
 
 	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL}, orphanRemoval=true)
 	@JsonIgnore
 	private List<TaskResponse> taskResponses = new ArrayList<TaskResponse>();
+
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
+	@JsonIgnore
+	private List<CrxCalendar> createdEvents = new ArrayList<CrxCalendar>();
+
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
+	@JsonIgnore
+	private List<OneTimePassword> oneTimePasswords = new ArrayList<OneTimePassword>();
+
+	@OneToOne(mappedBy="creator", cascade ={CascadeType.ALL})
+	@JsonIgnore
+	private IdRequest createdRequest;
+
+	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
+	@JsonIgnore
+	private List<CrxNotice> crxNotices = new ArrayList<CrxNotice>();
 
 	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="users")
@@ -218,6 +242,23 @@ public class User extends AbstractEntity {
 	@JsonIgnore
 	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();
 
+	@ManyToMany
+    @JoinTable(
+            name = "MyChildren",
+            joinColumns = {@JoinColumn(name = "parent_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")},
+            inverseJoinColumns = {@JoinColumn(name = "child_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
+    )
+    @JsonIgnore
+    private List<User> children = new ArrayList<User>();
+
+	@ManyToMany(mappedBy="children")
+	@JsonIgnore
+	private List<User> parents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+	@JsonIgnore
+    List<ParentRequest> paretnRequests = new ArrayList<>();
+
 	/* transient attributes */
 	@Transient
 	private String classes;
@@ -227,6 +268,15 @@ public class User extends AbstractEntity {
 
 	@Transient
 	String fullName;
+
+	@Transient
+	List<Long> childIds = new ArrayList<>();
+
+	@Transient
+	List<Long> parentIds = new ArrayList<>();
+
+	@Transient
+	List<Long> classIds;
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
 	@JsonIgnore
@@ -257,28 +307,18 @@ public class User extends AbstractEntity {
 		}
 	}
 
+	@ManyToMany(mappedBy="users")
+	@JsonIgnore
+	private List<CrxCalendar> events = new ArrayList<>();
+
 	@Transient
 	private String password ="";
 
 	@Transient
 	private boolean mustChange = false;
 
-	public User() {
-		SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-		this.setId(null);
-		this.uid = "";
-		this.uuid = "";
-		this.surName = "";
-		this.givenName = "";
-		this.password = "";
-		this.role = "";
-		this.fsQuota = 0;
-		this.fsQuotaUsed = 0;
-		this.msQuota = 0;
-		this.msQuotaUsed = 0;
-		this.birthDay = fmt.format(new Date());
-		this.mustChange = false;
-	}
+	public User() {	}
+	public User(Session session) { this.setCreator(session.getUser()); }
 
 	public boolean isMustChange() {
 		return mustChange;
@@ -396,6 +436,10 @@ public class User extends AbstractEntity {
 		return this.ownedDevices;
 	}
 
+	public List<CrxCalendar> getCreatedEvents() { return createdEvents;	}
+
+	public void setCreatedEvents(List<CrxCalendar> createdEvents) { this.createdEvents = createdEvents;	}
+
 	public void setOwnedDevices(List<Device> ownedDevices) {
 		this.ownedDevices = ownedDevices;
 	}
@@ -475,6 +519,15 @@ public class User extends AbstractEntity {
 	public Integer getMsQuota() {
 		return this.msQuota;
 	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
 	public List<Category> getCategories() {
 		return this.categories;
 	}
@@ -660,16 +713,152 @@ public class User extends AbstractEntity {
 	}
 
 	public void addTaskResponse(TaskResponse taskResponse) {
-		if( !this.taskResponses.contains(taskResponse)) {
-			this.taskResponses.add(taskResponse);
+		if( !taskResponses.contains(taskResponse)) {
+			taskResponses.add(taskResponse);
 			taskResponse.setCreator(this);
 		}
 	}
 
 	public void deleteTaskResponse(TaskResponse taskResponse) {
-		if( this.taskResponses.contains(taskResponse)) {
-			this.taskResponses.remove(taskResponse);
+		if( taskResponses.contains(taskResponse)) {
+			taskResponses.remove(taskResponse);
 			taskResponse.setCreator(null);
+		}
+	}
+
+	public void setCrx2fas(List<Crx2fa> crx2fas) {
+		this.crx2fas = crx2fas;
+	}
+
+	public void setCrx2faSessions(List<Crx2faSession> crx2faSessions) {
+		this.crx2faSessions = crx2faSessions;
+	}
+
+	public List<CrxCalendar> getEvents() {
+		return events;
+	}
+
+	public void setEvents(List<CrxCalendar> events) {
+		this.events = events;
+	}
+
+	public void addEvent(CrxCalendar event) {
+		if(!events.contains(event)) {
+			events.add(event);
+			event.getUsers().add(this);
+		}
+	}
+
+	public void removeEvent(CrxCalendar event) {
+		if(events.contains((event))) {
+			events.remove(event);
+			event.getUsers().remove(this);
+		}
+	}
+
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
+
+	public List<OneTimePassword> getOneTimePasswords() {
+		return oneTimePasswords;
+	}
+
+	public void setOneTimePasswords(List<OneTimePassword> oneTimePasswords) {
+		this.oneTimePasswords = oneTimePasswords;
+	}
+
+	public List<User> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<User> children) {
+		this.children = children;
+	}
+
+	public List<Long> getChildIds() {
+		if(this.childIds.isEmpty()){
+			for(User child: this.children){
+				this.childIds.add(child.getId());
+			}
+		}
+		return this.childIds;
+	}
+
+	public void setChildIds(List<Long> childIds) {
+		this.childIds = childIds;
+	}
+	public List<Long> getParentIds() {
+		if(this.parentIds.isEmpty()){
+			for(User parent: this.parents){
+				this.parentIds.add(parent.getId());
+			}
+		}
+		return this.parentIds;
+	}
+	public void setParentIds(List<Long> parentIds){
+		this.parentIds = parentIds;
+	}
+	public List<ParentRequest> getParetnRequests() {
+		return paretnRequests;
+	}
+
+	public void setParetnRequests(List<ParentRequest> paretnRequests) {
+		this.paretnRequests = paretnRequests;
+	}
+
+	public String getTelefonNumber() {
+		return telefonNumber;
+	}
+
+	public void setTelefonNumber(String telefonNumber) {
+		this.telefonNumber = telefonNumber;
+	}
+
+	public List<User> getParents() { return parents;}
+
+	public void setParents(List<User> parents) {this.parents = parents;}
+
+	public List<Long> getClassIds(){
+		classIds = new ArrayList<>();
+		for(Group group: groups){
+			if(group.getGroupType().equals("class")){
+				classIds.add(group.getId());
+			}
+		}
+		return classIds;
+	}
+
+	public IdRequest getCreatedRequest() {
+		return createdRequest;
+	}
+
+	public void setCreatedRequest(IdRequest createdRequest) {
+		this.createdRequest = createdRequest;
+	}
+
+	public List<CrxNotice> getCrxNotices() {
+		return crxNotices;
+	}
+
+	public void setCrxNotices(List<CrxNotice> crxNotices) {
+		this.crxNotices = crxNotices;
+	}
+
+	public void addCrxNotice(CrxNotice crxNotice){
+		if(!this.crxNotices.contains(crxNotice)){
+			crxNotice.setCreator(this);
+			this.crxNotices.add((crxNotice));
+		}
+	}
+	public void removeCrxNotice(CrxNotice crxNotice){
+		if(this.crxNotices.contains(crxNotice)){
+			this.crxNotices.remove((crxNotice));
+			crxNotice.setCreator(null);
 		}
 	}
 }

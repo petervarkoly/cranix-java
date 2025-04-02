@@ -92,7 +92,9 @@ public class Software extends AbstractEntity {
     }
 
     public void setName(String name) {
-        this.name = name.length() > 128 ? name.substring(0, 128) : name;
+        if(name != null ) {
+            this.name = name.length() > 128 ? name.substring(0, 128) : name;
+        }
     }
 
     public String getDescription() {
@@ -100,7 +102,9 @@ public class Software extends AbstractEntity {
     }
 
     public void setDescription(String description) {
-        this.description = description.length() > 128 ? description.substring(0, 128) : description;
+        if(description != null) {
+            this.description = description.length() > 128 ? description.substring(0, 128) : description;
+        }
     }
 
     public Integer getWeight() {

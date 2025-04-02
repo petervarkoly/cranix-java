@@ -39,6 +39,7 @@ import static de.cranix.api.resources.Resource.TEXT;
 
 @Path("softwares")
 @Api(value = "softwares")
+@Produces(JSON_UTF8)
 public class SoftwareResource {
 
 	Logger logger = LoggerFactory.getLogger(SoftwareResource.class);
@@ -47,7 +48,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all Softwares.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),
@@ -62,7 +62,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("allInstallable")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all Softwares.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),
@@ -77,7 +76,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("{softwareId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get software by id")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -95,7 +93,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("add")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a new version of software. If the software does not exists this will be create.<br>" +
 			"If the software does exists all older versions will be set to 'R'eplaced and the current version to 'C'.<br>" +
 			"The software version must be given! Now we only provides one actual version.")
@@ -115,7 +112,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("{softwareId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a software")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -135,7 +131,6 @@ public class SoftwareResource {
 
 	@DELETE
 	@Path("{softwareId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a software defined by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -153,7 +148,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("addRequirements")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a software requirement by name")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -171,7 +165,6 @@ public class SoftwareResource {
 
 	@PUT
 	@Path("{softwareId}/{requirementId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a software requirement to a software")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -190,7 +183,6 @@ public class SoftwareResource {
 
 	@DELETE
 	@Path("{softwareId}/{requirementId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Remove a software requirement from a software")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -212,7 +204,6 @@ public class SoftwareResource {
 	//############################
 	@POST
 	@Path("{softwareId}/license")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Creates licence(s) to a software")
 	@ApiResponses(value = {
@@ -244,7 +235,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("{softwareId}/license")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the licences to a software")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -266,7 +256,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("licenses/{licenseId}")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value = "Modifies an existing license.")
 	@ApiResponses(value = {
@@ -296,7 +285,6 @@ public class SoftwareResource {
 
 	@DELETE
 	@Path("licenses/{licenseId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes an existing licence.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -318,7 +306,6 @@ public class SoftwareResource {
 	 */
 	@GET
 	@Path("available")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the available softwares from the CEPHALIX repository.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),
@@ -334,7 +321,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("download")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Downloads softwares from the CEPHALIX repository.",
 			notes = "The call must provide a list of softwares to be downloaded: "
 			+ "[ \"MSWhatever\", \"AnOtherProgram\" ] "
@@ -356,7 +342,6 @@ public class SoftwareResource {
 
 	@PUT
 	@Path("download/{softwareName}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Downloads a software from the CEPHALIX repository.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),
@@ -374,7 +359,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("deleteDownloadedSoftwares")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets software downloaded from the CEPHALIX repository.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),
@@ -409,7 +393,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("listDownloadedSoftware")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "List the status of the downloaded software. ",
 			notes = "This call delivers a list of maps of the downloaded software.<br>"
 			+ "[ {<br>"
@@ -431,7 +414,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("listUpdatesForSoftwarePackages")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "List the status of the downloaded software. ",
 			notes = "This call delivers a list of maps of the downloaded software.<br>"
 			+ "[ {<br>"
@@ -451,7 +433,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("updatesSoftwares")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Downloads softwares from the CEPHALIX repository.",
 			notes = "The call must provide a list of softwares to be downloaded: "
 			+ "[ \"MSWhatever\", \"AnOtherProgram\" ] "
@@ -473,7 +454,6 @@ public class SoftwareResource {
 
 	@PUT
 	@Path("saveState")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates the salt state files for the minions.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -488,7 +468,6 @@ public class SoftwareResource {
 
 	@PUT
 	@Path("applyState")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Applies the high states created in the salt state files for the minions.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -508,7 +487,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("installations")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Creates a software installation")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -528,7 +506,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("installations/{installationId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modifies a software installation")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -547,7 +524,6 @@ public class SoftwareResource {
 
 	@DELETE
 	@Path("installations/{installationId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a defined installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -569,7 +545,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all installations")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -584,7 +559,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets an installations by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -602,7 +576,6 @@ public class SoftwareResource {
 
 	@PUT
 	@Path("installations/{installationId}/softwares/{softwareId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Adds a software to an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -621,7 +594,6 @@ public class SoftwareResource {
 
 	@PUT
 	@Path("installations/{installationId}/devices/{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Adds a device to an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -641,7 +613,6 @@ public class SoftwareResource {
 
 	@PUT
 	@Path("installations/{installationId}/rooms/{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Adds a room to an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -661,7 +632,6 @@ public class SoftwareResource {
 
 	@PUT
 	@Path("installations/{installationId}/hwconfs/{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Adds a hwconf to an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -681,7 +651,6 @@ public class SoftwareResource {
 
 	@DELETE
 	@Path("installations/{installationId}/softwares/{softwareId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a software from an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -701,7 +670,6 @@ public class SoftwareResource {
 
 	@DELETE
 	@Path("installations/{installationId}/devices/{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a device from an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -721,7 +689,6 @@ public class SoftwareResource {
 
 	@DELETE
 	@Path("installations/{installationId}/rooms/{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a room from an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -741,7 +708,6 @@ public class SoftwareResource {
 
 	@DELETE
 	@Path("installations/{installationId}/hwconfs/{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Deletes a hwconf from an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -761,7 +727,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}/softwares")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of softwares in an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -783,7 +748,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}/devices")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of devices in an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -805,7 +769,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}/rooms")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of rooms in an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -827,7 +790,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}/hwconfs")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of hwconfs in an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -849,7 +811,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}/available/softwares")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of softwares in an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -874,7 +835,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}/available/devices")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of devices in an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -899,7 +859,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}/available/rooms")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of rooms in an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -924,7 +883,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("installations/{installationId}/available/hwconfs")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of hwconfs in an installation.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Software not found"),
@@ -956,7 +914,6 @@ public class SoftwareResource {
 	 */
 	@PUT
 	@Path("devicesByName/{deviceName}/{softwareName}/{version}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set a software on a device as installed in a given version."
 			+ " This will be called by the tool read_installed_software.pl by starting the clients.")
 	@ApiResponses(value = {
@@ -982,7 +939,6 @@ public class SoftwareResource {
 
 	@POST
 	@Path("devicesByName/{deviceName}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set a software on a device as installed in a given version."
 			+ " This will be called by the tool read_installed_software.pl by starting the clients.")
 	@ApiResponses(value = {
@@ -1029,7 +985,6 @@ public class SoftwareResource {
 	 * ########################################## */
 	@GET
 	@Path("status")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "The state of the installation of software(s) on all devices.",
 			notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
 			+ "The delivered list has following format:<br>"
@@ -1062,7 +1017,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("devices/{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "The state of the installation of software(s) on a device.",
 			notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
 			+ "The delivered list has following format:<br>"
@@ -1098,7 +1052,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("devices/{deviceId}/{softwareId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "The state of the installation of software(s) on a device.",
 			notes = "A call with ID < 1 as softwareId a list of all softwares in all version on a device. "
 			+ "The delivered list has following format:<br>"
@@ -1138,7 +1091,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("{softwareId}/status")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "the state of the installation of software(s) on all devices.",
 			notes = "The delivered list has following format:<br>"
 			+ "[ {<br>"
@@ -1184,7 +1136,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("rooms/{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "the state of the installation status in a room.",
 			notes = "The delivered list has following format:<br>"
 			+ "[ {<br>"
@@ -1224,7 +1175,6 @@ public class SoftwareResource {
 
 	@GET
 	@Path("hwconfs/{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "the state of the installation status of a hwconf.",
 			notes = "The delivered list has following format:<br>"
 			+ "[ {<br>"

@@ -25,13 +25,13 @@ import java.util.List;
 
 @Path("objects")
 @Api(value = "objects")
+@Produces(JSON_UTF8)
 public class ObjectResource {
 
 	public ObjectResource() {}
 
 	@POST
 	@Path("mconfig")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new mconfig for an object request.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 400, message = "Missing data for request"),
@@ -49,7 +49,6 @@ public class ObjectResource {
 
 	@POST
 	@Path("config")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new config for an object request.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -67,7 +66,6 @@ public class ObjectResource {
 
 	@DELETE
 	@Path("mconfig/{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new mconfig for an object request.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -85,7 +83,6 @@ public class ObjectResource {
 
 	@DELETE
 	@Path("config/{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new mconfig for an object request.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -103,7 +100,6 @@ public class ObjectResource {
 
 	@GET
 	@Path("mconfig/{type}/{id}/{key}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the values of mconfig for an object.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -123,7 +119,6 @@ public class ObjectResource {
 
 	@GET
 	@Path("config/{type}/{id}/{key}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the values of mconfig for an object.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -146,7 +141,6 @@ public class ObjectResource {
 	 */
 	@GET
 	@Path("subjects")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the values of mconfig for an object.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -163,7 +157,6 @@ public class ObjectResource {
 
 	@POST
 	@Path("subjects")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a teaching subject.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -181,7 +174,6 @@ public class ObjectResource {
 
 	@PATCH
 	@Path("subjects")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a teaching subject.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -199,7 +191,6 @@ public class ObjectResource {
 
 	@GET
 	@Path("subjects/{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the subject areas of a teaching subject.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -218,7 +209,6 @@ public class ObjectResource {
 
 	@POST
 	@Path("subjects/{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add a subject area to a teaching subject.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),

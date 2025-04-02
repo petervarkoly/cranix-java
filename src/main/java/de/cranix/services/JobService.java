@@ -6,23 +6,19 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
-import static de.cranix.helper.CranixConstants.*;
+import static de.cranix.helper.CranixConstants.privatDirAttribute;
+import static de.cranix.helper.CranixConstants.cranixBaseDir;
 import static de.cranix.helper.StaticHelpers.simpleDateFormat;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -31,8 +27,6 @@ public class JobService extends Service {
 
 	Logger logger = LoggerFactory.getLogger(JobService.class);
 
-    static FileAttribute<Set<PosixFilePermission>> privatDirAttribute  = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rwx------"));
-    static FileAttribute<Set<PosixFilePermission>> privatFileAttribute = PosixFilePermissions.asFileAttribute( PosixFilePermissions.fromString("rw-------"));
 
 	private static String basePath = "/home/groups/SYSADMINS/jobs/";
 

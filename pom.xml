@@ -27,7 +27,7 @@
         <dropwizard-swagger.version>2.0.12-1</dropwizard-swagger.version>
         <eclipselink.version>2.7.14</eclipselink.version>
         <fluent.version>4.5.13</fluent.version>
-        <mysql-connector.version>8.0.28</mysql-connector.version>
+        <mysql-connector.version>8.0.33</mysql-connector.version>
         <org.glassfish.version>1.1.4</org.glassfish.version>
         <org.jdom.version>2.0.6</org.jdom.version>
     </properties>
@@ -55,6 +55,12 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/commons-collections/commons-collections -->
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>
+        </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
@@ -74,6 +80,10 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-http2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-jersey</artifactId>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.ini4j/ini4j -->
         <dependency>
@@ -102,10 +112,6 @@
           <artifactId>dropwizard-metrics-graphite</artifactId>
         </dependency -->
         <!-- https://mvnrepository.com/artifact/io.dropwizard/dropwizard-jersey -->
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-jersey</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
@@ -158,6 +164,12 @@
             <artifactId>jdom2</artifactId>
             <version>${org.jdom.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/jakarta.annotation/jakarta.annotation-api -->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>1.3.5</version>
+        </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
@@ -167,6 +179,11 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20240303</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.cranix</groupId>
+            <artifactId>cephalix</artifactId>
+            <version>15.6</version>
         </dependency>
     </dependencies>
     <build>

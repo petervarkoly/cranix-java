@@ -33,7 +33,6 @@ public class CategoryService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -44,7 +43,6 @@ public class CategoryService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -56,7 +54,6 @@ public class CategoryService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new ArrayList<>();
-		} finally {
 		}
 	}
 
@@ -69,7 +66,6 @@ public class CategoryService extends Service {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-		} finally {
 		}
 		return categories;
 	}
@@ -81,7 +77,6 @@ public class CategoryService extends Service {
 		} catch (Exception e) {
 			logger.debug(e.getMessage());
 			return null;
-		} finally {
 		}
 	}
 
@@ -213,8 +208,6 @@ public class CategoryService extends Service {
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			return new CrxResponse("ERROR",e.getMessage());
-		} finally {
-
 		}
 		return new CrxResponse("OK","Category was deleted");
 	}
@@ -534,7 +527,6 @@ public class CategoryService extends Service {
 		} catch (Exception e) {
 			logger.error("deleteMember:" +e.getMessage());
 			return new CrxResponse("ERROR",e.getMessage());
-		} finally {
 		}
 		return new CrxResponse("OK","Category was modified");
 	}

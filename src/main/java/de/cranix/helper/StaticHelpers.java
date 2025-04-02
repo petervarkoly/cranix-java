@@ -16,6 +16,9 @@ public class StaticHelpers {
 	static Logger logger = LoggerFactory.getLogger(StaticHelpers.class);
 
 	static public SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm yyyy-MM-dd");
+	static public SimpleDateFormat simpleDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	static public SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-MM-dd");
+	static public SimpleDateFormat simpleYear = new SimpleDateFormat("yyyy");
 
 	static public String createRandomPassword() {
 		String[] salt = new String[3];
@@ -41,6 +44,10 @@ public class StaticHelpers {
 		return builder.toString();
 	}
 
+	static public String cleanString(String s){
+		return s.replaceAll("^\"", "").replaceAll("\"$", "");
+	}	
+
 	static public String normalize(String input) {
 		return Normalizer.normalize(
 				input.replace("ß", "s"),
@@ -56,8 +63,6 @@ public class StaticHelpers {
 						replace("ü", "ue").
 						replace("ä", "ae"),
 				Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
-		//Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-		//return pattern.matcher(output).replaceAll("");
 	}
 	/**
 	 * Start a plugin for an object by creating modifying or deleting
@@ -219,6 +224,15 @@ public class StaticHelpers {
 		return simpleDateFormat.format(new Date(times));
 	}
 
+	static public String getYear(Long times) {
+		return simpleYear.format(new Date(times));
+	}
+	static public String getYear() {
+		return simpleYear.format(new Date());
+	}
+
+
+
 	static public void reloadFirewall() {
 		String[] program = new String[2];
 		StringBuffer reply = new StringBuffer();
@@ -226,5 +240,25 @@ public class StaticHelpers {
 		program[0] = "/usr/bin/firewall-cmd";
 		program[1] = "--reload";
 		CrxSystemCmd.exec(program, reply, error, null);
+	}
+
+	static public List<Long> aMinusB(List<Long>a, List<Long>b){
+		List<Long> c = new ArrayList<>();
+		for(Long x: a){
+			if( !b.contains(x)){
+				c.add(x);
+			}
+		}
+		return c;
+	}
+
+	static public String getRandomColor(){
+		Random random = new Random();
+        // Generiere zufällige Werte für R, G und B
+        int r = random.nextInt(256); // Zufälliger Wert zwischen 0 und 255
+        int g = random.nextInt(256);
+        int b = random.nextInt(256);
+        // Konvertiere die Werte in hexadezimale Formate und formatiere sie
+        return String.format("#%02X%02X%02X", r, g, b);
 	}
 }

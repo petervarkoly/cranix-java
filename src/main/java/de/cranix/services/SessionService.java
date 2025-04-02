@@ -10,13 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static de.cranix.helper.CranixConstants.*;
@@ -91,6 +89,17 @@ public class SessionService extends Service {
             return null;
         }
 
+        /**
+         * For debug reason.
+         * Create Variable CRANIX_MAP_USER_<USERNAME>_TO="<username to map>" in /etc/sysconfig/cranix
+         * And the user will be mapped to an other user
+         **/
+        if (!this.getConfigValue("MAP_USER_" + username + "_TO").isEmpty()) {
+            logger.info("Change identity from: "+ username);
+            username = this.getConfigValue("MAP_USER_" + username + "_TO");
+            logger.info("Change identity to: "+ username);
+        }
+
         //TODO what to do with deviceType
         User user = userService.getByUid(username);
         if (user == null) {
@@ -162,9 +171,9 @@ public class SessionService extends Service {
             for (Crx2fa crx2fa : user.getCrx2fas()) {
                 this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
             }
-            if(crx2faSessionId > 0) {
-                Crx2faSession crx2faSession = this.em.find(Crx2faSession.class,crx2faSessionId);
-                if( crx2faSession != null && crx2faSession.isValid() ){
+            if (crx2faSessionId > 0) {
+                Crx2faSession crx2faSession = this.em.find(Crx2faSession.class, crx2faSessionId);
+                if (crx2faSession != null && crx2faSession.isValid()) {
                     this.session.setCrx2faSession(crx2faSession);
                 }
             }
@@ -179,6 +188,24 @@ public class SessionService extends Service {
         sessions.put(token, this.session);
         save(session);
         return this.session;
+    }
+
+    public Session createSession(User user, Date from, Date until, String gotoPath){
+        String token =  createSessionToken(user.getUid());
+        Session newSession = new Session(
+                token, user, from, until, gotoPath
+        );
+        newSession.setRole(user.getRole());
+        try {
+            this.em.getTransaction().begin();
+            this.em.persist(newSession);
+            this.em.getTransaction().commit();
+            sessions.put(token, newSession);
+            return newSession;
+        } catch (Exception e){
+            logger.error("Create session " + e.getMessage());
+            return null;
+        }
     }
 
     public Session createInternalUserSession(String username) {
@@ -280,6 +307,7 @@ public class SessionService extends Service {
                 List<Session> sessions = q.getResultList();
                 if ((sessions != null) && (sessions.size() > 0)) {
                     data = sessions.get(0);
+                    data.setInstituteName(this.getConfigValue("NAME"));
                 }
             } catch (Exception e) {
                 logger.error(e.getMessage());
@@ -301,7 +329,17 @@ public class SessionService extends Service {
         if (token.equals(this.getProperty("de.cranix.api.auth.localhost"))) {
             return session;
         }
-
+        if (session.getValidFrom() != null && session.getValidUntil() != null) {
+            Date now = new Date();
+            if (now.after(session.getValidFrom())) {
+                if (now.before(session.getValidUntil())) {
+                    return session;
+                } else {
+                    this.deleteSession(session);
+                    return null;
+                }
+            }
+        }
         if (!isSuperuser(session)) {
             Long timeout = 90L;
             try {
@@ -341,13 +379,13 @@ public class SessionService extends Service {
     }
 
     public boolean authorize(Session session, String requiredRole) {
-	/**
-	 * Local token and token of cephalix must not be checked.
-	 */
+        /**
+         * Local token and token of cephalix must not be checked.
+         */
         if (
-	    session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost")) ||
-	    session.getUser().getUid().equals("cephalix")
-	) {
+                session.getToken().equals(this.getProperty("de.cranix.api.auth.localhost")) ||
+                        session.getUser().getUid().equals("cephalix")
+        ) {
             return true;
         }
 
@@ -357,13 +395,13 @@ public class SessionService extends Service {
         if (session.getAcls().contains("2fa.use") && requiredRole.equals("2fa.use")) {
             return true;
         }
-	/**
-	 * Clone tool is a special case
-	 */
-	if(requiredRole.startsWith("hwconf.") && session.getAcls().contains(requiredRole)) {
+        /**
+         * Clone tool is a special case
+         */
+        if (requiredRole.startsWith("hwconf.") && session.getAcls().contains(requiredRole)) {
             logger.info("Token without checked CRX2FA session for clone tool" + requiredRole);
-	    return true;
-	}
+            return true;
+        }
         /**
          * User have to use 2FA but has no checked 2FA session.
          * Only 2FA setup is allowed.
@@ -411,10 +449,10 @@ public class SessionService extends Service {
         fileServerName = fileServerName + "." + this.getConfigValue("DOMAIN");
         batFile.add(
                 "net use z: \\\\" + fileServerName + "\\" + this.session.getUser().getUid()
-                + " /persisten:no /user:"
-                + this.getConfigValue("WORKGROUP") + "\\"
-                + this.session.getUser().getUid() + " \""
-                + this.session.getPassword() + "\""
+                        + " /persisten:no /user:"
+                        + this.getConfigValue("WORKGROUP") + "\\"
+                        + this.session.getUser().getUid() + " \""
+                        + this.session.getPassword() + "\""
         );
         program[0] = cranixBaseDir + "plugins/shares/netlogon/open/100-create-logon-script.sh";
         program[1] = this.session.getUser().getUid();

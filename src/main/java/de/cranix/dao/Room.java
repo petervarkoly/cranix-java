@@ -134,6 +134,10 @@ public class Room extends AbstractEntity {
 	@JsonIgnore
 	private List<Category> categories = new ArrayList<Category>();
 
+	@OneToMany(mappedBy="room")
+	@JsonIgnore
+	private List<CrxCalendar> events = new ArrayList<CrxCalendar>();
+
 	@ManyToMany( cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable(
 		name="AvailablePrinters",
@@ -160,6 +164,9 @@ public class Room extends AbstractEntity {
 	@Transient
 	private boolean ignoreNetbios = false;
 
+	@Transient
+	private Long hwconfId;
+
 	public Room() {
 		this.convertNmToCount();
 	}
@@ -172,8 +179,12 @@ public class Room extends AbstractEntity {
 		this.netMask = countToNm.get(this.devCount);
 	}
 
-	public Long getHwconfId() {
-		return this.hwconf == null ? null: this.hwconf.getId();
+	public Long getHwconfId()
+	{
+		if( this.hwconfId == null ){
+			this.hwconfId = this.hwconf == null ? null: this.hwconf.getId();
+		}
+		return this.hwconfId;
 	}
 
 	public String getName() {
@@ -271,7 +282,27 @@ public class Room extends AbstractEntity {
 		device.setRoom(null);
 		return device;
 	}
+	public List<CrxCalendar> getEvents() {
+		return events;
+	}
 
+	public void setEvents(List<CrxCalendar> events) {
+		this.events = events;
+	}
+
+	public void addEvent(CrxCalendar event) {
+		if(!events.contains(event)) {
+			events.add(event);
+			event.setRoom(this);
+		}
+	}
+
+	public void removeEvent(CrxCalendar event) {
+		if(events.contains((event))) {
+			events.remove(event);
+			event.setRoom(null);
+		}
+	}
 	public List<Printer> getAvailablePrinters() {
 		return this.availablePrinters;
 	}

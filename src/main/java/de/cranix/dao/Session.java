@@ -30,14 +30,23 @@ public class Session implements Principal {
 	private Date createDate = new Date();
 
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "validFrom", columnDefinition = "timestamp")
+	private Date validFrom;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "validUntil", columnDefinition = "timestamp")
+	private Date validUntil;
+
 	//@OneToOne
 	@ManyToOne
 	@JsonIgnore
 	@JoinColumn(name="device_id", columnDefinition ="BIGINT UNSIGNED")
 	private Device device;
 
+
+	//@JsonIgnore
 	@ManyToOne
-	@JsonIgnore
 	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
 	private User user;
 
@@ -56,6 +65,9 @@ public class Session implements Principal {
 	@Column(name = "token")
 	private String token;
 
+	@Column(name = "gotoPath")
+	private String gotoPath;
+
 	/**
 	 * Transient variables to make the life in front end more simply.
 	 */
@@ -69,7 +81,7 @@ public class Session implements Principal {
 	private Boolean mustChange = false;
 
 	@Transient
-	private String schoolId = "dummy";
+	private String instituteName = "dummy";
 
 	@Transient
 	private String mac;
@@ -97,7 +109,16 @@ public class Session implements Principal {
 		this.user = user;
 		this.password = password;
 		this.token = token;
-		this.schoolId="dummy";
+		this.ip = ip;
+	}
+
+	public Session(String token, User user, Date validFrom, Date validUntil, String gotoPath) {
+		this.token = token;
+		this.user = user;
+		this.validFrom = validFrom;
+		this.validUntil = validUntil;
+		this.gotoPath = gotoPath;
+		this.role = user.getRole();
 	}
 
 	public Session() {
@@ -146,14 +167,6 @@ public class Session implements Principal {
 		data.append("mac: '" + this.mac).append("' ");
 		data.append("role: '" + this.role).append("' ");
 		return data.toString();
-	}
-
-	public String getSchoolId() {
-		return this.schoolId;
-	}
-
-	public void setSchoolId(String schoolId) {
-		this.schoolId = schoolId;
 	}
 
 	public Room getRoom() {
@@ -320,6 +333,7 @@ public class Session implements Principal {
 		List<String> modules = new ArrayList<String>();
 		//Modules with right permit all is allowed for all authorized users.
 		modules.add("permitall");
+		modules.add(user.getRole());
 		//Is it allowed by the groups.
 		for( Group group : user.getGroups() ) {
 		    for( Acl acl : group.getAcls() ) {
@@ -338,5 +352,37 @@ public class Session implements Principal {
 		    }
 		}
 		return modules;
+	}
+
+	public Date getValidFrom() {
+		return validFrom;
+	}
+
+	public void setValidFrom(Date validFrom) {
+		this.validFrom = validFrom;
+	}
+
+	public Date getValidUntil() {
+		return validUntil;
+	}
+
+	public void setValidUntil(Date validUntil) {
+		this.validUntil = validUntil;
+	}
+
+	public String getGotoPath() {
+		return gotoPath;
+	}
+
+	public void setGotoPath(String gotoPath) {
+		this.gotoPath = gotoPath;
+	}
+
+	public String getInstituteName() {
+		return instituteName;
+	}
+
+	public void setInstituteName(String instituteName) {
+		this.instituteName = instituteName;
 	}
 }

@@ -1,12 +1,8 @@
 /* (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
-
-import java.io.Serializable;
-
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**

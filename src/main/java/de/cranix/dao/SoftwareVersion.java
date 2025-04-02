@@ -36,8 +36,8 @@ public class SoftwareVersion extends AbstractEntity {
 	private Software software;
 	
 	/*
-	 * C -> current this is the most recent version and does exists on the server and can be installed
-	 * R -> replaced this version does not exists on the server but is installed on some clients
+	 * C -> current this is the most recent version and does exist on the server and can be installed
+	 * R -> replaced this version does not exist on the server but is installed on some clients
 	 * D -> deprecated this is an older version which does exists on the server and can be installed
 	 * U -> unknown this version of software was not installed from the cranix
 	 */
@@ -60,7 +60,9 @@ public class SoftwareVersion extends AbstractEntity {
 	}
 
 	public void setVersion(String version) {
-		this.version = version.length() > 128 ? version.substring(0,128) : version;
+		if(version != null) {
+			this.version = version.length() > 128 ? version.substring(0, 128) : version;
+		}
 	}
 
 	public List<SoftwareStatus> getSoftwareStatuses() {

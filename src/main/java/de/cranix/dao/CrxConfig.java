@@ -4,6 +4,7 @@ package de.cranix.dao;
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -12,64 +13,65 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Entity
 @Table(
-	name="CrxConfig",
-	uniqueConstraints = { @UniqueConstraint(columnNames = { "objectType", "objectId", "keyword", "value" }) }
+        name = "CrxConfig",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"objectType", "objectId", "keyword", "value"})}
 )
 @NamedQueries({
-	@NamedQuery(name="CrxConfig.getAllById",    query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id"),
-        @NamedQuery(name="CrxConfig.getAllByKey",   query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.keyword  = :keyword"),
-        @NamedQuery(name="CrxConfig.get",           query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword"),
-        @NamedQuery(name="CrxConfig.check",         query="SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword AND c.value = :value")
+        @NamedQuery(name = "CrxConfig.getAllById", query = "SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id"),
+        @NamedQuery(name = "CrxConfig.getAllByKey", query = "SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.keyword  = :keyword"),
+        @NamedQuery(name = "CrxConfig.get", query = "SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword"),
+        @NamedQuery(name = "CrxConfig.check", query = "SELECT c FROM CrxConfig c WHERE c.objectType = :type AND c.objectId = :id AND c.keyword = :keyword AND c.value = :value")
 })
-@SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
+@SequenceGenerator(name = "seq", initialValue = 1, allocationSize = 100)
 public class CrxConfig extends AbstractEntity {
 
-	@Column(name = "objectType")
-        @Size(max=12, message="objectType must not be longer then 12 characters.")
-        private String objectType;
+    @Column(name = "objectType")
+    @Size(max = 12, message = "objectType must not be longer then 12 characters.")
+    private String objectType;
 
-	@Column(name = "objectId")
-        private Long  objectId;
+    @Column(name = "objectId", columnDefinition ="BIGINT UNSIGNED")
+    private Long objectId;
 
-	@Column(name = "keyword")
-        @Size(max=64, message="keyword must not be longer then 64 characters.")
-        private String keyword;
+    @Column(name = "keyword")
+    @Size(max = 64, message = "keyword must not be longer then 64 characters.")
+    private String keyword;
 
-	@Column(name = "value")
-        @Size(max=128, message="value must not be longer then 128 characters.")
-        private String value;
-        
-        public CrxConfig() {}
+    @Column(name = "value")
+    @Size(max = 128, message = "value must not be longer then 128 characters.")
+    private String value;
 
-	public String getObjectType() {
-	    return this.objectType;
-	}
+    public CrxConfig() {
+    }
 
-	public void setObjectType(String objectType) {
-	    this.objectType = objectType;
-	}
+    public String getObjectType() {
+        return this.objectType;
+    }
 
-	public Long getObjectId() {
-	    return this.objectId;
-	}
+    public void setObjectType(String objectType) {
+        this.objectType = objectType;
+    }
 
-	public void setObjectId(Long objectId) {
-	    this.objectId = objectId;
-	}
+    public Long getObjectId() {
+        return this.objectId;
+    }
 
-	public String getKeyword() {
-	    return this.keyword;
-	}
+    public void setObjectId(Long objectId) {
+        this.objectId = objectId;
+    }
 
-	public void setKeyword(String keyword) {
-	    this.keyword = keyword;
-	}
+    public String getKeyword() {
+        return this.keyword;
+    }
 
-	public String getValue() {
-	    return this.value;
-	}
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
-	public void setValue(String value) {
-	    this.value = value;
-	}
+    public String getValue() {
+        return this.value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
 }

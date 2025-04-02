@@ -11,6 +11,8 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static de.cranix.helper.StaticHelpers.getRandomColor;
+
 /**
  * The persistent class for the Groups database table.
  * 
@@ -31,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class Group extends AbstractEntity {
 
-	@Column(name = "name", updatable = false)
+	@Column(name = "name", updatable = false, length = 32)
 	@Pattern.List({
 		@Pattern(
                         regexp = "^[^/\\\\#,;=]+$",
@@ -43,25 +45,29 @@ public class Group extends AbstractEntity {
                 message = "Group name must not start with '-' '.'.")
 	})
 	@Size(max=32, message="Name must not be longer then 32 characters.")
-	private String name;
+	private String name = "";
 
-	@Column(name = "description")
+	@Column(name = "description", length = 64)
 	@Size(max=64, message="Description must not be longer then 64 characters.")
-	private String description;
+	private String description = "";
 
-	@Column(name = "groupType")
+	@Column(name = "groupType", length = 16)
 	@Size(max=16, message="Description must not be longer then 16 characters.")
-	private String groupType;
+	private String groupType = "";
+
+	@Column(name="color", length = 7)
+	@Size(max=7, message="color must not be longer then 7 characters.")
+	protected String color = getRandomColor();
 
 	/* bi-directional one-to-many associations */
 	@OneToMany(mappedBy="group")
 	@JsonIgnore
-	private List<Acl> acls;
+	private List<Acl> acls = new ArrayList<>();
 
 	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="groups")
 	@JsonIgnore
-	private List<Category> categories;
+	private List<Category> categories = new ArrayList<>();
 
 	@ManyToMany(mappedBy="groups")
 	@JsonIgnore
@@ -69,16 +75,18 @@ public class Group extends AbstractEntity {
 
 	@ManyToMany(mappedBy="groups")
 	@JsonIgnore
-	private List<User> users;
+	private List<User> users = new ArrayList<>();
+
+	@ManyToMany(mappedBy="groups")
+	@JsonIgnore
+	private List<CrxCalendar> events = new ArrayList<>();
 
 	public Group() {
-		this.setId(null);
-		this.name = "";
-		this.description = "";
-		this.groupType = "";
+		super();
 	}
 
 	public Group(String name, String description, String groupType) {
+		super();
 		this.setId(null);
 		this.name = name;
 		this.description = description;
@@ -142,6 +150,36 @@ public class Group extends AbstractEntity {
 	public void removeUser(User user) {
 		this.users.remove(user);
 		user.getGroups().remove(this);
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	public List<CrxCalendar> getEvents() {
+		return events;
+	}
+
+	public void setEvents(List<CrxCalendar> events) {
+		this.events = events;
+	}
+
+	public void addEvent(CrxCalendar event) {
+		if(! this.events.contains(event)) {
+			this.events.add(event);
+			event.getGroups().add(this);
+		}
+	}
+
+	public void removeEvent(CrxCalendar event) {
+		if( this.events.contains((event))) {
+			this.events.remove(event);
+			event.getGroups().remove(this);
+		}
 	}
 
 	public List<Category> getCategories() {

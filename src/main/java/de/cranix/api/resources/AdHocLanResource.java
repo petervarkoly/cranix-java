@@ -26,6 +26,7 @@ import de.cranix.helper.CrxEntityManagerFactory;
 
 @Path("adhocrooms")
 @Api(value = "adhocrooms")
+@Produces(JSON_UTF8)
 public class AdHocLanResource {
 
 	public AdHocLanResource() {
@@ -39,7 +40,6 @@ public class AdHocLanResource {
 	 */
 	@GET
 	@Path("all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(
 			value = "Gets all defined AdHocLan Rooms. " +
 				"Normal user has access on AdHocLan rooms over the SelfManagement resource."
@@ -58,7 +58,6 @@ public class AdHocLanResource {
 
 	@POST
 	@Path("add")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create new AddHocLan room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -82,7 +81,6 @@ public class AdHocLanResource {
 	 */
 	@DELETE
 	@Path("{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a whole adhoc room inclusive user and devices.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No room was found"),
@@ -100,7 +98,6 @@ public class AdHocLanResource {
 
 	@GET
 	@Path("{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets an AdHocLan room by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),
@@ -123,7 +120,6 @@ public class AdHocLanResource {
 
 	@POST
 	@Path("{id}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify an AdHocLan room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),

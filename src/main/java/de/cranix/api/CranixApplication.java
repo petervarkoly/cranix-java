@@ -20,8 +20,7 @@ import java.io.File;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
-import static de.cranix.helper.CranixConstants.cranix2faConfig;
-import static de.cranix.helper.CranixConstants.cranixMdmConfig;
+import static de.cranix.helper.CranixConstants.*;
 
 public class CranixApplication extends Application<ServerConfiguration> {
 
@@ -71,6 +70,9 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final CloneToolResource cloneToolResource = new CloneToolResource();
 		environment.jersey().register(cloneToolResource);
 
+		final CrxNoticeResource crxNoticeResource = new CrxNoticeResource();
+		environment.jersey().register(crxNoticeResource);
+
 		final DeviceResource devicesResource = new DeviceResource();
 		environment.jersey().register(devicesResource);
 
@@ -116,8 +118,19 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		final ObjectResource objectResource = new ObjectResource();
 		environment.jersey().register(objectResource);
 
+		// TODO: we have to check the licence
+		File config_file = new File(cranixPTMConfig);
+		if( config_file.exists() ) {
+			final ParentResource parentResource = new ParentResource();
+			environment.jersey().register(parentResource);
+		}
+		config_file = new File(cranixCalConfig);
+		if(config_file.exists()){
+			final CrxCalendarResource crxCalendarResource = new CrxCalendarResource();
+			environment.jersey().register(crxCalendarResource);
+		}
 		//Start some APIs only if they are configured.
-		File config_file = new File(cranixMdmConfig);
+		config_file = new File(cranixMdmConfig);
 		if( config_file.exists() ) {
 			final MdmResource mdmResource = new MdmResource();
 			environment.jersey().register(mdmResource);
@@ -126,6 +139,11 @@ public class CranixApplication extends Application<ServerConfiguration> {
 		if( config_file.exists() ) {
 			final Crx2faResource crx2faResource = new Crx2faResource();
 			environment.jersey().register(crx2faResource);
+		}
+		config_file = new File(cranixIDConfig);
+		if( config_file.exists()){
+			final IdRequestResource idRequestResource = new IdRequestResource();
+			environment.jersey().register(idRequestResource);
 		}
 		final TemplateHealthCheck healthCheck = new TemplateHealthCheck(configuration.getTemplate());
 		environment.healthChecks().register("template", healthCheck);

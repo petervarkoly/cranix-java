@@ -29,6 +29,8 @@ public class Service extends Config {
     private Map<String, String> properties;
     private static List<String> systemNames;
 
+    public Service() {
+    }
     public Service(Session session, EntityManager em) {
         super();
         this.session = session;

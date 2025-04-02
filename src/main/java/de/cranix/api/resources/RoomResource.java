@@ -35,13 +35,13 @@ import java.util.Map;
 
 @Path("rooms")
 @Api(value = "rooms")
+@Produces(JSON_UTF8)
 public class RoomResource {
 
 	public RoomResource() {}
 
 	@POST
 	@Path("add")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create new room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -59,7 +59,6 @@ public class RoomResource {
 
 	@DELETE
 	@Path("{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delete room by id")
 	@ApiResponses(value = {
 	    @ApiResponse(code = 404, message = "Room not found"),
@@ -77,7 +76,6 @@ public class RoomResource {
 
 	@POST
 	@Path("import")
-	@Produces(JSON_UTF8)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@ApiOperation(value =	"Import rooms from a CSV file. This MUST have following format:\\n" ,
 		notes = "* Separator is the semicolon ';'.<br>" +
@@ -102,7 +100,6 @@ public class RoomResource {
 
 	@POST
 	@Path("{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -122,7 +119,6 @@ public class RoomResource {
 
 	@POST
 	@Path("modify")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -140,7 +136,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get a room by id")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Room not found"),
@@ -161,7 +156,6 @@ public class RoomResource {
 
 	@GET
 	@Path("all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get all rooms")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -176,7 +170,6 @@ public class RoomResource {
 
 	@GET
 	@Path("allWithControl")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get all rooms which can be controlled")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -191,7 +184,6 @@ public class RoomResource {
 
 	@GET
 	@Path("allWithFirewallControl")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get all rooms which can be controlled")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -206,7 +198,6 @@ public class RoomResource {
 
 	@GET
 	@Path("toRegister")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get all rooms where devices can be registered")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -223,7 +214,6 @@ public class RoomResource {
 
 	@PUT
 	@Path("{roomId}/{hwconfId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Set hardware configuration of the room")
 	    @ApiResponses(value = {
 	   @ApiResponse(code = 404, message = "There is no more IP address in this room."),
@@ -243,7 +233,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/availableIPAddresses")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "get all available ip-adresses of the room")
 	    @ApiResponses(value = {
 	   @ApiResponse(code = 404, message = "There is no more IP address in this room."),
@@ -266,7 +255,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/availableIPAddresses/{count}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get count available ip-adresses of the room. The string list will contains the proposed name too: 'IP-Addres Proposed-Name'")
 	    @ApiResponses(value = {
 	    @ApiResponse(code = 404, message = "There is no more IP address in this room."),
@@ -314,7 +302,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/loggedInUsers")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the list of the users which are logged in in a room.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -335,7 +322,6 @@ public class RoomResource {
 
 	@GET
 	@Path("accessList")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the access scheduler in all rooms")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -350,7 +336,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/accessList")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the access scheduler in a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -371,7 +356,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/defaultAccess")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the default access in a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -392,7 +376,6 @@ public class RoomResource {
 
 	@POST
 	@Path("{roomId}/accessList")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add an access list in a room",
 	    notes = "<br>"
 	    + "pointInTime have to have following format: HH:MM<br>"
@@ -416,7 +399,6 @@ public class RoomResource {
 
 	@DELETE
 	@Path("accessList/{accessInRoomId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets an access list in a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -434,7 +416,6 @@ public class RoomResource {
 
 	@PUT
 	@Path("setScheduledAccess")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets access in all rooms corresponding to the access lists and the actual time.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -449,7 +430,6 @@ public class RoomResource {
 
 	@PUT
 	@Path("setDefaultAccess")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets default access in all rooms.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -464,7 +444,6 @@ public class RoomResource {
 
 	@GET
 	@Path("accessStatus")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the actual access status in all rooms. This can take a very long time. Do not use it!")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -479,7 +458,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/accessStatus")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the actual access in a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -497,7 +475,6 @@ public class RoomResource {
 
 	@POST
 	@Path("{roomId}/accessStatus")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the actual access in a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -516,7 +493,6 @@ public class RoomResource {
 
 	@POST
 	@Path("accessList")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Sets the actual access in a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -534,7 +510,6 @@ public class RoomResource {
 
 	@POST
 	@Path("{roomId}/devices")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create new devices")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -553,7 +528,6 @@ public class RoomResource {
 
 	@PUT
 	@Path("{roomId}/device/{macAddress}/{name}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -573,7 +547,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/devices")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets a list of the devices in room.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -591,7 +564,6 @@ public class RoomResource {
 
 	@DELETE
 	@Path("{roomId}/device/{deviceId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delete a device defined by deviceId")
 	@ApiResponses(value = {
 	    @ApiResponse(code = 404, message = "Device not found"),
@@ -615,7 +587,6 @@ public class RoomResource {
 	 */
 	@POST
 	@Path("{roomId}/printers")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify the printers of one room.",
 			notes = "The printers object has following format<br>"
 					+ "{"
@@ -640,7 +611,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/defaultPrinter")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers the default printer in a room.")
 	@ApiResponses(value = {
 	    @ApiResponse(code = 404, message = "Device not found"),
@@ -658,7 +628,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/availablePrinters")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the list of available printers in a room.")
 	@ApiResponses(value = {
 	    @ApiResponse(code = 404, message = "Device not found"),
@@ -679,7 +648,6 @@ public class RoomResource {
 	 */
 	@POST
 	@Path("applyAction")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Apply actions on selected rooms.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
@@ -696,7 +664,6 @@ public class RoomResource {
 
 	@GET
 	@Path("{roomId}/actions")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delivers a list of available actions for a device.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -714,7 +681,6 @@ public class RoomResource {
 
 	@PUT
 	@Path("{roomId}/actions/{action}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, openProxy, closeProxy, organizeRoom.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -733,7 +699,6 @@ public class RoomResource {
 
 	@POST
 	@Path("{roomId}/actionWithMap/{action}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Manage a device. Valid actions are open, close, reboot, shutdown, wol, logout, openProxy, closeProxy."
 	     + "This version of call allows to send a map with some parametrs:"
 	     + "graceTime : seconds to wait befor execute action."
@@ -765,7 +730,6 @@ public class RoomResource {
 	 */
 	@GET
 	@Path("{roomId}/dhcp")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets the active dhcp parameter of a room:",
 			notes = "How to evaluate the CrxMConfig object:<br>"
 			+ "id: ID of the dhcp parameter object<br>"
@@ -790,7 +754,6 @@ public class RoomResource {
 
 	@POST
 	@Path("{roomId}/dhcp")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Adds a new dhcp parameter to a room:",
 			notes = "How to setup the CrxMConfig object:<br>"
 					+ "keyword: this can be dhcpOptions or dhcpStatements<br>"
@@ -813,7 +776,6 @@ public class RoomResource {
 
 	@DELETE
 	@Path("{roomId}/dhcp/{parameterId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "ADeletes dhcp parameter to a room")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")

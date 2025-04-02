@@ -1,4 +1,4 @@
-/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 /**
  * @author Peter Varkoly <peter@varkoly.de>
  *
@@ -34,6 +34,7 @@ import java.util.List;
 
 @Path("categories")
 @Api(value = "categories")
+@Produces(JSON_UTF8)
 public class CategoryResource {
 
 	public CategoryResource() {
@@ -44,7 +45,6 @@ public class CategoryResource {
 	 */
 	@GET
 	@Path("all")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Gets all categories.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),
@@ -62,7 +62,6 @@ public class CategoryResource {
 	 */
 	@GET
 	@Path("{categoryId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get category by id")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Category not found"),
@@ -83,7 +82,6 @@ public class CategoryResource {
 	 */
 	@GET
 	@Path("{categoryId}/{memberType}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the member of a category defined by id. Member type can be Device, Group, HWConf, Room, Sofwtware, User, FAQ, Announcement, Contact")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Category not found"),
@@ -105,7 +103,6 @@ public class CategoryResource {
 	 */
 	@GET
 	@Path("{categoryId}/available/{memberType}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Get the non member of a category defined by id. Member type can be Device, Group, HWConf, Room, Sofwtware, User, FAQ, Announcement, Contact")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Category not found"),
@@ -127,7 +124,6 @@ public class CategoryResource {
 	 */
 	@POST
 	@Path("add")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Create new category")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -148,7 +144,6 @@ public class CategoryResource {
 	 */
 	@POST
 	@Path("{categoryId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Modify a category")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
@@ -169,7 +164,6 @@ public class CategoryResource {
 	 */
 	@PUT
 	@Path("{categoryId}/{memberType}/{memberId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Add member to category defined by id. Member type can be Device, Group, HWConf, Room, Sofwtware, User, Announcement, FAQ or Contact")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Category not found"),
@@ -192,7 +186,6 @@ public class CategoryResource {
 	 */
 	@DELETE
 	@Path("{categoryId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Delets a category defined by id.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Category not found"),
@@ -213,7 +206,6 @@ public class CategoryResource {
 	 */
 	@DELETE
 	@Path("{categoryId}/{memberType}/{memberId}")
-	@Produces(JSON_UTF8)
 	@ApiOperation(value = "Remove a member of a category defined by id. Member type can be Device, Group, HWConf, Room, Sofwtware, User, FAQ, Announcement, Contact")
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Category not found"),

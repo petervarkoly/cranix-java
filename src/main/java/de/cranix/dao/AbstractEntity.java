@@ -13,7 +13,7 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 
 @MappedSuperclass
 public abstract class AbstractEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+    protected static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ public abstract class AbstractEntity implements Serializable {
             name = "id",
             columnDefinition ="BIGINT UNSIGNED NOT NULL AUTO_INCREMENT"
     )
-    private Long id;
+    protected Long id;
 
     @ManyToOne(optional = false)
     @JoinColumn(
@@ -29,7 +29,7 @@ public abstract class AbstractEntity implements Serializable {
             columnDefinition ="BIGINT UNSIGNED"
     )
     @JsonIgnore
-    private User creator;
+    protected User creator;
 
     @Column(
             name = "created",
@@ -37,14 +37,14 @@ public abstract class AbstractEntity implements Serializable {
             columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP"
     )
     @Temporal(TIMESTAMP)
-    private Date created;
+    protected Date created = new Date();
 
     @Column(
             name = "modified",
             columnDefinition = "timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
     )
     @Temporal(TIMESTAMP)
-    private Date modified;
+    protected Date modified = new Date();
 
     /**
      * Gets created.
@@ -123,6 +123,18 @@ public abstract class AbstractEntity implements Serializable {
 
     public Long getCreatorId() {
         return this.creator != null ? this.creator.getId() : null;
+    }
+
+    /*
+    * Constructor set the creation time to now
+     */
+    public AbstractEntity() { }
+
+    /*
+     * Constructor set the creation time to now and the creator to session user.
+     */
+    public AbstractEntity(Session session) {
+        this.creator = session.getUser();
     }
 
     /**
