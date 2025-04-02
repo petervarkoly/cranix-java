@@ -160,6 +160,9 @@ public class Device extends AbstractEntity {
     private String ownerName = "";
 
     @Transient
+    private Long roomId;
+
+    @Transient
     private Long loggedInId = 0L;
 
     @Transient
@@ -349,7 +352,10 @@ public class Device extends AbstractEntity {
     }
 
     public Long getRoomId() {
-        return this.room == null ? null : this.room.getId();
+	if(this.roomId == null ) {
+	        return this.room == null ? null : this.room.getId();
+	}
+	return this.roomId;
     }
 
     public List<Printer> getPrinterQueue() {
