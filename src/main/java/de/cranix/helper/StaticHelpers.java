@@ -87,6 +87,7 @@ public class StaticHelpers {
 				switch (pluginName) {
 					case "add_user":
 					case "modify_user":
+						data.append(String.format("id: %d%n", user.getId()));
 						data.append(String.format("givenname: %s%n", user.getGivenName()));
 						data.append(String.format("surname: %s%n", user.getSurName()));
 						data.append(String.format("birthday: %s%n", user.getBirthDay()));
@@ -102,6 +103,7 @@ public class StaticHelpers {
 						}
 						break;
 					case "delete_user":
+						data.append(String.format("id: %d%n", user.getId()));
 						data.append(String.format("uid: %s%n", user.getUid()));
 						data.append(String.format("uuid: %s%n", user.getUuid()));
 						data.append(String.format("role: %s%n", user.getRole()));
@@ -115,17 +117,20 @@ public class StaticHelpers {
 				switch (pluginName) {
 					case "add_group":
 					case "modify_group":
+						data.append(String.format("id: %d%n", group.getId()));
 						data.append(String.format("name: %s%n", group.getName()));
 						data.append(String.format("description: %s%n", group.getDescription()));
 						data.append(String.format("grouptype: %s%n", group.getGroupType()));
 						break;
 					case "delete_group":
+						data.append(String.format("id: %d%n", group.getId()));
 						data.append(String.format("name: %s%n", group.getName()));
 						break;
 				}
 				break;
 			case "de.cranix.dao.Device":
 				Device device = (Device) object;
+				data.append(String.format("id: %d%n", device.getId()));
 				data.append(String.format("name: %s%n", device.getName()));
 				data.append(String.format("ip: %s%n", device.getIp()));
 				data.append(String.format("mac: %s%n", device.getMac()));
@@ -140,12 +145,14 @@ public class StaticHelpers {
 				break;
 			case "de.cranix.dao.HWconf":
 				HWConf hwconf = (HWConf) object;
+				data.append(String.format("id: %d%n", hwconf.getId()));
 				data.append(String.format("name: %s%n", hwconf.getName()));
 				data.append(String.format("id: %d%n", hwconf.getId()));
 				data.append(String.format("devicetype: %s%n", hwconf.getDeviceType()));
 				break;
 			case "de.cranix.dao.Room":
 				Room room = (Room) object;
+				data.append(String.format("id: %d%n", room.getId()));
 				data.append(String.format("name: %s%n", room.getName()));
 				data.append(String.format("description: %s%n", room.getDescription()));
 				data.append(String.format("startip: %s%n", room.getStartIP()));
