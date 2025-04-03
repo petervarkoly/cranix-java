@@ -32,7 +32,7 @@ public class ObjectResource {
 
 	@POST
 	@Path("mconfig")
-	@ApiOperation(value = "Create a new mconfig for an object request.")
+	@ApiOperation(value = "Creates a new mconfig for an object.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 400, message = "Missing data for request"),
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
@@ -49,7 +49,7 @@ public class ObjectResource {
 
 	@POST
 	@Path("config")
-	@ApiOperation(value = "Create a new config for an object request.")
+	@ApiOperation(value = "Creates a new config for an object.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
@@ -66,7 +66,7 @@ public class ObjectResource {
 
 	@DELETE
 	@Path("mconfig/{id}")
-	@ApiOperation(value = "Create a new mconfig for an object request.")
+	@ApiOperation(value = "Deletes a mconfig object.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
@@ -83,7 +83,7 @@ public class ObjectResource {
 
 	@DELETE
 	@Path("config/{id}")
-	@ApiOperation(value = "Create a new mconfig for an object request.")
+	@ApiOperation(value = "Deletes a config object.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
