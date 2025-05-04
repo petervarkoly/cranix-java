@@ -31,6 +31,7 @@ public abstract class AbstractEntity implements Serializable {
     @JsonIgnore
     protected User creator;
 
+    @Transient
     protected Long creatorId;
 
     @Column(
