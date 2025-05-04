@@ -60,11 +60,13 @@ public class CrxNoticeService extends Service{
         if( !this.isSuperuser() && !creator.equals(session.getUser())){
             return new CrxResponse("ERROR", "You have no rights to modify this notice.");
         }
+        oldNotice.setGrading(notice.getGrading());
         oldNotice.setNoticeType(notice.getNoticeType());
-        oldNotice.setTitle(notice.getTitle());
-        oldNotice.setText(notice.getText());
         oldNotice.setModified(new Date());
         oldNotice.setReminder(notice.getReminder());
+        oldNotice.setTitle(notice.getTitle());
+        oldNotice.setText(notice.getText());
+        oldNotice.setWeighting(notice.getWeighting());
         try{
             em.getTransaction().begin();
             em.merge(oldNotice);
@@ -95,19 +97,18 @@ public class CrxNoticeService extends Service{
         List<CrxNotice> notices = new ArrayList<>();
         for(CrxNotice notice: em.find(User.class,this.session.getUserId()).getCrxNotices()){
             if(
-                    filter.getIssueType().isEmpty() &&
                     filter.getObjectType().equals(notice.getObjectType()) &&
                     filter.getObjectId().equals(notice.getObjectId())
             ){
-                notices.add(notice);
-                continue;
-            }
-            if( filter.getObjectType().equals(notice.getObjectType()) &&
-                    filter.getObjectId().equals(notice.getObjectId()) &&
-                    filter.getIssueType().equals(notice.getIssueType()) &&
-                    filter.getIssueId().equals(notice.getIssueId())
-            ){
-                notices.add(notice);
+                if(
+                        filter.getIssueType().isEmpty() ||
+                                (
+                                        filter.getIssueType().equals(notice.getIssueType()) &&
+                                        filter.getIssueId().equals(notice.getIssueId())
+                                )
+                ) {
+                    notices.add(notice);
+                }
             }
         }
         return notices;
