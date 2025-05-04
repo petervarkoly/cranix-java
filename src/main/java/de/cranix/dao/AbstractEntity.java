@@ -31,6 +31,8 @@ public abstract class AbstractEntity implements Serializable {
     @JsonIgnore
     protected User creator;
 
+    protected Long creatorId;
+
     @Column(
             name = "created",
             updatable = false,
@@ -122,7 +124,14 @@ public abstract class AbstractEntity implements Serializable {
     }
 
     public Long getCreatorId() {
-        return this.creator != null ? this.creator.getId() : null;
+        if(this.creatorId == null) {
+            return this.creator != null ? this.creator.getId() : null;
+        }
+        return creatorId;
+    }
+
+    public void setCreatorId(Long id){
+        this.creatorId = id;
     }
 
     /*
