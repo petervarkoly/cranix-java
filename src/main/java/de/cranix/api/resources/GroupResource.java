@@ -5,6 +5,7 @@ package de.cranix.api.resources;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.services.GroupService;
+import de.cranix.services.UserService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -344,4 +345,59 @@ public class GroupResource {
         return resp;
     }
 
+    @GET
+    @Path("byName/{name}/{attribute}")
+    @Produces(TEXT)
+    @ApiOperation(value = "Reads some attributes from a user. Available attributes are: role uuid givenname surname groups.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "User not found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
+    @RolesAllowed("user.search")
+    public String getUserAttribute(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("name") String name,
+            @PathParam("attribute") String attribute
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final GroupService groupService = new GroupService(session, em);
+        String resp;
+        Group group = groupService.getByName(name);
+        if (group == null) {
+            return "";
+        }
+        switch (attribute.toLowerCase()) {
+            case "id":
+                resp = String.valueOf(group.getId());
+                break;
+            case "type":
+            case "groupType":
+                resp = group.getGroupType();
+                break;
+            case "description":
+                resp = group.getDescription();
+                break;
+            case "users":
+                List<String> users = new ArrayList<>();
+                for (User user: group.getUsers()){
+                    users.add(user.getUid());
+                }
+                resp = String.join(groupService.getNl(), users);
+                break;
+            default:
+                //This is a config or mconfig. We have to merge it from the groups from actual room and from the user
+                //I think it is senceless
+                List<String> configs = new ArrayList<String>();
+                if (groupService.getConfig(group, attribute) != null) {
+                    configs.add(groupService.getConfig(group, attribute));
+                }
+                for (String config : groupService.getMConfigs(group, attribute)) {
+                    if (config != null) {
+                        configs.add(config);
+                    }
+                }
+                resp = String.join(groupService.getNl(), configs);
+        }
+        em.close();
+        return resp;
+    }
 }
