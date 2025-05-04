@@ -181,12 +181,16 @@ public class StaticHelpers {
 		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = "change_member";
 		data.append(String.format("changetype: %s%n", type));
+		data.append(String.format("id: %s%n", group.getId()));
 		data.append(String.format("group: %s%n", group.getName()));
 		List<String> uids = new ArrayList<String>();
+		List<String> ids = new ArrayList<String>();
 		for (User user : users) {
 			uids.add(user.getUid());
+			ids.add(user.getId().toString());
 		}
 		data.append(String.format("users: %s%n", String.join(",", uids)));
+		data.append(String.format("userIds: %s%n", String.join(",", ids)));
 		CrxSystemCmd.exec(program, reply, error, data.toString());
 		logger.debug("change_member  : " + data.toString() + " : " + error);
 	}
@@ -200,10 +204,12 @@ public class StaticHelpers {
 		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = "change_member";
 		data.append(String.format("changetype: %s%n", type));
+		data.append(String.format("id: %s%n", group.getId()));
 		data.append(String.format("group: %s%n", group.getName()));
 		data.append(String.format("users: %s%n", user.getUid()));
+		data.append(String.format("userIds: %s%n", user.getId()));
 		CrxSystemCmd.exec(program, reply, error, data.toString());
-		logger.debug("change_member  : " + data.toString() + " : " + error);
+		logger.debug("change_member  : " + data + " : " + error);
 	}
 
 	static public String createLiteralJson(Object object) {
