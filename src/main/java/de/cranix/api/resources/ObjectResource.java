@@ -119,7 +119,7 @@ public class ObjectResource {
 
 	@GET
 	@Path("config/{type}/{id}/{key}")
-	@ApiOperation(value = "Gets the values of mconfig for an object.")
+	@ApiOperation(value = "Gets a config for an object.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
@@ -132,6 +132,66 @@ public class ObjectResource {
 	{
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxConfig resp = new Service(session,em).getConfig(type,id,key);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Produces(TEXT)
+	@Path("config/{type}/{id}/{key}/value")
+	@ApiOperation(value = "Gets the value of a config for an object.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Missing data for request"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@RolesAllowed("objects.manage")
+	public String getConfigValue(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("type") String type,
+			@PathParam("id") Long id,
+			@PathParam("key") String key)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		String resp = new Service(session,em).getConfig(type,id,key).getValue();
+		em.close();
+		return resp;
+	}
+
+	@DELETE
+	@Path("config/{type}/{id}/{key}")
+	@ApiOperation(value = "Deletes the a config of an object.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Missing data for request"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@RolesAllowed("objects.manage")
+	public CrxResponse deleteConfig(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("type") String type,
+			@PathParam("id") Long id,
+			@PathParam("key") String key)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new Service(session,em).deleteConfig(type,id,key);
+		em.close();
+		return resp;
+	}
+
+	@PUT
+	@Path("config/{type}/{id}/{key}/{value}")
+	@ApiOperation(value = "Sets the config value of an object. If the config does not exist this will be created." +
+			"Else this object will be created. ")
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Missing data for request"),
+			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
+	@RolesAllowed("objects.manage")
+	public CrxResponse setConfig(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("type") String type,
+			@PathParam("id") Long id,
+			@PathParam("key") String key,
+			@PathParam("value") String value)
+	{
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		CrxResponse resp = new Service(session,em).setConfig(type,id,key,value);
 		em.close();
 		return resp;
 	}
