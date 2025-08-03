@@ -13,7 +13,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
 import static de.cranix.helper.StaticHelpers.startPlugin;
@@ -138,9 +141,9 @@ public class SelfService extends Service {
         try {
             session.setIp(req.getRemoteAddr());
             session = sc.createInternalUserSession(userName);
-            if(session == null ) {
+            if (session == null) {
                 logger.error("addDeviceToUser CAN-NOT-FIND-USER:" + userName + " MAC:" + MAC);
-                return "CAN-NOT-FIND-USER: "+ userName;
+                return "CAN-NOT-FIND-USER: " + userName;
             }
             DeviceService deviceService = new DeviceService(session, em);
             if (deviceService.getByMAC(MAC) != null) {
@@ -157,9 +160,9 @@ public class SelfService extends Service {
                         }
                     }
                     /* Now we have a problem we could not register the device in none of the rooms */
-					List<Device> ownedDevices = this.session.getUser().getOwnedDevices();
+                    List<Device> ownedDevices = this.session.getUser().getOwnedDevices();
                     if (ownedDevices.size() > 0 && this.getConfigValue("AUTO_UPDATE_MAC_ADDRESS").equals("yes")) {
-                        Device device = ownedDevices.get( ownedDevices.size() -1 );
+                        Device device = ownedDevices.get(ownedDevices.size() - 1);
                         device.setMac(MAC);
                         crxResponse = deviceService.modify(device);
                         return crxResponse.getCode() + " " + crxResponse.getValue() + " " + crxResponse.getParameters();
@@ -218,4 +221,67 @@ public class SelfService extends Service {
         return new CrxResponse("OK", "Device was modified successfully");
     }
 
+    public Object myFiles(Map<String, String> actionsMap) {
+        String path = "";
+        String action = "list";
+        String user = session.getUser().getUid();
+        if (actionsMap.containsKey("path")) {
+            path = actionsMap.get("path");
+        }
+        if (actionsMap.containsKey("action")) {
+            action = actionsMap.get("action");
+        }
+        if (user.equals("Administrator")) {
+            user = "root";
+            if (path.isEmpty()) {
+                path = this.getConfigValue("HOME_BASE");
+            }
+        }
+        if (!path.isEmpty() && !path.startsWith(this.getConfigValue("HOME_BASE"))) {
+            return "You must not operate in this area";
+        }
+        switch (action) {
+            case "list": {
+                String[] program = new String[5];
+                program[0] = "/usr/bin/sudo";
+                program[1] = "-u";
+                program[2] = user;
+                program[3] = "/usr/share/cranix/tools/getdir.py";
+                program[4] = path;
+                StringBuffer reply = new StringBuffer();
+                StringBuffer stderr = new StringBuffer();
+                CrxSystemCmd.exec(program, reply, stderr, null);
+                return reply.toString();
+            }
+            case "delete": {
+                String[] program = new String[6];
+                program[0] = "/usr/bin/sudo";
+                program[1] = "-u";
+                program[2] = user;
+                program[3] = "/usr/bin/rm";
+                program[4] = "-rf";
+                program[5] = path;
+                StringBuffer reply = new StringBuffer();
+                StringBuffer stderr = new StringBuffer();
+                CrxSystemCmd.exec(program, reply, stderr, null);
+                if(stderr.toString().isEmpty()){
+                    List<String> tmp = new ArrayList<>();
+                    tmp.add(path);
+                    return new CrxResponse("OK","%s was removed successfully", tmp);
+                }else {
+                    return new CrxResponse("ERROR", stderr.toString());
+                }
+            }
+            case "get": {
+                File file = new File(path);
+                ResponseBuilder response = Response.ok((Object) file);
+                response.header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+                return response.build();
+            }
+            case "put": {
+                //TODO
+            }
+        }
+        return "Unknown action";
+    }
 }

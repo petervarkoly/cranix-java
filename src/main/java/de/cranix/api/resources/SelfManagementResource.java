@@ -1,8 +1,9 @@
-/* (c) 2021 Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
+/* (c) 2025 Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api.resources;
 
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
+import de.cranix.helper.CrxSystemCmd;
 import de.cranix.services.IdRequestService;
 import de.cranix.services.InformationService;
 import de.cranix.services.RoomService;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 import static de.cranix.api.resources.Resource.TEXT;
@@ -276,7 +278,7 @@ public class SelfManagementResource {
 
     @POST
     @Path("taskResponses")
-    @ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
+    @ApiOperation(value = "Create an response to a task.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
@@ -305,7 +307,7 @@ public class SelfManagementResource {
             TaskResponse taskResponse
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse response = new InformationService(session,em).modifyTaskResponse(taskResponse);
+        CrxResponse response = new InformationService(session, em).modifyTaskResponse(taskResponse);
         em.close();
         return response;
     }
@@ -321,5 +323,22 @@ public class SelfManagementResource {
             @ApiParam(hidden = true) @Auth Session session
     ) {
         return session.getUser().getTaskResponses();
+    }
+
+    @POST
+    @Path("myFiles")
+    @ApiOperation(value = "Manage files with the right of the session user")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "There is no running import found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
+    @PermitAll
+    public Object myFiles(
+            @ApiParam(hidden = true) @Auth Session session,
+            Map<String, String> actionsMap
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object reply = new SelfService(session, em).myFiles(actionsMap);
+        em.close();
+        return reply;
     }
 }
