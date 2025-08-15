@@ -70,7 +70,7 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("getByRole: " + e.getMessage());
         }
-	//users.sort(Comparator.comparing(User::getUid));
+        //users.sort(Comparator.comparing(User::getUid));
         return users;
     }
 
@@ -129,7 +129,7 @@ public class UserService extends Service {
     public String createUid(String givenName, String surName, String birthDay) {
         String userId = "";
         Pattern pattern = Pattern.compile("([VGNSJY\\.\\-])(\\d+)?");
-	    Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME"));
+        Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME"));
         while (m.find()) {
             int endIndex = 0;
             logger.debug("have found " + m.group(1) + " userId " + userId);
@@ -168,7 +168,7 @@ public class UserService extends Service {
             newUserId = this.getConfigValue("LOGIN_PREFIX") + userId + i;
             i++;
         }
-        if(this.getConfigValue("LOGIN_TELEX").equals("yes")) {
+        if (this.getConfigValue("LOGIN_TELEX").equals("yes")) {
             return normalizeTelex(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9\\-\\.]", "");
         }
         return normalize(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9\\-\\.]", "");
@@ -383,7 +383,7 @@ public class UserService extends Service {
             for (Device device : user.getOwnedDevices()) {
                 dIds.add(device.getId());
             }
-            for(Long id: dIds) {
+            for (Long id : dIds) {
                 dc.delete(id, false);
             }
             DHCPConfig dhcpConfig = new DHCPConfig(session, this.em);
@@ -504,7 +504,9 @@ public class UserService extends Service {
                 user = this.getByUid(quota.get(0));
                 if (user != null) {
                     user.setMsQuotaUsed(Integer.valueOf(quota.get(1)));
-                    user.setMsQuota(Integer.valueOf(quota.get(2)));
+                    if (quota.size() > 2) {
+                        user.setMsQuota(Integer.valueOf(quota.get(2)));
+                    }
                     this.em.getTransaction().begin();
                     this.em.merge(user);
                     this.em.getTransaction().commit();
@@ -530,6 +532,7 @@ public class UserService extends Service {
         }
         return String.join(this.getNl(), groups);
     }
+
     public List<CrxResponse> resetUserPassword(List<Long> userIds, String password, boolean mustChange) {
         logger.debug("resetUserPassword: " + password);
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
@@ -1051,12 +1054,12 @@ public class UserService extends Service {
         return responses;
     }
 
-    CrxResponse registerUserDevice(String MAC, User user){
+    CrxResponse registerUserDevice(String MAC, User user) {
         this.em.refresh(user);
         RoomService roomService = new RoomService(session, em);
         List<Room> rooms = roomService.getRoomToRegisterForUser(user);
-        if(!rooms.isEmpty()) {
-            Room room  = rooms.get(0);
+        if (!rooms.isEmpty()) {
+            Room room = rooms.get(0);
             List<String> ipAddress = roomService.getAvailableIPAddresses(room.getId(), 1);
             String devName = user.getUid().replaceAll("_", "-")
                     .replaceAll("\\.", "") +
@@ -1076,59 +1079,60 @@ public class UserService extends Service {
             this.em.merge(user);
             this.em.getTransaction().commit();
             startPlugin("add_device", device);
-            return new CrxResponse("OK","Device was registered for user: " + user.getUid());
+            return new CrxResponse("OK", "Device was registered for user: " + user.getUid());
         } else {
             logger.debug("User has no room to register:" + user.getUid());
-            return new CrxResponse("ERR","No adhoc room for student:" + user.getUid());
+            return new CrxResponse("ERR", "No adhoc room for student:" + user.getUid());
         }
     }
-    public List<CrxResponse> moveUsersDevices(String role){
+
+    public List<CrxResponse> moveUsersDevices(String role) {
         List<CrxResponse> responses = new ArrayList<>();
         List<Long> deviceIdsToDelete = new ArrayList<>();
         List<String> devices = new ArrayList<>();
-        Map<String,User> newDevices = new HashMap<>();
+        Map<String, User> newDevices = new HashMap<>();
         DeviceService deviceService = new DeviceService(this.session, this.em);
-        for(User user: this.getByRole(role)){
+        for (User user : this.getByRole(role)) {
             for (Device device : user.getOwnedDevices()) {
                 deviceIdsToDelete.add(device.getId());
-                newDevices.put(device.getMac(),user);
-                devices.add(user.getUid() +";" + device.getMac());
+                newDevices.put(device.getMac(), user);
+                devices.add(user.getUid() + ";" + device.getMac());
             }
         }
         try {
             File file = File.createTempFile("moveUserDevices", ".json", new File(cranixTmpDir));
-            Files.write(file.toPath(),devices);
+            Files.write(file.toPath(), devices);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;
         }
-        for(Long deviceId : deviceIdsToDelete ) {
-            responses.add(deviceService.delete(deviceId,false));
+        for (Long deviceId : deviceIdsToDelete) {
+            responses.add(deviceService.delete(deviceId, false));
         }
-        for(String mac: newDevices.keySet()){
+        for (String mac : newDevices.keySet()) {
             responses.add(registerUserDevice(mac, newDevices.get(mac)));
         }
-        new DHCPConfig(this.session,this.em).Create();
+        new DHCPConfig(this.session, this.em).Create();
         return responses;
     }
 
-    public List<CrxResponse> moveUserDevices(String uid){
+    public List<CrxResponse> moveUserDevices(String uid) {
         User user = this.getByUid(uid);
         List<CrxResponse> responses = new ArrayList<>();
         List<Long> deviceIdsToDelete = new ArrayList<>();
-        Map<String,User> newDevices = new HashMap<>();
+        Map<String, User> newDevices = new HashMap<>();
         DeviceService deviceService = new DeviceService(this.session, this.em);
         for (Device device : user.getOwnedDevices()) {
             deviceIdsToDelete.add(device.getId());
-            newDevices.put(device.getMac(),user);
+            newDevices.put(device.getMac(), user);
         }
-        for(Long deviceId : deviceIdsToDelete ) {
-            responses.add(deviceService.delete(deviceId,false));
+        for (Long deviceId : deviceIdsToDelete) {
+            responses.add(deviceService.delete(deviceId, false));
         }
-        for(String mac: newDevices.keySet()){
+        for (String mac : newDevices.keySet()) {
             responses.add(registerUserDevice(mac, newDevices.get(mac)));
         }
-        new DHCPConfig(this.session,this.em).Create();
+        new DHCPConfig(this.session, this.em).Create();
         return responses;
     }
 }
