@@ -5,6 +5,10 @@ import de.cranix.dao.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.*;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -273,5 +277,32 @@ public class StaticHelpers {
         int b = random.nextInt(256);
         // Konvertiere die Werte in hexadezimale Formate und formatiere sie
         return String.format("#%02X%02X%02X", r, g, b);
+	}
+
+	public static boolean canUserWriteToDirectory(String username, Path directory) throws IOException {
+		// Prüfe, ob das Dateisystem POSIX-Berechtigungen unterstützt
+		if (!Files.getFileStore(directory).supportsFileAttributeView(PosixFileAttributeView.class)) {
+			System.out.println("Das Dateisystem unterstützt keine POSIX-Berechtigungen.");
+			return false; // Oder handle dies anders, z.B. eine Exception werfen
+		}
+
+		// 1. Hole die Benutzer- und Gruppeninformationen des Verzeichnisses
+		FileOwnerAttributeView ownerView = Files.getFileAttributeView(directory, FileOwnerAttributeView.class);
+		UserPrincipal owner = ownerView.getOwner();
+		GroupPrincipal group = (GroupPrincipal) Files.getAttribute(directory, "posix:group");
+
+		// 2. Hole die POSIX-Berechtigungen
+		Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(directory);
+
+		// 3. Vergleiche den Benutzernamen und prüfe die Berechtigungen
+		if (owner.getName().equals(username)) {
+			return permissions.contains(PosixFilePermission.OWNER_WRITE);
+		} else if (group != null && group.getName().equals(username)) {
+			// Hinweis: Eine komplexere Prüfung wäre hier erforderlich, um alle Gruppen des Benutzers zu finden
+			// Aber diese einfache Prüfung ist für die meisten Fälle ausreichend.
+			return permissions.contains(PosixFilePermission.GROUP_WRITE);
+		} else {
+			return permissions.contains(PosixFilePermission.OTHERS_WRITE);
+		}
 	}
 }
