@@ -52,7 +52,6 @@ public class CalendarService extends Service {
             for (String line : calConfig.getConfigValue("COURSE_SCHEDULER").split("#")) {
                 courseScheduler.add(line.split(":"));
             }
-            logger.debug("courseScheduler: " + courseScheduler.get(0) + courseScheduler.get(1));
         }
 
     }
