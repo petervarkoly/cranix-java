@@ -4,12 +4,11 @@ package de.cranix.api.resources;
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.helper.CrxSystemCmd;
-import de.cranix.services.IdRequestService;
-import de.cranix.services.InformationService;
-import de.cranix.services.RoomService;
-import de.cranix.services.SelfService;
+import de.cranix.services.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -17,8 +16,10 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -340,5 +341,27 @@ public class SelfManagementResource {
         Object reply = new SelfService(session, em).myFiles(actionsMap);
         em.close();
         return reply;
+    }
+
+    @POST
+    @Path("myFiles/upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ApiOperation( value = "Puts data to te member of the smart rooms" )
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    public CrxResponse uploadFileToRooms(
+            @ApiParam(hidden = true) @Auth Session session,
+            @FormDataParam("dirPath")    String  dirPath,
+            @FormDataParam("file")	 final InputStream fileInputStream,
+            @FormDataParam("file")	 final FormDataContentDisposition contentDispositionHeader
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse response = new SelfService(session,em).uploadFile(dirPath,
+                fileInputStream,
+                contentDispositionHeader
+        );
+        em.close();
+        return response;
     }
 }
