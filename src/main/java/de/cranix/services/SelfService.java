@@ -3,6 +3,7 @@ package de.cranix.services;
 
 import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +14,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
+import static de.cranix.helper.StaticHelpers.canUserWriteToDirectory;
 import static de.cranix.helper.StaticHelpers.startPlugin;
 
 public class SelfService extends Service {
@@ -264,18 +272,28 @@ public class SelfService extends Service {
                 StringBuffer reply = new StringBuffer();
                 StringBuffer stderr = new StringBuffer();
                 CrxSystemCmd.exec(program, reply, stderr, null);
-                if(stderr.toString().isEmpty()){
+                if (stderr.toString().isEmpty()) {
                     List<String> tmp = new ArrayList<>();
                     tmp.add(path);
-                    return new CrxResponse("OK","%s was removed successfully", tmp);
-                }else {
+                    return new CrxResponse("OK", "%s was removed successfully", tmp);
+                } else {
                     return new CrxResponse("ERROR", stderr.toString());
                 }
             }
             case "get": {
                 File file = new File(path);
-                ResponseBuilder response = Response.ok((Object) file);
-                response.header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+                String mimeType = null;
+                try {
+                    mimeType = Files.probeContentType(Path.of(path));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                if (mimeType == null) {
+                    mimeType = "application/octet-stream";
+                }
+                ResponseBuilder response = Response.ok((Object) file)
+                        .header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"")
+                        .type(mimeType);
                 return response.build();
             }
             case "put": {
@@ -283,5 +301,22 @@ public class SelfService extends Service {
             }
         }
         return "Unknown action";
+    }
+
+    public CrxResponse uploadFile(String dirPath, InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
+        List<String> params = new ArrayList<>();
+        String fileName =  new String(contentDispositionHeader.getFileName().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        try {
+            if(!canUserWriteToDirectory(session.getUser().getUid(),Paths.get(dirPath))){
+                params.add(dirPath);
+                return new CrxResponse("ERROR", "You may not write in %s",params);
+            }
+            Files.copy(fileInputStream, Paths.get(dirPath, fileName), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return new CrxResponse("ERROR", e.getMessage());
+        }
+        params.add(fileName); params.add(dirPath);
+        return new CrxResponse("OK", "File %s was saved in %s",params);
     }
 }
