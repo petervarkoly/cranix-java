@@ -261,6 +261,26 @@ public class SelfService extends Service {
                 CrxSystemCmd.exec(program, reply, stderr, null);
                 return reply.toString();
             }
+            case "createDir": {
+                String dirName = actionsMap.get("newDirName");
+                String[] program = new String[6];
+                program[0] = "/usr/bin/sudo";
+                program[1] = "-u";
+                program[2] = user;
+                program[3] = "/usr/bin/mkdir";
+                program[4] = "-p";
+                program[5] = Paths.get(path, dirName).toString();;
+                StringBuffer reply = new StringBuffer();
+                StringBuffer stderr = new StringBuffer();
+                CrxSystemCmd.exec(program, reply, stderr, null);
+                if (stderr.toString().isEmpty()) {
+                    List<String> tmp = new ArrayList<>();
+                    tmp.add(dirName); tmp.add(path);
+                    return new CrxResponse("OK", "Directory %s was created successfully in %s", tmp);
+                } else {
+                    return new CrxResponse("ERROR", stderr.toString());
+                }
+            }
             case "delete": {
                 String[] program = new String[6];
                 program[0] = "/usr/bin/sudo";
@@ -296,9 +316,6 @@ public class SelfService extends Service {
                         .type(mimeType);
                 return response.build();
             }
-            case "put": {
-                //TODO
-            }
         }
         return "Unknown action";
     }
@@ -306,12 +323,21 @@ public class SelfService extends Service {
     public CrxResponse uploadFile(String dirPath, InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
         List<String> params = new ArrayList<>();
         String fileName =  new String(contentDispositionHeader.getFileName().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        logger.debug("DirPath:" + dirPath + " File Name:" + fileName);
         try {
-            if(!canUserWriteToDirectory(session.getUser().getUid(),Paths.get(dirPath))){
+            Path path = Paths.get(dirPath, fileName);
+            if(!this.isSuperuser() && !canUserWriteToDirectory(session.getUser(),Paths.get(dirPath))){
                 params.add(dirPath);
                 return new CrxResponse("ERROR", "You may not write in %s",params);
             }
-            Files.copy(fileInputStream, Paths.get(dirPath, fileName), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(fileInputStream, path, StandardCopyOption.REPLACE_EXISTING);
+            String[] program = new String[3];
+            program[0] = "/usr/bin/chown";
+            program[1] = session.getUser().getUid();
+            program[2] = path.toString();
+            StringBuffer reply = new StringBuffer();
+            StringBuffer stderr = new StringBuffer();
+            CrxSystemCmd.exec(program, reply, stderr, null);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return new CrxResponse("ERROR", e.getMessage());
