@@ -3,6 +3,8 @@ package de.cranix.helper;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public interface CranixConstants {

@@ -310,40 +310,4 @@ public class StaticHelpers {
 		}
 	}
 
-	public static boolean isPasswordValid(String password, String username) {
-		if (password == null) return false;
-
-		String trimmed = password.trim();
-		if (trimmed.length() < 8) return false; // Mindestlänge (anpassbar)
-
-		// Mindestens 1 Großbuchstabe
-		if (!Pattern.compile("[A-Z]").matcher(trimmed).find()) return false;
-
-		// Mindestens 1 Kleinbuchstabe
-		if (!Pattern.compile("[a-z]").matcher(trimmed).find()) return false;
-
-		// Mindestens 1 Ziffer
-		if (!Pattern.compile("[0-9]").matcher(trimmed).find()) return false;
-
-		// Mindestens 1 Sonderzeichen (außer Buchstaben/Zahlen/Unterstrich)
-		if (!Pattern.compile("[^A-Za-z0-9]").matcher(trimmed).find()) return false;
-
-		// Passwort darf nicht das Username-Teilstring enthalten (case-insensitive)
-		if (username != null && !username.isEmpty()) {
-		    String userLower = username.toLowerCase(Locale.ROOT);
-		    String passLower = trimmed.toLowerCase(Locale.ROOT);
-		    if (userLower.length() > 0 && passLower.contains(userLower)) return false;
-		}
-
-		// Verbotene Passwörter prüfen
-		if (DISALLOWED_PASSWORDS.contains(trimmed)) return false;
-
-		// Keine aufeinanderfolgenden Zeichen (z. B. 1234, abcd, zyxw)
-		if (hasSequentialCharacters(trimmed)) return false;
-
-		// Optional: keine führenden/folgenden Leerzeichen (bereinigt)
-		if (!password.equals(trimmed)) return false;
-
-		return true;
-	}
 }
