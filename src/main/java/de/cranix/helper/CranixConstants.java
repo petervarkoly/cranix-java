@@ -59,4 +59,12 @@ public interface CranixConstants {
 	static enum Crx2faTypes {
 		SMS
 	}
+
+	// TODO read it from file
+	public static final Set<String> DISALLOWED_PASSWORDS = new HashSet<>(
+		Arrays.asList(
+			"password", "Password1!", "12345678", "qwerty", "Letmein123!",
+			"Welcome123!", "Passw0rd!", "P@ssw0rd", "Password1"
+		)
+	);
 }

@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
+import static de.cranix.helper.CranixConstants.DISALLOWED_PASSWORDS;
 
 public class StaticHelpers {
 
@@ -50,7 +51,7 @@ public class StaticHelpers {
 
 	static public String cleanString(String s){
 		return s.replaceAll("^\"", "").replaceAll("\"$", "");
-	}	
+	}
 
 	static public String normalize(String input) {
 		return Normalizer.normalize(
@@ -271,15 +272,15 @@ public class StaticHelpers {
 
 	static public String getRandomColor(){
 		Random random = new Random();
-        // Generiere zufällige Werte für R, G und B
-        int r = random.nextInt(256); // Zufälliger Wert zwischen 0 und 255
-        int g = random.nextInt(256);
-        int b = random.nextInt(256);
-        // Konvertiere die Werte in hexadezimale Formate und formatiere sie
-        return String.format("#%02X%02X%02X", r, g, b);
+		// Generiere zufällige Werte für R, G und B
+		int r = random.nextInt(256); // Zufälliger Wert zwischen 0 und 255
+		int g = random.nextInt(256);
+		int b = random.nextInt(256);
+		// Konvertiere die Werte in hexadezimale Formate und formatiere sie
+		return String.format("#%02X%02X%02X", r, g, b);
 	}
 
-	public static boolean canUserWriteToDirectory(String username, Path directory) throws IOException {
+	public static boolean canUserWriteToDirectory(User user, Path directory) throws IOException {
 		// Prüfe, ob das Dateisystem POSIX-Berechtigungen unterstützt
 		if (!Files.getFileStore(directory).supportsFileAttributeView(PosixFileAttributeView.class)) {
 			System.out.println("Das Dateisystem unterstützt keine POSIX-Berechtigungen.");
@@ -293,16 +294,56 @@ public class StaticHelpers {
 
 		// 2. Hole die POSIX-Berechtigungen
 		Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(directory);
-
+		List<String> groups = new ArrayList<>();
+		for(Group g : user.getGroups()){
+			groups.add(g.getName());
+		}
 		// 3. Vergleiche den Benutzernamen und prüfe die Berechtigungen
-		if (owner.getName().equals(username)) {
+		if (owner.getName().equals(user.getUid())) {
 			return permissions.contains(PosixFilePermission.OWNER_WRITE);
-		} else if (group != null && group.getName().equals(username)) {
+		} else if (group != null && groups.contains(group.getName())) {
 			// Hinweis: Eine komplexere Prüfung wäre hier erforderlich, um alle Gruppen des Benutzers zu finden
 			// Aber diese einfache Prüfung ist für die meisten Fälle ausreichend.
 			return permissions.contains(PosixFilePermission.GROUP_WRITE);
 		} else {
 			return permissions.contains(PosixFilePermission.OTHERS_WRITE);
 		}
+	}
+
+	public static boolean isPasswordValid(String password, String username) {
+		if (password == null) return false;
+
+		String trimmed = password.trim();
+		if (trimmed.length() < 8) return false; // Mindestlänge (anpassbar)
+
+		// Mindestens 1 Großbuchstabe
+		if (!Pattern.compile("[A-Z]").matcher(trimmed).find()) return false;
+
+		// Mindestens 1 Kleinbuchstabe
+		if (!Pattern.compile("[a-z]").matcher(trimmed).find()) return false;
+
+		// Mindestens 1 Ziffer
+		if (!Pattern.compile("[0-9]").matcher(trimmed).find()) return false;
+
+		// Mindestens 1 Sonderzeichen (außer Buchstaben/Zahlen/Unterstrich)
+		if (!Pattern.compile("[^A-Za-z0-9]").matcher(trimmed).find()) return false;
+
+		// Passwort darf nicht das Username-Teilstring enthalten (case-insensitive)
+		if (username != null && !username.isEmpty()) {
+		    String userLower = username.toLowerCase(Locale.ROOT);
+		    String passLower = trimmed.toLowerCase(Locale.ROOT);
+		    if (userLower.length() > 0 && passLower.contains(userLower)) return false;
+		}
+
+		// Verbotene Passwörter prüfen
+		if (DISALLOWED_PASSWORDS.contains(trimmed)) return false;
+
+		// Keine aufeinanderfolgenden Zeichen (z. B. 1234, abcd, zyxw)
+		if (hasSequentialCharacters(trimmed)) return false;
+
+		// Optional: keine führenden/folgenden Leerzeichen (bereinigt)
+		if (!password.equals(trimmed)) return false;
+
+		return true;
 	}
 }
