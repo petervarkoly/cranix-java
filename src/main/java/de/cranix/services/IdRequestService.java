@@ -48,7 +48,6 @@ public class IdRequestService extends Service {
         if (oldIdRequest != null) {
             oldIdRequest.setPicture(idRequest.getPicture());
             savePicture(oldIdRequest);
-            oldIdRequest.setAvatar(idRequest.getAvatar());
             oldIdRequest.setComment("RE: " + oldIdRequest.getComment());
             em.getTransaction().begin();
             em.merge(oldIdRequest);
@@ -58,9 +57,7 @@ public class IdRequestService extends Service {
         IdRequest newIdRequest = new IdRequest(session);
         newIdRequest.setPicture(idRequest.getPicture());
         savePicture(newIdRequest);
-        String validUntil = getYear() + "-" + crxIDValid;
         try {
-            newIdRequest.setValidUntil(validUntil);
             me.setCreatedRequest(newIdRequest);
             em.getTransaction().begin();
             em.persist(me);
