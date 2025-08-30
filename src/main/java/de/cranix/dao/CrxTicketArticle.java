@@ -16,7 +16,7 @@ public class CrxTicketArticle extends AbstractEntity{
     @ManyToOne
     @JsonIgnore
     @JoinColumn(
-            name = "crxxticket_id",
+            name = "crxticket_id",
             columnDefinition ="BIGINT UNSIGNED NOT NULL",
             nullable = false, updatable = false
     )
@@ -39,6 +39,7 @@ public class CrxTicketArticle extends AbstractEntity{
     public CrxTicketArticle(){
         super();
     }
+
     public CrxTicketArticle(Session session){
         super(session);
     }

@@ -24,7 +24,7 @@ public class IdRequestResource {
 
 
     @GET
-    @ApiOperation(value = "Get all id requests")
+    @ApiOperation(value = "Get all ID requests")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
@@ -40,7 +40,7 @@ public class IdRequestResource {
 
     @GET
     @Path("{id}")
-    @ApiOperation(value = "Get all id requests")
+    @ApiOperation(value = "Get an ID requests by id")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
@@ -88,6 +88,7 @@ public class IdRequestResource {
         em.close();
         return response;
     }
+
     @POST
     @Path("my")
     @ApiOperation(value = "Creates an ID request.")

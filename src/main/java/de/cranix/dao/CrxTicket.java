@@ -15,11 +15,10 @@ public class CrxTicket extends AbstractEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(
-            name="owner_id",
+            name="assignee_id",
             columnDefinition ="BIGINT UNSIGNED"
     )
-    @JsonIgnore
-    User owner;
+    User assignee;
 
     @Column(name="title", length = 255)
     private String title = "";
@@ -73,12 +72,12 @@ public class CrxTicket extends AbstractEntity {
         super(session);
     }
 
-    public User getOwner() {
-        return owner;
+    public User getAssignee() {
+        return assignee;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setAssignee(User assignee) {
+        this.assignee = assignee;
     }
 
     public String getTitle() {

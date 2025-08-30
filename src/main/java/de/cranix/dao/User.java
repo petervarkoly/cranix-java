@@ -278,9 +278,10 @@ public class User extends AbstractEntity {
 	@Transient
 	List<Long> classIds;
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
+	@OneToMany(mappedBy="creator", cascade = {CascadeType.REMOVE}, orphanRemoval=true)
 	@JsonIgnore
 	private List<Crx2fa> crx2fas;
+
 	public List<Crx2fa> getCrx2fas() {
 		return crx2fas;
 	}
