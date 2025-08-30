@@ -5,11 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static de.cranix.helper.CranixConstants.roleStudent;
-import static org.checkerframework.checker.units.UnitsTools.m;
 
 /**
  * The type CrxChallenge.
@@ -24,7 +22,7 @@ public class CrxChallenge extends AbstractEntity {
     @NotNull
     @Lob
     @Column(name = "description")
-    private String description;
+    private String title;
 
     @NotNull
     @ManyToOne(optional = false)
@@ -75,12 +73,12 @@ public class CrxChallenge extends AbstractEntity {
             this.released = false;
     }
 
-    public String getDescription() {
-        return description;
+    public String getTitle() {
+        return title;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Integer getValue() {
