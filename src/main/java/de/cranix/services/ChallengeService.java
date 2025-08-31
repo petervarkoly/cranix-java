@@ -390,10 +390,15 @@ public class ChallengeService extends Service {
                             result.put(creatorId, question.getValue());
                         }
                     }
-                    if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
+                    else if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
                         Integer actualValue = result.get(creatorId);
                         if (Boolean.compare(challengeAnswer.getCorrect(), answer.getCorrect()) == 0) {
                             result.put(creatorId, actualValue + question.getValue());
+                        }
+                    }
+                    else if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Text)) {
+                        if (challengeAnswer.getAnswer().equals(answer.getAnswer())) {
+                            result.put(creatorId, question.getValue());
                         }
                     }
                 }
@@ -501,10 +506,10 @@ public class ChallengeService extends Service {
             line = new ArrayList<String>();
             line.add(question.getQuestion());
             Integer questionValue = 0;
-            if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.One)) {
-                questionValue = question.getValue();
-            } else if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
+            if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
                 questionValue = question.getValue() * question.getCrxQuestionAnswers().size();
+            } else {
+                questionValue = question.getValue();
             }
             line.add(question.getAnswerType().toString());
             resultTable.add(line);
@@ -514,13 +519,24 @@ public class ChallengeService extends Service {
                     line.add("");
                 }
                 line.set(0, answer.getAnswer());
-                line.set(1, answer.getCorrect() ? "Y" : "N");
+                if(question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Text)){
+                    line.set(1, "");
+                }else {
+                    line.set(1, answer.getCorrect() ? "Y" : "N");
+                }
                 for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
                     logger.debug("challengeAnswer" + challengeAnswer);
-                    line.set(
-                            idToPlace.get(challengeAnswer.getCreator().getId()),
-                            challengeAnswer.getCorrect() ? "Y" : "N"
-                    );
+                    if(question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Text)) {
+                        line.set(
+                                idToPlace.get(challengeAnswer.getCreator().getId()),
+                                challengeAnswer.getAnswer().equals(answer.getAnswer()) ? "Y" : "N"
+                        );
+                    }else{
+                        line.set(
+                                idToPlace.get(challengeAnswer.getCreator().getId()),
+                                challengeAnswer.getCorrect() ? "Y" : "N"
+                        );
+                    }
                     this.em.remove(challengeAnswer);
                 }
                 answer.setChallengeAnswers(new ArrayList<>());
@@ -578,12 +594,12 @@ public class ChallengeService extends Service {
 
         //Save the results of all user as html: /var/adm/cranix/challenges/<challengeId>/<NOW.STRING>/results.html
         String res = (String) arrayToHtml(resultTable, 0, nowString);
-        challengePath = Paths.get(challengeFile.toString() + "/RESULTS.html");
+        challengePath = Paths.get(challengeFile + "/RESULTS.html");
         Files.write(challengePath, res.getBytes(StandardCharsets.UTF_8));
         for (int i = 2; i < resultTable.get(0).size(); i++) {
             String res1 = (String) arrayToHtml(resultTable, i, nowString);
             String user = resultTable.get(0).get(i).split(" ")[0];
-            challengePath = Paths.get(challengeFile.toString() + "/" + user + ".html");
+            challengePath = Paths.get(challengeFile + "/" + user + ".html");
             Files.write(challengePath, res1.getBytes(StandardCharsets.UTF_8));
         }
         return res;
@@ -604,7 +620,7 @@ public class ChallengeService extends Service {
         htmlResult.append("  </tr>\n");
         for (Integer i = 1; i < resultTable.size(); i++) {
             isAnswer = false;
-            if (resultTable.get(i).get(1).equals("One") || resultTable.get(i).get(1).equals("Multiple")) {
+            if (resultTable.get(i).get(1).equals("One") || resultTable.get(i).get(1).equals("Multiple") || resultTable.equals("Text")) {
                 htmlResult.append("  <tr class=\"questionLine\">\n");
             } else if (resultTable.get(i).get(0).equals("Sum:")) {
                 htmlResult.append("  <tr class=\"sumLine\">\n");
@@ -636,7 +652,6 @@ public class ChallengeService extends Service {
     }
 
     public List<String> getListOfArchives(Long challengeId) {
-        //Create base directory: /var/adm/cranix/challenges/<challengeId>
         StringBuilder challengeFile = getArhivePath(challengeId);
         List<String> archives = new ArrayList<String>();
         for (String file : new File(challengeFile.toString()).list()) {

@@ -44,6 +44,8 @@ public class SubjectArea extends AbstractEntity{
     )
     private List<CrxQuestion> questions;
 
+    private Long teachingsubjectId;
+
     public String getName() {
         return name;
     }
@@ -74,5 +76,12 @@ public class SubjectArea extends AbstractEntity{
 
     public void setQuestions(List<CrxQuestion> questions) {
         this.questions = questions;
+    }
+
+    public Long getTeachingsubjectId(){
+        if( this.teachingsubjectId == null ) {
+            this.teachingsubjectId = this.teachingSubject == null ? null : this.teachingSubject.getId();
+        }
+        return this.teachingsubjectId;
     }
 }

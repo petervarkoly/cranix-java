@@ -22,6 +22,10 @@ public class CrxChallengeAnswer extends AbstractEntity {
     @Column(name = "correct", length = 1)
     private Boolean correct;
 
+    @Lob
+    @Column(name = "answer")
+    private String answer;
+
     @NotNull
     @ManyToOne
     @JsonIgnore
@@ -42,5 +46,13 @@ public class CrxChallengeAnswer extends AbstractEntity {
 
     public void setCrxQuestionAnswer(CrxQuestionAnswer crxQuestionAnswer) {
         this.crxQuestionAnswer = crxQuestionAnswer;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 }
