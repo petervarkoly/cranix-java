@@ -26,23 +26,9 @@ public class SubjectArea extends AbstractEntity{
     @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private TeachingSubject teachingSubject;
 
-    @ManyToMany
     @JsonIgnore
-    @JoinTable(
-            name="ChallengesInArea",
-            joinColumns={ @JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
-            inverseJoinColumns={ @JoinColumn(name="crxchallenge_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
-    )
+    @OneToMany(mappedBy = "subjectArea")
     private List<CrxChallenge> challenges;
-
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(
-            name="QuestionInArea",
-            joinColumns={ @JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") },
-            inverseJoinColumns={ @JoinColumn(name="crxquestion_id", columnDefinition ="BIGINT UNSIGNED NOT NULL") }
-    )
-    private List<CrxQuestion> questions;
 
     private Long teachingsubjectId;
 
@@ -68,14 +54,6 @@ public class SubjectArea extends AbstractEntity{
 
     public void setChallenges(List<CrxChallenge> challenges) {
         this.challenges = challenges;
-    }
-
-    public List<CrxQuestion> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<CrxQuestion> questions) {
-        this.questions = questions;
     }
 
     public Long getTeachingsubjectId(){

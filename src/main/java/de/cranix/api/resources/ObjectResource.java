@@ -222,7 +222,7 @@ public class ObjectResource {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
 	@RolesAllowed("subject.manage")
-	public CrxResponse addSubject(
+	public CrxResponse addTeachingSubject(
 			@ApiParam(hidden = true) @Auth Session session,
 			TeachingSubject teachingSubject)
 	{
@@ -239,7 +239,7 @@ public class ObjectResource {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
 	@RolesAllowed("subject.manage")
-	public CrxResponse modifySubject(
+	public CrxResponse modifyTeachingSubject(
 			@ApiParam(hidden = true) @Auth Session session,
 			TeachingSubject teachingSubject)
 	{
@@ -256,7 +256,7 @@ public class ObjectResource {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
 	@PermitAll
-	public CrxResponse deleteSubjectAreas(
+	public CrxResponse deleteTeachingSubject(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("id") Long id
 	)
@@ -292,7 +292,7 @@ public class ObjectResource {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
 	@RolesAllowed("subject.manage")
-	public CrxResponse addSubjectArea(
+	public CrxResponse modifySubjectArea(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("id") Long id,
 			SubjectArea subjectArea)

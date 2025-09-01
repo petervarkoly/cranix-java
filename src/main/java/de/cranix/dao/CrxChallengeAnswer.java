@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * The type CrxChallengeAnswer.
+ * In this object will be saved the answer of the solver of the challenge
  */
 @Entity
 @Table(

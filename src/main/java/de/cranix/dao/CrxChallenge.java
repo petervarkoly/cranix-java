@@ -24,13 +24,13 @@ public class CrxChallenge extends AbstractEntity {
     @Column(name = "description")
     private String title;
 
-    @NotNull
-    @ManyToOne(optional = false)
-    @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED")
     private TeachingSubject teachingSubject;
 
-    @ManyToMany(mappedBy = "challenges")
-    private List<SubjectArea> subjectAreaList;
+    @ManyToOne()
+    @JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED")
+    private SubjectArea subjectArea;
 
     @NotNull
     @Column(name = "value")
@@ -103,10 +103,10 @@ public class CrxChallenge extends AbstractEntity {
         this.teachingSubject = teachingSubject;
     }
 
-    public List<SubjectArea> getSubjectAreaList() { return subjectAreaList; }
+    public SubjectArea getSubjectArea() { return subjectArea; }
 
-    public void setSubjectAreaList(List<SubjectArea> subjectAreaList) {
-        this.subjectAreaList = subjectAreaList;
+    public void setSubjectArea(SubjectArea subjectArea) {
+        this.subjectArea = subjectArea;
     }
 
     public List<CrxQuestion> getQuestions() {
