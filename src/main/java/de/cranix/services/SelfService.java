@@ -233,6 +233,7 @@ public class SelfService extends Service {
         String path = "";
         String action = "list";
         String user = session.getUser().getUid();
+
         if (actionsMap.containsKey("path")) {
             path = actionsMap.get("path");
         }
