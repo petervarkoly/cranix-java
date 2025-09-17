@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static de.cranix.helper.CranixConstants.cranixTmpDir;
 import static de.cranix.helper.StaticHelpers.createLiteralJson;
@@ -371,6 +372,7 @@ public class DeviceService extends Service {
         device.setHwconf(hwconf);
         CrxResponse crxResponse = this.check(device, room);
         if (crxResponse.getCode().equals("ERROR")) {
+	    logger.debug("Add check:" + crxResponse.getValue());
             return crxResponse;
         }
         if (hwconf.getDeviceType().equals("FatClient") && roomService.getDevicesOnMyPlace(room, device).size() > 0) {
@@ -384,10 +386,11 @@ public class DeviceService extends Service {
         try {
             this.em.getTransaction().begin();
             this.em.persist(device);
-            this.em.merge(room);
-            this.em.merge(hwconf);
+            //this.em.merge(room);
+            //this.em.merge(hwconf);
             this.em.getTransaction().commit();
-        } catch (Error e) {
+        } catch (Exception e) {
+	    logger.error("add persist " + device + " error:" + e.getMessage());
             return new CrxResponse("ERROR", "An error accrued during persisting the device.");
         }
         startPlugin("add_device", device);
@@ -612,6 +615,12 @@ public class DeviceService extends Service {
                 values.put(header.get(i), value);
                 i++;
             }
+            try {
+                TimeUnit.SECONDS.sleep(1L);
+            } catch (Exception e){
+                logger.error("What the fuck");
+            }
+
             logger.debug("values" + values);
             Room room = null;
             String roomTMP = null;
@@ -690,8 +699,8 @@ public class DeviceService extends Service {
             } else if (room.getHwconf() != null) {
                 device.setHwconf(room.getHwconf());
             }
-            logger.debug(" New device to add: " + device);
-            responses.add(this.add(device,false));
+            logger.debug("New device to add: " + device);
+            responses.add(this.add(device, false));
         }
         new DHCPConfig(session, em).Create();
         new SoftwareService(this.session, this.em).applySoftwareStateToHosts();
