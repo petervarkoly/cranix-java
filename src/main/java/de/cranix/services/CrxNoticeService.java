@@ -100,13 +100,7 @@ public class CrxNoticeService extends Service{
                     filter.getObjectType().equals(notice.getObjectType()) &&
                     filter.getObjectId().equals(notice.getObjectId())
             ){
-                if(
-                        filter.getIssueType().isEmpty() ||
-                                (
-                                        filter.getIssueType().equals(notice.getIssueType()) &&
-                                        filter.getIssueId().equals(notice.getIssueId())
-                                )
-                ) {
+                if( filter.getPtmId() == 0 || notice.getPtmId() == filter.getPtmId() ) {
                     notices.add(notice);
                 }
             }

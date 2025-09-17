@@ -36,11 +36,10 @@ public class DHCPConfig extends Service {
     public DHCPConfig(Session session, EntityManager em) {
         super(session, em);
         try {
-			wait = Long.valueOf(getProperty("de.cranix.services.DHCPConfig.wait"));
-		} catch ( NumberFormatException e ) {
+            wait = Long.valueOf(getProperty("de.cranix.services.DHCPConfig.wait"));
+        } catch ( NumberFormatException e ) {
 
-		}
-
+        }
         try {
             try {
                 dhcpConfigFile = Files.readAllLines(DHCP_TEMPLATE);
@@ -63,7 +62,7 @@ public class DHCPConfig extends Service {
                     TimeUnit.SECONDS.sleep(wait);
                     this.systemctl("try-restart", "dhcpd");
                 } catch (Exception e) {
-					e.printStackTrace();
+                    e.printStackTrace();
                 } finally {
                     lock.delete();
                 }
@@ -84,7 +83,6 @@ public class DHCPConfig extends Service {
         try {
             Files.deleteIfExists(Paths.get(TMPCONF));
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         if (result == 0) {
