@@ -35,9 +35,10 @@ mkdir -p cranix-java/data/updates/
 rsync -a bin/                      cranix-java/bin/
 rsync -a conf/                     cranix-java/conf/
 cd src/main/java/de/cranix/api/resources/
-./find-rolles.pl >>                ${HERE}/cranix-java/data/school-inserts.sql
-./find-rolles.pl >>                ${HERE}/cranix-java/data/business-inserts.sql
-./addapt-rolles.pl >               ${HERE}/cranix-java/data/updates/adapt-rolles.sh
+./find-rolles.pl >>  ${HERE}/cranix-java/data/school-inserts.sql
+./find-rolles.pl >>  ${HERE}/cranix-java/data/business-inserts.sql
+./adapt-rolles.pl >  ${HERE}/cranix-java/data/updates/adapt-rolles.sh
+chmod 755 ${HERE}/cranix-java/data/updates/adapt-rolles.sh
 cd ${HERE}
 tar cjf ${REPO}/cranix-java.tar.bz2 cranix-java
 xterm -e git log --raw &
