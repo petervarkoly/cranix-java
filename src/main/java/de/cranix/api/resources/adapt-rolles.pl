@@ -34,11 +34,21 @@ print "mkdir -p /var/adm/cranix/roles-adapted\n";
 foreach( sort keys %$hroles )
 {
 	my $path = "/var/adm/cranix/roles-adapted/1-$_";
-	print "test -e $path || { touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":1}' }\n";
+	print "test -e $path || ( touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":1}' )\n";
 }
 
 foreach( sort keys %$forTeachers )
 {
 	my $path = "/var/adm/cranix/roles-adapted/2-$_";
-	print "test -e $path || { touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/2 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":2}' }\n";
+	print "test -e $path || ( touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/2 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":2}' )\n";
+}
+#Additional rights for teachers
+foreach( ('calendar.use') ) {
+	my $path = "/var/adm/cranix/roles-adapted/2-$_";
+	print "test -e $path || ( touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/2 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":2}' )\n";
+}
+#Additional rights for students
+foreach( ('calendar.read') ) {
+	my $path = "/var/adm/cranix/roles-adapted/3-$_";
+	print "test -e $path || ( touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/3 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":3}' )\n";
 }
