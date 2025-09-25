@@ -22,8 +22,8 @@
  import java.nio.file.attribute.UserPrincipalLookupService;
  import java.util.*;
 
+ import de.cranix.helper.CrxEntityManagerFactory;
  import static de.cranix.helper.CranixConstants.*;
-
 
  @SuppressWarnings("unchecked")
  public class SoftwareService extends Service {
@@ -31,6 +31,7 @@
      Logger logger = LoggerFactory.getLogger(SoftwareService.class);
      private static final String SALT_PACKAGE_DIR = "/srv/salt/packages/";
      private static final String SALT_SOURCE_DIR = "/srv/salt/win/repo-ng/";
+     private static final Path   SALT_WRITE_LOCK = Paths.get("/run/crx_writing_salt_config");
 
      public SoftwareService(Session session, EntityManager em) {
          super(session, em);
@@ -1241,8 +1242,12 @@
      /*
       * Save the software status what shall be installed to host sls files.
       */
+     public Boolean writingSaltConfig(){
+	return Files.exists(SALT_WRITE_LOCK);
+     }
+
      public CrxResponse applySoftwareStateToHosts() {
-         return applySoftwareStateToHosts(new DeviceService(this.session, this.em).getAll());
+         return applySoftwareStateToHostsBatch(new DeviceService(this.session, this.em).getAll());
      }
      public CrxResponse applySoftwareStateToHosts(Device device) {
          List<Device> devices = new ArrayList<>();
@@ -1250,7 +1255,35 @@
          return applySoftwareStateToHosts(devices);
      }
 
+     public CrxResponse applySoftwareStateToHostsBatch(List<Device> devices) {
+        new Thread(() -> {
+           try {
+               logger.info("applySoftwareStateToHosts started: " + Thread.currentThread().getName());
+	       this.em = CrxEntityManagerFactory.instance().createEntityManager();
+	       this.applySoftwareStateToHosts(devices);
+	       this.em.close();
+               logger.info("applySoftwareStateToHosts proceeded");
+           } catch (Exception e) {
+	       logger.error("applySoftwareStateToHostsBatch error: " + e.getMessage());
+           }
+	}).start(); // <--- Thread starten
+	try {
+		Thread.sleep(1000);
+	} catch (Exception e) {
+		logger.error("Thread can not sleep");
+	}
+        return new CrxResponse("OK","Rewrite of SaltStack configuration was started.");
+     }
+
      public CrxResponse applySoftwareStateToHosts(List<Device> devices) {
+	 if( this.writingSaltConfig() ) {
+             return new CrxResponse("ERROR","An other process is writing the SaltStack configuration. Please try it later!");
+	 }
+	 try {
+            Files.createFile(SALT_WRITE_LOCK);
+	 } catch (Exception e) {
+            return new CrxResponse("ERROR",e.getMessage());
+	 }
          DeviceService deviceService = new DeviceService(this.session, this.em);
          Map<String, List<String>>   softwaresToInstall = new HashMap<>();
          Map<String, List<Software>> softwaresToRemove = new HashMap<>();
@@ -1266,6 +1299,7 @@
              saltPrincipial = lookupService.lookupPrincipalByName("salt");
          } catch (IOException e) {
              logger.error(e.getMessage());
+	     SALT_WRITE_LOCK.toFile().delete();
              return new CrxResponse("ERROR", "Can not get salt's user principal.");
          }
          //Collect the corresponding Rooms and Hwconfs
@@ -1341,6 +1375,7 @@
              logger.debug("Software map after devices:" + softwaresToInstall);
          } catch (Exception e) {
              logger.error(e.getMessage());
+	     SALT_WRITE_LOCK.toFile().delete();
              return null;
          }
 
@@ -1428,6 +1463,7 @@
              logger.debug("Software map:" + softwaresToInstall);
          } catch (Exception e) {
              logger.error(e.getMessage());
+	     SALT_WRITE_LOCK.toFile().delete();
              return null;
          }
 
@@ -1552,8 +1588,10 @@
          this.rewriteTopSls();
          if (errorMessages.length() > 0) {
              logger.error(errorMessages.toString());
+	     SALT_WRITE_LOCK.toFile().delete();
              return new CrxResponse("ERROR", errorMessages.toString());
          }
+         SALT_WRITE_LOCK.toFile().delete();
          return new CrxResponse("OK", "Software State was saved succesfully");
      }
 
