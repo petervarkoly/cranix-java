@@ -54,15 +54,17 @@ public class Crx2faSession extends AbstractEntity {
     @JoinColumn(name = "crx2fa_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private Crx2fa myCrx2fa;
 
-    @OneToOne
-    @JoinColumn(name = "session_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
+    @OneToOne(mappedBy = "crx2faSession")
+    @JsonIgnore
     private Session session;
 
     public Crx2faSession() {
     }
 
-    public Crx2faSession(User user, Crx2fa crx2fa, String clientIPAddress) {
-        this.setCreator(user);
+    public Crx2faSession(Session session, Crx2fa crx2fa, String clientIPAddress) {
+        this.setCreator(session.getUser());
+        session.setCrx2faSession(this);
+        this.session = session;
         this.myCrx2fa = crx2fa;
         this.clientIP = clientIPAddress;
         if (this.myCrx2fa.getCrx2faType().equals("TOTP")) {

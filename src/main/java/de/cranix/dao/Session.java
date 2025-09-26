@@ -51,7 +51,8 @@ public class Session implements Principal {
 	private User user;
 
 
-	@OneToOne(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne
+	@JoinColumn(name="crx2fasession_id", columnDefinition ="BIGINT UNSIGNED")
 	private Crx2faSession crx2faSession;
 
 	@ManyToOne

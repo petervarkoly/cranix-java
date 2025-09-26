@@ -53,15 +53,6 @@ public class Software extends AbstractEntity {
     @OneToMany(mappedBy = "software", cascade = CascadeType.ALL)
     private List<SoftwareFullName> softwareFullNames;
 
-    /* bi-directional many-to-many associations */
-    @ManyToMany(mappedBy = "softwares")
-    @JsonIgnore
-    private List<Category> categories;
-
-    @ManyToMany(mappedBy = "removedSoftwares")
-    @JsonIgnore
-    private List<Category> removedFromCategories;
-
     @ManyToMany()
     @JoinTable(
             name = "SoftwareRequirements",
@@ -161,22 +152,6 @@ public class Software extends AbstractEntity {
         getSoftwareVersions().remove(softwareVersion);
         softwareVersion.setSoftware(null);
         return softwareVersion;
-    }
-
-    public List<Category> getCategories() {
-        return this.categories;
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
-    }
-
-    public List<Category> getRemovedFromCategories() {
-        return this.removedFromCategories;
-    }
-
-    public void setRemovedFromCategories(List<Category> categories) {
-        this.removedFromCategories = categories;
     }
 
     public boolean isSourceAvailable() {

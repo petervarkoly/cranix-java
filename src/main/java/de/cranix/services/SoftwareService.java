@@ -23,6 +23,7 @@
  import java.util.*;
 
  import de.cranix.helper.CrxEntityManagerFactory;
+
  import static de.cranix.helper.CranixConstants.*;
 
  @SuppressWarnings("unchecked")
@@ -31,7 +32,7 @@
      Logger logger = LoggerFactory.getLogger(SoftwareService.class);
      private static final String SALT_PACKAGE_DIR = "/srv/salt/packages/";
      private static final String SALT_SOURCE_DIR = "/srv/salt/win/repo-ng/";
-     private static final Path   SALT_WRITE_LOCK = Paths.get("/run/crx_writing_salt_config");
+     private static final Path SALT_WRITE_LOCK = Paths.get("/run/crx_writing_salt_config");
 
      public SoftwareService(Session session, EntityManager em) {
          super(session, em);
@@ -219,7 +220,7 @@
      public CrxResponse modify(Software software) {
          try {
              //Modifying only the software entry itself
-             Software oldSoftware = this.em.find(Software.class,software.getId());
+             Software oldSoftware = this.em.find(Software.class, software.getId());
              oldSoftware.setDescription(software.getDescription());
              oldSoftware.setManually(software.getManually());
              oldSoftware.setWeight(software.getWeight());
@@ -408,7 +409,7 @@
          program[2] = "oss-pkg-*";
          program[3] = "--qf";
          program[4] = "%{NAME}##%{SUMMARY}##%{VERSION}\\n";
-		 reply = new StringBuffer();
+         reply = new StringBuffer();
          stderr = new StringBuffer();
          CrxSystemCmd.exec(program, reply, stderr, null);
          logger.debug("Reply" + reply.toString());
@@ -701,16 +702,16 @@
          Query query = this.em.createNamedQuery("SoftwareStatus.findAll");
          List<SoftwareStatus> sts = new ArrayList<SoftwareStatus>();
          for (SoftwareStatus st : (List<SoftwareStatus>) query.getResultList()) {
-             if( st == null ) {
+             if (st == null) {
                  logger.error("SoftwareStatus null");
                  continue;
              }
-             if( st.getSoftwareVersion() == null ) {
+             if (st.getSoftwareVersion() == null) {
                  logger.error("SoftwareVersion null" + st);
                  continue;
              }
-             if( st.getSoftwareVersion().getSoftware() == null ) {
-                 logger.error("Software null" + st + st.getSoftwareVersion() );
+             if (st.getSoftwareVersion().getSoftware() == null) {
+                 logger.error("Software null" + st + st.getSoftwareVersion());
                  continue;
              }
              st.setSoftwareName(st.getSoftwareVersion().getSoftware().getName());
@@ -737,17 +738,14 @@
              if (c.getSoftwares().contains(s)) {
                  return new CrxResponse("OK", "Software was already added to the installation.");
              }
-             s.getCategories().add(c);
              c.getSoftwares().add(s);
-             s.getRemovedFromCategories().remove(c);
-             c.getRemovedSoftwares().remove(s);
+             if (c.getRemovedSoftwares().contains(s)) c.getRemovedSoftwares().remove(s);
              this.em.getTransaction().begin();
-             this.em.merge(s);
              this.em.merge(c);
              this.em.getTransaction().commit();
          } catch (Exception e) {
              logger.error(e.getMessage());
-			 return new CrxResponse("addSoftwareToCategory ERROR", e.getMessage());
+             return new CrxResponse("addSoftwareToCategory ERROR", e.getMessage());
          }
          return new CrxResponse("OK", "Software was added to the installation succesfully.");
      }
@@ -766,12 +764,9 @@
              if (!c.getSoftwares().contains(s)) {
                  return new CrxResponse("OK", "Software is not member of the installation.");
              }
-             s.getCategories().remove(c);
              c.getSoftwares().remove(s);
-             s.getRemovedFromCategories().add(c);
-             c.getRemovedSoftwares().add(s);
+             if (!c.getRemovedSoftwares().contains(s)) c.getRemovedSoftwares().add(s);
              this.em.getTransaction().begin();
-             this.em.merge(s);
              this.em.merge(c);
              this.em.getTransaction().commit();
              for (Room r : c.getRooms()) {
@@ -1209,7 +1204,7 @@
          }
          for (Device device : new DeviceService(this.session, this.em).getAll()) {
              //We only create salt files for FatClients
-             if ( !device.isFatClient() ) {
+             if (!device.isFatClient()) {
                  continue;
              }
              StringBuilder firstLine = new StringBuilder();
@@ -1221,7 +1216,7 @@
          //Remove not used device sls files
          File saltDir = new File("/srv/salt/");
          for (File f : saltDir.listFiles()) {
-	     if( f.getName().startsWith("crx_device_") && !usedSlsFiles.contains(f.getName())) {
+             if (f.getName().startsWith("crx_device_") && !usedSlsFiles.contains(f.getName())) {
                  f.delete();
              }
          }
@@ -1236,19 +1231,20 @@
              this.systemctl("try-restart", "salt-master");
              logger.debug("Services restarted");
          }
-         return new CrxResponse("OK","Salt configuration was rewritten.");
+         return new CrxResponse("OK", "Salt configuration was rewritten.");
      }
 
      /*
       * Save the software status what shall be installed to host sls files.
       */
-     public Boolean writingSaltConfig(){
-	return Files.exists(SALT_WRITE_LOCK);
+     public Boolean writingSaltConfig() {
+         return Files.exists(SALT_WRITE_LOCK);
      }
 
      public CrxResponse applySoftwareStateToHosts() {
          return applySoftwareStateToHostsBatch(new DeviceService(this.session, this.em).getAll());
      }
+
      public CrxResponse applySoftwareStateToHosts(Device device) {
          List<Device> devices = new ArrayList<>();
          devices.add(device);
@@ -1256,55 +1252,52 @@
      }
 
      public CrxResponse applySoftwareStateToHostsBatch(List<Device> devices) {
-        new Thread(() -> {
-           try {
-               logger.info("applySoftwareStateToHosts started: " + Thread.currentThread().getName());
-	       this.em = CrxEntityManagerFactory.instance().createEntityManager();
-	       this.applySoftwareStateToHosts(devices);
-	       this.em.close();
-               logger.info("applySoftwareStateToHosts proceeded");
-           } catch (Exception e) {
-	       logger.error("applySoftwareStateToHostsBatch error: " + e.getMessage());
-           }
-	}).start(); // <--- Thread starten
-	try {
-		Thread.sleep(1000);
-	} catch (Exception e) {
-		logger.error("Thread can not sleep");
-	}
-        return new CrxResponse("OK","Rewrite of SaltStack configuration was started.");
+         new Thread(() -> {
+             try {
+                 logger.info("applySoftwareStateToHosts started: " + Thread.currentThread().getName());
+                 this.em = CrxEntityManagerFactory.instance().createEntityManager();
+                 this.applySoftwareStateToHosts(devices);
+                 this.em.close();
+                 logger.info("applySoftwareStateToHosts proceeded");
+             } catch (Exception e) {
+                 logger.error("applySoftwareStateToHostsBatch error: " + e.getMessage());
+             }
+         }).start(); // <--- Thread starten
+         try {
+             Thread.sleep(1000);
+         } catch (Exception e) {
+             logger.error("Thread can not sleep");
+         }
+         return new CrxResponse("OK", "Rewrite of SaltStack configuration was started.");
      }
 
      public CrxResponse applySoftwareStateToHosts(List<Device> devices) {
-	 if( this.writingSaltConfig() ) {
-             return new CrxResponse("ERROR","An other process is writing the SaltStack configuration. Please try it later!");
-	 }
-	 try {
-            Files.createFile(SALT_WRITE_LOCK);
-	 } catch (Exception e) {
-            return new CrxResponse("ERROR",e.getMessage());
-	 }
+         if (this.writingSaltConfig()) {
+             return new CrxResponse("ERROR", "An other process is writing the SaltStack configuration. Please try it later!");
+         }
+         try {
+             Files.createFile(SALT_WRITE_LOCK);
+         } catch (Exception e) {
+             return new CrxResponse("ERROR", e.getMessage());
+         }
          DeviceService deviceService = new DeviceService(this.session, this.em);
-         Map<String, List<String>>   softwaresToInstall = new HashMap<>();
+         Map<String, List<String>> softwaresToInstall = new HashMap<>();
          Map<String, List<Software>> softwaresToRemove = new HashMap<>();
-         Map<String, Boolean>        softwareMustBeIncluded = new HashMap<>();
-         List<String> toInstall      = new ArrayList<String>();
-         List<Software> toRemove     = new ArrayList<Software>();
-         final String domainName     = this.getConfigValue("DOMAIN");
+         Map<String, Boolean> softwareMustBeIncluded = new HashMap<>();
+         List<String> toInstall = new ArrayList<String>();
+         List<Software> toRemove = new ArrayList<Software>();
+         final String domainName = this.getConfigValue("DOMAIN");
          StringBuilder errorMessages = new StringBuilder();
-         String registerPassword     = this.getProperty("de.cranix.dao.User.Register.Password");
+         String registerPassword = this.getProperty("de.cranix.dao.User.Register.Password");
          UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
          UserPrincipal saltPrincipial = null;
          try {
              saltPrincipial = lookupService.lookupPrincipalByName("salt");
          } catch (IOException e) {
              logger.error(e.getMessage());
-	     SALT_WRITE_LOCK.toFile().delete();
+             SALT_WRITE_LOCK.toFile().delete();
              return new CrxResponse("ERROR", "Can not get salt's user principal.");
          }
-         //Collect the corresponding Rooms and Hwconfs
-         List<HWConf> hwconfs = new ArrayList<HWConf>();
-         List<Room>   rooms   = new ArrayList<Room>();
          List<String> domainJoinSls = new ArrayList<String>();
          domainJoinSls.add(domainName + ":");
          domainJoinSls.add("  system.join_domain:");
@@ -1318,17 +1311,6 @@
              Files.setOwner(DOMAIN_JOIN, saltPrincipial);
          } catch (IOException e) {
              logger.error(e.getMessage());
-         }
-         for (Device device : devices) {
-             if (device == null || device.getHwconf() == null || device.getRoom() == null) {
-                 continue;
-             }
-             if (!hwconfs.contains(device.getHwconf())) {
-                 hwconfs.add(device.getHwconf());
-             }
-             if (!rooms.contains(device.getRoom())) {
-                 rooms.add(device.getRoom());
-             }
          }
 
          /* Analyse all installable software if these are packaged */
@@ -1344,7 +1326,7 @@
          //Evaluate device categories
          logger.debug("Process devices");
          for (Device device : devices) {
-             if ( !device.isFatClient() ) {
+             if (!device.isFatClient()) {
                  continue;
              }
              toInstall = new ArrayList<String>();
@@ -1360,9 +1342,9 @@
                  if (category.getCategoryType().equals("installation")) {
                      for (Software software : category.getSoftwares()) {
                          toRemove.remove(software);
-                         for (Software requirements : software.getSoftwareRequirements()) {
-                             toRemove.remove(requirements);
-                             toInstall.add(String.format("%04d-%s", requirements.getWeight(), requirements.getName()));
+                         for (Software requirement : software.getSoftwareRequirements()) {
+                             toRemove.remove(requirement);
+                             toInstall.add(String.format("%04d-%s", requirement.getWeight(), requirement.getName()));
                          }
                          toInstall.add(String.format("%04d-%s", software.getWeight(), software.getName()));
                      }
@@ -1375,100 +1357,12 @@
              logger.debug("Software map after devices:" + softwaresToInstall);
          } catch (Exception e) {
              logger.error(e.getMessage());
-	     SALT_WRITE_LOCK.toFile().delete();
-             return null;
-         }
-
-         //Evaluate room categories
-         logger.debug("Process rooms");
-         for (Room room : rooms) {
-             toRemove = new ArrayList<Software>();
-             toInstall = new ArrayList<String>();
-             /* Search for software to be removed */
-             for (Category category : room.getCategories()) {
-                 if (category.getCategoryType().equals("installation")) {
-                     for (Software software : category.getRemovedSoftwares()) {
-                         toRemove.add(software);
-                     }
-                 }
-             }
-             /* Search for software to be installed */
-             for (Category category : room.getCategories()) {
-                 if (category.getCategoryType().equals("installation")) {
-                     for (Software software : category.getSoftwares()) {
-                         toRemove.remove(software);
-                         for (Software requirements : software.getSoftwareRequirements()) {
-                             toRemove.remove(requirements);
-                             toInstall.add(String.format("%04d-%s", requirements.getWeight(), requirements.getName()));
-                         }
-                         toInstall.add(String.format("%04d-%s", software.getWeight(), software.getName()));
-                     }
-
-                 }
-             }
-             /* Assign result to the devices in room */
-             for (Device device : room.getDevices()) {
-                 if (!devices.contains(device) || !device.isFatClient() ) {
-                     continue;
-                 }
-                 softwaresToInstall.get(device.getName()).addAll(toInstall);
-                 softwaresToRemove.get(device.getName()).addAll(toRemove);
-             }
-         }
-
-         //Evaluate hwconf categories
-         logger.debug("Process hwconfs");
-         for (HWConf hwconf : hwconfs) {
-             if (hwconf == null) {
-                 continue;
-             }
-             logger.debug("HWConfs: " + hwconf.getName() + " " + hwconf.getDeviceType());
-             if (!hwconf.getDeviceType().equals("FatClient")) {
-                 continue;
-             }
-             toRemove = new ArrayList<Software>();
-             toInstall = new ArrayList<String>();
-             /* Search for software to be removed */
-             for (Category category : hwconf.getCategories()) {
-                 if (category.getCategoryType().equals("installation")) {
-                     for (Software software : category.getRemovedSoftwares()) {
-                         toRemove.add(software);
-                     }
-                 }
-             }
-             /* Search for software to be installed */
-             for (Category category : hwconf.getCategories()) {
-                 logger.debug("HWConfs Categories: " + category.getName() + " " + category.getCategoryType());
-                 if (category.getCategoryType().equals("installation")) {
-                     for (Software software : category.getSoftwares()) {
-                         toRemove.remove(software);
-                         for (Software requirements : software.getSoftwareRequirements()) {
-                             toRemove.remove(requirements);
-                             toInstall.add(String.format("%04d-%s", requirements.getWeight(), requirements.getName()));
-                         }
-                         toInstall.add(String.format("%04d-%s", software.getWeight(), software.getName()));
-                     }
-                 }
-             }
-             /* Assign result to the devices in hwconf */
-             for (Device device : hwconf.getDevices()) {
-                 if (!devices.contains(device)) {
-                     continue;
-                 }
-                 softwaresToInstall.get(device.getName()).addAll(toInstall);
-                 softwaresToRemove.get(device.getName()).addAll(toRemove);
-             }
-         }
-         try {
-             logger.debug("Software map:" + softwaresToInstall);
-         } catch (Exception e) {
-             logger.error(e.getMessage());
-	     SALT_WRITE_LOCK.toFile().delete();
+             SALT_WRITE_LOCK.toFile().delete();
              return null;
          }
 
          //Write the hosts sls files
-         logger.debug("Process collected datas:");
+         logger.debug("Process collected data:");
          for (Device device : deviceService.getAll()) {
              //We only create salt files for FatClients
              if (!device.isFatClient() || !devices.contains(device)) {
@@ -1588,7 +1482,7 @@
          this.rewriteTopSls();
          if (errorMessages.length() > 0) {
              logger.error(errorMessages.toString());
-	     SALT_WRITE_LOCK.toFile().delete();
+             SALT_WRITE_LOCK.toFile().delete();
              return new CrxResponse("ERROR", errorMessages.toString());
          }
          SALT_WRITE_LOCK.toFile().delete();
@@ -1598,11 +1492,11 @@
      /**
       * Sets the software installation status on a device and remove the status of older version if the status is installed.
       *
-      * @param description The description (display name) of the software
-      * @param    device            The corresponding device object
-      * @param    softwareName    Name of the corresponding software package
-      * @param    version            The version of the corresponding software
-      * @param    status            The state to be set
+      * @param description  The description (display name) of the software
+      * @param device       The corresponding device object
+      * @param softwareName Name of the corresponding software package
+      * @param version      The version of the corresponding software
+      * @param status       The state to be set
       * @return An CrxResponse object will be responded
       */
      public CrxResponse setSoftwareStatusOnDevice(Device device, String softwareName, String description, String version, String status) {
@@ -1744,9 +1638,9 @@
      /**
       * Delete Software Status
       *
-      * @param    device            The corresponding device object
-      * @param    softwareName    Name of the corresponding software package
-      * @param    version            The version of the corresponding software
+      * @param device       The corresponding device object
+      * @param softwareName Name of the corresponding software package
+      * @param version      The version of the corresponding software
       * @return An CrxResponse object will be returned
       */
      public CrxResponse deleteSoftwareStatusFromDevice(Device device, String softwareName, String version) {
