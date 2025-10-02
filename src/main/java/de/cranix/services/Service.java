@@ -26,7 +26,6 @@ public class Service extends Config {
 
     protected Session session;
     protected EntityManager em;
-    private Map<String, String> properties;
     private static List<String> systemNames;
 
     public Service() {
@@ -36,20 +35,8 @@ public class Service extends Config {
         super();
         this.session = session;
         this.em = em;
-        properties = new HashMap<String, String>();
         String[] tmp;
         try {
-            File file = new File(cranixPropFile);
-            FileInputStream fileInput = new FileInputStream(file);
-            Properties props = new Properties();
-            props.load(fileInput);
-            fileInput.close();
-            Enumeration<Object> enuKeys = props.keys();
-            while (enuKeys.hasMoreElements()) {
-                String key = (String) enuKeys.nextElement();
-                String value = props.getProperty(key);
-                properties.put(key, value);
-            }
             if (systemNames == null) {
                 systemNames = new ArrayList<String>();
                 for (String line : Files.readAllLines(Paths.get("/etc/passwd"))) {
@@ -76,12 +63,7 @@ public class Service extends Config {
         return this.session;
     }
 
-    public String getProperty(String property) {
-        if (properties.containsKey(property)) {
-            return properties.get(property);
-        }
-        return "";
-    }
+
 
     public String getNl() {
         //return System.getProperty("line.separator");
