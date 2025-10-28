@@ -453,7 +453,6 @@ public class RoomService extends Service {
             return new CrxResponse("ERROR", e.getMessage());
         }
         if( atomic ) {
-            new DHCPConfig(session, em).Create();
             new SoftwareService(this.session, this.em).rewriteTopSls();
         }
         startPlugin("delete_room", room);
@@ -798,7 +797,6 @@ public class RoomService extends Service {
         if (needWriteSalt) {
             new SoftwareService(this.session, this.em).applySoftwareStateToHosts(devices);
         }
-        new DHCPConfig(session, em).Create();
         return responses;
     }
 
@@ -824,7 +822,6 @@ public class RoomService extends Service {
             logger.error("deleteDevices" + e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());
         }
-        new DHCPConfig(session, em).Create();
         if (needWriteSalt) {
             new SoftwareService(this.session, this.em).rewriteTopSls();
         }
@@ -914,9 +911,8 @@ public class RoomService extends Service {
             logger.error("addDevice: " + e.getMessage());
             return new CrxResponse("ERROR", "Error by registering: " + e.getMessage());
         }
-        //Start plugin and create DHCP and salt configuration
+        //Start plugin
         startPlugin("add_device", device);
-        new DHCPConfig(session, em).Create();
         return new CrxResponse("OK", "Device was created successfully.", device.getId());
     }
 
@@ -1398,6 +1394,7 @@ public class RoomService extends Service {
     }
 
     public CrxResponse addDHCP(Long roomId, CrxMConfig dhcpParameter) {
+        //TODO reimplent this feature
         if (!dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions")) {
             return new CrxResponse("ERROR", "Bad DHCP parameter.");
         }
@@ -1407,18 +1404,7 @@ public class RoomService extends Service {
             return crxResponse;
         }
         Long dhcpParameterId = crxResponse.getObjectId();
-        crxResponse = new DHCPConfig(session, em).Test();
-        if (crxResponse.getCode().equals("ERROR")) {
-            this.deleteMConfig(null, dhcpParameterId);
-            return crxResponse;
-        }
-        new DHCPConfig(session, em).Create();
-        return new CrxResponse("OK", "DHCP Parameter was added successfully");
-    }
-
-    public CrxResponse deleteDHCP(Long roomId, Long parameterId) {
-        Room room = this.getById(roomId);
-        return this.deleteMConfig(room, parameterId);
+        return new CrxResponse("OK", "Still not implemented");
     }
 
     public List<CrxResponse> applyAction(CrxActionMap actionMap) {
@@ -1427,7 +1413,6 @@ public class RoomService extends Service {
             for (Long id : actionMap.getObjectIds()) {
                 responses.add(this.delete(id,false));
             }
-            new DHCPConfig(session, em).Create();
             new SoftwareService(session, em).rewriteTopSls();
         } else {
             for (Long id : actionMap.getObjectIds()) {
