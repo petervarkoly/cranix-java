@@ -180,12 +180,12 @@ public class UserService extends Service {
         if (!this.mayAdd(user)) {
             return new CrxResponse(
                     "ERROR",
-                    "You must not create user whith role %s.",
+                    "You must not create user with role %s.",
                     null,
                     user.getRole());
         }
         // Check Birthday
-        if (user.getBirthDay() == null || user.getBirthDay() == "") {
+        if (user.getBirthDay() == null || user.getBirthDay().isBlank()) {
             if (!user.getRole().equals(roleStudent)) {
                 user.setBirthDay(this.nowDateString());
             } else {
@@ -202,7 +202,7 @@ public class UserService extends Service {
             if (!user.getRole().equals("workstations") && !this.isNameUnique(user.getUid())) {
                 return new CrxResponse("ERROR", "User name is not unique.");
             }
-            // Check if uid contains non allowed characters
+            // Check if uid contains non-allowed characters
             if (this.checkNonASCII(user.getUid())) {
                 return new CrxResponse("ERROR", "Uid contains not allowed characters.");
             }
@@ -309,7 +309,7 @@ public class UserService extends Service {
             return new CrxResponse("ERROR", e.getMessage());
         }
         startPlugin("modify_user", oldUser);
-        return new CrxResponse("OK", "User was modified succesfully");
+        return new CrxResponse("OK", "User was modified successfully");
     }
 
     public List<CrxResponse> deleteStudents(List<Long> userIds) {
