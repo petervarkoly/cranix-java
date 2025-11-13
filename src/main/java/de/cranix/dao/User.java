@@ -1,22 +1,21 @@
 /* (c) 2024 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 package de.cranix.dao;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
-import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
 import org.eclipse.persistence.annotations.Cache;
 import org.eclipse.persistence.annotations.CacheType;
 
 import de.cranix.helper.SslCrypto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static de.cranix.helper.StaticHelpers.getRandomColor;
 import static de.cranix.helper.StaticHelpers.simpleDate;
@@ -41,6 +40,10 @@ import static de.cranix.helper.StaticHelpers.simpleDate;
 )
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class User extends AbstractEntity {
+
+	@Transient
+	@JsonIgnore
+	Logger logger = LoggerFactory.getLogger(User.class);
 
 	@Column(name="uid", updatable=false, length=32)
 	@Pattern.List({
@@ -79,9 +82,9 @@ public class User extends AbstractEntity {
 	@Size(max=64, message="emailAddress must not be longer then 16 characters.")
 	private String emailAddress = "";
 
-	@Column(name = "telefonNumber", length = 64)
-	@Size(max=64, message="telefonNumber must not be longer then 16 characters.")
-	private String telefonNumber = "";
+	@Column(name = "telephoneNumber", length = 64)
+	@Size(max=64, message="telephoneNumber must not be longer then 16 characters.")
+	private String telephoneNumber = "";
 
 	@Column(name="fsQuotaUsed")
 	private Integer fsQuotaUsed = 0;
@@ -105,9 +108,14 @@ public class User extends AbstractEntity {
 	private String initialPassword = "";
 
 	/* bi-directional many-to-one associations */
-	@OneToMany(mappedBy="user", cascade ={CascadeType.ALL})
+	@OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonIgnore
 	private List<Alias> aliases = new ArrayList<Alias>();
+
+	/* bi-directional many-to-one associations */
+	@OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
+	private List<VirtualAlias> virtualAliases = new ArrayList<VirtualAlias>();
 
 	@OneToMany(mappedBy="user")
 	@JsonIgnore
@@ -244,9 +252,9 @@ public class User extends AbstractEntity {
 
 	@ManyToMany
     @JoinTable(
-            name = "MyChildren",
-            joinColumns = {@JoinColumn(name = "parent_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")},
-            inverseJoinColumns = {@JoinColumn(name = "child_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
+		name = "MyChildren",
+        joinColumns = {@JoinColumn(name = "parent_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")},
+        inverseJoinColumns = {@JoinColumn(name = "child_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
     )
     @JsonIgnore
     private List<User> children = new ArrayList<User>();
@@ -265,6 +273,9 @@ public class User extends AbstractEntity {
 
 	@Transient
 	List<String> mailAliases = new ArrayList<String>();
+
+	@Transient
+	List<String> virtualMailAliases = new ArrayList<String>();
 
 	@Transient
 	String fullName;
@@ -402,13 +413,43 @@ public class User extends AbstractEntity {
 	}
 
 	public void addAlias(Alias alias) {
-		getAliases().add(alias);
-		alias.setUser(this);
+		if(!this.aliases.contains(alias)) {
+			logger.debug("addAlias To Add:" + alias);
+			this.aliases.add(alias);
+			alias.setUser(this);
+		}
 	}
 
 	public void removeAlias(Alias alias) {
-		getAliases().remove(alias);
-		alias.setUser(null);
+		if(this.aliases.contains(alias)) {
+			this.aliases.remove(alias);
+			alias.setUser(null);
+		}
+	}
+
+	public List<VirtualAlias> getVirtualAliases() {
+		return this.virtualAliases;
+	}
+
+	public void setVirtualAliases(List<VirtualAlias> virtualAliases) {
+		this.virtualAliases = virtualAliases;
+	}
+
+	public void addVirtualAlias(VirtualAlias virtualAlias) {
+		if(!this.virtualAliases.contains(virtualAlias)) {
+			logger.debug("addVirtualAlias To Add:" + virtualAlias);
+			this.virtualAliases.add(virtualAlias);
+			virtualAlias.setUser(this);
+		}
+	}
+
+	@Transient
+	public void removeVirtualAlias(VirtualAlias virtualAlias) {
+		if(this.virtualAliases.contains(virtualAlias)) {
+			logger.debug("removeVirtualAlias" + virtualAlias);
+			this.virtualAliases.remove(virtualAlias);
+			virtualAlias.setUser(null);
+		}
 	}
 
 	public List<Acl> getAcls() {
@@ -640,7 +681,21 @@ public class User extends AbstractEntity {
 	}
 
 	public List<String> getMailAliases() {
-		return mailAliases;
+		if( this.mailAliases.isEmpty()) {
+			for (Alias alias : this.aliases) {
+				this.mailAliases.add(alias.getAlias());
+			}
+		}
+		return this.mailAliases;
+	}
+
+	public List<String> getVirtualMailAliases() {
+		if(this.virtualMailAliases.isEmpty()) {
+			for (VirtualAlias alias : this.virtualAliases) {
+				this.virtualMailAliases.add(alias.getVirtualAlias());
+			}
+		}
+		return this.virtualMailAliases;
 	}
 
 	public void setMailAliases(List<String> mailAliases) {
@@ -804,20 +859,20 @@ public class User extends AbstractEntity {
 	public void setParentIds(List<Long> parentIds){
 		this.parentIds = parentIds;
 	}
-	public List<ParentRequest> getParetnRequests() {
+	public List<ParentRequest> getParentRequests() {
 		return paretnRequests;
 	}
 
-	public void setParetnRequests(List<ParentRequest> paretnRequests) {
-		this.paretnRequests = paretnRequests;
+	public void setParentRequests(List<ParentRequest> parentRequests) {
+		this.paretnRequests = parentRequests;
 	}
 
-	public String getTelefonNumber() {
-		return telefonNumber;
+	public String getTelephoneNumber() {
+		return telephoneNumber;
 	}
 
-	public void setTelefonNumber(String telefonNumber) {
-		this.telefonNumber = telefonNumber;
+	public void setTelephoneNumber(String telephoneNumber) {
+		this.telephoneNumber = telephoneNumber;
 	}
 
 	public List<User> getParents() { return parents;}
@@ -860,6 +915,51 @@ public class User extends AbstractEntity {
 		if(this.crxNotices.contains(crxNotice)){
 			this.crxNotices.remove((crxNotice));
 			crxNotice.setCreator(null);
+		}
+	}
+
+
+	@Transient
+	public void handleAliases(Session session, List<String>  mailAliases){
+		List<Alias> newAliases = new ArrayList<>();
+		List<Alias> oldAliases = new ArrayList<>();
+		for(String alias: mailAliases){
+			Alias tmp = new Alias(session, this, alias);
+			newAliases.add(tmp);
+		}
+		for(String alias: getMailAliases()){
+			Alias tmp = new Alias(session, this, alias);
+			oldAliases.add(tmp);
+		}
+		for(Alias alias: newAliases){
+			this.addAlias(alias);
+		}
+		for(Alias alias: oldAliases){
+			if(!newAliases.contains(alias)){
+				this.removeAlias(alias);
+			}
+		}
+	}
+
+	@Transient
+	public void handleVirtualAliases(Session session, List<String>  virtualMailAliases){
+		List<VirtualAlias> newAliases = new ArrayList<>();
+		List<VirtualAlias> oldAliases = new ArrayList<>();
+		for(String alias: virtualMailAliases){
+			VirtualAlias tmp = new VirtualAlias(session, this, alias);
+			newAliases.add(tmp);
+		}
+		for(String alias: this.getVirtualMailAliases()){
+			VirtualAlias tmp = new VirtualAlias(session, this, alias);
+			oldAliases.add(tmp);
+		}
+		for(VirtualAlias alias: newAliases){
+			this.addVirtualAlias(alias);
+		}
+		for(VirtualAlias alias: oldAliases){
+			if(!newAliases.contains(alias)){
+				this.removeVirtualAlias(alias);
+			}
 		}
 	}
 }

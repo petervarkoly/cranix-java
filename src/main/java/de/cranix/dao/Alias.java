@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Alias extends AbstractEntity {
 
 	@Size(max=64, message="alias must not be longer then 64 characters.")
-        @Column(name="alias")
+	@Column(name="alias")
 	private String alias;
 
 	@JsonIgnore
@@ -33,7 +33,8 @@ public class Alias extends AbstractEntity {
 	public Alias() {
 	}
 
-	public Alias(User user, String alias) {
+	public Alias(Session session, User user, String alias) {
+		this.creator = session.getUser();
 		this.user  = user;
 		this.alias = alias;
 	}
@@ -52,6 +53,23 @@ public class Alias extends AbstractEntity {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	@Override
+	public int hashCode() {
+		return alias.toLowerCase().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Alias other = (Alias) obj;
+		return  this.alias.toLowerCase().equals(other.getAlias().toLowerCase());
 	}
 
 }

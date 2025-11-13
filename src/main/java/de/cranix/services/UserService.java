@@ -38,11 +38,6 @@ public class UserService extends Service {
     public User getById(long userId) {
         try {
             User user = this.em.find(User.class, userId);
-            if (user != null) {
-                for (Alias alias : user.getAliases()) {
-                    user.getMailAliases().add(alias.getAlias());
-                }
-            }
             return user;
         } catch (Exception e) {
             logger.debug("getByID: " + e.getMessage());
@@ -241,16 +236,8 @@ public class UserService extends Service {
         if (errorMessage.length() > 0) {
             return new CrxResponse("ERROR", errorMessage.toString());
         }
-        if (user.getMailAliases() != null) {
-            for (String alias : user.getMailAliases()) {
-                String tmp = alias.trim();
-                if (!tmp.isEmpty()) {
-                    if (isUserAliasUnique(tmp)) {
-                        user.addAlias(new Alias(user, tmp));
-                    }
-                }
-            }
-        }
+        user.handleAliases(this.session, user.getMailAliases());
+        user.handleVirtualAliases(this.session, user.getVirtualMailAliases());
         try {
             Group group = new GroupService(this.session, this.em).getByName(user.getRole());
             this.em.getTransaction().begin();
@@ -291,7 +278,7 @@ public class UserService extends Service {
                 return crxResponse;
             }
         }
-        logger.debug("modifyUser user:" + user);
+        logger.debug("ModifyUser user:" + user);
         oldUser.setUuid(user.getUuid());
         oldUser.setGivenName(user.getGivenName());
         oldUser.setSurName(user.getSurName());
@@ -300,23 +287,11 @@ public class UserService extends Service {
         oldUser.setFsQuota(user.getFsQuota());
         oldUser.setMsQuota(user.getMsQuota());
         oldUser.setMustChange(user.isMustChange());
-        List<Alias> newAliases = new ArrayList<Alias>();
-        if (user.getMailAliases() != null) {
-            ArrayList<String> oldAliases = new ArrayList<String>();
-            for (Alias alias : oldUser.getAliases()) {
-                oldAliases.add(alias.getAlias());
-            }
-            for (String alias : user.getMailAliases()) {
-                String tmp = alias.trim();
-                if (!tmp.isEmpty()) {
-                    if (!oldAliases.contains(tmp) && !this.isUserAliasUnique(tmp)) {
-                        return new CrxResponse("ERROR", "Alias '%s' is not unique", null, tmp);
-                    }
-                    newAliases.add(new Alias(oldUser, tmp));
-                }
-            }
-        }
-        // Check user parameter
+        oldUser.setTelephoneNumber(user.getTelephoneNumber());
+        oldUser.setEmailAddress(user.getEmailAddress());
+        oldUser.handleAliases(this.session, user.getMailAliases());
+        oldUser.handleVirtualAliases(this.session, user.getVirtualMailAliases());
+        logger.debug("Modified old user:" + oldUser);
         StringBuilder errorMessage = new StringBuilder();
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         for (ConstraintViolation<User> violation : factory.getValidator().validate(oldUser)) {
@@ -327,14 +302,6 @@ public class UserService extends Service {
         }
         try {
             this.em.getTransaction().begin();
-            for (Alias alias : oldUser.getAliases()) {
-                this.em.remove(alias);
-            }
-            oldUser.setAliases(null);
-            this.em.merge(oldUser);
-            this.em.getTransaction().commit();
-            this.em.getTransaction().begin();
-            oldUser.setAliases(newAliases);
             this.em.merge(oldUser);
             this.em.getTransaction().commit();
         } catch (Exception e) {
@@ -963,7 +930,7 @@ public class UserService extends Service {
             return new CrxResponse("ERROR", "The alias was already add to an other user.");
         }
         try {
-            Alias newAlias = new Alias(user, alias);
+            Alias newAlias = new Alias(this.session, user, alias);
             user.getAliases().add(newAlias);
             this.em.getTransaction().begin();
             this.em.merge(user);

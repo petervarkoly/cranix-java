@@ -1,7 +1,6 @@
 package de.cranix.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.cranix.services.Crx2faService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.Random;
-import java.util.UUID;
 
 @Entity
 @Table(name = "Crx2faSessions")

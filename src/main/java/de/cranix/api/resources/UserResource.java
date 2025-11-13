@@ -1142,10 +1142,9 @@ public class UserResource {
         if (uc.isUserAliasUnique(alias)) {
             User user = uc.getByUid(userName);
             if (user != null) {
-                Alias newAlias = new Alias(user, alias);
+                Alias newAlias = new Alias(session, user, alias);
                 em.getTransaction().begin();
-                em.persist(newAlias);
-                user.getAliases().add(newAlias);
+                user.addAlias(newAlias);
                 em.merge(user);
                 em.getTransaction().commit();
                 resp = "Alias was created";
