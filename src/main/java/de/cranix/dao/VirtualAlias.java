@@ -19,7 +19,7 @@ import javax.validation.constraints.Size;
 public class VirtualAlias extends AbstractEntity {
 
     @Size(max=64, message="alias must not be longer then 64 characters.")
-    @Column(name="virtualAlias", size=64)
+    @Column(name="virtualAlias", length=64)
     private String virtualAlias;
 
     @JsonIgnore

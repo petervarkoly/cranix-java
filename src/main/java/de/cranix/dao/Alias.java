@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Alias extends AbstractEntity {
 
 	@Size(max=64, message="alias must not be longer then 64 characters.")
-	@Column(name="alias", size=64)
+	@Column(name="alias", length=64)
 	private String alias;
 
 	@JsonIgnore

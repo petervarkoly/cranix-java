@@ -74,7 +74,7 @@ public class DHCPConfig extends Service {
     }
 
     public CrxResponse Test() {
-	if(KEA_CONFIG.exists(){
+	if(KEA_CONFIG.exists()){
 		return new CrxResponse("OK", "KEA is used.");
 	}
         Write(Paths.get(TMPCONF));
@@ -105,7 +105,7 @@ public class DHCPConfig extends Service {
     }
 
     private void Write(Path path) {
-	if(KEA_CONFIG.exists(){
+	if(KEA_CONFIG.exists()){
 		return;
 	}
         Query query = this.em.createNamedQuery("Room.findAllToRegister");
