@@ -12,14 +12,14 @@ import javax.validation.constraints.Size;
         uniqueConstraints = { @UniqueConstraint(columnNames = { "user_id", "virtualAlias" }) }
 )
 @NamedQueries( {
-        @NamedQuery(name="VirtualAlias.findAll",	query="SELECT a FROM Alias a"),
-        @NamedQuery(name="VirtualAlias.getByName",	query="SELECT a FROM Alias a where a.alias = :alias"),
+        @NamedQuery(name="VirtualAlias.findAll",	query="SELECT a FROM VirualAlias a"),
+        @NamedQuery(name="VirtualAlias.getByName",	query="SELECT a FROM VirualAlias a where a.alias = :alias"),
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class VirtualAlias extends AbstractEntity {
 
     @Size(max=64, message="alias must not be longer then 64 characters.")
-    @Column(name="virtualAlias")
+    @Column(name="virtualAlias", size=64)
     private String virtualAlias;
 
     @JsonIgnore
