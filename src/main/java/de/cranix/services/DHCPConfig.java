@@ -23,6 +23,7 @@ import static de.cranix.helper.CranixConstants.cranixBaseDir;
 @SuppressWarnings("unchecked")
 public class DHCPConfig extends Service {
     private static final Logger LOG = LoggerFactory.getLogger(DHCPConfig.class);
+    private final File   KEA_CONFIG    = new File("/etc/kea/kea-dhcp4.conf");
     private final String LOCK          = "/run/crx-dhcpd.lock";
     private final String TMPCONF       = "/run/crx-dhcpd.conf";
     private final Path   DHCP_CONFIG   = Paths.get("/etc/dhcpd.conf");
@@ -35,26 +36,28 @@ public class DHCPConfig extends Service {
 
     public DHCPConfig(Session session, EntityManager em) {
         super(session, em);
-        try {
-            wait = Long.valueOf(getProperty("de.cranix.services.DHCPConfig.wait"));
-        } catch ( NumberFormatException e ) {
+	if(!KEA_CONFIG.exists()){
+		try {
+		    wait = Long.valueOf(getProperty("de.cranix.services.DHCPConfig.wait"));
+		} catch ( NumberFormatException e ) {
 
-        }
-        try {
-            try {
-                dhcpConfigFile = Files.readAllLines(DHCP_TEMPLATE);
-            } catch (java.nio.file.NoSuchFileException e) {
-                LOG.error(e.getMessage());
-                dhcpConfigFile = new ArrayList<String>();
-            }
-            saltGroupFile = new ArrayList<String>();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		}
+		try {
+		    try {
+			dhcpConfigFile = Files.readAllLines(DHCP_TEMPLATE);
+		    } catch (java.nio.file.NoSuchFileException e) {
+			LOG.error(e.getMessage());
+			dhcpConfigFile = new ArrayList<String>();
+		    }
+		    saltGroupFile = new ArrayList<String>();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+	}
     }
 
     public void Restart() {
-        if (this.getConfigValue("USE_DHCP").equals("yes")) {
+        if (this.getConfigValue("USE_DHCP").equals("yes") && !KEA_CONFIG.exists()) {
             File lock = new File(LOCK);
             if (!lock.exists()) {
                 try {
@@ -71,6 +74,9 @@ public class DHCPConfig extends Service {
     }
 
     public CrxResponse Test() {
+	if(KEA_CONFIG.exists(){
+		return new CrxResponse("OK", "KEA is used.");
+	}
         Write(Paths.get(TMPCONF));
         String[] program = new String[4];
         StringBuffer reply = new StringBuffer();
@@ -99,6 +105,9 @@ public class DHCPConfig extends Service {
     }
 
     private void Write(Path path) {
+	if(KEA_CONFIG.exists(){
+		return;
+	}
         Query query = this.em.createNamedQuery("Room.findAllToRegister");
         saltGroupFile.add("nodegroups:");
         for (Room room : (List<Room>) query.getResultList()) {
