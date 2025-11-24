@@ -486,27 +486,6 @@ public class DeviceResource {
 		return resp.getCode() + " " + resp.getValue();
 	}
 
-	/*
-	 * GET devices/refreshConfig
-	 */
-	@PUT
-	@Path("refreshConfig")
-	@ApiOperation(
-		value = "Refresh the DHCP and DNS Configuration.",
-		notes = "The SALT configuration can be refreshed by the call /softwares/saveState"
-	)
-	@ApiResponses(value = {
-			@ApiResponse(code = 500, message = "Server broken, please contact administrator")
-	})
-	@RolesAllowed("device.add")
-	public void refreshConfig(
-			@ApiParam(hidden = true) @Auth Session session
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		new DHCPConfig(session, em).Create();
-		em.close();
-	}
-
 	@POST
 	@Path("{deviceId}")
 	@ApiOperation(value = "Modify the configuration of one device.")
@@ -727,7 +706,7 @@ public class DeviceResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		final CrxResponse crxResponse = new DeviceService(session, em).addDHCP(deviceId, dhcpParameter);
-		return new CrxResponse("OK", "DHCP Parameter was added succesfully");
+		return crxResponse;
 	}
 
 	@DELETE
@@ -746,7 +725,6 @@ public class DeviceResource {
 		final DeviceService deviceService = new DeviceService(session, em);
 		Device device = deviceService.getById(deviceId);
 		CrxResponse resp = deviceService.deleteMConfig(device, parameterId);
-		new DHCPConfig(session, em).Create();
 		em.close();
 		return resp;
 	}

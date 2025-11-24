@@ -92,7 +92,6 @@ public class DeviceService extends Service {
                 //TODO Evaluate the response
                 this.delete(deviceId, false);
             }
-            new DHCPConfig(session, em).Create();
             if (needReloadSalt) {
                 new SoftwareService(this.session, this.em).rewriteTopSls();
             }
@@ -197,11 +196,8 @@ public class DeviceService extends Service {
             this.em.getTransaction().commit();
             logger.debug("Transaction closed 2:" + this.em.getTransaction().isActive());
             startPlugin("delete_device", device);
-            if (atomic) {
-                new DHCPConfig(session, em).Create();
-                if (needReloadSalt) {
-                    new SoftwareService(this.session, this.em).rewriteTopSls();
-                }
+            if (atomic && needReloadSalt) {
+                new SoftwareService(this.session, this.em).rewriteTopSls();
             }
             UserService userService = new UserService(this.session, this.em);
             user = userService.getByUid(device.getName());
@@ -372,7 +368,7 @@ public class DeviceService extends Service {
         device.setHwconf(hwconf);
         CrxResponse crxResponse = this.check(device, room);
         if (crxResponse.getCode().equals("ERROR")) {
-	    logger.debug("Add check:" + crxResponse.getValue());
+            logger.debug("Add check:" + crxResponse.getValue());
             return crxResponse;
         }
         if (hwconf.getDeviceType().equals("FatClient") && roomService.getDevicesOnMyPlace(room, device).size() > 0) {
@@ -390,7 +386,7 @@ public class DeviceService extends Service {
             //this.em.merge(hwconf);
             this.em.getTransaction().commit();
         } catch (Exception e) {
-	    logger.error("add persist " + device + " error:" + e.getMessage());
+            logger.error("add persist " + device + " error:" + e.getMessage());
             return new CrxResponse("ERROR", "An error accrued during persisting the device.");
         }
         startPlugin("add_device", device);
@@ -405,11 +401,8 @@ public class DeviceService extends Service {
             logger.debug(answer.getValue());
             needWriteSalt = true;
         }
-        if (atomic) {
-            new DHCPConfig(session, em).Create();
-            if (needWriteSalt) {
-                new SoftwareService(this.session, this.em).applySoftwareStateToHosts(device);
-            }
+        if (atomic && needWriteSalt) {
+            new SoftwareService(this.session, this.em).applySoftwareStateToHosts(device);
         }
         return new CrxResponse("OK", "Device was created successfully: %s", null, device.getName());
     }
@@ -617,7 +610,7 @@ public class DeviceService extends Service {
             }
             try {
                 TimeUnit.SECONDS.sleep(1L);
-            } catch (Exception e){
+            } catch (Exception e) {
                 logger.error("What the fuck");
             }
 
@@ -702,7 +695,6 @@ public class DeviceService extends Service {
             logger.debug("New device to add: " + device);
             responses.add(this.add(device, false));
         }
-        new DHCPConfig(session, em).Create();
         new SoftwareService(this.session, this.em).applySoftwareStateToHosts();
         return responses;
     }
@@ -1098,9 +1090,6 @@ public class DeviceService extends Service {
             return new CrxResponse("ERROR", "ERROR-3" + e.getMessage());
         }
         startPlugin("modify_device", oldDevice);
-        if (macChange) {
-            new DHCPConfig(session, em).Create();
-        }
         return new CrxResponse("OK", "Device was modified succesfully.");
     }
 
@@ -1426,6 +1415,7 @@ public class DeviceService extends Service {
     }
 
     public CrxResponse addDHCP(Long deviceId, CrxMConfig dhcpParameter) {
+        //TODO Reimplement this feature!!!
         if (!dhcpParameter.getKeyword().equals("dhcpStatements") && !dhcpParameter.getKeyword().equals("dhcpOptions")) {
             return new CrxResponse("ERROR", "Bad DHCP parameter.");
         }
@@ -1435,13 +1425,7 @@ public class DeviceService extends Service {
             return crxResponse;
         }
         Long dhcpParameterId = crxResponse.getObjectId();
-        crxResponse = new DHCPConfig(session, em).Test();
-        if (crxResponse.getCode().equals("ERROR")) {
-            this.deleteMConfig(null, dhcpParameterId);
-            return crxResponse;
-        }
-        new DHCPConfig(session, em).Create();
-        return new CrxResponse("OK", "DHCP Parameter was added succesfully");
+        return new CrxResponse("OK", "Still not implemented.");
     }
 
     public List<CrxResponse> moveDevices(List<Long> deviceIds, Long roomId) {
@@ -1495,7 +1479,6 @@ public class DeviceService extends Service {
                 responses.add(this.manageDevice(id, actionMap.getName(), null));
             }
             if (actionMap.getName().equals("delete")) {
-                new DHCPConfig(session, em).Create();
                 new SoftwareService(session, em).rewriteTopSls();
 
             }
