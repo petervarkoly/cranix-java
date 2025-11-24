@@ -1,6 +1,5 @@
 package de.cranix.api.resources;
 
-import de.cephalix.services.CephalixService;
 import de.cranix.services.CrxNoticeService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;

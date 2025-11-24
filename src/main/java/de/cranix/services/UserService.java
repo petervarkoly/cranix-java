@@ -353,8 +353,6 @@ public class UserService extends Service {
             for (Long id : dIds) {
                 dc.delete(id, false);
             }
-            DHCPConfig dhcpConfig = new DHCPConfig(session, this.em);
-            dhcpConfig.Create();
         }
         User admin = getById(1L);
         this.em.getTransaction().begin();
@@ -1079,7 +1077,6 @@ public class UserService extends Service {
         for (String mac : newDevices.keySet()) {
             responses.add(registerUserDevice(mac, newDevices.get(mac)));
         }
-        new DHCPConfig(this.session, this.em).Create();
         return responses;
     }
 
@@ -1099,7 +1096,6 @@ public class UserService extends Service {
         for (String mac : newDevices.keySet()) {
             responses.add(registerUserDevice(mac, newDevices.get(mac)));
         }
-        new DHCPConfig(this.session, this.em).Create();
         return responses;
     }
 }

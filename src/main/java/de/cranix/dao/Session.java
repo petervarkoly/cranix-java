@@ -47,7 +47,7 @@ public class Session implements Principal {
 
 	//@JsonIgnore
 	@ManyToOne
-	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
+	@JoinColumn(name="user_id", columnDefinition ="BIGINT UNSIGNED")
 	private User user;
 
 

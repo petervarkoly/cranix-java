@@ -30,7 +30,7 @@ import static de.cranix.helper.CranixConstants.*;
 public class CranixApplication extends Application<ServerConfiguration> {
 
     public static void main(String[] args) throws Exception {
-        if (args.length > 0 && args[0] == "setupDB") {
+        if (args.length == 1 && args[0].equals("setupDB")) {
             System.out.println("Starting JPA to generate/extend schema...");
             EntityManager em = null;
             try {
