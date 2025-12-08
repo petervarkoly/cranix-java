@@ -160,7 +160,7 @@ public class RoomResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@PermitAll
+        @RolesAllowed({"room.search","room.manage"})
 	public List<Room> getAll( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Room> rooms = new RoomService(session,em).getAll();

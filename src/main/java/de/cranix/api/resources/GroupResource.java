@@ -95,7 +95,7 @@ public class GroupResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @PermitAll
+    @RolesAllowed({"group.search","group.manage"})
     public List<Group> getAll(@ApiParam(hidden = true) @Auth Session session) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         List<Group> resp = new GroupService(session, em).getAll();

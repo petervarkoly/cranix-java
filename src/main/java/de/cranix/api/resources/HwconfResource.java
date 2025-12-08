@@ -50,7 +50,7 @@ public class HwconfResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "Device not found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@PermitAll
+	@RolesAllowed({"hwconf.search","hwconf.manage"})
 	public List<HWConf> getAll( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<HWConf> resp = new CloneToolService(session,em).getAllHWConf();

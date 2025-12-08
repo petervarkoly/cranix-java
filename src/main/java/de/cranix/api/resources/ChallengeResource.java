@@ -37,7 +37,7 @@ public class ChallengeResource {
     @ApiOperation(value = "Gets all challenges.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("challenge.manage")
+    @RolesAllowed({"challenge.search","challenge.manage"})
     public List<CrxChallenge> getAll(@ApiParam(hidden = true) @Auth Session session) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         List<CrxChallenge> resp = new ChallengeService(session, em).getAll();

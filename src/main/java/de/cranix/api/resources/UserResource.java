@@ -57,7 +57,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @PermitAll
+    @RolesAllowed({"user.search","user.manage"})
     @JsonIgnoreProperties({"groups"})
     public List<User> getAll(
             @ApiParam(hidden = true) @Auth Session session
