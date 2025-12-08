@@ -221,7 +221,7 @@ public class SelfService extends Service {
             oldDevice.setMac(device.getMac());
             em.merge(oldDevice);
             em.getTransaction().commit();
-            new DHCPConfig(session, em).Create();
+	    startPlugin("modify_device", oldDevice);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());
