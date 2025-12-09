@@ -20,7 +20,7 @@ foreach( @ROLES )
 		next;
 	}
 	$hroles->{$r} = 1;
-	if( $r =~ /education/  || $r =~ /information/ ) {
+	if( $r =~ /education/  || $r =~ /information/ || $r =~ /search/ ) {
 		next if( $r =~ /softwares*/ );
 		$forTeachers->{$r} = 1;
 	}
