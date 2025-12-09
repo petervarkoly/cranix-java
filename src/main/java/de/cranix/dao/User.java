@@ -251,31 +251,31 @@ public class User extends AbstractEntity {
 	private List<Announcement> readAnnouncements = new ArrayList<Announcement>();
 
 	@ManyToMany
-    @JoinTable(
-		name = "MyChildren",
-        joinColumns = {@JoinColumn(name = "parent_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")},
-        inverseJoinColumns = {@JoinColumn(name = "child_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
-    )
-    @JsonIgnore
-    private List<User> children = new ArrayList<User>();
+	@JoinTable(
+	    name = "MyChildren",
+	    joinColumns = {@JoinColumn(name = "parent_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")},
+	    inverseJoinColumns = {@JoinColumn(name = "child_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
+	)
+	@JsonIgnore
+	private List<User> children = new ArrayList<User>();
 
 	@ManyToMany(mappedBy="children")
 	@JsonIgnore
 	private List<User> parents = new ArrayList<>();
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
 	@JsonIgnore
-    List<ParentRequest> paretnRequests = new ArrayList<>();
+	List<ParentRequest> paretnRequests = new ArrayList<>();
 
 	/* transient attributes */
 	@Transient
 	private String classes;
 
 	@Transient
-	List<String> mailAliases = new ArrayList<String>();
+	private List<String> mailAliases = new ArrayList<String>();
 
 	@Transient
-	List<String> virtualMailAliases = new ArrayList<String>();
+	private List<String> virtualMailAliases = new ArrayList<String>();
 
 	@Transient
 	String fullName;
