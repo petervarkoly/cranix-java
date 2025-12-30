@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 )
 @NamedQueries( {
         @NamedQuery(name="VirtualAlias.findAll",	query="SELECT a FROM VirtualAlias a"),
-        @NamedQuery(name="VirtualAlias.getByName",	query="SELECT a FROM VirtualAlias a where a.virtualAlias = :alias"),
+        @NamedQuery(name="VirtualAlias.getByName",	query="SELECT a FROM VirtualAlias a where a.virtualAlias = :virtualAlias"),
 })
 @SequenceGenerator(name="seq", initialValue=1, allocationSize=100)
 public class VirtualAlias extends AbstractEntity {
