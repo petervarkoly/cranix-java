@@ -88,7 +88,7 @@ public class Room extends AbstractEntity {
 	@Column(name = "roomRows")
 	private Integer rows;
 
-	@Column(name = "description")
+	@Column(name = "description", length = 64)
 	@Size(max=64, message="Description must not be longer then 64 characters.")
 	private String description;
 

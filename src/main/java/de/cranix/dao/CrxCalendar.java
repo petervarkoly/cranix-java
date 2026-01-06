@@ -227,4 +227,10 @@ public class CrxCalendar extends AbstractEntity {
     public void setGroupIds(List<Long> groupIds) {
         this.groupIds = groupIds;
     }
+
+    public void addUser(User user){
+        if(!users.contains(user)){
+            users.add(user);
+        }
+    }
 }
