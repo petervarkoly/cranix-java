@@ -57,7 +57,7 @@ public class Course extends AbstractEntity {
             joinColumns = {@JoinColumn(name = "course_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")},
             inverseJoinColumns = {@JoinColumn(name = "group_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
     )
-    private List<Group> allowedGroups = new ArrayList<Group>();
+    private List<Group> groups = new ArrayList<Group>();
 
     @ManyToMany()
     @JoinTable(
@@ -65,7 +65,7 @@ public class Course extends AbstractEntity {
             joinColumns = {@JoinColumn(name = "course_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")},
             inverseJoinColumns = {@JoinColumn(name = "user_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")}
     )
-    private List<User> allowedUsers = new ArrayList<User>();
+    private List<User> users = new ArrayList<User>();
 
     @OneToMany(cascade ={CascadeType.ALL}, orphanRemoval = true)
     @JoinTable(
@@ -151,19 +151,19 @@ public class Course extends AbstractEntity {
         this.appointments = appointments;
     }
 
-    public List<Group> getAllowedGroups() {
-        return allowedGroups;
+    public List<Group> getGroups() {
+        return groups;
     }
 
-    public void setAllowedGroups(List<Group> allowedGroups) {
-        this.allowedGroups = allowedGroups;
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
     }
 
-    public List<User> getAllowedUsers() {
-        return allowedUsers;
+    public List<User> getUsers() {
+        return users;
     }
 
-    public void setAllowedUsers(List<User> allowedUsers) {
-        this.allowedUsers = allowedUsers;
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 }
