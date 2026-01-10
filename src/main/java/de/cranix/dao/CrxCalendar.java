@@ -233,4 +233,41 @@ public class CrxCalendar extends AbstractEntity {
             users.add(user);
         }
     }
+
+    public void removeUser(User user){
+        if(users.contains(user)){
+            users.remove(user);
+        }
+    }
+
+    public boolean overlapsWith(CrxCalendar other) {
+        // Zwei Termine überschneiden sich, wenn:
+        // 1. Der Start dieses Termins vor dem Ende des anderen Termins liegt UND
+        // 2. Das Ende dieses Termins nach dem Start des anderen Termins liegt
+
+        // Null-Check
+        if (other == null || this.start == null || this.end == null ||
+            other.start == null || other.end == null) {
+            return false;
+        }
+
+        //Check for over lapping
+        return this.start.before(other.end) && this.end.after(other.start);
+    }
+
+    public boolean overlapsWith(List<CrxCalendar> others) {
+        for(CrxCalendar other: others){
+            if(this.overlapsWith(other)){
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Alternative statische Methode für den Vergleich von zwei Terminen
+     */
+    public static boolean doAppointmentsOverlap(CrxCalendar a1, CrxCalendar a2) {
+        if (a1 == null || a2 == null) return false;
+        return a1.overlapsWith(a2);
+    }
 }
