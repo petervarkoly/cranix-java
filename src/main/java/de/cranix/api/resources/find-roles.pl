@@ -8,6 +8,9 @@ my @GROUPTYPES = ( 'primary', 'class', 'workgroup', 'guests' );
 
 my $hroles = {};
 my $forTeachers = {};
+$forTeachers->{'calendar.use'} = 1;
+my @forStudents = ('calendar.read', 'room.search', 'group.search' );
+
 
 foreach( split /\n/, $ROLES )
 {
@@ -18,7 +21,7 @@ foreach( split /\n/, $ROLES )
 		}
 		my $r = $1;
 		$hroles->{$1} = 1;
-		if( $r =~ /education/  || $r =~ /information/ ) {
+		if( $r =~ /education/  || $r =~ /information/ || $r =~ /.search/ ) {
 			next if( $r =~ /softwares*/ );
 			$forTeachers->{$r} = 1;
 		}
@@ -37,6 +40,10 @@ foreach( sort keys %$hroles )
 foreach( sort keys %$forTeachers )
 {
 	print "INSERT INTO Acls SET group_id=2,acl='$_',allowed='Y';\n";
+}
+foreach( sort keys @forStudents )
+{
+	print "INSERT INTO Acls SET group_id=3,acl='$_',allowed='Y';\n";
 }
 
 foreach( @USERROLES ) {
