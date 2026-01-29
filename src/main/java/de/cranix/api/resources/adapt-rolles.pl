@@ -9,6 +9,8 @@ my @ROLES_TO_DELETE = ('education.groups', 'education.guestusers', 'education.ro
 
 my $hroles = {};
 my $forTeachers = {};
+$forTeachers->{'calendar.use'} = 1;
+my @forStudents = ('calendar.read', 'room.search', 'group.search' );
 
 my @ROLES = ($text =~ /"(.+?)"/gs);
 foreach( @ROLES )
@@ -21,7 +23,7 @@ foreach( @ROLES )
 		next;
 	}
 	$hroles->{$r} = 1;
-	if( $r =~ /education/  || $r =~ /information/ ) {
+	if( $r =~ /education/  || $r =~ /information/ || $r =~ /.search/ ) {
 		next if( $r =~ /softwares*/ );
 		$forTeachers->{$r} = 1;
 	}
@@ -43,13 +45,8 @@ foreach( sort keys %$forTeachers )
 	my $path = "/var/adm/cranix/roles-adapted/2-$_";
 	print "test -e $path || ( touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/2 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":2}' )\n";
 }
-#Additional rights for teachers
-foreach( ('calendar.use') ) {
-	my $path = "/var/adm/cranix/roles-adapted/2-$_";
-	print "test -e $path || ( touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/2 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":2}' )\n";
-}
 #Additional rights for students
-foreach( ('calendar.read') ) {
+foreach( @forStudents ) {
 	my $path = "/var/adm/cranix/roles-adapted/3-$_";
 	print "test -e $path || ( touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/3 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":3}' )\n";
 }

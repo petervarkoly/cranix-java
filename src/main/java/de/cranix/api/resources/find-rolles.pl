@@ -8,6 +8,8 @@ my @GROUPTYPES = ( 'primary', 'class', 'workgroup', 'guests' );
 
 my $hroles = {};
 my $forTeachers = {};
+$forTeachers->{'calendar.use'} = 1;
+my @forStudents = ('calendar.read', 'room.search', 'group.search' );
 
 foreach( split /\n/, $ROLES )
 {
@@ -18,7 +20,7 @@ foreach( split /\n/, $ROLES )
 		}
 		my $r = $1;
 		$hroles->{$1} = 1;
-		if( $r =~ /education/  || $r =~ /information/ ) {
+		if( $r =~ /education/  || $r =~ /information/ || $r =~ /.search/ ) {
 			next if( $r =~ /softwares*/ );
 			$forTeachers->{$r} = 1;
 		}
