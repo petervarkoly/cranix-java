@@ -525,7 +525,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.guestusers")
+    @RolesAllowed("user.guestUser")
     public List<GuestUsers> getGuestUsers(
             @ApiParam(hidden = true) @Auth Session session
     ) {
@@ -541,7 +541,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.guestusers")
+    @RolesAllowed("user.guestUser")
     public GuestUsers getGuestUsersCategory(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("guestUsersId") Long guestUsersId
@@ -558,7 +558,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.guestusers")
+    @RolesAllowed("user.guestUser")
     public CrxResponse deleteGuestUsers(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("guestUsersId") Long guestUsersId
@@ -575,7 +575,7 @@ public class UserResource {
     @ApiOperation(value = "Creates a new printer.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.guestusers")
+    @RolesAllowed("user.guestUser")
     public CrxResponse addGuestUsers(
             @ApiParam(hidden = true) @Auth Session session,
             @FormDataParam("name") String name,
