@@ -5,6 +5,7 @@ my $text=`grep \@RolesAllowed *.java`;
 
 my @USERROLES  = ( 'students', 'teachers', 'sysadmins', 'workstations', 'guests' );
 my @GROUPTYPES = ( 'primary', 'class', 'workgroup', 'guests' );
+my @ROLES_TO_DELETE = ('education.groups', 'education.guestusers', 'education.rooms', 'education.users', 'user.guestusers');
 
 my $hroles = {};
 my $forTeachers = {};
@@ -51,4 +52,10 @@ foreach( ('calendar.use') ) {
 foreach( ('calendar.read') ) {
 	my $path = "/var/adm/cranix/roles-adapted/3-$_";
 	print "test -e $path || ( touch $path; /usr/sbin/crx_api.sh POST system/acls/groups/3 '{\"acl\":\"$_\",\"allowed\":true,\"userId\":null,\"groupId\":3}' )\n";
+}
+
+for( @ROLES_TO_DELETE )
+{
+	print "echo 'DELETE FROM Enumerates WHERE value=\'$_\';'| mysql CRX\n";
+	print "echo 'DELETE FROM Acls WHERE Acl=\'$_\';'| mysql CRX\n";
 }
