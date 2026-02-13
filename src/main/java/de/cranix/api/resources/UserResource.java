@@ -304,7 +304,7 @@ public class UserResource {
 
     @GET
     @Path("byRole/{role}")
-    @ApiOperation(value = "Get users from a rolle")
+    @ApiOperation(value = "Get users from a role")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
@@ -496,7 +496,7 @@ public class UserResource {
 
     @GET
     @Path("uidsByRole/{role}")
-    @ApiOperation(value = "Get users from a rolle")
+    @ApiOperation(value = "Get users from a role")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
