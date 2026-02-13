@@ -42,7 +42,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<Room> getMyRooms( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Room> resp = new EducationService(session,em).getMyRooms();
@@ -60,7 +60,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<List<Long>>  getRoom(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId
@@ -78,7 +78,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public SmartRoom  getRoomDetails(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId
@@ -96,7 +96,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public CrxResponse  getRoomControl(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId")  Long roomId,
@@ -114,7 +114,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public Object getAccessStatus(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") long roomId
@@ -131,7 +131,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public CrxResponse setAccessStatus(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") long roomId,
@@ -150,7 +150,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<String> getAvailableRoomActions(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId
@@ -170,7 +170,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public CrxResponse manageRoom(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId,
@@ -196,7 +196,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<CrxResponse> manageRooms(
 		@ApiParam(hidden = true) @Auth Session session,
 		CrxActionMap crxActionMap
@@ -693,7 +693,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public CrxResponse modifyDevice(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId,
@@ -711,7 +711,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<String> getAvailableDeviceActions(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("deviceId") Long deviceId
@@ -734,7 +734,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<CrxResponse> manageDevices(
 		@ApiParam(hidden = true) @Auth Session session,
 		CrxActionMap crxActionMap
@@ -752,7 +752,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<CrxResponse> uploadFileToDevices(@ApiParam(hidden = true) @Auth Session session,
 	        @FormDataParam("objectIds")    String  deviceIds,
 	        @FormDataParam("cleanUp")      Boolean cleanUp,
@@ -777,7 +777,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 	        @ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<CrxResponse> collectFileFromDevices(@ApiParam(hidden = true) @Auth Session session,
 	        @FormDataParam("objectIds")    String deviceIds,
 	        @FormDataParam("projectName")  String projectName,
@@ -803,7 +803,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public Printer getDefaultPrinter(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId
@@ -820,7 +820,7 @@ public class EducationResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
-	@RolesAllowed("education.rooms")
+	@RolesAllowed("education.room")
 	public List<Printer> getAvailablePrinters(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("roomId") Long roomId
