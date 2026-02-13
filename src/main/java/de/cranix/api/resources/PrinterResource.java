@@ -53,7 +53,7 @@ public class PrinterResource {
 	@ApiOperation(value = "Creates a new printer.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.add")
+	@RolesAllowed("printer.add")
 	public CrxResponse addPrinter(
 		@ApiParam(hidden = true) @Auth  Session session,
 		@FormDataParam("name")		String  name,
@@ -77,7 +77,7 @@ public class PrinterResource {
 	@ApiOperation(value = "Creates a new printer.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.add")
+	@RolesAllowed("printer.add")
 	public CrxResponse addPrinterQueue(
 		@ApiParam(hidden = true) @Auth  Session session,
 		@FormDataParam("name")	  String  name,
@@ -99,7 +99,7 @@ public class PrinterResource {
 	@ApiOperation(value = "Creates a new printer.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.add")
+	@RolesAllowed("printer.add")
 	public CrxResponse setDriver(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("printerId")	Long printerId,
@@ -134,7 +134,7 @@ public class PrinterResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.manage")
+	@RolesAllowed("printer.manage")
 	public List<Device> getPrinterDevices( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Device> resp = new CloneToolService(session,em).getByName("Printer").getDevices();
@@ -148,7 +148,7 @@ public class PrinterResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No device was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.manage")
+	@RolesAllowed("printer.manage")
 	public Printer getById(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("printerId")	Long printerId
@@ -166,7 +166,7 @@ public class PrinterResource {
 		@ApiResponse(code = 404, message = "No device was found"),
 		@ApiResponse(code = 405, message = "Device is not a Printer."),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.add")
+	@RolesAllowed("printer.add")
 	public CrxResponse delete(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("printerId")		Long printerId
@@ -184,7 +184,7 @@ public class PrinterResource {
 		@ApiResponse(code = 404, message = "No device was found"),
 		@ApiResponse(code = 405, message = "Device is not a Printer."),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.manage")
+	@RolesAllowed("printer.manage")
 	public CrxResponse resetPrinter(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("printerId")		Long printerId
@@ -202,7 +202,7 @@ public class PrinterResource {
 		@ApiResponse(code = 404, message = "No device was found"),
 		@ApiResponse(code = 405, message = "Device is not a Printer."),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.manage")
+	@RolesAllowed("printer.manage")
 	public CrxResponse enablePrinter(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("printerId")		Long printerId
@@ -220,7 +220,7 @@ public class PrinterResource {
 		@ApiResponse(code = 404, message = "No device was found"),
 		@ApiResponse(code = 405, message = "Device is not a Printer."),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.manage")
+	@RolesAllowed("printer.manage")
 	public CrxResponse disablePrinter(
 		@ApiParam(hidden = true) @Auth Session session,
 		@PathParam("printerId")		Long printerId
@@ -238,7 +238,7 @@ public class PrinterResource {
 			@ApiResponse(code = 404, message = "No device was found"),
 			@ApiResponse(code = 405, message = "Device is not a Printer."),
 			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.add")
+	@RolesAllowed("printer.add")
 	public CrxResponse activateWindowsDriver(
 			@ApiParam(hidden = true) @Auth Session session,
 			@PathParam("printerId")		Long printerId
@@ -262,7 +262,7 @@ public class PrinterResource {
 		@ApiResponse(code = 404, message = "No device was found"),
 		@ApiResponse(code = 405, message = "Device is not a Printer."),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.manage")
+	@RolesAllowed("printer.manage")
 	public Map<String,String[]> getAvailableDrivers( @ApiParam(hidden = true) @Auth Session session)
 	{
 		return PrinterService.getAvailableDrivers();
@@ -281,7 +281,7 @@ public class PrinterResource {
 		@ApiResponse(code = 404, message = "No device was found"),
 		@ApiResponse(code = 405, message = "Device is not a Printer."),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printers.manage")
+	@RolesAllowed("printer.manage")
 	public List<PrintersOfManufacturer> getDrivers( @ApiParam(hidden = true) @Auth Session session) {
 		return PrinterService.getDrivers();
 	}
