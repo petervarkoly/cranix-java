@@ -38,7 +38,7 @@ cd src/main/java/de/cranix/api/resources/
 ./find-roles.pl >>  ${HERE}/cranix-java/data/school-inserts.sql
 ./find-roles.pl >>  ${HERE}/cranix-java/data/business-inserts.sql
 ./adapt-roles.pl >  ${HERE}/cranix-java/data/updates/010-adapt-roles.sh
-chmod 755 ${HERE}/cranix-java/data/updates/adapt-roles.sh
+chmod 755 ${HERE}/cranix-java/data/updates/010-adapt-roles.sh
 cd ${HERE}
 tar cjf ${REPO}/cranix-java.tar.bz2 cranix-java
 xterm -e git log --raw &
