@@ -619,6 +619,8 @@ public class UserService extends Service {
         String[] program = new String[4];
         program[0] = "/usr/bin/samba-tool";
         program[1] = "user";
+        String[] program2 = new String[2];
+        program2[0] = cranixBaseDir + "tools/remove-user-workstations.sh";
         if (disable) {
             program[2] = "disable";
         } else {
@@ -636,6 +638,8 @@ public class UserService extends Service {
                 if (disable) {
                     responses.add(new CrxResponse("OK", "'%s' was disabled.", null, user.getUid()));
                 } else {
+                    program2[1] = user.getUid();
+                    CrxSystemCmd.exec(program2, reply, error, null);
                     responses.add(new CrxResponse("OK", "'%s' was enabled.", null, user.getUid()));
                 }
             }
