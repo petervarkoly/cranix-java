@@ -38,11 +38,6 @@ public class UserService extends Service {
     public User getById(long userId) {
         try {
             User user = this.em.find(User.class, userId);
-            if (user != null) {
-                for (Alias alias : user.getAliases()) {
-                    user.getMailAliases().add(alias.getAlias());
-                }
-            }
             return user;
         } catch (Exception e) {
             logger.debug("getByID: " + e.getMessage());
@@ -70,7 +65,7 @@ public class UserService extends Service {
         } catch (Exception e) {
             logger.error("getByRole: " + e.getMessage());
         }
-	//users.sort(Comparator.comparing(User::getUid));
+        //users.sort(Comparator.comparing(User::getUid));
         return users;
     }
 
@@ -129,7 +124,7 @@ public class UserService extends Service {
     public String createUid(String givenName, String surName, String birthDay) {
         String userId = "";
         Pattern pattern = Pattern.compile("([VGNSJY\\.\\-])(\\d+)?");
-	    Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME"));
+        Matcher m = pattern.matcher(this.getConfigValue("LOGIN_SCHEME"));
         while (m.find()) {
             int endIndex = 0;
             logger.debug("have found " + m.group(1) + " userId " + userId);
@@ -168,7 +163,7 @@ public class UserService extends Service {
             newUserId = this.getConfigValue("LOGIN_PREFIX") + userId + i;
             i++;
         }
-        if(this.getConfigValue("LOGIN_TELEX").equals("yes")) {
+        if (this.getConfigValue("LOGIN_TELEX").equals("yes")) {
             return normalizeTelex(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9\\-\\.]", "");
         }
         return normalize(newUserId.toLowerCase()).replaceAll("[^a-zA-Z0-9\\-\\.]", "");
@@ -185,12 +180,12 @@ public class UserService extends Service {
         if (!this.mayAdd(user)) {
             return new CrxResponse(
                     "ERROR",
-                    "You must not create user whith role %s.",
+                    "You must not create user with role %s.",
                     null,
                     user.getRole());
         }
         // Check Birthday
-        if (user.getBirthDay() == null || user.getBirthDay() == "") {
+        if (user.getBirthDay() == null || user.getBirthDay().isBlank()) {
             if (!user.getRole().equals(roleStudent)) {
                 user.setBirthDay(this.nowDateString());
             } else {
@@ -207,7 +202,7 @@ public class UserService extends Service {
             if (!user.getRole().equals("workstations") && !this.isNameUnique(user.getUid())) {
                 return new CrxResponse("ERROR", "User name is not unique.");
             }
-            // Check if uid contains non allowed characters
+            // Check if uid contains non-allowed characters
             if (this.checkNonASCII(user.getUid())) {
                 return new CrxResponse("ERROR", "Uid contains not allowed characters.");
             }
@@ -241,16 +236,8 @@ public class UserService extends Service {
         if (errorMessage.length() > 0) {
             return new CrxResponse("ERROR", errorMessage.toString());
         }
-        if (user.getMailAliases() != null) {
-            for (String alias : user.getMailAliases()) {
-                String tmp = alias.trim();
-                if (!tmp.isEmpty()) {
-                    if (isUserAliasUnique(tmp)) {
-                        user.addAlias(new Alias(user, tmp));
-                    }
-                }
-            }
-        }
+        user.handleAliases(this.session, user.getMailAliases());
+        user.handleVirtualAliases(this.session, user.getVirtualMailAliases());
         try {
             Group group = new GroupService(this.session, this.em).getByName(user.getRole());
             this.em.getTransaction().begin();
@@ -291,7 +278,7 @@ public class UserService extends Service {
                 return crxResponse;
             }
         }
-        logger.debug("modifyUser user:" + user);
+        logger.debug("ModifyUser user:" + user);
         oldUser.setUuid(user.getUuid());
         oldUser.setGivenName(user.getGivenName());
         oldUser.setSurName(user.getSurName());
@@ -300,23 +287,11 @@ public class UserService extends Service {
         oldUser.setFsQuota(user.getFsQuota());
         oldUser.setMsQuota(user.getMsQuota());
         oldUser.setMustChange(user.isMustChange());
-        List<Alias> newAliases = new ArrayList<Alias>();
-        if (user.getMailAliases() != null) {
-            ArrayList<String> oldAliases = new ArrayList<String>();
-            for (Alias alias : oldUser.getAliases()) {
-                oldAliases.add(alias.getAlias());
-            }
-            for (String alias : user.getMailAliases()) {
-                String tmp = alias.trim();
-                if (!tmp.isEmpty()) {
-                    if (!oldAliases.contains(tmp) && !this.isUserAliasUnique(tmp)) {
-                        return new CrxResponse("ERROR", "Alias '%s' is not unique", null, tmp);
-                    }
-                    newAliases.add(new Alias(oldUser, tmp));
-                }
-            }
-        }
-        // Check user parameter
+        oldUser.setTelephoneNumber(user.getTelephoneNumber());
+        oldUser.setEmailAddress(user.getEmailAddress());
+        oldUser.handleAliases(this.session, user.getMailAliases());
+        oldUser.handleVirtualAliases(this.session, user.getVirtualMailAliases());
+        logger.debug("Modified old user:" + oldUser);
         StringBuilder errorMessage = new StringBuilder();
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         for (ConstraintViolation<User> violation : factory.getValidator().validate(oldUser)) {
@@ -327,14 +302,6 @@ public class UserService extends Service {
         }
         try {
             this.em.getTransaction().begin();
-            for (Alias alias : oldUser.getAliases()) {
-                this.em.remove(alias);
-            }
-            oldUser.setAliases(null);
-            this.em.merge(oldUser);
-            this.em.getTransaction().commit();
-            this.em.getTransaction().begin();
-            oldUser.setAliases(newAliases);
             this.em.merge(oldUser);
             this.em.getTransaction().commit();
         } catch (Exception e) {
@@ -342,7 +309,7 @@ public class UserService extends Service {
             return new CrxResponse("ERROR", e.getMessage());
         }
         startPlugin("modify_user", oldUser);
-        return new CrxResponse("OK", "User was modified succesfully");
+        return new CrxResponse("OK", "User was modified successfully");
     }
 
     public List<CrxResponse> deleteStudents(List<Long> userIds) {
@@ -383,11 +350,9 @@ public class UserService extends Service {
             for (Device device : user.getOwnedDevices()) {
                 dIds.add(device.getId());
             }
-            for(Long id: dIds) {
+            for (Long id : dIds) {
                 dc.delete(id, false);
             }
-            DHCPConfig dhcpConfig = new DHCPConfig(session, this.em);
-            dhcpConfig.Create();
         }
         User admin = getById(1L);
         this.em.getTransaction().begin();
@@ -504,7 +469,9 @@ public class UserService extends Service {
                 user = this.getByUid(quota.get(0));
                 if (user != null) {
                     user.setMsQuotaUsed(Integer.valueOf(quota.get(1)));
-                    user.setMsQuota(Integer.valueOf(quota.get(2)));
+                    if (quota.size() > 2) {
+                        user.setMsQuota(Integer.valueOf(quota.get(2)));
+                    }
                     this.em.getTransaction().begin();
                     this.em.merge(user);
                     this.em.getTransaction().commit();
@@ -530,6 +497,7 @@ public class UserService extends Service {
         }
         return String.join(this.getNl(), groups);
     }
+
     public List<CrxResponse> resetUserPassword(List<Long> userIds, String password, boolean mustChange) {
         logger.debug("resetUserPassword: " + password);
         List<CrxResponse> responses = new ArrayList<CrxResponse>();
@@ -649,6 +617,8 @@ public class UserService extends Service {
         String[] program = new String[4];
         program[0] = "/usr/bin/samba-tool";
         program[1] = "user";
+        String[] program2 = new String[2];
+        program2[0] = cranixBaseDir + "tools/remove-user-workstations.sh";
         if (disable) {
             program[2] = "disable";
         } else {
@@ -666,6 +636,8 @@ public class UserService extends Service {
                 if (disable) {
                     responses.add(new CrxResponse("OK", "'%s' was disabled.", null, user.getUid()));
                 } else {
+                    program2[1] = user.getUid();
+                    CrxSystemCmd.exec(program2, reply, error, null);
                     responses.add(new CrxResponse("OK", "'%s' was enabled.", null, user.getUid()));
                 }
             }
@@ -960,7 +932,7 @@ public class UserService extends Service {
             return new CrxResponse("ERROR", "The alias was already add to an other user.");
         }
         try {
-            Alias newAlias = new Alias(user, alias);
+            Alias newAlias = new Alias(this.session, user, alias);
             user.getAliases().add(newAlias);
             this.em.getTransaction().begin();
             this.em.merge(user);
@@ -1051,12 +1023,12 @@ public class UserService extends Service {
         return responses;
     }
 
-    CrxResponse registerUserDevice(String MAC, User user){
+    CrxResponse registerUserDevice(String MAC, User user) {
         this.em.refresh(user);
         RoomService roomService = new RoomService(session, em);
         List<Room> rooms = roomService.getRoomToRegisterForUser(user);
-        if(!rooms.isEmpty()) {
-            Room room  = rooms.get(0);
+        if (!rooms.isEmpty()) {
+            Room room = rooms.get(0);
             List<String> ipAddress = roomService.getAvailableIPAddresses(room.getId(), 1);
             String devName = user.getUid().replaceAll("_", "-")
                     .replaceAll("\\.", "") +
@@ -1076,59 +1048,58 @@ public class UserService extends Service {
             this.em.merge(user);
             this.em.getTransaction().commit();
             startPlugin("add_device", device);
-            return new CrxResponse("OK","Device was registered for user: " + user.getUid());
+            return new CrxResponse("OK", "Device was registered for user: " + user.getUid());
         } else {
             logger.debug("User has no room to register:" + user.getUid());
-            return new CrxResponse("ERR","No adhoc room for student:" + user.getUid());
+            return new CrxResponse("ERR", "No adhoc room for student:" + user.getUid());
         }
     }
-    public List<CrxResponse> moveUsersDevices(String role){
+
+    public List<CrxResponse> moveUsersDevices(String role) {
         List<CrxResponse> responses = new ArrayList<>();
         List<Long> deviceIdsToDelete = new ArrayList<>();
         List<String> devices = new ArrayList<>();
-        Map<String,User> newDevices = new HashMap<>();
+        Map<String, User> newDevices = new HashMap<>();
         DeviceService deviceService = new DeviceService(this.session, this.em);
-        for(User user: this.getByRole(role)){
+        for (User user : this.getByRole(role)) {
             for (Device device : user.getOwnedDevices()) {
                 deviceIdsToDelete.add(device.getId());
-                newDevices.put(device.getMac(),user);
-                devices.add(user.getUid() +";" + device.getMac());
+                newDevices.put(device.getMac(), user);
+                devices.add(user.getUid() + ";" + device.getMac());
             }
         }
         try {
             File file = File.createTempFile("moveUserDevices", ".json", new File(cranixTmpDir));
-            Files.write(file.toPath(),devices);
+            Files.write(file.toPath(), devices);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;
         }
-        for(Long deviceId : deviceIdsToDelete ) {
-            responses.add(deviceService.delete(deviceId,false));
+        for (Long deviceId : deviceIdsToDelete) {
+            responses.add(deviceService.delete(deviceId, false));
         }
-        for(String mac: newDevices.keySet()){
+        for (String mac : newDevices.keySet()) {
             responses.add(registerUserDevice(mac, newDevices.get(mac)));
         }
-        new DHCPConfig(this.session,this.em).Create();
         return responses;
     }
 
-    public List<CrxResponse> moveUserDevices(String uid){
+    public List<CrxResponse> moveUserDevices(String uid) {
         User user = this.getByUid(uid);
         List<CrxResponse> responses = new ArrayList<>();
         List<Long> deviceIdsToDelete = new ArrayList<>();
-        Map<String,User> newDevices = new HashMap<>();
+        Map<String, User> newDevices = new HashMap<>();
         DeviceService deviceService = new DeviceService(this.session, this.em);
         for (Device device : user.getOwnedDevices()) {
             deviceIdsToDelete.add(device.getId());
-            newDevices.put(device.getMac(),user);
+            newDevices.put(device.getMac(), user);
         }
-        for(Long deviceId : deviceIdsToDelete ) {
-            responses.add(deviceService.delete(deviceId,false));
+        for (Long deviceId : deviceIdsToDelete) {
+            responses.add(deviceService.delete(deviceId, false));
         }
-        for(String mac: newDevices.keySet()){
+        for (String mac : newDevices.keySet()) {
             responses.add(registerUserDevice(mac, newDevices.get(mac)));
         }
-        new DHCPConfig(this.session,this.em).Create();
         return responses;
     }
 }

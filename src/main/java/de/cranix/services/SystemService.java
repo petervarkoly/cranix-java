@@ -200,7 +200,7 @@ public class SystemService extends Service {
      * @param value The new value
      */
     public CrxResponse deleteEnumerate(String name, String value) {
-        Query query = this.em.createNamedQuery("Enumerate.getByName").setParameter("name", name).setParameter("value", value);
+        Query query = this.em.createNamedQuery("Enumerate.get").setParameter("name", name).setParameter("value", value);
         try {
             Enumerate en = (Enumerate) query.getSingleResult();
             this.em.getTransaction().begin();

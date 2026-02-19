@@ -58,4 +58,26 @@ public class TeachingSubjectService extends Service {
         return new CrxResponse("OK","Teaching Subject was created.",subject.getId());
     }
 
+    public CrxResponse delete(Long id) {
+        TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,id);
+        if(teachingSubject == null) {
+            return new CrxResponse("ERROR","Can not find teaching subject.");
+        }
+        this.em.getTransaction().begin();
+        this.em.remove(teachingSubject);
+        this.em.getTransaction().commit();
+        return new CrxResponse("OK","Teaching Subject was deleted.");
+    }
+
+    public CrxResponse modify(TeachingSubject teachingSubject) {
+        TeachingSubject oldTeachingSubject = this.em.find(TeachingSubject.class,teachingSubject.getId());
+        if(oldTeachingSubject == null) {
+            return new CrxResponse("ERROR","Can not find teaching subject.");
+        }
+        oldTeachingSubject.setName(teachingSubject.getName());
+        this.em.getTransaction().begin();
+        this.em.merge(oldTeachingSubject);
+        this.em.getTransaction().commit();
+        return new CrxResponse("OK","Teaching Subject was modified.");
+    }
 }

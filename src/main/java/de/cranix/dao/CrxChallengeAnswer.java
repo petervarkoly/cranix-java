@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * The type CrxChallengeAnswer.
+ * In this object will be saved the answer of the solver of the challenge
  */
 @Entity
 @Table(
@@ -21,6 +22,10 @@ public class CrxChallengeAnswer extends AbstractEntity {
     @Convert(converter=BooleanToStringConverter.class)
     @Column(name = "correct", length = 1)
     private Boolean correct;
+
+    @Lob
+    @Column(name = "answer")
+    private String answer;
 
     @NotNull
     @ManyToOne
@@ -42,5 +47,13 @@ public class CrxChallengeAnswer extends AbstractEntity {
 
     public void setCrxQuestionAnswer(CrxQuestionAnswer crxQuestionAnswer) {
         this.crxQuestionAnswer = crxQuestionAnswer;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 }

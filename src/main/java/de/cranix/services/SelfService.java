@@ -3,6 +3,7 @@ package de.cranix.services;
 
 import de.cranix.dao.*;
 import de.cranix.helper.CrxSystemCmd;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +14,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
+import static de.cranix.helper.StaticHelpers.canUserWriteToDirectory;
 import static de.cranix.helper.StaticHelpers.startPlugin;
 
 public class SelfService extends Service {
@@ -138,9 +149,9 @@ public class SelfService extends Service {
         try {
             session.setIp(req.getRemoteAddr());
             session = sc.createInternalUserSession(userName);
-            if(session == null ) {
+            if (session == null) {
                 logger.error("addDeviceToUser CAN-NOT-FIND-USER:" + userName + " MAC:" + MAC);
-                return "CAN-NOT-FIND-USER: "+ userName;
+                return "CAN-NOT-FIND-USER: " + userName;
             }
             DeviceService deviceService = new DeviceService(session, em);
             if (deviceService.getByMAC(MAC) != null) {
@@ -157,9 +168,9 @@ public class SelfService extends Service {
                         }
                     }
                     /* Now we have a problem we could not register the device in none of the rooms */
-					List<Device> ownedDevices = this.session.getUser().getOwnedDevices();
+                    List<Device> ownedDevices = this.session.getUser().getOwnedDevices();
                     if (ownedDevices.size() > 0 && this.getConfigValue("AUTO_UPDATE_MAC_ADDRESS").equals("yes")) {
-                        Device device = ownedDevices.get( ownedDevices.size() -1 );
+                        Device device = ownedDevices.get(ownedDevices.size() - 1);
                         device.setMac(MAC);
                         crxResponse = deviceService.modify(device);
                         return crxResponse.getCode() + " " + crxResponse.getValue() + " " + crxResponse.getParameters();
@@ -210,7 +221,7 @@ public class SelfService extends Service {
             oldDevice.setMac(device.getMac());
             em.merge(oldDevice);
             em.getTransaction().commit();
-            new DHCPConfig(session, em).Create();
+            startPlugin("modify_device", oldDevice);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());
@@ -218,4 +229,121 @@ public class SelfService extends Service {
         return new CrxResponse("OK", "Device was modified successfully");
     }
 
+    public Object myFiles(Map<String, String> actionsMap) {
+        String path = "";
+        String action = "list";
+        String user = session.getUser().getUid();
+
+        if (actionsMap.containsKey("path")) {
+            path = actionsMap.get("path");
+        }
+        if (actionsMap.containsKey("action")) {
+            action = actionsMap.get("action");
+        }
+        if (user.equals("Administrator")) {
+            user = "root";
+            if (path.isEmpty()) {
+                path = this.getConfigValue("HOME_BASE");
+            }
+        }
+        if (!path.isEmpty() && !path.startsWith(this.getConfigValue("HOME_BASE"))) {
+            return "You must not operate in this area";
+        }
+        switch (action) {
+            case "list": {
+                String[] program = new String[5];
+                program[0] = "/usr/bin/sudo";
+                program[1] = "-u";
+                program[2] = user;
+                program[3] = "/usr/share/cranix/tools/getdir.py";
+                program[4] = path;
+                StringBuffer reply = new StringBuffer();
+                StringBuffer stderr = new StringBuffer();
+                CrxSystemCmd.exec(program, reply, stderr, null);
+                return reply.toString();
+            }
+            case "createDir": {
+                String dirName = actionsMap.get("newDirName");
+                String[] program = new String[6];
+                program[0] = "/usr/bin/sudo";
+                program[1] = "-u";
+                program[2] = user;
+                program[3] = "/usr/bin/mkdir";
+                program[4] = "-p";
+                program[5] = Paths.get(path, dirName).toString();;
+                StringBuffer reply = new StringBuffer();
+                StringBuffer stderr = new StringBuffer();
+                CrxSystemCmd.exec(program, reply, stderr, null);
+                if (stderr.toString().isEmpty()) {
+                    List<String> tmp = new ArrayList<>();
+                    tmp.add(dirName); tmp.add(path);
+                    return new CrxResponse("OK", "Directory %s was created successfully in %s", tmp);
+                } else {
+                    return new CrxResponse("ERROR", stderr.toString());
+                }
+            }
+            case "delete": {
+                String[] program = new String[6];
+                program[0] = "/usr/bin/sudo";
+                program[1] = "-u";
+                program[2] = user;
+                program[3] = "/usr/bin/rm";
+                program[4] = "-rf";
+                program[5] = path;
+                StringBuffer reply = new StringBuffer();
+                StringBuffer stderr = new StringBuffer();
+                CrxSystemCmd.exec(program, reply, stderr, null);
+                if (stderr.toString().isEmpty()) {
+                    List<String> tmp = new ArrayList<>();
+                    tmp.add(path);
+                    return new CrxResponse("OK", "%s was removed successfully", tmp);
+                } else {
+                    return new CrxResponse("ERROR", stderr.toString());
+                }
+            }
+            case "get": {
+                File file = new File(path);
+                String mimeType = null;
+                try {
+                    mimeType = Files.probeContentType(Path.of(path));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                if (mimeType == null) {
+                    mimeType = "application/octet-stream";
+                }
+                ResponseBuilder response = Response.ok((Object) file)
+                        .header("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"")
+                        .type(mimeType);
+                return response.build();
+            }
+        }
+        return "Unknown action";
+    }
+
+    public CrxResponse uploadFile(String dirPath, InputStream fileInputStream, FormDataContentDisposition contentDispositionHeader) {
+        List<String> params = new ArrayList<>();
+        String fileName =  new String(contentDispositionHeader.getFileName().getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        logger.debug("DirPath:" + dirPath + " File Name:" + fileName);
+        try {
+            Path path = Paths.get(dirPath, fileName);
+            if(!this.isSuperuser() && !canUserWriteToDirectory(session.getUser(),Paths.get(dirPath))){
+                params.add(dirPath);
+                return new CrxResponse("ERROR", "You may not write in %s",params);
+            }
+            Files.copy(fileInputStream, path, StandardCopyOption.REPLACE_EXISTING);
+            String[] program = new String[3];
+            program[0] = "/usr/bin/chown";
+            program[1] = session.getUser().getUid();
+            program[2] = path.toString();
+            StringBuffer reply = new StringBuffer();
+            StringBuffer stderr = new StringBuffer();
+            CrxSystemCmd.exec(program, reply, stderr, null);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return new CrxResponse("ERROR", e.getMessage());
+        }
+        params.add(fileName); params.add(dirPath);
+        return new CrxResponse("OK", "File %s was saved in %s",params);
+    }
 }

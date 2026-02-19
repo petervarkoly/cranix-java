@@ -489,7 +489,7 @@ public class GroupService extends Service {
         if (user.getRole().equals(group.getName())) {
             return new CrxResponse("ERROR", "User must not be removed from it's primary group.");
         }
-        if (group.getCreator().equals(user)) {
+        if (!isSuperuser() && group.getCreator() != null && group.getCreator().equals(user)) {
             return new CrxResponse("ERROR", "You must not remove yourself from your owned groups.");
         }
         group.removeUser(user);

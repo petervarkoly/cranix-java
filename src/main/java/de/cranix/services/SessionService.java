@@ -165,9 +165,11 @@ public class SessionService extends Service {
 
         this.session.setAcls(modules);
         this.session.setPassword(password);
+        logger.debug("session befor crx2fa:" + this.session);
 
         //Handle CRANIX 2FA
         if (this.isAllowed(user, "2fa.use")) {
+            logger.debug("crx2fa.use is allowed");
             for (Crx2fa crx2fa : user.getCrx2fas()) {
                 this.session.getCrx2fas().add(crx2fa.getCrx2faType() + '#' + crx2fa.getId());
             }

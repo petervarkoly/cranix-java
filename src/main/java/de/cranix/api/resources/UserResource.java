@@ -57,7 +57,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
-    @PermitAll
+    @RolesAllowed({"user.search","user.manage"})
     @JsonIgnoreProperties({"groups"})
     public List<User> getAll(
             @ApiParam(hidden = true) @Auth Session session
@@ -304,7 +304,7 @@ public class UserResource {
 
     @GET
     @Path("byRole/{role}")
-    @ApiOperation(value = "Get users from a rolle")
+    @ApiOperation(value = "Get users from a role")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
@@ -415,7 +415,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.search")
+    @PermitAll
     public String getUserAttribute(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("uid") String uid,
@@ -496,7 +496,7 @@ public class UserResource {
 
     @GET
     @Path("uidsByRole/{role}")
-    @ApiOperation(value = "Get users from a rolle")
+    @ApiOperation(value = "Get users from a role")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
@@ -525,7 +525,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.guestusers")
+    @RolesAllowed("user.guestUser")
     public List<GuestUsers> getGuestUsers(
             @ApiParam(hidden = true) @Auth Session session
     ) {
@@ -541,7 +541,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.guestusers")
+    @RolesAllowed("user.guestUser")
     public GuestUsers getGuestUsersCategory(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("guestUsersId") Long guestUsersId
@@ -558,7 +558,7 @@ public class UserResource {
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "User not found"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.guestusers")
+    @RolesAllowed("user.guestUser")
     public CrxResponse deleteGuestUsers(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("guestUsersId") Long guestUsersId
@@ -575,7 +575,7 @@ public class UserResource {
     @ApiOperation(value = "Creates a new printer.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("user.guestusers")
+    @RolesAllowed("user.guestUser")
     public CrxResponse addGuestUsers(
             @ApiParam(hidden = true) @Auth Session session,
             @FormDataParam("name") String name,
@@ -1142,10 +1142,9 @@ public class UserResource {
         if (uc.isUserAliasUnique(alias)) {
             User user = uc.getByUid(userName);
             if (user != null) {
-                Alias newAlias = new Alias(user, alias);
+                Alias newAlias = new Alias(session, user, alias);
                 em.getTransaction().begin();
-                em.persist(newAlias);
-                user.getAliases().add(newAlias);
+                user.addAlias(newAlias);
                 em.merge(user);
                 em.getTransaction().commit();
                 resp = "Alias was created";

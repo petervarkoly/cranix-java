@@ -44,11 +44,11 @@ public class SubjectAreaService extends Service{
     }
 
     public CrxResponse add(Long subjectId, SubjectArea subjectArea) {
+        if( this.getByName(subjectArea.getName()) != null) {
+            return new CrxResponse("ERROR","Subject area does already exist.");
+        }
         this.em.getTransaction().begin();
         TeachingSubject teachingSubject = this.em.find(TeachingSubject.class,subjectId);
-        if( this.getByName(subjectArea.getName()) != null) {
-            return new CrxResponse("ERROR","Subject Subject does already exist.");
-        }
         subjectArea.setTeachingSubject(teachingSubject);
         subjectArea.setCreator(this.session.getUser());
         this.em.persist(subjectArea);
@@ -56,5 +56,36 @@ public class SubjectAreaService extends Service{
         this.em.merge(subjectArea);
         this.em.getTransaction().commit();
         return new CrxResponse("OK","Teaching area was created.",subjectArea.getId());
+    }
+
+    public CrxResponse delete(Long id) {
+        SubjectArea subjectArea = this.em.find(SubjectArea.class, id);
+        if(subjectArea == null) {
+            return new CrxResponse("ERROR","Subject Subject does not exist.");
+        }
+        try {
+            this.em.getTransaction().begin();
+            TeachingSubject teachingSubject = subjectArea.getTeachingSubject();
+            teachingSubject.getSubjectAreaList().remove(subjectArea);
+            this.em.merge((teachingSubject));
+            this.em.getTransaction().commit();
+            return new CrxResponse("OK", "Subject area was removed successfully.");
+        }catch (Exception e){
+            logger.error("delete:"+ id + " Error:" + e.getMessage());
+            return new CrxResponse("ERROR", "Subject area could not be removed successfully.");
+        }
+
+    }
+
+    public CrxResponse modify(SubjectArea subjectArea) {
+        SubjectArea oldSubjectArea = this.em.find(SubjectArea.class, subjectArea.getId());
+        if(oldSubjectArea == null){
+            return new CrxResponse("ERROR","Can not find the subject area.");
+        }
+        oldSubjectArea.setName(subjectArea.getName());
+        this.em.getTransaction().begin();
+        this.em.merge(oldSubjectArea);
+        this.em.getTransaction().commit();
+        return new CrxResponse("OK","Subject area was modified successfully.");
     }
 }

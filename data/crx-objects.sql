@@ -96,19 +96,40 @@ DROP TABLE IF EXISTS `Aliases`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Aliases` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `alias` varchar(255) DEFAULT NULL,
+  `alias` varchar(64) DEFAULT NULL,
   `created` timestamp NULL DEFAULT current_timestamp(),
   `modified` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `creator_id` bigint(20) unsigned DEFAULT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UNQ_Aliases_0` (`user_id`,`alias`),
+  UNIQUE KEY `UNQ_Aliases_0` (`user_id`,`emailAddress`),
   KEY `FK_Aliases_creator_id` (`creator_id`),
   CONSTRAINT `FK_Aliases_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
   CONSTRAINT `FK_Aliases_user_id` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `VirtualAliases`
+--
+
+DROP TABLE IF EXISTS `VirtualAliases`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `VirtualAliases` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `created` timestamp NULL DEFAULT current_timestamp(),
+  `modified` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `virtualAlias` varchar(64) DEFAULT NULL,
+  `creator_id` bigint(20) unsigned DEFAULT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNQ_VirtualAliases_0` (`user_id`,`virtualAlias`),
+  KEY `FK_VirtualAliases_creator_id` (`creator_id`),
+  CONSTRAINT `FK_VirtualAliases_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
+  CONSTRAINT `FK_VirtualAliases_user_id` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 --
 -- Table structure for table `AnnouncementInCategories`
 --

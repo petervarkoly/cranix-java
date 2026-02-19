@@ -146,7 +146,7 @@ public class Crx2faService extends Service {
             return new CrxResponse("ERROR", "A jó büdös életbe!!");
         }
         User user = em.find(User.class, session1.getUserId());
-        Crx2faSession crx2faSession = new Crx2faSession(user, crx2fa, ip);
+        Crx2faSession crx2faSession = new Crx2faSession(session1, crx2fa, ip);
         Crx2faRequest crx2faRequest = new Crx2faRequest();
         crx2faRequest.setRegCode(this.getConfigValue("REG_CODE"));
         crx2faRequest.setType(crx2fa.getCrx2faType());
@@ -204,7 +204,7 @@ public class Crx2faService extends Service {
                 if (!result.getBoolean("value")) {
                     return null;
                 }
-                crx2faSession = new Crx2faSession(user, crx2fa, ip);
+                crx2faSession = new Crx2faSession(session1, crx2fa, ip);
                 this.em.getTransaction().begin();
                 this.em.persist(crx2faSession);
                 this.em.getTransaction().commit();
@@ -237,11 +237,10 @@ public class Crx2faService extends Service {
                 break;
         }
         if (crx2faSession != null) {
-            session1.setCrx2faSession(crx2faSession);
             sessionService.sessions.put(token, session1);
             this.em.getTransaction().begin();
-            this.em.merge(session1);
             this.em.refresh(user);
+            this.em.refresh(session1);
             this.em.getTransaction().commit();
         }
         return crx2faSession;
@@ -267,24 +266,20 @@ public class Crx2faService extends Service {
     }
 
     public void cleanUp() {
+        boolean action = false;
         try {
             Query query = this.em.createNamedQuery("Crx2faSessions.findAll");
             for (Crx2faSession crx2faSession : (List<Crx2faSession>) query.getResultList()) {
                 if (!crx2faSession.isValid()) {
-                    User user = crx2faSession.getCreator();
-                    user.getCrx2faSessions().remove(crx2faSession);
-                    Session session1 = crx2faSession.getSession();
-                    session1.setCrx2faSession(null);
                     this.em.getTransaction().begin();
-                    em.merge(session1);
-                    em.merge(user);
                     em.remove(crx2faSession);
                     this.em.getTransaction().commit();
-                    em.refresh(user);
+                    action = true;
                 }
             }
+            if(action) this.em.getEntityManagerFactory().getCache().evictAll();
         } catch (Exception e) {
-            logger.error("getByRole: " + e.getMessage());
+            logger.error("cleanUp: " + e.getMessage());
         }
     }
 

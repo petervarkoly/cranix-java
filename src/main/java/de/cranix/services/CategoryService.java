@@ -170,10 +170,6 @@ public class CategoryService extends Service {
 				o.getCategories().remove(category);
 				this.em.merge(o);
 			}
-			for(Software o : category.getSoftwares() ) {
-				o.getCategories().remove(category);
-				this.em.merge(o);
-			}
 			for(User o : category.getUsers() ) {
 				o.getCategories().remove(category);
 				this.em.merge(o);
@@ -379,12 +375,9 @@ public class CategoryService extends Service {
 				if(!category.getSoftwares().contains(software)) {
 					category.getSoftwares().add(software);
 					category.getSoftwareIds().add(software.getId());
-					software.getCategories().add(category);
 					if( category.getRemovedSoftwares().contains(software) ) {
 						category.getRemovedSoftwares().remove(software);
-						software.getRemovedFromCategories().remove(category);
 					}
-					this.em.merge(software);
 					changes = true;
 				}
 			break;
@@ -483,10 +476,9 @@ public class CategoryService extends Service {
 				logger.debug("Software:" + software);
 				if( category.getSoftwares().contains(software) ) {
 					category.getSoftwares().remove(software);
-					category.getRemovedSoftwares().add(software);
-					software.getCategories().remove(category);
-					software.getRemovedFromCategories().add(category);
-					this.em.merge(software);
+					if(!category.getRemovedSoftwares().contains(software)) {
+						category.getRemovedSoftwares().add(software);
+					}
 				}
 			break;
 			case("user"):

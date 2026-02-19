@@ -2,6 +2,8 @@
 * (c) 2017 Péter Varkoly <peter@varkoly.de> - all rights reserved
 * */
 package de.cranix.services;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.io.IOException;
 import java.nio.file.*;
@@ -19,6 +21,7 @@ public class Config {
 	private Map<String,String>   configHelp;
 	private Map<String,Boolean>  readOnly;
 	private List<String>         configFile;
+	protected Map<String, String> properties;
 
 	public Config() {
 		this.InitConfig();
@@ -41,8 +44,20 @@ public class Config {
 		configPath = new HashMap<>();
 		configType = new HashMap<>();
 		configHelp = new HashMap<>();
+		properties = new HashMap<String, String>();
 		try {
 			configFile = Files.readAllLines(this.CRX_CONFIG);
+			File file = new File(cranixPropFile);
+			FileInputStream fileInput = new FileInputStream(file);
+			Properties props = new Properties();
+			props.load(fileInput);
+			fileInput.close();
+			Enumeration<Object> enuKeys = props.keys();
+			while (enuKeys.hasMoreElements()) {
+				String key = (String) enuKeys.nextElement();
+				String value = props.getProperty(key);
+				properties.put(key, value);
+			}
 		} catch( IOException e ) {
 			e.printStackTrace();
 			return;
@@ -92,6 +107,13 @@ public class Config {
 				help = new StringBuilder();
 			}
 		}
+	}
+
+	public String getProperty(String property) {
+		if (properties.containsKey(property)) {
+			return properties.get(property);
+		}
+		return "";
 	}
 
 	public Date now() {

@@ -37,7 +37,7 @@ public class ChallengeResource {
     @ApiOperation(value = "Gets all challenges.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed("challenge.manage")
+    @RolesAllowed({"challenge.search","challenge.manage"})
     public List<CrxChallenge> getAll(@ApiParam(hidden = true) @Auth Session session) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         List<CrxChallenge> resp = new ChallengeService(session, em).getAll();
@@ -322,10 +322,26 @@ public class ChallengeResource {
     public CrxResponse answer(
             @ApiParam(hidden = true) @Auth Session session,
             @PathParam("challengeId") Long challengeId,
-            Map<Long,Boolean> answers
+            Map<Long,String> answers
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         CrxResponse resp = new ChallengeService(session, em).saveChallengeAnswers(challengeId,answers);
+        em.close();
+        return resp;
+    }
+
+    @POST
+    @Path("todos/{challengeId}/{questionId}")
+    @ApiOperation(value = "Save the results of a challenge.")
+    @PermitAll
+    public CrxResponse answer(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("challengeId") Long challengeId,
+            @PathParam("questionId") Long questionId,
+            Map<Long,String> answers
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new ChallengeService(session, em).saveChallengeAnswer(challengeId,questionId,answers);
         em.close();
         return resp;
     }

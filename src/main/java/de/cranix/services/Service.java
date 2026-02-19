@@ -26,29 +26,17 @@ public class Service extends Config {
 
     protected Session session;
     protected EntityManager em;
-    private Map<String, String> properties;
     private static List<String> systemNames;
 
     public Service() {
     }
+
     public Service(Session session, EntityManager em) {
         super();
         this.session = session;
         this.em = em;
-        properties = new HashMap<String, String>();
         String[] tmp;
         try {
-            File file = new File(cranixPropFile);
-            FileInputStream fileInput = new FileInputStream(file);
-            Properties props = new Properties();
-            props.load(fileInput);
-            fileInput.close();
-            Enumeration<Object> enuKeys = props.keys();
-            while (enuKeys.hasMoreElements()) {
-                String key = (String) enuKeys.nextElement();
-                String value = props.getProperty(key);
-                properties.put(key, value);
-            }
             if (systemNames == null) {
                 systemNames = new ArrayList<String>();
                 for (String line : Files.readAllLines(Paths.get("/etc/passwd"))) {
@@ -75,16 +63,11 @@ public class Service extends Config {
         return this.session;
     }
 
-    public String getProperty(String property) {
-        if (properties.containsKey(property)) {
-            return properties.get(property);
-        }
-        return "";
-    }
+
 
     public String getNl() {
         //return System.getProperty("line.separator");
-	return lineSeparator;
+        return lineSeparator;
     }
 
     public boolean isNameUnique(String name) {
@@ -620,7 +603,7 @@ public class Service extends Config {
         for (Acl acl : user.getAcls()) {
             if (acl.getAllowed() && !modules.contains(acl.getAcl())) {
                 modules.add(acl.getAcl());
-            } else if (modules.contains(acl.getAcl())) {
+            } else if (!acl.getAllowed() && modules.contains(acl.getAcl())) {
                 //It is forbidden by the user
                 modules.remove(acl.getAcl());
             }
@@ -694,13 +677,14 @@ public class Service extends Config {
     ) {
         Query query = this.em.createNamedQuery("CrxMConfig.getAllObject");
         query.setParameter("type", objectType)
-                .setParameter("keyword", keyword )
+                .setParameter("keyword", keyword)
                 .setParameter("value", value);
         if (query.getResultList().isEmpty()) {
             return new ArrayList<>();
         }
         return (List<CrxMConfig>) query.getResultList();
     }
+
     public boolean checkMConfig(Object object, String key, String value) {
         if (this.getMConfigObject(object, key, value) == null) {
             return false;
@@ -813,7 +797,7 @@ public class Service extends Config {
     public CrxConfig getConfig(String type, Long id, String key) {
         CrxConfig crxConfig = null;
         Query query = this.em.createNamedQuery("CrxConfig.get");
-        query.setParameter("type", type).setParameter("id",id).setParameter("keyword", key);
+        query.setParameter("type", type).setParameter("id", id).setParameter("keyword", key);
         if (!query.getResultList().isEmpty()) {
             crxConfig = (CrxConfig) query.getResultList().get(0);
         }
@@ -1076,6 +1060,24 @@ public class Service extends Config {
         return new CrxResponse("OK", "Config was created");
     }
 
+    public CrxResponse setConfig(String type, Long id, String key, String value) {
+        CrxConfig crxConfig = this.getConfig(type, id, key);
+        this.em.getTransaction().begin();
+        if (crxConfig == null) {
+            crxConfig = new CrxConfig();
+            crxConfig.setObjectType(type);
+            crxConfig.setObjectId(id);
+            crxConfig.setKeyword(key);
+            crxConfig.setValue(value);
+            this.em.persist(crxConfig);
+        } else {
+            crxConfig.setValue(value);
+            this.em.merge(crxConfig);
+        }
+        this.em.getTransaction().commit();
+        return new CrxResponse("OK", "Config was set.");
+    }
+
     public CrxResponse setConfig(Object object, String key, String value) {
         if (!this.checkConfig(object, key)) {
             return this.addConfig(object, key, value);
@@ -1092,6 +1094,17 @@ public class Service extends Config {
             return new CrxResponse("ERROR", e.getMessage());
         }
         return new CrxResponse("OK", "Config was updated");
+    }
+
+    public CrxResponse deleteConfig(String type, Long id, String key) {
+        CrxConfig config = this.getConfig(type, id, key);
+        if (config != null) {
+            this.em.getTransaction().begin();
+            this.em.remove(config);
+            this.em.getTransaction().commit();
+            return new CrxResponse("OK", "Config was deleted");
+        }
+        return new CrxResponse("WARNING", "Config was not found");
     }
 
     public CrxResponse deleteConfig(Long id) {

@@ -5,11 +5,16 @@ import de.cranix.dao.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.*;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static de.cranix.helper.CranixConstants.cranixBaseDir;
+import static de.cranix.helper.CranixConstants.DISALLOWED_PASSWORDS;
 
 public class StaticHelpers {
 
@@ -46,7 +51,7 @@ public class StaticHelpers {
 
 	static public String cleanString(String s){
 		return s.replaceAll("^\"", "").replaceAll("\"$", "");
-	}	
+	}
 
 	static public String normalize(String input) {
 		return Normalizer.normalize(
@@ -87,6 +92,7 @@ public class StaticHelpers {
 				switch (pluginName) {
 					case "add_user":
 					case "modify_user":
+						data.append(String.format("id: %d%n", user.getId()));
 						data.append(String.format("givenname: %s%n", user.getGivenName()));
 						data.append(String.format("surname: %s%n", user.getSurName()));
 						data.append(String.format("birthday: %s%n", user.getBirthDay()));
@@ -102,6 +108,7 @@ public class StaticHelpers {
 						}
 						break;
 					case "delete_user":
+						data.append(String.format("id: %d%n", user.getId()));
 						data.append(String.format("uid: %s%n", user.getUid()));
 						data.append(String.format("uuid: %s%n", user.getUuid()));
 						data.append(String.format("role: %s%n", user.getRole()));
@@ -115,20 +122,24 @@ public class StaticHelpers {
 				switch (pluginName) {
 					case "add_group":
 					case "modify_group":
+						data.append(String.format("id: %d%n", group.getId()));
 						data.append(String.format("name: %s%n", group.getName()));
 						data.append(String.format("description: %s%n", group.getDescription()));
 						data.append(String.format("grouptype: %s%n", group.getGroupType()));
 						break;
 					case "delete_group":
+						data.append(String.format("id: %d%n", group.getId()));
 						data.append(String.format("name: %s%n", group.getName()));
 						break;
 				}
 				break;
 			case "de.cranix.dao.Device":
 				Device device = (Device) object;
+				data.append(String.format("id: %d%n", device.getId()));
 				data.append(String.format("name: %s%n", device.getName()));
 				data.append(String.format("ip: %s%n", device.getIp()));
 				data.append(String.format("mac: %s%n", device.getMac()));
+				data.append(String.format("roomname: %s%n", device.getRoom().getName()));
 				if (device.getWlanIp() != null  && !device.getWlanIp().isEmpty()) {
 					data.append(String.format("wlanip: %s%n", device.getWlanIp()));
 					data.append(String.format("wlanmac: %s%n", device.getWlanMac()));
@@ -140,12 +151,14 @@ public class StaticHelpers {
 				break;
 			case "de.cranix.dao.HWconf":
 				HWConf hwconf = (HWConf) object;
+				data.append(String.format("id: %d%n", hwconf.getId()));
 				data.append(String.format("name: %s%n", hwconf.getName()));
 				data.append(String.format("id: %d%n", hwconf.getId()));
 				data.append(String.format("devicetype: %s%n", hwconf.getDeviceType()));
 				break;
 			case "de.cranix.dao.Room":
 				Room room = (Room) object;
+				data.append(String.format("id: %d%n", room.getId()));
 				data.append(String.format("name: %s%n", room.getName()));
 				data.append(String.format("description: %s%n", room.getDescription()));
 				data.append(String.format("startip: %s%n", room.getStartIP()));
@@ -174,12 +187,16 @@ public class StaticHelpers {
 		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = "change_member";
 		data.append(String.format("changetype: %s%n", type));
+		data.append(String.format("id: %s%n", group.getId()));
 		data.append(String.format("group: %s%n", group.getName()));
 		List<String> uids = new ArrayList<String>();
+		List<String> ids = new ArrayList<String>();
 		for (User user : users) {
 			uids.add(user.getUid());
+			ids.add(user.getId().toString());
 		}
 		data.append(String.format("users: %s%n", String.join(",", uids)));
+		data.append(String.format("userIds: %s%n", String.join(",", ids)));
 		CrxSystemCmd.exec(program, reply, error, data.toString());
 		logger.debug("change_member  : " + data.toString() + " : " + error);
 	}
@@ -193,10 +210,12 @@ public class StaticHelpers {
 		program[0] = cranixBaseDir + "plugins/plugin_handler.sh";
 		program[1] = "change_member";
 		data.append(String.format("changetype: %s%n", type));
+		data.append(String.format("id: %s%n", group.getId()));
 		data.append(String.format("group: %s%n", group.getName()));
 		data.append(String.format("users: %s%n", user.getUid()));
+		data.append(String.format("userIds: %s%n", user.getId()));
 		CrxSystemCmd.exec(program, reply, error, data.toString());
-		logger.debug("change_member  : " + data.toString() + " : " + error);
+		logger.debug("change_member  : " + data + " : " + error);
 	}
 
 	static public String createLiteralJson(Object object) {
@@ -254,11 +273,42 @@ public class StaticHelpers {
 
 	static public String getRandomColor(){
 		Random random = new Random();
-        // Generiere zufällige Werte für R, G und B
-        int r = random.nextInt(256); // Zufälliger Wert zwischen 0 und 255
-        int g = random.nextInt(256);
-        int b = random.nextInt(256);
-        // Konvertiere die Werte in hexadezimale Formate und formatiere sie
-        return String.format("#%02X%02X%02X", r, g, b);
+		// Generiere zufällige Werte für R, G und B
+		int r = random.nextInt(256); // Zufälliger Wert zwischen 0 und 255
+		int g = random.nextInt(256);
+		int b = random.nextInt(256);
+		// Konvertiere die Werte in hexadezimale Formate und formatiere sie
+		return String.format("#%02X%02X%02X", r, g, b);
 	}
+
+	public static boolean canUserWriteToDirectory(User user, Path directory) throws IOException {
+		// Prüfe, ob das Dateisystem POSIX-Berechtigungen unterstützt
+		if (!Files.getFileStore(directory).supportsFileAttributeView(PosixFileAttributeView.class)) {
+			System.out.println("Das Dateisystem unterstützt keine POSIX-Berechtigungen.");
+			return false; // Oder handle dies anders, z.B. eine Exception werfen
+		}
+
+		// 1. Hole die Benutzer- und Gruppeninformationen des Verzeichnisses
+		FileOwnerAttributeView ownerView = Files.getFileAttributeView(directory, FileOwnerAttributeView.class);
+		UserPrincipal owner = ownerView.getOwner();
+		GroupPrincipal group = (GroupPrincipal) Files.getAttribute(directory, "posix:group");
+
+		// 2. Hole die POSIX-Berechtigungen
+		Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(directory);
+		List<String> groups = new ArrayList<>();
+		for(Group g : user.getGroups()){
+			groups.add(g.getName());
+		}
+		// 3. Vergleiche den Benutzernamen und prüfe die Berechtigungen
+		if (owner.getName().equals(user.getUid())) {
+			return permissions.contains(PosixFilePermission.OWNER_WRITE);
+		} else if (group != null && groups.contains(group.getName())) {
+			// Hinweis: Eine komplexere Prüfung wäre hier erforderlich, um alle Gruppen des Benutzers zu finden
+			// Aber diese einfache Prüfung ist für die meisten Fälle ausreichend.
+			return permissions.contains(PosixFilePermission.GROUP_WRITE);
+		} else {
+			return permissions.contains(PosixFilePermission.OTHERS_WRITE);
+		}
+	}
+
 }

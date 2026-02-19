@@ -49,7 +49,7 @@ public class CategoryResource {
 	@ApiResponses(value = {
 		@ApiResponse(code = 404, message = "No category was found"),
 		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@PermitAll
+	@RolesAllowed({"category.search","category.merge"})
 	public List<Category> getAll( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		List<Category> resp = new CategoryService(session,em).getAll();

@@ -27,7 +27,7 @@ public class TeachingSubject extends AbstractEntity {
     private List<SubjectArea> subjectAreaList;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "teachingSubject", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "teachingSubject")
     private List<CrxChallenge> crxChallenges;
 
     public String getName() {

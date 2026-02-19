@@ -1,7 +1,6 @@
 package de.cranix.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.cranix.services.Crx2faService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.Random;
-import java.util.UUID;
 
 @Entity
 @Table(name = "Crx2faSessions")
@@ -54,15 +52,17 @@ public class Crx2faSession extends AbstractEntity {
     @JoinColumn(name = "crx2fa_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private Crx2fa myCrx2fa;
 
-    @OneToOne(mappedBy = "crx2faSession", cascade ={CascadeType.REMOVE}, orphanRemoval=true)
+    @OneToOne(mappedBy = "crx2faSession")
     @JsonIgnore
-    Session session;
+    private Session session;
 
     public Crx2faSession() {
     }
 
-    public Crx2faSession(User user, Crx2fa crx2fa, String clientIPAddress) {
-        this.setCreator(user);
+    public Crx2faSession(Session session, Crx2fa crx2fa, String clientIPAddress) {
+        this.setCreator(session.getUser());
+        session.setCrx2faSession(this);
+        this.session = session;
         this.myCrx2fa = crx2fa;
         this.clientIP = clientIPAddress;
         if (this.myCrx2fa.getCrx2faType().equals("TOTP")) {

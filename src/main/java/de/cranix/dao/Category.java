@@ -106,7 +106,7 @@ public class Category extends AbstractEntity {
 	@Transient
 	private List<Long> roomIds;
 
-	//bi-directional many-to-many association to Software
+	//uni-directional many-to-many association to Software
 	@JsonIgnore
 	@ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(

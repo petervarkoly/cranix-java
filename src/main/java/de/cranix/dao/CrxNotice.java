@@ -1,5 +1,7 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -11,11 +13,7 @@ import java.util.Date;
         @NamedQuery(
                 name="CrxNotice.getAllByObject",
                 query="SELECT c FROM CrxNotice c WHERE c.objectType = :type AND c.objectId = :id"
-        ),
-        @NamedQuery(
-                name="CrxNotice.getAllByObjectAndIssue",
-                query="SELECT c FROM CrxNotice c WHERE c.objectType = :type AND c.objectId = :id AND c.issueType = :issueType"
-        ),
+        )
 })
 public class CrxNotice extends AbstractEntity{
     @Size(max=64, message="Title must not be longer then 64 characters.")
@@ -29,11 +27,11 @@ public class CrxNotice extends AbstractEntity{
     @Column(name = "text", columnDefinition = "TEXT")
     private String text = "";
 
-    @Column(name = "grading", columnDefinition="TINYINT UNSIGNED")
-    private Integer grading = 0;
+    @Column(name = "grading")
+    private Float grading = 0f;
 
-    @Column(name = "weighting", columnDefinition="TINYINT UNSIGNED")
-    private Integer weighting = 1;
+    @Column(name = "weighting")
+    private Float weighting = 1f;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "reminder")
@@ -46,12 +44,22 @@ public class CrxNotice extends AbstractEntity{
     @Column(name = "objectId", columnDefinition ="BIGINT UNSIGNED")
     private Long objectId;
 
-    @Column(name = "issueType")
-    @Size(max = 12, message = "issueType must not be longer then 12 characters.")
-    private String issueType = "";
+    @Column(name = "ptmId", columnDefinition ="BIGINT UNSIGNED")
+    private Long ptmId;
 
-    @Column(name = "issueId", columnDefinition ="BIGINT UNSIGNED")
-    private Long issueId;
+    @ManyToOne()
+    @JoinColumn(
+            name="teachingsubject_id",
+            columnDefinition ="BIGINT UNSIGNED"
+    )
+    private TeachingSubject teachingSubject;
+
+    @ManyToOne()
+    @JoinColumn(
+            name="subjectarea_id",
+            columnDefinition ="BIGINT UNSIGNED"
+    )
+    private SubjectArea subjectArea;
 
     CrxNotice (){
         super();
@@ -85,13 +93,13 @@ public class CrxNotice extends AbstractEntity{
         this.text = text;
     }
 
-    public Integer getGrading() {return grading;}
+    public Float getGrading() {return grading;}
 
-    public void setGrading(Integer grading) {this.grading = grading;}
+    public void setGrading(Float grading) {this.grading = grading;}
 
-    public Integer getWeighting() {return weighting;}
+    public Float getWeighting() {return weighting;}
 
-    public void setWeighting(Integer weighting) {this.weighting = weighting;}
+    public void setWeighting(Float weighting) {this.weighting = weighting;}
 
     public Date getReminder() {
         return reminder;
@@ -117,11 +125,27 @@ public class CrxNotice extends AbstractEntity{
         this.objectId = objectId;
     }
 
-    public String getIssueType() {return issueType;}
+    public TeachingSubject getTeachingSubject() {
+        return teachingSubject;
+    }
 
-    public void setIssueType(String issueType) {this.issueType = issueType;}
+    public void setTeachingSubject(TeachingSubject teachingSubject) {
+        this.teachingSubject = teachingSubject;
+    }
 
-    public Long getIssueId() {return issueId;}
+    public SubjectArea getSubjectArea() {
+        return subjectArea;
+    }
 
-    public void setIssueId(Long issueId) {this.issueId = issueId;}
+    public void setSubjectArea(SubjectArea subjectArea) {
+        this.subjectArea = subjectArea;
+    }
+
+    public Long getPtmId() {
+        return ptmId;
+    }
+
+    public void setPtmId(Long ptmId) {
+        this.ptmId = ptmId;
+    }
 }

@@ -3,6 +3,8 @@ package de.cranix.helper;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public interface CranixConstants {
@@ -59,4 +61,12 @@ public interface CranixConstants {
 	static enum Crx2faTypes {
 		SMS
 	}
+
+	// TODO read it from file
+	public static final Set<String> DISALLOWED_PASSWORDS = new HashSet<>(
+		Arrays.asList(
+			"password", "Password1!", "12345678", "qwerty", "Letmein123!",
+			"Welcome123!", "Passw0rd!", "P@ssw0rd", "Password1"
+		)
+	);
 }

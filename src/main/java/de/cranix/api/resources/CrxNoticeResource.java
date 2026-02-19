@@ -1,6 +1,5 @@
 package de.cranix.api.resources;
 
-import de.cephalix.services.CephalixService;
 import de.cranix.services.CrxNoticeService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
@@ -35,7 +34,6 @@ public class CrxNoticeResource {
     }
 
     @GET
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Gets all owned notices.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
@@ -52,7 +50,6 @@ public class CrxNoticeResource {
 
     @POST
     @Path("filter")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Gets all owned notices.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
@@ -70,7 +67,6 @@ public class CrxNoticeResource {
 
     @GET
     @Path("{noticeId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Deletes a notice.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
@@ -88,7 +84,6 @@ public class CrxNoticeResource {
 
     @DELETE
     @Path("{noticeId}")
-    @Produces(JSON_UTF8)
     @ApiOperation(value = "Deletes a notice.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})

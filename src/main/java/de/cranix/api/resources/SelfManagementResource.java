@@ -1,14 +1,14 @@
-/* (c) 2021 Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
+/* (c) 2025 Peter Varkoly <pvarkoly@cephalix.eu> - all rights reserved */
 package de.cranix.api.resources;
 
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
-import de.cranix.services.IdRequestService;
-import de.cranix.services.InformationService;
-import de.cranix.services.RoomService;
-import de.cranix.services.SelfService;
+import de.cranix.helper.CrxSystemCmd;
+import de.cranix.services.*;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -16,9 +16,12 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 import static de.cranix.api.resources.Resource.TEXT;
@@ -276,7 +279,7 @@ public class SelfManagementResource {
 
     @POST
     @Path("taskResponses")
-    @ApiOperation(value = "Create a new device. This api call can be used only for registering own devices.")
+    @ApiOperation(value = "Create an response to a task.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")
     })
@@ -305,7 +308,7 @@ public class SelfManagementResource {
             TaskResponse taskResponse
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse response = new InformationService(session,em).modifyTaskResponse(taskResponse);
+        CrxResponse response = new InformationService(session, em).modifyTaskResponse(taskResponse);
         em.close();
         return response;
     }
@@ -321,5 +324,44 @@ public class SelfManagementResource {
             @ApiParam(hidden = true) @Auth Session session
     ) {
         return session.getUser().getTaskResponses();
+    }
+
+    @POST
+    @Path("myFiles")
+    @ApiOperation(value = "Manage files with the right of the session user")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "There is no running import found"),
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
+    @PermitAll
+    public Object myFiles(
+            @ApiParam(hidden = true) @Auth Session session,
+            Map<String, String> actionsMap
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object reply = new SelfService(session, em).myFiles(actionsMap);
+        em.close();
+        return reply;
+    }
+
+    @POST
+    @Path("myFiles/upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ApiOperation( value = "Puts data to te member of the smart rooms" )
+    @ApiResponses(value = {
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")
+    })
+    public CrxResponse uploadFileToRooms(
+            @ApiParam(hidden = true) @Auth Session session,
+            @FormDataParam("dirPath")    String  dirPath,
+            @FormDataParam("file")	 final InputStream fileInputStream,
+            @FormDataParam("file")	 final FormDataContentDisposition contentDispositionHeader
+    ) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse response = new SelfService(session,em).uploadFile(dirPath,
+                fileInputStream,
+                contentDispositionHeader
+        );
+        em.close();
+        return response;
     }
 }

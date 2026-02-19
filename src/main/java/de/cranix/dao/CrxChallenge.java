@@ -5,11 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static de.cranix.helper.CranixConstants.roleStudent;
-import static org.checkerframework.checker.units.UnitsTools.m;
 
 /**
  * The type CrxChallenge.
@@ -24,15 +22,15 @@ public class CrxChallenge extends AbstractEntity {
     @NotNull
     @Lob
     @Column(name = "description")
-    private String description;
+    private String title;
 
-    @NotNull
-    @ManyToOne(optional = false)
-    @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED")
     private TeachingSubject teachingSubject;
 
-    @ManyToMany(mappedBy = "challenges")
-    private List<SubjectArea> subjectAreaList;
+    @ManyToOne()
+    @JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED")
+    private SubjectArea subjectArea;
 
     @NotNull
     @Column(name = "value")
@@ -75,12 +73,12 @@ public class CrxChallenge extends AbstractEntity {
             this.released = false;
     }
 
-    public String getDescription() {
-        return description;
+    public String getTitle() {
+        return title;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Integer getValue() {
@@ -105,10 +103,10 @@ public class CrxChallenge extends AbstractEntity {
         this.teachingSubject = teachingSubject;
     }
 
-    public List<SubjectArea> getSubjectAreaList() { return subjectAreaList; }
+    public SubjectArea getSubjectArea() { return subjectArea; }
 
-    public void setSubjectAreaList(List<SubjectArea> subjectAreaList) {
-        this.subjectAreaList = subjectAreaList;
+    public void setSubjectArea(SubjectArea subjectArea) {
+        this.subjectArea = subjectArea;
     }
 
     public List<CrxQuestion> getQuestions() {

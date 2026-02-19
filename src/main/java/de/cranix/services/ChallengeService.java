@@ -390,10 +390,15 @@ public class ChallengeService extends Service {
                             result.put(creatorId, question.getValue());
                         }
                     }
-                    if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
+                    else if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
                         Integer actualValue = result.get(creatorId);
                         if (Boolean.compare(challengeAnswer.getCorrect(), answer.getCorrect()) == 0) {
                             result.put(creatorId, actualValue + question.getValue());
+                        }
+                    }
+                    else if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Text)) {
+                        if (challengeAnswer.getAnswer().equals(answer.getAnswer())) {
+                            result.put(creatorId, question.getValue());
                         }
                     }
                 }
@@ -501,10 +506,10 @@ public class ChallengeService extends Service {
             line = new ArrayList<String>();
             line.add(question.getQuestion());
             Integer questionValue = 0;
-            if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.One)) {
-                questionValue = question.getValue();
-            } else if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
+            if (question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Multiple)) {
                 questionValue = question.getValue() * question.getCrxQuestionAnswers().size();
+            } else {
+                questionValue = question.getValue();
             }
             line.add(question.getAnswerType().toString());
             resultTable.add(line);
@@ -514,13 +519,24 @@ public class ChallengeService extends Service {
                     line.add("");
                 }
                 line.set(0, answer.getAnswer());
-                line.set(1, answer.getCorrect() ? "Y" : "N");
+                if(question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Text)){
+                    line.set(1, "");
+                }else {
+                    line.set(1, answer.getCorrect() ? "Y" : "N");
+                }
                 for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
                     logger.debug("challengeAnswer" + challengeAnswer);
-                    line.set(
-                            idToPlace.get(challengeAnswer.getCreator().getId()),
-                            challengeAnswer.getCorrect() ? "Y" : "N"
-                    );
+                    if(question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Text)) {
+                        line.set(
+                                idToPlace.get(challengeAnswer.getCreator().getId()),
+                                challengeAnswer.getAnswer().equals(answer.getAnswer()) ? "Y" : "N"
+                        );
+                    }else{
+                        line.set(
+                                idToPlace.get(challengeAnswer.getCreator().getId()),
+                                challengeAnswer.getCorrect() ? "Y" : "N"
+                        );
+                    }
                     this.em.remove(challengeAnswer);
                 }
                 answer.setChallengeAnswers(new ArrayList<>());
@@ -578,12 +594,12 @@ public class ChallengeService extends Service {
 
         //Save the results of all user as html: /var/adm/cranix/challenges/<challengeId>/<NOW.STRING>/results.html
         String res = (String) arrayToHtml(resultTable, 0, nowString);
-        challengePath = Paths.get(challengeFile.toString() + "/RESULTS.html");
+        challengePath = Paths.get(challengeFile + "/RESULTS.html");
         Files.write(challengePath, res.getBytes(StandardCharsets.UTF_8));
         for (int i = 2; i < resultTable.get(0).size(); i++) {
             String res1 = (String) arrayToHtml(resultTable, i, nowString);
             String user = resultTable.get(0).get(i).split(" ")[0];
-            challengePath = Paths.get(challengeFile.toString() + "/" + user + ".html");
+            challengePath = Paths.get(challengeFile + "/" + user + ".html");
             Files.write(challengePath, res1.getBytes(StandardCharsets.UTF_8));
         }
         return res;
@@ -604,7 +620,7 @@ public class ChallengeService extends Service {
         htmlResult.append("  </tr>\n");
         for (Integer i = 1; i < resultTable.size(); i++) {
             isAnswer = false;
-            if (resultTable.get(i).get(1).equals("One") || resultTable.get(i).get(1).equals("Multiple")) {
+            if (resultTable.get(i).get(1).equals("One") || resultTable.get(i).get(1).equals("Multiple") || resultTable.equals("Text")) {
                 htmlResult.append("  <tr class=\"questionLine\">\n");
             } else if (resultTable.get(i).get(0).equals("Sum:")) {
                 htmlResult.append("  <tr class=\"sumLine\">\n");
@@ -636,7 +652,6 @@ public class ChallengeService extends Service {
     }
 
     public List<String> getListOfArchives(Long challengeId) {
-        //Create base directory: /var/adm/cranix/challenges/<challengeId>
         StringBuilder challengeFile = getArhivePath(challengeId);
         List<String> archives = new ArrayList<String>();
         for (String file : new File(challengeFile.toString()).list()) {
@@ -710,23 +725,37 @@ public class ChallengeService extends Service {
         return result;
     }
 
-
-    private CrxResponse saveChallengeAnswer(CrxQuestionAnswer questionAnswer, Boolean answer) {
-        // First we search if an answer was already given. If so we will update this.
+    private CrxChallengeAnswer getMyAnswer(CrxQuestionAnswer questionAnswer){
         for (CrxChallengeAnswer challengeAnswer : questionAnswer.getChallengeAnswers()) {
             if (challengeAnswer.getCreator().equals(this.session.getUser())) {
+                return  challengeAnswer;
+            }
+        }
+        return null;
+    }
+
+    private void setValue(CrxChallengeAnswer challengeAnswer, String answer){
+        if(challengeAnswer.getCrxQuestionAnswer().getCrxQuestion().getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Text)) {
+            challengeAnswer.setAnswer(answer);
+        }else{
+            challengeAnswer.setCorrect(answer.equals("Y"));
+        }
+    }
+    private CrxResponse saveChallengeAnswer(CrxQuestionAnswer questionAnswer, String answer) {
+        // First we search if an answer was already given. If so we will update this.
+        CrxChallengeAnswer challengeAnswer = getMyAnswer(questionAnswer);
+        if(challengeAnswer != null) {
                 this.em.getTransaction().begin();
-                challengeAnswer.setCorrect(answer);
+                setValue(challengeAnswer, answer);
                 this.em.merge(challengeAnswer);
                 this.em.getTransaction().commit();
                 return new CrxResponse("OK", "Answer was saved correct.");
-            }
         }
-        CrxChallengeAnswer challengeAnswer = new CrxChallengeAnswer();
+        challengeAnswer = new CrxChallengeAnswer();
         User owner = this.em.find(User.class, this.session.getUserId());
         challengeAnswer.setCreator(owner);
         challengeAnswer.setCrxQuestionAnswer(questionAnswer);
-        challengeAnswer.setCorrect(answer);
+        setValue(challengeAnswer, answer);
         this.em.getTransaction().begin();
         this.em.persist(challengeAnswer);
         questionAnswer.getChallengeAnswers().add(challengeAnswer);
@@ -741,7 +770,7 @@ public class ChallengeService extends Service {
      * @param answers        the answers
      * @return the crx response
      */
-    public CrxResponse saveChallengeAnswers(Long crxChallengeId, Map<Long, Boolean> answers) {
+    public CrxResponse saveChallengeAnswers(Long crxChallengeId, Map<Long, String> answers) {
         CrxChallenge challenge = this.getById(crxChallengeId);
         if (!challenge.isReleased()) {
             return new CrxResponse("ERROR", "This challenge is not available now.");
@@ -752,11 +781,45 @@ public class ChallengeService extends Service {
                 logger.debug("saveChallengeAnswers:" + questionAnswer.getCrxQuestion().getChallenge() + answerId);
                 return new CrxResponse("ERROR", "Answers does not belongs to challenge.");
             }
-            saveChallengeAnswer(questionAnswer, answers.get(answerId));
+            this.saveChallengeAnswer(questionAnswer, answers.get(answerId));
         }
         return new CrxResponse("OK", "Answers were saved correct.");
     }
 
+    public CrxResponse saveChallengeAnswer(Long challengeId, Long questionId, Map<Long, String> answers) {
+        CrxChallenge challenge = this.getById(challengeId);
+        if (challenge == null) {
+            return new CrxResponse("ERROR", "Could not find the challenge.");
+        }
+        if (!challenge.isReleased()) {
+            return new CrxResponse("ERROR", "This challenge is not available now.");
+        }
+        CrxQuestion crxQuestion = this.em.find(CrxQuestion.class, questionId);
+        if (crxQuestion == null) {
+            return new CrxResponse("ERROR", "Could not find the question.");
+        }
+        for(Long answerId : answers.keySet()){
+            CrxQuestionAnswer questionAnswer = this.em.find(CrxQuestionAnswer.class, answerId);
+            CrxChallengeAnswer challengeAnswer = getMyAnswer(questionAnswer);
+            if(challengeAnswer != null) {
+                this.em.getTransaction().begin();
+                setValue(challengeAnswer, answers.get(challengeAnswer.getId()));
+                this.em.merge(challengeAnswer);
+                this.em.getTransaction().commit();
+            }else{
+                challengeAnswer = new CrxChallengeAnswer();
+                User owner = this.em.find(User.class, this.session.getUserId());
+                challengeAnswer.setCreator(owner);
+                challengeAnswer.setCrxQuestionAnswer(questionAnswer);
+                setValue(challengeAnswer, answers.get(challengeAnswer.getId()));
+                this.em.getTransaction().begin();
+                this.em.persist(challengeAnswer);
+                questionAnswer.getChallengeAnswers().add(challengeAnswer);
+                this.em.getTransaction().commit();
+            }
+        }
+        return new CrxResponse("OK", "Challenge Answer was saved successfully.");
+    }
     /**
      * Gets my results.
      *
@@ -771,15 +834,17 @@ public class ChallengeService extends Service {
         if (!challenge.isReleased()) {
             return new CrxResponse("ERROR", "This challenge is not available now.");
         }
-        Map<Long, Boolean> results = new HashMap<>();
+        Map<Long, String> results = new HashMap<>();
         for (CrxQuestion question : challenge.getQuestions()) {
             for (CrxQuestionAnswer answer : question.getCrxQuestionAnswers()) {
                 for (CrxChallengeAnswer challengeAnswer : answer.getChallengeAnswers()) {
                     logger.debug("challengeAnswer" + challengeAnswer.getCreator());
                     if (challengeAnswer.getCreator().equals(this.session.getUser())) {
-                        results.put(
-                                answer.getId(), challengeAnswer.getCorrect()
-                        );
+                        if(question.getAnswerType().equals(CrxQuestion.ANSWER_TYPE.Text)){
+                            results.put(answer.getId(), challengeAnswer.getAnswer());
+                        }else{
+                            results.put(answer.getId(), challengeAnswer.getCorrect()? "Y":"N");
+                        }
                     }
                 }
             }
@@ -890,4 +955,6 @@ public class ChallengeService extends Service {
         CrxSystemCmd.exec(program, reply, stderr, null);
         return reply.toString();
     }
+
+
 }

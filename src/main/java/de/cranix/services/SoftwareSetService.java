@@ -56,61 +56,65 @@ public class SoftwareSetService extends CategoryService {
         Category oldCategory = this.getById(installationId);
         CrxResponse resp = null;
         CrxResponse resp1;
-        logger.debug("old:" + oldCategory);
-        logger.debug("category:" + category);
-        logger.debug("resp:" + resp);
-
+        logger.info("old:" + oldCategory);
+        logger.info("category:" + category);
+        logger.info("resp:" + resp);
+	SoftwareService softwareService = new SoftwareService(session, em);
+	if( softwareService.writingSaltConfig() ) {
+                return new CrxResponse("ERROR","An other process is writing the SaltStack configuration. Please try it later!");
+         }
         //First add new objects
         for (long id : category.getSoftwareIds()) {
             if (!oldCategory.getSoftwareIds().contains(id)) {
                 resp1 = this.addMember(installationId, "software", id);
-                logger.debug("software resp" + resp1);
+                logger.info("add software:" + id + " resp:" + resp1);
             }
         }
         for (long id : category.getHwconfIds()) {
             if (!oldCategory.getHwconfIds().contains(id)) {
                 resp1 = this.addMember(installationId, "hwconf", id);
-                logger.debug("hwconf resp" + resp1);
+                logger.info("add hwconf:" + id + " resp:" + resp1);
             }
         }
         for (long id : category.getRoomIds()) {
             if (!oldCategory.getHwconfIds().contains(id)) {
                 resp1 = this.addMember(installationId, "room", id);
-                logger.debug("room resp" + resp1);
+                logger.info("add room:" + id + " resp:" + resp1);
             }
         }
         for (long id : category.getDeviceIds()) {
             if (!oldCategory.getDeviceIds().contains(id)) {
                 resp1 = this.addMember(installationId, "device", id);
-                logger.debug("device resp" + resp1);
+                logger.info("add device:" + id + " resp:" + resp1);
             }
         }
         //Now remove objects
         for (long id : oldCategory.getSoftwareIds()) {
             if (!category.getSoftwareIds().contains(id)) {
                 resp1 = this.deleteMember(installationId, "software", id);
-                logger.debug("software resp" + resp1);
+                logger.info("delete software:" + id + " resp:" + resp1);
             }
         }
         for (long id : oldCategory.getHwconfIds()) {
             if (!category.getHwconfIds().contains(id)) {
                 resp1 = this.deleteMember(installationId, "hwconf", id);
-                logger.debug("hwconf resp" + resp1);
+                logger.info("delete hwconf:" + id + " resp:" + resp1);
             }
         }
         for (long id : oldCategory.getRoomIds()) {
             if (!category.getRoomIds().contains(id)) {
                 resp1 = this.deleteMember(installationId, "room", id);
-                logger.debug("room resp" + resp1);
+                logger.info("delete room:" + id + " resp:" + resp1);
             }
         }
         for (long id : oldCategory.getDeviceIds()) {
             if (!category.getDeviceIds().contains(id)) {
                 resp1 = this.deleteMember(installationId, "device", id);
-                logger.debug("device resp" + resp1);
+                logger.info("delete device:" + id + " resp:" + resp1);
             }
         }
         this.modify(category);
+        oldCategory = this.getById(installationId);
         List<Device> devices = oldCategory.getDevices();
         for (Room room : oldCategory.getRooms()) {
             devices.addAll(room.getDevices());
@@ -118,6 +122,6 @@ public class SoftwareSetService extends CategoryService {
         for (HWConf hwConf : oldCategory.getHwconfs()) {
             devices.addAll(hwConf.getDevices());
         }
-        return new SoftwareService(session, em).applySoftwareStateToHosts(devices);
+        return softwareService.applySoftwareStateToHostsBatch(devices);
     }
 }

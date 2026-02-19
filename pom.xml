@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>eu.cranix</groupId>
     <artifactId>cranix</artifactId>
-    <version>15.6</version>
+    <version>16.0</version>
     <name>CRANIX</name>
     <description>CRANIX</description>
     <properties>
@@ -179,11 +179,6 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20240303</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.cranix</groupId>
-            <artifactId>cephalix</artifactId>
-            <version>15.6</version>
         </dependency>
     </dependencies>
     <build>
