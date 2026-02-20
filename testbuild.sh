@@ -1,6 +1,8 @@
 #!/bin/bash -x
 REPO=~/OSC/home:pvarkoly:CRANIX:leap15.6/cranix-java
 HERE=$( pwd )
+export JAVA_HOME="/usr/lib64/jvm/java-21-openjdk-21/"
+export JAVA_BINDIR="/usr/lib64/jvm/java-21-openjdk-21//bin/"
 #mvn clean package install
 mvn package install
 

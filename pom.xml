@@ -10,8 +10,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <argLine>-Duser.language=en -Duser.region=US -Duser.timezone=UTC -Xlint:deprecation</argLine>
         <!-- You'll probably want to remove this for your project. We're just using it here
                  so that dropwizard-example doesn't get deployed as a library. -->
