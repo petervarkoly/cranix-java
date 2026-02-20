@@ -2,9 +2,9 @@
 REPO=~/OSC/home:pvarkoly:CRANIX/cranix-java
 HERE=$( pwd )
 #mvn clean package install
-mvn package install
 export JAVA_HOME="/usr/lib64/jvm/java-21-openjdk-21/"
 export JAVA_BINDIR="/usr/lib64/jvm/java-21-openjdk-21//bin/"
+mvn package install
 
 if [ "$1" ]; then
         PORT=22
