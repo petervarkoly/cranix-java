@@ -41,5 +41,5 @@ for i in /opt/cranix-java/lib/*
 do
         CLASSPATH="$i:$CLASSPATH"
 done
-exec /usr/lib64/jvm/jre-21-openjdk/bin/java --add-modules java.xml.bind -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp $CLASSPATH de.cranix.api.CranixApplication server /opt/cranix-java/conf/config.yml
+exec /usr/lib64/jvm/jre-21-openjdk/bin/java -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp $CLASSPATH de.cranix.api.CranixApplication server /opt/cranix-java/conf/config.yml
 
