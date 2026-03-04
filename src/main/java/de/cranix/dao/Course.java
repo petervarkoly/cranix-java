@@ -11,7 +11,7 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @Entity
 @Table(name = "Courses")
 @NamedQueries({
-        @NamedQuery(name = "Courses.findAll", query = "SELECT c FROM Courses c")
+        @NamedQuery(name = "Courses.findAll", query = "SELECT c FROM Course c")
 })
 public class Course extends AbstractEntity {
 
@@ -67,13 +67,7 @@ public class Course extends AbstractEntity {
     )
     private List<User> users = new ArrayList<User>();
 
-    @OneToMany(cascade ={CascadeType.ALL}, orphanRemoval = true)
-    @JoinTable(
-            name = "AppointmentsInCourse",
-            joinColumns = {@JoinColumn(name = "cours_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
-            inverseJoinColumns = {@JoinColumn(name = "crxcalendar_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
-
-    )
+    @OneToMany(mappedBy = "course", cascade ={CascadeType.ALL}, orphanRemoval = true)
     private List<CrxCalendar> appointments = new ArrayList<>();
 
     public Course(){

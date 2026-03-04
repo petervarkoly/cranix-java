@@ -58,7 +58,7 @@ public class CourseService extends Service {
         try{
             Course course = this.em.find(Course.class, id);
             if(course == null) {
-                return new CrxResponse("ERROR","Can not find course to delete.")
+                return new CrxResponse("ERROR","Can not find course to delete.");
             }
             this.em.getTransaction().begin();
             this.em.remove(course);
@@ -90,10 +90,9 @@ public class CourseService extends Service {
         return courses;
     }
 
-    public List<CrxCalendar> getFreeAppointments(Long id, User user){
+    public Course getFreeAppointments(Long id, User user){
         List<CrxCalendar> appointments = new ArrayList<>();
         List<CrxCalendar> myAppointments = new ArrayList<>();
-
         Course course = this.em.find(Course.class, id);
         if(course != null){
             if(user != null) {
@@ -116,7 +115,13 @@ public class CourseService extends Service {
                 }
             }
         }
-        return appointments;
+        Course ret = new Course();
+        ret.setDescription(course.getDescription());
+        ret.setStart(course.getStart());
+        ret.setEnd(course.getEnd());
+        appointments.addAll(myAppointments);
+        ret.setAppointments(appointments);
+        return ret;
     }
 
     public CrxResponse register(Long appointment_id){
@@ -242,8 +247,13 @@ public class CourseService extends Service {
     public CrxResponse addAppointment(Long id, CrxCalendar appointment) {
         Course course = this.em.find(Course.class, id);
         course.getAppointments().add(appointment);
-        this.em.getTransaction().begin();
-        this.em.merge(course);
-
+        try {
+            this.em.getTransaction().begin();
+            this.em.merge(course);
+            this.em.getTransaction().commit();
+        } catch (Exception e){
+            return new CrxResponse("ERROR",e.getMessage());
+        }
+        return new CrxResponse("OK", "Appointment was created successfully");
     }
 }

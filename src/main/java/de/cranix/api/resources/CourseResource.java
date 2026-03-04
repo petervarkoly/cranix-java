@@ -129,35 +129,8 @@ public class CourseResource {
         return ret;
     }
 
-    @GET
-    @Path("{courseId}/free")
-    @ApiOperation(value="Get free appointments in a course.")
-    @PermitAll
-    public List<CrxCalendar> getFree(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("courseId") Long courseId
-    ){
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final  List<CrxCalendar> ret = new CourseService(session, em).getFreeAppointments(courseId, session.getUser());
-        em.close();
-        return ret;
-    }
 
     // Manipulate appointments in a course.
-    @PUT
-    @Path("appointments/{appointmenId}")
-    @ApiOperation(value="Register to a course")
-    @RolesAllowed({"course.manage"})
-    public CrxResponse register(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("appointmenId") Long appointmenId
-    ){
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final CrxResponse ret = new CourseService(session, em).register(appointmenId);
-        em.close();
-        return ret;
-    }
-
     @PUT
     @Path("appointments/{appointmenId}/{userId}")
     @ApiOperation(value="Register a user to a course")
@@ -173,19 +146,6 @@ public class CourseResource {
         return ret;
     }
 
-    @DELETE
-    @Path("appointments/{appointmenId}")
-    @ApiOperation(value="Remove registration from a course")
-    @RolesAllowed({"course.manage"})
-    public CrxResponse deRegister(
-            @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("appointmenId") Long appointmenId
-    ){
-        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        final CrxResponse ret = new CourseService(session, em).deRegister(appointmenId);
-        em.close();
-        return ret;
-    }
 
     @DELETE
     @Path("appointments/{appointmenId}/{userId}")
@@ -203,4 +163,48 @@ public class CourseResource {
     }
 
 
+    /*
+    * APE Calls for partipiciant
+     */
+    @GET
+    @Path("{courseId}/free")
+    @ApiOperation(value="Get free appointments in a course.")
+    @PermitAll
+    public Course getFree(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("courseId") Long courseId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final  Course ret = new CourseService(session, em).getFreeAppointments(courseId, session.getUser());
+        em.close();
+        return ret;
+    }
+
+    @PUT
+    @Path("appointments/{appointmenId}")
+    @ApiOperation(value="Register to a course")
+    @PermitAll
+    public CrxResponse register(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("appointmenId") Long appointmenId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final CrxResponse ret = new CourseService(session, em).register(appointmenId);
+        em.close();
+        return ret;
+    }
+
+    @DELETE
+    @Path("appointments/{appointmenId}")
+    @ApiOperation(value="Remove registration from a course")
+    @PermitAll
+    public CrxResponse deRegister(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("appointmenId") Long appointmenId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final CrxResponse ret = new CourseService(session, em).deRegister(appointmenId);
+        em.close();
+        return ret;
+    }
 }

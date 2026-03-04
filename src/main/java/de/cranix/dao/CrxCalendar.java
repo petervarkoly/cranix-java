@@ -79,6 +79,11 @@ public class CrxCalendar extends AbstractEntity {
     )
     private List<User> users = new ArrayList<User>();
 
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name="course_id", columnDefinition ="BIGINT UNSIGNED")
+    private Course course;
+
     @Transient
     private String category = "";
 
@@ -238,6 +243,18 @@ public class CrxCalendar extends AbstractEntity {
         if(users.contains(user)){
             users.remove(user);
         }
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public Long getCourseId() {
+        return this.course == null ? null : this.course.getId();
     }
 
     public boolean overlapsWith(CrxCalendar other) {
