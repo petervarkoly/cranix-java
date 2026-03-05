@@ -1140,10 +1140,11 @@ public class SystemResource {
 			em.merge(user);
 			em.getTransaction().commit();
 		} else {
-			resp = new CrxResponse("ERROR","Group can not be find.");
+			resp = new CrxResponse("ERROR","User can not be find.");
 		}
 		return resp;
 	}
+
 
 	@GET
 	@Path("dns/domains")
