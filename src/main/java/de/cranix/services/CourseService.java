@@ -116,7 +116,7 @@ public class CourseService extends Service {
             }
         }
         Course ret = new Course();
-        ret.setDescription(course.getDescription());
+        ret.setTitle(course.getTitle());
         ret.setStart(course.getStart());
         ret.setEnd(course.getEnd());
         appointments.addAll(myAppointments);
@@ -191,7 +191,7 @@ public class CourseService extends Service {
             String template = Files.readString(Paths.get(cranixBaseDir + "templates/COURSES/Course.html"));
             String message = template
                     .replaceAll("#TOKEN#", courseSession.getToken())
-                    .replaceAll("#DESCRIPTION#", course.getDescription())
+                    .replaceAll("#TITLE#", course.getTitle())
                     .replaceAll("#SURNAME#", user.getSurName())
                     .replaceAll("#GIVENNAME#", user.getGivenName())
                     .replaceAll("#FROM#", dateFormat.format(course.getStart()))
@@ -204,7 +204,7 @@ public class CourseService extends Service {
             Files.write(Paths.get(fileName + ".mailAddress"), mailAddress.getBytes());
             //Create subject
             String subjectTemplate = Files.readString(Paths.get(cranixBaseDir + "templates/COURSES/CourseSubject"));
-            String subject = subjectTemplate.replaceAll("#DESCRIPTION#", course.getDescription());
+            String subject = subjectTemplate.replaceAll("#TITLE#", course.getTitle());
             Files.write(Paths.get(fileName + ".subject"), subject.getBytes());
         }catch (Exception e){
             logger.error("sendNotification" + e.getMessage());
