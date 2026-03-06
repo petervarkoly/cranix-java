@@ -90,19 +90,6 @@ public class CalendarService extends Service {
             em.flush();
             em.getTransaction().commit();
             em.getEntityManagerFactory().getCache().evictAll();
-            /*User user = em.find(User.class,session.getUserId());
-            user.getCreatedEvents().add(event);
-            em.merge(user);
-            for (Long id : event.getUserIds()) {
-                User user1 = em.find(User.class,id);
-                user1.addEvent(event);
-                em.merge(user1);
-            }
-            for (Long id : event.getGroupIds()) {
-                Group group = em.find(Group.class,id);
-                group.addEvent(event);
-                em.merge(group);
-            }*/
         } catch (Exception e) {
             logger.error("CalendarService.add error: ", e.getMessage());
             return new CrxResponse("ERROR", e.getMessage());

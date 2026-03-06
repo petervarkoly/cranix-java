@@ -17,9 +17,9 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 })
 public class Course extends AbstractEntity {
 
-    @Column(name = "description", length = 64)
-    @Size(max=64, message="Description must not be longer then 64 characters.")
-    private String description = "";
+    @Column(name = "title", length = 64)
+    @Size(max=64, message="Title must not be longer then 64 characters.")
+    private String title = "";
 
     @Column(name = "countOfParticipants")
     private Integer countOfParticipants = 5;
