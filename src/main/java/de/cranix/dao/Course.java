@@ -1,5 +1,7 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
@@ -68,6 +70,7 @@ public class Course extends AbstractEntity {
     private List<User> users = new ArrayList<User>();
 
     @OneToMany(mappedBy = "course", cascade ={CascadeType.ALL}, orphanRemoval = true)
+    @JsonManagedReference
     private List<CrxCalendar> appointments = new ArrayList<>();
 
     public Course(){
@@ -145,6 +148,17 @@ public class Course extends AbstractEntity {
         this.appointments = appointments;
     }
 
+    public void addAppointment(CrxCalendar appointment) {
+        appointment.setCourse(this);
+        if(this.appointments.contains(appointment)) {
+            this.appointments.add(appointment);
+        }
+    }
+
+    public void removeAppointment(CrxCalendar appointment) {
+        this.appointments.remove(appointment);
+        appointment.setCourse(null);
+    }
     public List<Group> getGroups() {
         return groups;
     }

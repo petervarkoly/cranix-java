@@ -1,5 +1,6 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -80,7 +81,7 @@ public class CrxCalendar extends AbstractEntity {
     private List<User> users = new ArrayList<User>();
 
     @ManyToOne
-    @JsonIgnore
+    @JsonBackReference
     @JoinColumn(name="course_id", columnDefinition ="BIGINT UNSIGNED")
     private Course course;
 
