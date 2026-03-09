@@ -101,6 +101,20 @@ public class CourseResource {
         return ret;
     }
 
+    @DELETE
+    @Path("appointments/{appointmenId}")
+    @ApiOperation(value="Remove registration from a course")
+    @RolesAllowed({"course.manage"})
+    public CrxResponse deleteAppointment(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("appointmenId") Long appointmenId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final CrxResponse ret = new CourseService(session, em).deleteAppointment(appointmenId);
+        em.close();
+        return ret;
+    }
+
     @PUT
     @Path("{courseId}")
     @ApiOperation(value="Sends notifications for a course")
@@ -164,7 +178,7 @@ public class CourseResource {
 
 
     /*
-    * APE Calls for partipiciant
+    * API Calls for partipiciant
      */
     @GET
     @Path("{courseId}/free")
@@ -181,7 +195,7 @@ public class CourseResource {
     }
 
     @PUT
-    @Path("appointments/{appointmenId}")
+    @Path("appointments/{appointmenId}/register")
     @ApiOperation(value="Register to a course")
     @PermitAll
     public CrxResponse register(
@@ -195,7 +209,7 @@ public class CourseResource {
     }
 
     @DELETE
-    @Path("appointments/{appointmenId}")
+    @Path("appointments/{appointmenId}/register")
     @ApiOperation(value="Remove registration from a course")
     @PermitAll
     public CrxResponse deRegister(

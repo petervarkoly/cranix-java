@@ -117,8 +117,8 @@ public class CourseService extends Service {
         }
         Course ret = new Course();
         ret.setTitle(course.getTitle());
-        ret.setStart(course.getStart());
-        ret.setEnd(course.getEnd());
+        ret.setStartDate(course.getStartDate());
+        ret.setEndDate(course.getEndDate());
         appointments.addAll(myAppointments);
         ret.setAppointments(appointments);
         return ret;
@@ -194,8 +194,8 @@ public class CourseService extends Service {
                     .replaceAll("#TITLE#", course.getTitle())
                     .replaceAll("#SURNAME#", user.getSurName())
                     .replaceAll("#GIVENNAME#", user.getGivenName())
-                    .replaceAll("#FROM#", dateFormat.format(course.getStart()))
-                    .replaceAll("#UNTIL#", dateFormat.format(course.getEnd()))
+                    .replaceAll("#FROM#", dateFormat.format(course.getStartDate()))
+                    .replaceAll("#UNTIL#", dateFormat.format(course.getEndDate()))
                     .replaceAll("#REGSART#", dateTimeFormat.format(course.getStartRegistration()))
                     .replaceAll("#REGEND#", dateTimeFormat.format(course.getEndRegistration()));
             String fileName = dirName + "/" + user.getUuid();
@@ -224,7 +224,7 @@ public class CourseService extends Service {
                 sendNotification(course, user, dirName.getPath());
             }
             Job sendMails = new Job(
-                    "Send notification for the Course " + dateFormat.format(course.getStart()),
+                    "Send notification for the Course " + dateFormat.format(course.getStartDate()),
                     null,
                     cranixBaseDir + "tools/COURSES/send_mails " + dirName.getPath(),
                     true
@@ -255,5 +255,22 @@ public class CourseService extends Service {
             return new CrxResponse("ERROR",e.getMessage());
         }
         return new CrxResponse("OK", "Appointment was created successfully");
+    }
+
+    public CrxResponse deleteAppointment(Long appointmenId) {
+        CrxCalendar appointment = this.em.find(CrxCalendar.class, appointmenId);
+        if(appointment == null) {
+            return new CrxResponse("ERROR","Can not find Appointment");
+        }
+        try {
+            Course course = appointment.getCourse();
+            course.removeAppointment(appointment);
+            this.em.getTransaction().begin();
+            this.em.merge(course);
+            this.em.getTransaction().commit();
+        } catch (Exception e){
+            return new CrxResponse("ERROR",e.getMessage());
+        }
+        return new CrxResponse("OK", "Appointment was deleted successfully");
     }
 }

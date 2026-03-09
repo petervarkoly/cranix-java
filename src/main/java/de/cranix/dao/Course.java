@@ -27,13 +27,11 @@ public class Course extends AbstractEntity {
     @Column(name = "countOfRegistrations")
     private Integer countOfRegistrations = 1;
 
-    @Column( name = "start", columnDefinition = "timestamp")
-    @Temporal(TIMESTAMP)
-    private Date start;
+    @Column( name = "startDate", columnDefinition = "DATE")
+    private String startDate;
 
-    @Column( name = "end", columnDefinition = "timestamp")
-    @Temporal(TIMESTAMP)
-    private Date end;
+    @Column( name = "endDate", columnDefinition = "DATE")
+    private String endDate;
 
     @Column(
             name = "startRegistration",
@@ -100,20 +98,20 @@ public class Course extends AbstractEntity {
         this.countOfRegistrations = countOfRegistrations;
     }
 
-    public Date getStart() {
-        return start;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setStart(Date start) {
-        this.start = start;
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
     }
 
-    public Date getEnd() {
-        return end;
+    public String getEndDate() {
+        return endDate;
     }
 
-    public void setEnd(Date end) {
-        this.end = end;
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 
     public Date getStartRegistration() {
