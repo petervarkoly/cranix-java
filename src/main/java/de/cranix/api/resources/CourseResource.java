@@ -16,6 +16,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 
+import java.util.Date;
 import java.util.List;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
@@ -190,6 +191,20 @@ public class CourseResource {
     ){
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         final  Course ret = new CourseService(session, em).getFreeAppointments(courseId, session.getUser());
+        em.close();
+        return ret;
+    }
+
+    @GET
+    @Path("{courseId}/lastChange")
+    @ApiOperation(value="Get free appointments in a course.")
+    @PermitAll
+    public Date getLastChange(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("courseId") Long courseId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        final  Date ret = new CourseService(session, em).getLastChange(courseId);
         em.close();
         return ret;
     }

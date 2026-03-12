@@ -10,8 +10,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static de.cranix.helper.CranixConstants.*;
 
@@ -21,6 +20,7 @@ public class CourseService extends Service {
     final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    static Map<Long, Date> lastChange = new HashMap<Long, Date>();
 
     public CrxResponse add(Course course){
         try {
@@ -28,6 +28,7 @@ public class CourseService extends Service {
             this.em.getTransaction().begin();
             this.em.persist(course);
             this.em.getTransaction().commit();
+            lastChange.put(course.getId(),new Date());
         }catch (Exception e){
             logger.error("add" + e.getMessage());
             return new CrxResponse("ERROR",e.getMessage());
@@ -47,6 +48,7 @@ public class CourseService extends Service {
             this.em.getTransaction().begin();
             this.em.merge(course);
             this.em.getTransaction().commit();
+            lastChange.put(course.getId(),new Date());
         }catch (Exception e){
             logger.error("add" + e.getMessage());
             return new CrxResponse("ERROR",e.getMessage());
@@ -138,6 +140,7 @@ public class CourseService extends Service {
             this.em.getTransaction().begin();
             this.em.merge(appointment);
             this.em.getTransaction().commit();
+            lastChange.put(appointment.getCourseId(),new Date());
         }
         catch (Exception e){
             logger.error("register" + e.getMessage());
@@ -160,6 +163,7 @@ public class CourseService extends Service {
             this.em.getTransaction().begin();
             this.em.merge(appointment);
             this.em.getTransaction().commit();
+            lastChange.put(appointment.getCourseId(),new Date());
         }
         catch (Exception e){
             logger.error("register" + e.getMessage());
@@ -238,6 +242,17 @@ public class CourseService extends Service {
     }
     public CourseService(Session session, EntityManager em){
         super(session,em);
+    }
+
+    public Date getLastChange(Long id) {
+        Course course = this.em.find(Course.class, id);
+        if( course == null){
+            return null;
+        }
+        if (!lastChange.containsKey(id)) {
+            lastChange.put(id, new Date());
+        }
+        return lastChange.get(id);
     }
 
     public Course getById(Long courseId) {
