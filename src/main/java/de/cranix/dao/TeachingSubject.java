@@ -1,6 +1,7 @@
 package de.cranix.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -24,6 +25,7 @@ public class TeachingSubject extends AbstractEntity {
     private String name;
 
     @OneToMany(mappedBy = "teachingSubject", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<SubjectArea> subjectAreaList;
 
     @JsonIgnore

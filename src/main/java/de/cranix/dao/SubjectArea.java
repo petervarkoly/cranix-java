@@ -1,5 +1,6 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -20,9 +21,8 @@ public class SubjectArea extends AbstractEntity{
     @Size(max = 64, message = "Name of a teaching subject must not be longer then 64 characters")
     private String name;
 
-    @NotNull
     @ManyToOne
-    @JsonIgnore
+    @JsonBackReference
     @JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private TeachingSubject teachingSubject;
 
