@@ -259,15 +259,13 @@ public class ProxyService extends Service {
 				int count = user.getOwnedPositiveLists().size();
 				positiveList.setName(user.getUid() + String.valueOf(count));
 				positiveList.setCreator(user);
-				if( positiveList.getSubject() == null || positiveList.getSubject().isEmpty() ) {
-					positiveList.setSubject(positiveList.getName());
-				}
 				this.em.persist(positiveList);
 				user.getOwnedPositiveLists().add(positiveList);
 				this.em.merge(user);
 			} else {
 				oldPositiveList.setDescription(positiveList.getDescription());
-				oldPositiveList.setSubject(positiveList.getSubject());
+				oldPositiveList.setSubjectArea(positiveList.getSubjectArea());
+				oldPositiveList.setTeachingSubject(positiveList.getTeachingSubject());
 				this.em.merge(oldPositiveList);
 			}
 			this.em.getTransaction().commit();
@@ -282,7 +280,6 @@ public class ProxyService extends Service {
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
 			return new CrxResponse("ERROR", e.getMessage());
-		} finally {
 		}
 	}
 
