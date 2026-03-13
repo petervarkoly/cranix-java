@@ -159,7 +159,7 @@ public class CourseService extends Service {
             if (appointment == null) {
                 return new CrxResponse("ERROR","Can not find Appointment to register");
             }
-            appointment.addUser(user);
+            appointment.getUsers().remove(user);
             this.em.getTransaction().begin();
             this.em.merge(appointment);
             this.em.getTransaction().commit();
@@ -169,7 +169,7 @@ public class CourseService extends Service {
             logger.error("register" + e.getMessage());
             return new CrxResponse("ERROR",e.getMessage());
         }
-        return new CrxResponse("OK","Your registration was successfully.");
+        return new CrxResponse("OK","Your registration was cancelled successfully.");
     }
 
     public void sendNotification(Course course, User user, String dirName){
@@ -198,8 +198,8 @@ public class CourseService extends Service {
                     .replaceAll("#TITLE#", course.getTitle())
                     .replaceAll("#SURNAME#", user.getSurName())
                     .replaceAll("#GIVENNAME#", user.getGivenName())
-                    .replaceAll("#FROM#", dateFormat.format(course.getStartDate()))
-                    .replaceAll("#UNTIL#", dateFormat.format(course.getEndDate()))
+                    .replaceAll("#FROM#", course.getStartDate())
+                    .replaceAll("#UNTIL#", course.getEndDate())
                     .replaceAll("#REGSART#", dateTimeFormat.format(course.getStartRegistration()))
                     .replaceAll("#REGEND#", dateTimeFormat.format(course.getEndRegistration()));
             String fileName = dirName + "/" + user.getUuid();
