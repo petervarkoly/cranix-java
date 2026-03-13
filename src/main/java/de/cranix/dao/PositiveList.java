@@ -20,17 +20,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 })
 public class PositiveList extends AbstractEntity {
 
-	@Column(name="description", length=64)
-	@Size(max=64, message="Description must not be longer then 64 characters.")
-	private String description;
-
 	@Column(name="name", length=32)
 	@Size(max=32, message="Name must not be longer then 32 characters.")
 	private String name;
 
-	@Column(name="subject", length=32)
-	@Size(max=32, message="Subject must not be longer then 32 characters.")
-	private String subject;
+	@Column(name="description", length=64)
+	@Size(max=64, message="Description must not be longer then 64 characters.")
+	private String description;
+
+	@ManyToOne()
+	@JoinColumn(name="teachingsubject_id", columnDefinition ="BIGINT UNSIGNED")
+	private TeachingSubject teachingSubject;
+
+	@ManyToOne()
+	@JoinColumn(name="subjectarea_id", columnDefinition ="BIGINT UNSIGNED")
+	private SubjectArea subjectArea;
 
 	@Transient
 	private String domains;
@@ -54,14 +58,6 @@ public class PositiveList extends AbstractEntity {
 		this.name = name;
 	}
 
-	public String getSubject() {
-		return this.subject;
-	}
-
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
 	public void setDomains(String domains) {
 		this.domains = domains;
 	}
@@ -70,4 +66,19 @@ public class PositiveList extends AbstractEntity {
 		return this.domains;
 	}
 
+	public TeachingSubject getTeachingSubject() {
+		return teachingSubject;
+	}
+
+	public void setTeachingSubject(TeachingSubject teachingSubject) {
+		this.teachingSubject = teachingSubject;
+	}
+
+	public SubjectArea getSubjectArea() {
+		return subjectArea;
+	}
+
+	public void setSubjectArea(SubjectArea subjectArea) {
+		this.subjectArea = subjectArea;
+	}
 }
