@@ -1,5 +1,7 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,7 +60,8 @@ public class ParentTeacherMeeting extends AbstractEntity {
     )
     private List<Group> classes = new ArrayList<Group>();
 
-    @OneToMany(mappedBy = "parentTeacherMeeting", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentTeacherMeeting", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     List<PTMTeacherInRoom> ptmTeacherInRoomList = new ArrayList<>();
 
     @Convert(converter=BooleanToStringConverter.class)

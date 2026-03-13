@@ -1,5 +1,6 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.util.Date;
 public class PTMEvent extends AbstractEntity {
 
     @ManyToOne
-    @JsonIgnore
+    @JsonBackReference
     @JoinColumn(name = "ptmtir_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")
     private PTMTeacherInRoom teacherInRoom;
 

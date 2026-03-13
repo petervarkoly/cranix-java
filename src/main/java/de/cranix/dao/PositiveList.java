@@ -27,7 +27,7 @@ public class PositiveList extends AbstractEntity {
 	@Column(name="name", length=32)
 	@Size(max=32, message="Name must not be longer then 32 characters.")
 	private String name;
-		
+
 	@Column(name="subject", length=32)
 	@Size(max=32, message="Subject must not be longer then 32 characters.")
 	private String subject;

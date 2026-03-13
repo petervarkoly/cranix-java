@@ -344,9 +344,9 @@ public class PTMService extends Service {
             this.em.getTransaction().commit();
             lastChange.put(oldEvent.getTeacherInRoom().getParentTeacherMeeting().getId(), new Date());
             if (block) {
-                return new CrxResponse("OK", "Event was blocked");
+                return new CrxResponse("OK", "Event has been blocked");
             }
-            return new CrxResponse("OK", "Event was released");
+            return new CrxResponse("OK", "Event has been unblocked");
         } catch (Exception e) {
             return new CrxResponse("ERROR", e.getMessage());
         }

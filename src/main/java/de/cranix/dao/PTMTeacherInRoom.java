@@ -1,6 +1,8 @@
 package de.cranix.dao;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.Date;
 public class PTMTeacherInRoom extends AbstractEntity{
 
     @ManyToOne
-    @JsonIgnore
+    @JsonBackReference
     @JoinColumn(name = "ptm_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private ParentTeacherMeeting parentTeacherMeeting;
 
@@ -24,7 +26,8 @@ public class PTMTeacherInRoom extends AbstractEntity{
     @JoinColumn(name = "teacher_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")
     private User teacher;
 
-    @OneToMany(mappedBy = "teacherInRoom", cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "teacherInRoom", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @JsonManagedReference
     private List<PTMEvent> events = new ArrayList<>();
 
     public PTMTeacherInRoom(){
