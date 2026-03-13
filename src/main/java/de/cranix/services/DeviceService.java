@@ -133,6 +133,16 @@ public class DeviceService extends Service {
             //Start the transaction
             logger.debug("Transaction active 0:" + this.em.getTransaction().isActive());
             this.em.getTransaction().begin();
+            for(Session deviceSession: device.getSessions()){
+                if(this.session.equals(deviceSession)){
+                    this.em.getTransaction().rollback();
+                    return new CrxResponse("ERROR", "You must not delete the device on which you are logged in.");
+                }
+                this.em.remove(deviceSession);
+            }
+            this.em.getTransaction().commit();
+            logger.debug("Transaction 1 closed.");
+            this.em.getTransaction().begin();
             if (hwconf != null) {
                 //Remove device from the hwconf.
                 hwconf.getDevices().remove(device);
@@ -176,6 +186,7 @@ public class DeviceService extends Service {
                 loggedInUser.getLoggedOn().remove(device);
                 this.em.merge(loggedInUser);
             }
+
             //Remove salt sls file if exists
             File saltFile = new File("/srv/salt/crx_device_" + device.getName() + ".sls");
             if (saltFile.exists()) {
@@ -187,14 +198,14 @@ public class DeviceService extends Service {
                 }
             }
             //this.deletAllConfigs(device);
+            this.em.getTransaction().commit();
+            logger.debug("Transaction 2. closed.");
+            this.em.getTransaction().begin();
             room.getDevices().remove(device);
             this.em.merge(room);
-            this.em.getTransaction().commit();
-            logger.debug("Transaction active 1:" + this.em.getTransaction().isActive());
-            this.em.getTransaction().begin();
             this.em.remove(device);
             this.em.getTransaction().commit();
-            logger.debug("Transaction closed 2:" + this.em.getTransaction().isActive());
+            logger.debug("Transaction 3. closed.");
             startPlugin("delete_device", device);
             if (atomic && needReloadSalt) {
                 new SoftwareService(this.session, this.em).rewriteTopSls();
@@ -206,6 +217,9 @@ public class DeviceService extends Service {
             }
             return new CrxResponse("OK", "%s was deleted successfully.", null, name);
         } catch (Exception e) {
+            if(this.em.getTransaction().isActive()){
+                this.em.getTransaction().rollback();
+            }
             logger.error("device: " + device.getName() + " " + e.getMessage(), e);
             return new CrxResponse("ERROR", e.getMessage());
         }
