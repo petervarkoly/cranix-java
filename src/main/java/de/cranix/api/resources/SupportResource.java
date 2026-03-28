@@ -69,7 +69,7 @@ public class SupportResource {
 	@RolesAllowed({"system.support"})
 	public Object getAll(
 			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("tickedId") Long ticketId
+			@PathParam("ticketId") Long ticketId
 
 	){
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();

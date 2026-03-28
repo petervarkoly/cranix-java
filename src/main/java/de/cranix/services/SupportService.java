@@ -43,6 +43,7 @@ public class SupportService extends Service {
         supportEmailFrom = supportRequest.getEmail();
         if (supportRequest.getRegcode() == null || supportRequest.getRegcode().isEmpty()) {
             supportRequest.setRegcode(regCode);
+            supportRequest.setCranixUserId(this.session.getUser().getId());
         }
         if (supportRequest.getProduct() == null || supportRequest.getProduct().isEmpty()) {
             supportRequest.setProduct("CRANIX");
