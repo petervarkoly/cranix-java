@@ -150,14 +150,14 @@ public class SupportService extends Service {
         try {
             file = File.createTempFile("support", ".json", new File(cranixTmpDir));
             PrintWriter writer = new PrintWriter(file.getPath(), "UTF-8");
-            writer.print(article);
+            writer.print(new ObjectMapper().writeValueAsString(article));
             writer.close();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return new CrxResponse("ERROR", e.getMessage());
         }
         String url = "http://zadmin:9080/api/tickets/regcodes/" + regCode + "/" + ticketId;
-        String[] program = new String[11];
+        String[] program = new String[12];
         StringBuffer reply = new StringBuffer();
         StringBuffer stderr = new StringBuffer();
         program[0] = "/usr/bin/curl";
