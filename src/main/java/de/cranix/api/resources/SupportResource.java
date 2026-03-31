@@ -6,9 +6,7 @@ import static de.cranix.api.resources.Resource.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManager;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 
 import de.cranix.dao.CrxResponse;
 import de.cranix.dao.Session;
@@ -23,28 +21,75 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.util.List;
+
+
+@Produces(JSON_UTF8)
 @Path("support")
 @Api(value = "support")
 public class SupportResource {
 
-	public SupportResource() {}
+    public SupportResource() {
+    }
 
-	@POST
-	@Path("create")
-	@Produces(JSON_UTF8)
-	@ApiOperation(value = "Create a support request.")
-	@ApiResponses(value = {
-		@ApiResponse(code = 400, message = "Missing data for request"),
-		@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("system.support")
-	public CrxResponse create(
+    @POST
+    @Path("create")
+    @ApiOperation(value = "Create a support request.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Missing data for request"),
+            @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
+    @RolesAllowed({"system.support"})
+    public CrxResponse create(
+            @ApiParam(hidden = true) @Auth Session session,
+            SupportRequest supportRequest) {
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new SupportService(session, em).create(supportRequest);
+        em.close();
+        return resp;
+    }
+
+	@GET
+	@Path("{status}")
+	@ApiOperation(value = "Get all tickets corresponding to the institute and the session user")
+	@RolesAllowed({"system.support"})
+	public Object getAll(
 			@ApiParam(hidden = true) @Auth Session session,
-		       	SupportRequest supportRequest)
-       	{
+			@PathParam("status") String status
+
+	){
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new SupportService(session,em).create(supportRequest);
+		Object resp = new SupportService(session, em).getAll(status);
 		em.close();
 		return resp;
 	}
 
+	@GET
+	@Path("tickets/{ticketId}")
+	@ApiOperation(value = "Get all articles corresponding to the ticket.")
+	@RolesAllowed({"system.support"})
+	public Object getAll(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("ticketId") Long ticketId
+
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Object resp = new SupportService(session, em).getArticle(ticketId);
+		em.close();
+		return resp;
+	}
+
+	@POST
+	@Path("tickets/{ticketId}")
+	@ApiOperation(value = "Creates an article to an ticket.")
+	@RolesAllowed({"system.support"})
+	public Object getAll(
+			@ApiParam(hidden = true) @Auth Session session,
+			@PathParam("ticketId") Long ticketId,
+			Object article
+	){
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Object resp = new SupportService(session, em).addArticle(ticketId, article);
+		em.close();
+		return resp;
+	}
 }
