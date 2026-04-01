@@ -1,4 +1,4 @@
-/* (c) 2020 Péter Varkoly <peter@varkoly.de> - all rights reserved */
+/* (c) 2019-2026 Péter Varkoly <peter@varkoly.de> - all rights reserved */
 /* (c) 2018 EXTIS GmbH - all rights reserved */
 package de.cranix.api.resources;
 
@@ -38,58 +38,57 @@ public class SupportResource {
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Missing data for request"),
             @ApiResponse(code = 500, message = "Server broken, please contact administrator")})
-    @RolesAllowed({"system.support"})
+    @RolesAllowed({"system.support", "cephalix.support"})
     public CrxResponse create(
             @ApiParam(hidden = true) @Auth Session session,
-            SupportRequest supportRequest) {
+            SupportRequest supportRequest
+    ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
         CrxResponse resp = new SupportService(session, em).create(supportRequest);
         em.close();
         return resp;
     }
 
-	@GET
-	@Path("{status}")
-	@ApiOperation(value = "Get all tickets corresponding to the institute and the session user")
-	@RolesAllowed({"system.support"})
-	public Object getAll(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("status") String status
+    @GET
+    @Path("{status}")
+    @ApiOperation(value = "Get all tickets corresponding to the institute and the session user")
+    @RolesAllowed({"cephalix.support"})
+    public Object getAll(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("status") String status
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new SupportService(session, em).getAll(status);
+        em.close();
+        return resp;
+    }
 
-	){
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		Object resp = new SupportService(session, em).getAll(status);
-		em.close();
-		return resp;
-	}
+    @GET
+    @Path("tickets/{ticketId}")
+    @ApiOperation(value = "Get all articles corresponding to the ticket.")
+    @RolesAllowed({"cephalix.support"})
+    public Object getAll(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("ticketId") Long ticketId
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new SupportService(session, em).getArticle(ticketId);
+        em.close();
+        return resp;
+    }
 
-	@GET
-	@Path("tickets/{ticketId}")
-	@ApiOperation(value = "Get all articles corresponding to the ticket.")
-	@RolesAllowed({"system.support"})
-	public Object getAll(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("ticketId") Long ticketId
-
-	){
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		Object resp = new SupportService(session, em).getArticle(ticketId);
-		em.close();
-		return resp;
-	}
-
-	@POST
-	@Path("tickets/{ticketId}")
-	@ApiOperation(value = "Creates an article to an ticket.")
-	@RolesAllowed({"system.support"})
-	public Object getAll(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("ticketId") Long ticketId,
-			Object article
-	){
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		Object resp = new SupportService(session, em).addArticle(ticketId, article);
-		em.close();
-		return resp;
-	}
+    @POST
+    @Path("tickets/{ticketId}")
+    @ApiOperation(value = "Creates an article to an ticket.")
+    @RolesAllowed({"cephalix.support"})
+    public Object getAll(
+            @ApiParam(hidden = true) @Auth Session session,
+            @PathParam("ticketId") Long ticketId,
+            Object article
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Object resp = new SupportService(session, em).addArticle(ticketId, article);
+        em.close();
+        return resp;
+    }
 }
