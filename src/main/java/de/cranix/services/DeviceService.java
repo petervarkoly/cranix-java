@@ -166,16 +166,6 @@ public class DeviceService extends Service {
                 sl.getDevices().remove(device);
                 this.em.merge(sl);
             }
-            //Clean up printers
-            for (Printer pr : device.getAvailablePrinters()) {
-                pr.getAvailableForDevices().remove(device);
-                this.em.merge(pr);
-            }
-            if (device.getDefaultPrinter() != null) {
-                Printer pr = device.getDefaultPrinter();
-                pr.getDefaultForDevices().remove(device);
-                this.em.merge(pr);
-            }
             //Clean up categories
             for (Category cat : device.getCategories()) {
                 cat.getDevices().remove(device);
@@ -721,9 +711,7 @@ public class DeviceService extends Service {
             }
             this.em.getTransaction().begin();
             device.setDefaultPrinter(printer);
-            printer.getDefaultForDevices().add(device);
             this.em.merge(device);
-            this.em.merge(printer);
             this.em.getTransaction().commit();
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
@@ -752,9 +740,7 @@ public class DeviceService extends Service {
             try {
                 this.em.getTransaction().begin();
                 device.setDefaultPrinter(null);
-                printer.getDefaultForDevices().remove(device);
                 this.em.merge(device);
-                this.em.merge(printer);
                 this.em.getTransaction().commit();
                 Map<String, String> tmpMap = new HashMap<>();
                 tmpMap.put("name", printer.getName());
@@ -786,9 +772,7 @@ public class DeviceService extends Service {
             }
             this.em.getTransaction().begin();
             device.getAvailablePrinters().add(printer);
-            printer.getDefaultForDevices().add(device);
             this.em.merge(device);
-            this.em.merge(printer);
             this.em.getTransaction().commit();
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
@@ -816,9 +800,7 @@ public class DeviceService extends Service {
             }
             this.em.getTransaction().begin();
             device.getAvailablePrinters().remove(printer);
-            printer.getDefaultForDevices().remove(device);
             this.em.merge(device);
-            this.em.merge(printer);
             this.em.getTransaction().commit();
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());

@@ -7,7 +7,7 @@ import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(
@@ -28,32 +28,11 @@ public class Printer extends AbstractEntity {
 
     //bi-directional many-to-one association to HWConf
     @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "device_id", columnDefinition = "BIGINT UNSIGNED NOT NULL")
+    @JsonBackReference
+    @JoinColumn(name = "device_id", columnDefinition = "BIGINT UNSIGNED")
     private Device device;
 
-    //bi-directional many-to-many association to Device
-    @ManyToMany(mappedBy = "availablePrinters", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JsonIgnore
-    private List<Device> availableForDevices;
-
-    //bi-directional many-to-many association to Device
-    @OneToMany(mappedBy = "defaultPrinter")
-    @JsonIgnore
-    private List<Device> defaultForDevices;
-
-    //bi-directional many-to-many association to Room
-    @ManyToMany(mappedBy = "availablePrinters", cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JsonIgnore
-    private List<Room> availableInRooms;
-
-    //bi-directional many-to-many association to Room
-    @OneToMany(mappedBy = "defaultPrinter")
-    @JsonIgnore
-    private List<Room> defaultInRooms;
-
     // Transient variable:
-
     @Transient
     private String manufacturer;
 
@@ -176,38 +155,6 @@ public class Printer extends AbstractEntity {
 
     public void setWindowsDriver(boolean windowsDriver) {
         this.windowsDriver = windowsDriver;
-    }
-
-    public List<Device> getAvailableForDevices() {
-        return availableForDevices;
-    }
-
-    public void setAvailableForDevices(List<Device> availableForDevices) {
-        this.availableForDevices = availableForDevices;
-    }
-
-    public List<Device> getDefaultForDevices() {
-        return defaultForDevices;
-    }
-
-    public void setDefaultForDevices(List<Device> defaultForDevices) {
-        this.defaultForDevices = defaultForDevices;
-    }
-
-    public List<Room> getAvailableInRooms() {
-        return availableInRooms;
-    }
-
-    public void setAvailableInRooms(List<Room> availableInRooms) {
-        this.availableInRooms = availableInRooms;
-    }
-
-    public List<Room> getDefaultInRooms() {
-        return defaultInRooms;
-    }
-
-    public void setDefaultInRooms(List<Room> defaultInRooms) {
-        this.defaultInRooms = defaultInRooms;
     }
 
     public String getDeviceName() {

@@ -983,13 +983,9 @@ public class RoomService extends Service {
             return;
         }
         room.setDefaultPrinter(printer);
-        if( !printer.getDefaultInRooms().contains(room)) {
-            printer.getDefaultInRooms().add(room);
-        }
         try {
             this.em.getTransaction().begin();
             this.em.merge(room);
-            this.em.merge(printer);
             this.em.getTransaction().commit();
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
@@ -1012,11 +1008,9 @@ public class RoomService extends Service {
         Printer printer = room.getDefaultPrinter();
         if (printer != null) {
             room.setDefaultPrinter(null);
-            printer.getDefaultInRooms().remove(room);
             try {
                 this.em.getTransaction().begin();
                 this.em.merge(room);
-                this.em.merge(printer);
                 this.em.getTransaction().commit();
 				Map<String, String> tmpMap = new HashMap<>();
 				tmpMap.put("name", printer.getName());
@@ -1038,10 +1032,8 @@ public class RoomService extends Service {
                 return;
             }
             room.getAvailablePrinters().add(printer);
-            printer.getAvailableInRooms().add(room);
             this.em.getTransaction().begin();
             this.em.merge(room);
-            this.em.merge(printer);
             this.em.getTransaction().commit();
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());
@@ -1063,9 +1055,7 @@ public class RoomService extends Service {
             }
             this.em.getTransaction().begin();
             room.getAvailablePrinters().remove(printer);
-            printer.getAvailableInRooms().remove(room);
             this.em.merge(room);
-            this.em.merge(printer);
             this.em.getTransaction().commit();
             Map<String, String> tmpMap = new HashMap<>();
             tmpMap.put("name", printer.getName());

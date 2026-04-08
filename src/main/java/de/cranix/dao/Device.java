@@ -2,6 +2,7 @@
 package de.cranix.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.persistence.*;
@@ -103,7 +104,7 @@ public class Device extends AbstractEntity {
     //bi-directional many-to-many association to Device
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
-            name = "AvailablePrinters",
+            name = "DeviceAvailablePrinters",
             joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
             inverseJoinColumns = {@JoinColumn(name = "printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
     )
@@ -113,15 +114,15 @@ public class Device extends AbstractEntity {
     //bi-directional many-to-many association to Device
     @ManyToOne
     @JoinTable(
-            name = "DefaultPrinter",
+            name = "DeviceDefaultPrinter",
             joinColumns = {@JoinColumn(name = "device_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")},
             inverseJoinColumns = {@JoinColumn(name = "printer_id", columnDefinition ="BIGINT UNSIGNED NOT NULL")}
     )
     @JsonIgnore
     private Printer defaultPrinter;
 
-    @OneToMany(mappedBy = "device")
-    @JsonIgnore
+    @OneToMany(mappedBy = "device", cascade ={CascadeType.ALL}, orphanRemoval = true)
+    @JsonManagedReference
     private List<Printer> printerQueue = new ArrayList<Printer>();
 
     //bi-directional many-to-many association to Device

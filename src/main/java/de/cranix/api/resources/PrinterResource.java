@@ -66,7 +66,7 @@ public class PrinterResource {
 		@FormDataParam("file")	 final FormDataContentDisposition contentDispositionHeader
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new PrinterService(session,em).addPrinter(name.toLowerCase().trim(),mac,roomId,ip,model,windowsDriver,fileInputStream,contentDispositionHeader);
+		CrxResponse resp = new PrinterService(session,em).addPrinter(name.toLowerCase().trim(),mac,roomId,ip,model,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
 	}
@@ -88,7 +88,7 @@ public class PrinterResource {
 		@FormDataParam("file")	  final FormDataContentDisposition contentDispositionHeader
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new PrinterService(session,em).addPrinterQueue(session,name.toLowerCase().trim(),deviceId,model,windowsDriver,fileInputStream,contentDispositionHeader);
+		CrxResponse resp = new PrinterService(session,em).addPrinterQueue(session,name.toLowerCase().trim(),deviceId,model,fileInputStream,contentDispositionHeader);
 		em.close();
 		return resp;
 	}
@@ -209,42 +209,6 @@ public class PrinterResource {
 	) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		CrxResponse resp = new PrinterService(session,em).enablePrinter(printerId);
-		em.close();
-		return resp;
-	}
-
-	@PUT
-	@Path("{printerId}/disable")
-	@ApiOperation(value = "Disable a printer")
-	@ApiResponses(value = {
-		@ApiResponse(code = 404, message = "No device was found"),
-		@ApiResponse(code = 405, message = "Device is not a Printer."),
-		@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printer.manage")
-	public CrxResponse disablePrinter(
-		@ApiParam(hidden = true) @Auth Session session,
-		@PathParam("printerId")		Long printerId
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new PrinterService(session,em).disablePrinter(printerId);
-		em.close();
-		return resp;
-	}
-
-	@PUT
-	@Path("{printerId}/activateWindowsDriver")
-	@ApiOperation(value = "Add a new group or user to a giwen AdHocLan room")
-	@ApiResponses(value = {
-			@ApiResponse(code = 404, message = "No device was found"),
-			@ApiResponse(code = 405, message = "Device is not a Printer."),
-			@ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-	@RolesAllowed("printer.add")
-	public CrxResponse activateWindowsDriver(
-			@ApiParam(hidden = true) @Auth Session session,
-			@PathParam("printerId")		Long printerId
-	) {
-		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		CrxResponse resp = new PrinterService(session,em).activateWindowsDriver(printerId);
 		em.close();
 		return resp;
 	}

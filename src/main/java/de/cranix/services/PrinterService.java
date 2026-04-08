@@ -143,7 +143,6 @@ public class PrinterService extends Service {
                 printer.setModel(getModel(printer.getName()));
                 printer.setState(p.getString("status", "disabled"));
                 printer.setAcceptingJobs(p.getBoolean("acceptingJobs", false));
-                printer.setWindowsDriver(p.getBoolean("windowsDriver", false));
                 printer.setActiveJobs(p.getInt("activeJobs", 0));
                 printer.setModel(getModel(p.getString("name")));
                 printers2.add(printer);
@@ -191,23 +190,6 @@ public class PrinterService extends Service {
             startPlugin("delete_printer_queue", createLiteralJson(tmpMap));
             printerDevice.getPrinterQueue().remove(printer);
             this.em.getTransaction().begin();
-            //Remove this printer from rooms and devices as default or available printer
-            for(Room room: printer.getDefaultInRooms() ){
-                room.setDefaultPrinter(null);
-                this.em.merge(room);
-            }
-            for(Device device: printer.getDefaultForDevices() ){
-                device.setDefaultPrinter(null);
-                this.em.merge(device);
-            }
-            for(Room room: printer.getAvailableInRooms() ){
-                room.getAvailablePrinters().remove(printer);
-                this.em.merge(room);
-            }
-            for(Device device: printer.getAvailableForDevices() ){
-                device.getAvailablePrinters().remove(printer);
-                this.em.merge(device);
-            }
             this.em.remove(printer);
             this.em.merge(printerDevice);
             this.em.getTransaction().commit();
@@ -225,34 +207,16 @@ public class PrinterService extends Service {
         return crxResponse;
     }
 
-    public CrxResponse activateWindowsDriver(Long id) {
-        Printer printer = this.getById(id);
-        if (printer == null) {
-            return new CrxResponse("ERROR", "Can not find the printer.");
-        }
-        return this.activateWindowsDriver(printer.getName());
-    }
-
-    public CrxResponse activateWindowsDriver(String printerName) {
-        logger.debug("Activating windows driver for: " + printerName);
-        Map<String, String> tmpMap = new HashMap<>();
-        tmpMap.put("name",printerName);
-        tmpMap.put("action","activateWindowsDriver");
-        startPlugin("manage_printer_queue", createLiteralJson(tmpMap));
-        return new CrxResponse("OK", "Windows driver activation was started.");
-    }
-
     public CrxResponse addPrinter(
             String name,
             String mac,
             Long roomId,
             String ip,
             String model,
-            boolean windowsDriver,
             InputStream fileInputStream,
             FormDataContentDisposition contentDispositionHeader) {
 
-        logger.debug("addPrinter: " + name + "#" + mac + "#" + roomId + "#" + model + "#" + (windowsDriver ? "yes" : "no") + "#" + session.getPassword());
+        logger.debug("addPrinter: " + name + "#" + mac + "#" + roomId + "#" + model + "#" + "#" + session.getPassword());
 
         //First we create a device object
         RoomService roomService = new RoomService(this.session, this.em);
@@ -270,7 +234,7 @@ public class PrinterService extends Service {
         if (crxResponse.getCode().equals("ERROR")) {
             return crxResponse;
         }
-        return addPrinterQueue(session, name, device.getId(), model, windowsDriver, fileInputStream, contentDispositionHeader);
+        return addPrinterQueue(session, name, device.getId(), model, fileInputStream, contentDispositionHeader);
     }
 
     public CrxResponse addPrinterQueue(
@@ -278,7 +242,6 @@ public class PrinterService extends Service {
             String name,
             Long deviceId,
             String model,
-            boolean windowsDriver,
             InputStream fileInputStream,
             FormDataContentDisposition contentDispositionHeader) {
 
@@ -335,12 +298,6 @@ public class PrinterService extends Service {
         tmpMap.put("hostName",deviceHostName);
         startPlugin("add_printer_queue", createLiteralJson(tmpMap));
 
-        if (windowsDriver) {
-            CrxResponse crxResponse = activateWindowsDriver(name);
-            if (crxResponse.getCode().equals("ERROR")) {
-                return crxResponse;
-            }
-        }
         enablePrinter(name);
 
         return new CrxResponse(
@@ -513,11 +470,6 @@ public class PrinterService extends Service {
                 case "enableprinter":
                     for (Long id : crxActionMap.getObjectIds()) {
                         responses.add(this.enablePrinter(id));
-                    }
-                    break;
-                case "activatewindowsdriver":
-                    for (Long id : crxActionMap.getObjectIds()) {
-                        responses.add(this.activateWindowsDriver(id));
                     }
                     break;
                 case "reset":
