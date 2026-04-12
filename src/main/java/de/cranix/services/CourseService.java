@@ -176,7 +176,7 @@ public class CourseService extends Service {
         SessionService sessionService = new SessionService(em);
         String gotoPath = "trusted/registerCourse/" + course.getId();
         Session courseSession = null;
-        logger.debug("student:" + user.getUid());
+        logger.debug("student: " + user.getUid());
         for (Session session1 : user.getSessions()) {
             if (session1.getGotoPath() != null && session1.getGotoPath().equals(gotoPath)) {
                 courseSession = session1;
@@ -202,7 +202,8 @@ public class CourseService extends Service {
                     .replaceAll("#UNTIL#", course.getEndDate())
                     .replaceAll("#REGSART#", dateTimeFormat.format(course.getStartRegistration()))
                     .replaceAll("#REGEND#", dateTimeFormat.format(course.getEndRegistration()));
-            String fileName = dirName + "/" + user.getUuid();
+            String fileName = dirName + "/" + user.getUid();
+	    logger.debug("fileName: "+ fileName);
             String mailAddress = user.getEmailAddress();
             Files.write(Paths.get(fileName), message.getBytes());
             Files.write(Paths.get(fileName + ".mailAddress"), mailAddress.getBytes());
@@ -211,7 +212,7 @@ public class CourseService extends Service {
             String subject = subjectTemplate.replaceAll("#TITLE#", course.getTitle());
             Files.write(Paths.get(fileName + ".subject"), subject.getBytes());
         }catch (Exception e){
-            logger.error("sendNotification" + e.getMessage());
+            logger.error("sendNotification: " + e.getMessage());
         }
     }
     public CrxResponse sendNotifications(Long id) {
