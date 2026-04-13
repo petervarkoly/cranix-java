@@ -28,7 +28,6 @@ public abstract class AbstractEntity implements Serializable {
             name="creator_id",
             columnDefinition ="BIGINT UNSIGNED"
     )
-    @JsonIgnore
     protected User creator;
 
     @Transient
