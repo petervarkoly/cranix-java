@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.io.IOException;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -53,7 +54,7 @@ public class CourseService extends Service {
             logger.error("add" + e.getMessage());
             return new CrxResponse("ERROR",e.getMessage());
         }
-        return new CrxResponse("OK","Course was created successfully.");
+        return new CrxResponse("OK","Course was modified successfully.");
     }
 
     public CrxResponse delete(Long id){
@@ -192,8 +193,7 @@ public class CourseService extends Service {
             );
         }
         try {
-            String template = Files.readString(Paths.get(cranixBaseDir + "templates/COURSES/Course.html"));
-            String message = template
+            String message = course.getDescription()
                     .replaceAll("#TOKEN#", courseSession.getToken())
                     .replaceAll("#TITLE#", course.getTitle())
                     .replaceAll("#SURNAME#", user.getSurName())
@@ -206,9 +206,12 @@ public class CourseService extends Service {
             String mailAddress = user.getEmailAddress();
             Files.write(Paths.get(fileName), message.getBytes());
             Files.write(Paths.get(fileName + ".mailAddress"), mailAddress.getBytes());
-            //Create subject
-            String subjectTemplate = Files.readString(Paths.get(cranixBaseDir + "templates/COURSES/CourseSubject"));
-            String subject = subjectTemplate.replaceAll("#TITLE#", course.getTitle());
+	    String subjectTemplate = Files.readString(Paths.get(cranixBaseDir + "templates/COURSES/CourseSubject"));
+            String subject = subjectTemplate
+		    .replaceAll("#TITLE#", course.getTitle())
+		    .replaceAll("#FROM#", course.getStartDate())
+		    .replaceAll("#UNTIL#", course.getEndDate());
+	    //String subject = course.subject.replaceAll("#TITLE#", course.getTitle());
             Files.write(Paths.get(fileName + ".subject"), subject.getBytes());
         }catch (Exception e){
             logger.error("sendNotification" + e.getMessage());
@@ -288,4 +291,40 @@ public class CourseService extends Service {
         }
         return new CrxResponse("OK", "Appointment was deleted successfully");
     }
+
+     public Map<String, String> getSettings() {
+        Map<String, String> result = new HashMap<>();
+	//for(Map<String, String> tmp: this.courseConfig.getConfig()){
+	// result.put(tmp.get("key"),tmp.get("value"));
+	//}
+        try {
+            result.put("SubjectTemplate", Files.readString(Paths.get(cranixBaseDir + "templates/COURSES/SubjectTemplate")));
+            result.put("LetterTemplate", Files.readString(Paths.get(cranixBaseDir + "templates/COURSES/LetterTemplate")));
+        } catch (IOException e) {
+	    logger.error(e.getMessage());
+        }
+        return  result;
+    }
+
+    public CrxResponse setSettings(Map<String, String> settings) {
+        for(String key: settings.keySet()){
+            try {
+                switch (key) {
+                    case "SubjectTemplate":
+                        Files.writeString(Paths.get(cranixBaseDir + "templates/COURSE/SubjectTemplate"), settings.get(key));
+                        break;
+                    case "LetterTemplate":
+                        Files.writeString(Paths.get(cranixBaseDir + "templates/PTM/LetterTemplate"), settings.get(key));
+                        break;
+                    //default:
+                    //    this.ptmConfig.courseConfigValue(key, settings.get(key));
+                }
+            } catch (IOException e){
+                logger.error(e.getMessage());
+                return new CrxResponse("ERROR",e.getMessage());
+            }
+        }
+        return new CrxResponse("OK","PTM Settings was saved successfully");
+    }
+
 }

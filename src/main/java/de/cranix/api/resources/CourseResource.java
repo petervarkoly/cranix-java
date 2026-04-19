@@ -18,6 +18,7 @@ import javax.ws.rs.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 
@@ -85,6 +86,33 @@ public class CourseResource {
         final CrxResponse ret = new CourseService(session, em).delete(id);
         em.close();
         return ret;
+    }
+
+    @GET
+    @Path("settings")
+    @RolesAllowed({"course.manage"})
+    @ApiOperation(value = "Gets the settings of the courses")
+    public Map<String, String> getSettings(
+            @ApiParam(hidden = true) @Auth Session session
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        Map<String, String> resp = new CourseService(session,em).getSettings();
+        em.close();
+        return resp;
+    }
+
+    @POST
+    @Path("settings")
+    @RolesAllowed({"course.manage"})
+    @ApiOperation(value = "Gets the settings of the courses")
+    public CrxResponse setSettings(
+            @ApiParam(hidden = true) @Auth Session session,
+            Map<String, String> settings
+    ){
+        EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+        CrxResponse resp = new CourseService(session,em).setSettings(settings);
+        em.close();
+        return resp;
     }
 
     @POST
