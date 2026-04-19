@@ -21,6 +21,9 @@ public class Course extends AbstractEntity {
     @Size(max=64, message="Title must not be longer then 64 characters.")
     private String title = "";
 
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "countOfParticipants")
     private Integer countOfParticipants = 5;
 
@@ -33,23 +36,17 @@ public class Course extends AbstractEntity {
     @Column( name = "endDate", columnDefinition = "DATE")
     private String endDate;
 
-    @Column(
-            name = "startRegistration",
-            columnDefinition = "timestamp"
-    )
+    @Column( name = "startRegistration", columnDefinition = "timestamp")
     @Temporal(TIMESTAMP)
     private Date startRegistration = new Date();
 
-    @Column(
-            name = "endRegistration",
-            columnDefinition = "timestamp"
-    )
+    @Column( name = "endRegistration", columnDefinition = "timestamp")
     @Temporal(TIMESTAMP)
     private Date endRegistration = new Date();
 
     @Convert(converter=BooleanToStringConverter.class)
-	@Column(name = "released", columnDefinition = "CHAR(1) DEFAULT 'N'")
-	private Boolean released = false;
+    @Column(name = "released", columnDefinition = "CHAR(1) DEFAULT 'N'")
+    private Boolean released = false;
 
     @ManyToMany()
     @JoinTable(
@@ -80,6 +77,14 @@ public class Course extends AbstractEntity {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Integer getCountOfParticipants() {
