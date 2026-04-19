@@ -1338,17 +1338,26 @@
                      }
                  }
              }
+             List<Category> categories = new ArrayList<>();
              for (Category category : device.getCategories()) {
-                 if (category.getCategoryType().equals("installation")) {
-                     for (Software software : category.getSoftwares()) {
-                         toRemove.remove(software);
-                         for (Software requirement : software.getSoftwareRequirements()) {
+                 if (category.getCategoryType().equals("installation")) categories.add(category);
+             }
+             for (Category category: device.getHwconf().getCategories()) {
+                 if (category.getCategoryType().equals("installation")) categories.add(category);
+             }
+             for (Category category: device.getRoom().getCategories()) {
+                 if (category.getCategoryType().equals("installation")) categories.add(category);
+             }
+             for(Category category: categories) {
+                 for (Software software : category.getSoftwares()) {
+                     toRemove.remove(software);
+                     for (Software requirement : software.getSoftwareRequirements()) {
                              toRemove.remove(requirement);
                              toInstall.add(String.format("%04d-%s", requirement.getWeight(), requirement.getName()));
                          }
                          toInstall.add(String.format("%04d-%s", software.getWeight(), software.getName()));
-                     }
                  }
+
              }
              softwaresToInstall.put(device.getName(), toInstall);
              softwaresToRemove.put(device.getName(), toRemove);
@@ -1434,7 +1443,7 @@
                      logger.debug("software " + softwareName + " must be installed or updated");
                      this.setInstallUpdateOnDevice(software, softwareVersion, device);
                  }
-                 /* If a software has an own sls file outside of the package directory
+                 /* If a software has an own sls file outside the package directory
                   * we have to include this files */
                  if (softwareMustBeIncluded.get(softwareName)) {
 					/* for( SoftwareLicense sl : device.getSoftwareLicenses() ) {
