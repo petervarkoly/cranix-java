@@ -13,11 +13,11 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 
 @Entity
 @Table(
-	name="CrxCalendar",
-	uniqueConstraints = { @UniqueConstraint(columnNames = { "uuid" }) }
+    name="CrxCalendar",
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "uuid" }) }
 )
 @NamedQueries({
-	@NamedQuery(name="CrxCalendar.findAll", query="SELECT c FROM CrxCalendar c")
+    @NamedQuery(name="CrxCalendar.findAll", query="SELECT c FROM CrxCalendar c")
 })
 public class CrxCalendar extends AbstractEntity {
 
@@ -149,9 +149,19 @@ public class CrxCalendar extends AbstractEntity {
         this.description = description;
     }
 
-    public String getLocation() { return location; }
+    public String getLocation() {
+        if(location.isEmpty() && room != null) {
+            return room.getName();
+        }
+        return location;
+    }
 
-    public void setLocation(String location) { this.location = location; }
+    public void setLocation(String location) {
+        //Set location only if this is not equal to the room name.
+        if(room == null || !room.getName().equals(location)) {
+             this.location = location;
+        }
+    }
 
     public List<Group> getGroups() {
         return groups;
@@ -186,14 +196,14 @@ public class CrxCalendar extends AbstractEntity {
     }
 
     public Long getDuration() {
-	    if( this.duration == null ) {
-	     	this.duration = this.end.getTime() - this.start.getTime();
-	    }
-	    return this.duration;
+        if( this.duration == null ) {
+             this.duration = this.end.getTime() - this.start.getTime();
+        }
+        return this.duration;
     }
 
     public void setDuration(Long duration) {
-	    this.duration = duration;
+        this.duration = duration;
     }
 
     public String getRrule() {
