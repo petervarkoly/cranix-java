@@ -3,13 +3,12 @@ package de.cranix.api.resources;
 
 import static de.cranix.api.resources.Resource.*;
 
+import de.cranix.dao.*;
+import de.cranix.services.DeviceService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
+import java.util.*;
 import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
 import javax.persistence.EntityManager;
@@ -18,10 +17,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import de.cranix.dao.Acl;
-import de.cranix.dao.Group;
-import de.cranix.dao.Printer;
-import de.cranix.dao.Session;
 import de.cranix.helper.CrxEntityManagerFactory;
 import de.cranix.services.SessionService;
 
@@ -259,7 +254,7 @@ public class SessionsResource {
 	@GET
 	@Path("logonScript/{OS}")
 	@Produces(TEXT)
-	@ApiOperation(value = "Get the logo on script for the user and operating system.")
+	@ApiOperation(value = "Get the log on script for the user and operating system.")
 	@ApiResponses(value = {
 		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
 	})
@@ -270,6 +265,42 @@ public class SessionsResource {
 	 ) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
 		String resp = new SessionService(session,em).logonScript(OS);
+		em.close();
+		return resp;
+	}
+
+	@GET
+	@Path("printer/{uid}/{device}")
+	@Produces(TEXT)
+	@ApiOperation(value = "Get the printers available for the user on a distinguished device.")
+	@ApiResponses(value = {
+		@ApiResponse(code = 500, message = "Server broken, please contact administrator")
+	})
+	public Object logonScript(
+		@Context HttpServletRequest req,
+		@PathParam("uid") String uid,
+		@PathParam("device") String deviceName
+	 ) {
+		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
+		Session session = new SessionService(em).getLocalhostSession();
+		DeviceService deviceService = new DeviceService(session, em);
+		Device device = deviceService.getByName(deviceName);
+		Map<String, Object> resp = new HashMap<>();
+		List<String> devices =  new ArrayList<>();
+		String defaultPrinter = "";
+		if (device != null) {
+
+			for(Printer printer: device.getAvailablePrinters()){
+				devices.add(printer.getName());
+			}
+			if( device.getDefaultPrinter() != null ) {
+				defaultPrinter = device.getDefaultPrinter().getName();
+				devices.add(defaultPrinter);
+			}
+		}
+		//TODO at the moment only the device is concidered.
+		resp.put("printers", devices);
+		resp.put("default", defaultPrinter);
 		em.close();
 		return resp;
 	}
