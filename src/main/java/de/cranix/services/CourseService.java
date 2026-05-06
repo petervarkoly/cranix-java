@@ -18,9 +18,6 @@ import static de.cranix.helper.CranixConstants.*;
 public class CourseService extends Service {
 
     Logger logger = LoggerFactory.getLogger(CourseService.class);
-    final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-    final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     static Map<Long, Date> lastChange = new HashMap<Long, Date>();
 
     public CrxResponse add(Course course){
@@ -174,6 +171,7 @@ public class CourseService extends Service {
     }
 
     public void sendNotification(Course course, User user, String dirName){
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         SessionService sessionService = new SessionService(em);
         String gotoPath = "trusted/registerCourse/" + course.getId();
         Session courseSession = null;
@@ -205,6 +203,9 @@ public class CourseService extends Service {
             String fileName = dirName + "/" + user.getUid();
 	    logger.debug("fileName: "+ fileName);
             String mailAddress = user.getEmailAddress();
+	    if (user.getEmailAddress() == null || user.getEmailAddress().isEmpty()) {
+                    mailAddress = user.getUid();
+            }
             Files.write(Paths.get(fileName), message.getBytes());
             Files.write(Paths.get(fileName + ".mailAddress"), mailAddress.getBytes());
 	    String subjectTemplate = Files.readString(Paths.get(cranixBaseDir + "templates/COURSES/CourseSubject"));
@@ -232,7 +233,7 @@ public class CourseService extends Service {
                 sendNotification(course, user, dirName.getPath());
             }
             Job sendMails = new Job(
-                    "Send notification for the Course " + dateFormat.format(course.getStartDate()),
+                    "Send notification for the Course " + course.getStartDate(),
                     null,
                     cranixBaseDir + "tools/COURSES/send_mails " + dirName.getPath(),
                     true
