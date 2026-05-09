@@ -23,6 +23,7 @@ echo 'DELETE FROM Enumerates WHERE value='education.users';'| mysql CRX
 echo 'DELETE FROM Acls WHERE Acl='education.users';'| mysql CRX
 echo 'DELETE FROM Enumerates WHERE value='user.guestusers';'| mysql CRX
 echo 'DELETE FROM Acls WHERE Acl='user.guestusers';'| mysql CRX
+echo "ALTER TABLE PositiveLists DROP subject;" | mysql CRX
 sleep 1
 if [ ${CRANIX_TYPE} = "cephalix" ]; then
 	/usr/bin/systemctl start cephalix-api
