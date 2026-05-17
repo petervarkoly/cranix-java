@@ -1066,6 +1066,7 @@ public class DeviceService extends Service {
             oldDevice.setRow(device.getRow());
             oldDevice.setInventary(device.getInventary());
             oldDevice.setSerial(device.getSerial());
+            oldDevice.setLocality(device.getLocality());
             logger.debug("OLD-Device-After-Merge" + oldDevice);
             this.em.getTransaction().begin();
             this.em.merge(oldDevice);
