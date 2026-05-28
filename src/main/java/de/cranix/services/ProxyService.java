@@ -251,11 +251,11 @@ public class ProxyService extends Service {
 	public CrxResponse editPositiveList(PositiveList positiveList) {
 		logger.debug(positiveList.toString());
 		PositiveList oldPositiveList = this.getPositiveListById(positiveList.getId());
+		User user = this.em.find(User.class, this.session.getUser().getId());
 		try {
 			positiveList.setCreator(session.getUser());
 			this.em.getTransaction().begin();
 			if( oldPositiveList == null ) {
-				User user = this.session.getUser();
 				int count = user.getOwnedPositiveLists().size();
 				positiveList.setName(user.getUid() + String.valueOf(count));
 				positiveList.setCreator(user);
@@ -263,10 +263,9 @@ public class ProxyService extends Service {
 				user.getOwnedPositiveLists().add(positiveList);
 				this.em.merge(user);
 			} else {
-				oldPositiveList.setDescription(positiveList.getDescription());
-				oldPositiveList.setSubjectArea(positiveList.getSubjectArea());
-				oldPositiveList.setTeachingSubject(positiveList.getTeachingSubject());
-				this.em.merge(oldPositiveList);
+
+				this.em.merge(positiveList);
+				this.em.merge(user);
 			}
 			this.em.getTransaction().commit();
 			String[] program   = new String[3];
@@ -280,7 +279,6 @@ public class ProxyService extends Service {
 		} catch (Exception e) {
 			logger.error("add " + e.getMessage(),e);
 			return new CrxResponse("ERROR", e.getMessage());
-		} finally {
 		}
 	}
 
