@@ -858,7 +858,8 @@ public class EducationResource {
 	@RolesAllowed("education.proxy")
 	public List<PositiveList> getMyPositiveLists( @ApiParam(hidden = true) @Auth Session session) {
 		EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-		List<PositiveList> resp = session.getUser().getOwnedPositiveLists();
+		User user = em.find(User.class, session.getUser().getId());
+		List<PositiveList> resp = user.getOwnedPositiveLists();
 		em.close();
 		return resp;
 	}
