@@ -150,7 +150,7 @@ public class GuestUserService extends Service{
             room.setDescription(guestUsers.getDescription());
             room.setRoomControl("allTeachers");
             room.setHwconf(roomService.getBYODHwconf());
-            room.setRoomType("adHocRoom");
+            room.setRoomType("AdHocAccess");
             crxResponse = roomService.add(room);
             if (crxResponse.getCode().equals("ERROR")) {
                 return crxResponse;
