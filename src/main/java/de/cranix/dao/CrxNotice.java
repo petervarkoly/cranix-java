@@ -1,11 +1,8 @@
 package de.cranix.dao;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.Date;
-
+import static javax.persistence.TemporalType.TIMESTAMP;
 @Entity
 @Table(name="CrxNotices")
 @NamedQueries({
@@ -20,22 +17,21 @@ public class CrxNotice extends AbstractEntity{
     @Column(name = "title", length = 64)
     private String title = "";
 
-    @Size(max=16, message="Notice type must not be longer then 12 characters.")
+    /*
+      At the moment we support following types of notices:
+      performance: general notice
+      grading: a grading notice
+      late:
+      absence: not excused absence
+      excused-absence: exused absence
+    */
+    @Size(max=16, message="Notice type must not be longer then 16 characters.")
     @Column(name = "noticeType", length = 16)
     private String noticeType = "";
 
-    @Column(name = "text", columnDefinition = "TEXT")
-    private String text = "";
-
-    @Column(name = "grading")
-    private Float grading = 0f;
-
-    @Column(name = "weighting")
-    private Float weighting = 1f;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "reminder")
-    private Date reminder;
+    @Convert(converter=BooleanToStringConverter.class)
+	@Column(name = "private", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+	private Boolean isPrivate;
 
     @Column(name = "objectType")
     @Size(max = 12, message = "objectType must not be longer then 12 characters.")
@@ -46,6 +42,31 @@ public class CrxNotice extends AbstractEntity{
 
     @Column(name = "ptmId", columnDefinition ="BIGINT UNSIGNED")
     private Long ptmId;
+
+    @Column(name = "text", columnDefinition = "TEXT")
+    private String text = "";
+
+    @Column(name = "grading")
+    private Float grading = 0f;
+
+    @Column(name = "weighting")
+    private Float weighting = 1f;
+
+    @Temporal(TIMESTAMP)
+    @Column(name = "reminder")
+    private Date reminder;
+
+    // This variable contains the amount of minutes of the late
+    @Column(name = "late")
+    private Integer late;
+
+    // This variable contains the start of absence or late: YYYY-MM-DD
+    @Column(name = "absence1", length = 64)
+    private String absence1;
+
+    // This variable contains the end of absence as date or the lessen if absence is unexcused or the user is late
+    @Column(name = "absence2", length = 64)
+    private String absence2;
 
     @ManyToOne()
     @JoinColumn(
@@ -147,5 +168,22 @@ public class CrxNotice extends AbstractEntity{
 
     public void setPtmId(Long ptmId) {
         this.ptmId = ptmId;
+    }
+
+    public String getAbsence1() {
+        return absence1;
+    }
+
+    public void setAbsence1(String absence1) {
+        this.absence1 = absence1;
+    }
+
+
+    public String getAbsence2() {
+        return absence2;
+    }
+
+    public void setAbsence2(String absence2) {
+        this.absence2 = absence2;
     }
 }
