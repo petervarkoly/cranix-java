@@ -170,6 +170,14 @@ public class CrxNotice extends AbstractEntity{
         this.ptmId = ptmId;
     }
 
+    public Integer getLate() {
+        return late;
+    }
+
+    public void setLate(Integer late) {
+        this.late = late;
+    }
+
     public String getAbsence1() {
         return absence1;
     }
@@ -177,7 +185,6 @@ public class CrxNotice extends AbstractEntity{
     public void setAbsence1(String absence1) {
         this.absence1 = absence1;
     }
-
 
     public String getAbsence2() {
         return absence2;
