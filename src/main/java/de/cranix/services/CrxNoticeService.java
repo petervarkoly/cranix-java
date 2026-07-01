@@ -10,8 +10,12 @@ import javax.ws.rs.WebApplicationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CrxNoticeService extends Service{
+
+    Logger logger = LoggerFactory.getLogger(CrxNoticeService.class);
 
     public CrxNoticeService(Session session, EntityManager em){
         super(session,em);
@@ -19,6 +23,7 @@ public class CrxNoticeService extends Service{
 
     public CrxResponse add(CrxNotice notice){
         try {
+            logger.debug("CrxNotice add:" + notice);
             User user = em.find(User.class,this.session.getUserId());
             user.addCrxNotice(notice);
             em.getTransaction().begin();
@@ -52,6 +57,7 @@ public class CrxNoticeService extends Service{
     }
 
     public CrxResponse patch(CrxNotice notice) {
+        logger.debug("CrxNotice patch:" + notice);
         CrxNotice oldNotice = em.find(CrxNotice.class,notice.getId());
         if(oldNotice == null){
             return new CrxResponse("ERROR", "Notice was not found");
