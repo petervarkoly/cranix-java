@@ -13,7 +13,7 @@ import java.util.List;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 
-@Path("crxNotices")
+@Path("{path: (?i)crxnotices}")
 @Api(value = "crxNotices")
 @Produces(JSON_UTF8)
 public class CrxNoticeResource {
