@@ -23,7 +23,7 @@ public class CrxNoticeResource {
     @ApiOperation(value = "Adds a notice.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("notice.use")
+    @RolesAllowed("crxnotice.use")
     public CrxResponse add(
             @ApiParam(hidden = true) @Auth Session session,
             CrxNotice notice
@@ -39,7 +39,7 @@ public class CrxNoticeResource {
     @ApiOperation(value = "Gets all owned notices.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("notice.use")
+    @RolesAllowed("crxnotice.use")
     public List<CrxNotice> get(
             @ApiParam(hidden = true) @Auth Session session
     )
@@ -56,7 +56,7 @@ public class CrxNoticeResource {
     @ApiOperation(value = "Gets all owned notices.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("notice.use")
+    @RolesAllowed("crxnotice.use")
     public List<CrxNotice> getByFilter(
             @ApiParam(hidden = true) @Auth Session session,
             CrxNotice filter
@@ -74,10 +74,10 @@ public class CrxNoticeResource {
     @ApiOperation(value = "Deletes a notice.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("notice.use")
+    @RolesAllowed("crxnotice.use")
     public CrxNotice getById(
             @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("noticeId") Long noticeId
+            @PathParam("crxnoticeId") Long noticeId
     )
     {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
@@ -92,10 +92,10 @@ public class CrxNoticeResource {
     @ApiOperation(value = "Deletes a notice.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("notice.use")
+    @RolesAllowed("crxnotice.use")
     public CrxResponse delete(
             @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("noticeId") Long noticeId
+            @PathParam("crxnoticeId") Long noticeId
     )
     {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
@@ -108,7 +108,7 @@ public class CrxNoticeResource {
     @ApiOperation(value = "Modify a notice.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("notice.use")
+    @RolesAllowed("crxnotice.use")
     public CrxResponse patch(
             @ApiParam(hidden = true) @Auth Session session,
             CrxNotice notice
