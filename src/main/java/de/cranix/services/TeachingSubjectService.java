@@ -70,13 +70,13 @@ public class TeachingSubjectService extends Service {
     }
 
     public CrxResponse modify(TeachingSubject teachingSubject) {
-        TeachingSubject oldTeachingSubject = this.em.find(TeachingSubject.class,teachingSubject.getId());
+        /* TeachingSubject oldTeachingSubject = this.em.find(TeachingSubject.class,teachingSubject.getId());
         if(oldTeachingSubject == null) {
             return new CrxResponse("ERROR","Can not find teaching subject.");
         }
-        oldTeachingSubject.setName(teachingSubject.getName());
+        oldTeachingSubject.setName(teachingSubject.getName()); */
         this.em.getTransaction().begin();
-        this.em.merge(oldTeachingSubject);
+        this.em.merge(teachingSubject);
         this.em.getTransaction().commit();
         return new CrxResponse("OK","Teaching Subject was modified.");
     }

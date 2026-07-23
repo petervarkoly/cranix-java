@@ -200,7 +200,7 @@ public class ObjectResource {
 	Functions to manage teaching subjects and areas
 	 */
 	@GET
-	@Path("subjects")
+	@Path("teachingsubjects")
 	@ApiOperation(value = "Gets the values of mconfig for an object.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
@@ -216,12 +216,12 @@ public class ObjectResource {
 	}
 
 	@POST
-	@Path("subjects")
+	@Path("teachingsubjects")
 	@ApiOperation(value = "Add a teaching subject.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("subject.manage")
+	@RolesAllowed("teachingsubject.manage")
 	public CrxResponse addTeachingSubject(
 			@ApiParam(hidden = true) @Auth Session session,
 			TeachingSubject teachingSubject)
@@ -233,12 +233,12 @@ public class ObjectResource {
 	}
 
 	@PATCH
-	@Path("subjects")
+	@Path("teachingsubjects")
 	@ApiOperation(value = "Modify a teaching subject.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),
 			@ApiResponse(code = 500, message = "Server broken, please contact administrator") })
-	@RolesAllowed("subject.manage")
+	@RolesAllowed("teachingsubject.manage")
 	public CrxResponse modifyTeachingSubject(
 			@ApiParam(hidden = true) @Auth Session session,
 			TeachingSubject teachingSubject)
@@ -250,7 +250,7 @@ public class ObjectResource {
 	}
 
 	@DELETE
-	@Path("subjects/{id}")
+	@Path("teachingsubjects/{id}")
 	@ApiOperation(value = "Gets the subject areas of a teaching subject.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 400, message = "Missing data for request"),

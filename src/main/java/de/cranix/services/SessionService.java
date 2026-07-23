@@ -238,7 +238,7 @@ public class SessionService extends Service {
     }
 
     public void save(Session obj) {
-        if (em != null) {
+        if (this.em != null) {
             try {
                 logger.debug("save session:" + obj);
                 this.em.getTransaction().begin();
@@ -261,7 +261,9 @@ public class SessionService extends Service {
                 logger.debug("save session failed:" + obj);
                 logger.error(e.getMessage());
             }
-        }
+        } else {
+	  logger.debug("save session failed there is no entity manager");
+	}
     }
 
     private Session find(Long id) {
