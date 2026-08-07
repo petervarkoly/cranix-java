@@ -102,7 +102,7 @@ CREATE TABLE `Aliases` (
   `creator_id` bigint(20) unsigned DEFAULT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UNQ_Aliases_0` (`user_id`,`emailAddress`),
+  UNIQUE KEY `UNQ_Aliases_0` (`user_id`,`alias`),
   KEY `FK_Aliases_creator_id` (`creator_id`),
   CONSTRAINT `FK_Aliases_creator_id` FOREIGN KEY (`creator_id`) REFERENCES `Users` (`id`),
   CONSTRAINT `FK_Aliases_user_id` FOREIGN KEY (`user_id`) REFERENCES `Users` (`id`)
