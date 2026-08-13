@@ -11,7 +11,7 @@ if [ "$1" ]; then
         if [ "$2" ]; then
            PORT=$2
         fi
-	scp -P $PORT target/cranix-16.0.jar root@$1:/opt/cranix-java/lib/
+	scp -P $PORT target/cranix-16.0.jar root@$1:/opt/cranix-java/lib/cranix.jar
 	ssh -p $PORT root@$1 systemctl restart cranix-api
 fi
 echo  -n "Do you want to check in (y/n)?"
@@ -30,7 +30,7 @@ if [ -e cranix-java ]; then
     rm -r cranix-java
 fi
 mkdir -p cranix-java/lib
-mv    target/cranix-16.0.jar        cranix-java/lib/
+mv    target/cranix-16.0.jar        cranix-java/lib/cranix.jar
 chmod 644 cranix-java/lib/*
 rsync -a data/                     cranix-java/data/
 mkdir -p cranix-java/data/updates/
