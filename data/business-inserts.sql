@@ -174,7 +174,7 @@ INSERT INTO Rooms SET id=2,name='ANON_DHCP',description='Virtual room for unknow
 INSERT INTO Users SET id=1,uid='Administrator',role='sysadmins',surName='Administrator',givenName='Main',birthDay=NOW(),fsQuota=0,fsQuotaUsed=0,msQuota=0,msQuotaUsed=0;
 INSERT INTO Users SET id=4,uid='tadministration',role='administration',surName='for administration',givenName='Default profile',birthDay=NOW(),fsQuota=0,fsQuotaUsed=0,msQuota=0,msQuotaUsed=0;
 INSERT INTO Users SET id=5,uid='tworkstations',role='workstations',surName='for workstations',givenName='Default profile',birthDay=NOW(),fsQuota=0,fsQuotaUsed=0,msQuota=0,msQuotaUsed=0;
-INSERT INTO Users SET id=6,uid='cephalix',role='internal',surName='Administrator',givenName='Internal',birthDay=NOW(),fsQuota=0,fsQuotaUsed=0,msQuota=0,msQuotaUsed=0;
+INSERT INTO Users SET id=6,uid='cephalix',role='sysadmins',surName='Administrator',givenName='Internal',birthDay=NOW(),fsQuota=0,fsQuotaUsed=0,msQuota=0,msQuotaUsed=0;
 INSERT INTO Users SET id=7,uid='register',role='internal',surName='Register',givenName='Internal',birthDay=NOW(),fsQuota=0,fsQuotaUsed=0,msQuota=0,msQuotaUsed=0;
 INSERT INTO Users SET id=8,uid='ossreader',role='internal',surName='Reader',givenName='Account',birthDay=NOW(),fsQuota=0,fsQuotaUsed=0,msQuota=0,msQuotaUsed=0;
 CREATE TABLE CrxNextID (
