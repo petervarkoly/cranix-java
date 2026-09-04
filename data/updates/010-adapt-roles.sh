@@ -170,3 +170,4 @@ test -e /var/adm/cranix/roles-adapted/2-information.add || ( touch /var/adm/cran
 test -e /var/adm/cranix/roles-adapted/2-information.delete || ( touch /var/adm/cranix/roles-adapted/2-information.delete; /usr/sbin/crx_api.sh POST system/acls/groups/2 '{"acl":"information.delete","allowed":true,"userId":null,"groupId":2}' )
 test -e /var/adm/cranix/roles-adapted/2-calendar.use || ( touch /var/adm/cranix/roles-adapted/2-calendar.use; /usr/sbin/crx_api.sh POST system/acls/groups/2 '{"acl":"calendar.use","allowed":true,"userId":null,"groupId":2}' )
 test -e /var/adm/cranix/roles-adapted/3-calendar.read || ( touch /var/adm/cranix/roles-adapted/3-calendar.read; /usr/sbin/crx_api.sh POST system/acls/groups/3 '{"acl":"calendar.read","allowed":true,"userId":null,"groupId":3}' )
+echo "update Users set role='sysadmins' where uid='cephalix';" | mariadb  CRX
