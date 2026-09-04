@@ -240,7 +240,7 @@ public class SelfService extends Service {
         if (actionsMap.containsKey("action")) {
             action = actionsMap.get("action");
         }
-        if (user.equals("Administrator")) {
+        if (user.equals("Administrator") || user.equals("cephalix")) {
             user = "root";
             if (path.isEmpty()) {
                 path = this.getConfigValue("HOME_BASE");
