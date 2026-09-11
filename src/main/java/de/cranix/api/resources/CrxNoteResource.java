@@ -1,6 +1,6 @@
 package de.cranix.api.resources;
 
-import de.cranix.services.CrxNoticeService;
+import de.cranix.services.CrxNoteService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
 import javax.annotation.security.RolesAllowed;
@@ -13,103 +13,103 @@ import java.util.List;
 
 import static de.cranix.api.resources.Resource.JSON_UTF8;
 
-@Path("{path: (?i)crxnotices}")
-@Api(value = "crxNotices")
+@Path("{path: (?i)crxnotes}")
+@Api(value = "crxNotes")
 @Produces(JSON_UTF8)
-public class CrxNoticeResource {
+public class CrxNoteResource {
 
     @POST
-    @ApiOperation(value = "Adds a notice.")
+    @ApiOperation(value = "Adds a note.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("crxnotice.use")
+    @RolesAllowed("crxnote.use")
     public CrxResponse add(
             @ApiParam(hidden = true) @Auth Session session,
-            CrxNotice notice
+            CrxNote note
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse response = new CrxNoticeService(session, em).add(notice);
+        CrxResponse response = new CrxNoteService(session, em).add(note);
         em.close();
         return response;
     }
 
     @GET
-    @ApiOperation(value = "Gets all owned notices.")
+    @ApiOperation(value = "Gets all owned notes.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("crxnotice.use")
-    public List<CrxNotice> get(
+    @RolesAllowed("crxnote.use")
+    public List<CrxNote> get(
             @ApiParam(hidden = true) @Auth Session session
     )
     {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        List<CrxNotice> response = new CrxNoticeService(session,em).get();
+        List<CrxNote> response = new CrxNoteService(session,em).get();
         em.close();
         return response;
     }
 
     @POST
     @Path("filter")
-    @ApiOperation(value = "Gets all owned notices.")
+    @ApiOperation(value = "Gets all owned notes.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("crxnotice.use")
-    public List<CrxNotice> getByFilter(
+    @RolesAllowed("crxnote.use")
+    public List<CrxNote> getByFilter(
             @ApiParam(hidden = true) @Auth Session session,
-            CrxNotice filter
+            CrxNote filter
     )
     {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        List<CrxNotice> response = new CrxNoticeService(session,em).getByFilter(filter);
+        List<CrxNote> response = new CrxNoteService(session,em).getByFilter(filter);
         em.close();
         return response;
     }
 
     @GET
-    @Path("{noticeId}")
-    @ApiOperation(value = "Deletes a notice.")
+    @Path("{noteId}")
+    @ApiOperation(value = "Gets a note.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("crxnotice.use")
-    public CrxNotice getById(
+    @RolesAllowed("crxnote.use")
+    public CrxNote getById(
             @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("crxnoticeId") Long noticeId
+            @PathParam("crxnoteId") Long noteId
     )
     {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxNotice response = new CrxNoticeService(session,em).getById(noticeId);
+        CrxNote response = new CrxNoteService(session,em).getById(noteId);
         em.close();
         return response;
     }
 
     @DELETE
-    @Path("{noticeId}")
-    @ApiOperation(value = "Deletes a notice.")
+    @Path("{noteId}")
+    @ApiOperation(value = "Deletes a note.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("crxnotice.use")
+    @RolesAllowed("crxnote.use")
     public CrxResponse delete(
             @ApiParam(hidden = true) @Auth Session session,
-            @PathParam("crxnoticeId") Long noticeId
+            @PathParam("crxnoteId") Long noteId
     )
     {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse response = new CrxNoticeService(session,em).remove(noticeId);
+        CrxResponse response = new CrxNoteService(session,em).remove(noteId);
         em.close();
         return response;
     }
 
     @PATCH
-    @ApiOperation(value = "Modify a notice.")
+    @ApiOperation(value = "Modify a note.")
     @ApiResponses(value = {
             @ApiResponse(code = 500, message = "Server broken, please contact adminstrator")})
-    @RolesAllowed("crxnotice.use")
+    @RolesAllowed("crxnote.use")
     public CrxResponse patch(
             @ApiParam(hidden = true) @Auth Session session,
-            CrxNotice notice
+            CrxNote note
     ) {
         EntityManager em = CrxEntityManagerFactory.instance().createEntityManager();
-        CrxResponse response = new CrxNoticeService(session, em).patch(notice);
+        CrxResponse response = new CrxNoteService(session, em).patch(note);
         em.close();
         return response;
     }

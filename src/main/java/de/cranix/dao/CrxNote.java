@@ -4,30 +4,30 @@ import javax.validation.constraints.Size;
 import java.util.Date;
 import static javax.persistence.TemporalType.TIMESTAMP;
 @Entity
-@Table(name="CrxNotices")
+@Table(name="CrxNotes")
 @NamedQueries({
-        @NamedQuery(name="CrxNotice.findAll", query="SELECT n FROM CrxNotice n"),
+        @NamedQuery(name="CrxNote.findAll", query="SELECT n FROM CrxNote n"),
         @NamedQuery(
-                name="CrxNotice.getAllByObject",
-                query="SELECT c FROM CrxNotice c WHERE c.objectType = :type AND c.objectId = :id"
+                name="CrxNote.getAllByObject",
+                query="SELECT c FROM CrxNote c WHERE c.objectType = :type AND c.objectId = :id"
         )
 })
-public class CrxNotice extends AbstractEntity{
+public class CrxNote extends AbstractEntity{
     @Size(max=64, message="Title must not be longer then 64 characters.")
     @Column(name = "title", length = 64)
     private String title = "";
 
     /*
-      At the moment we support following types of notices:
-      performance: general notice
-      grading: a grading notice
+      At the moment we support following types of notes:
+      performance: general note
+      grading: a grading note
       late:
       absence: not excused absence
       excused-absence: exused absence
     */
-    @Size(max=16, message="Notice type must not be longer then 16 characters.")
-    @Column(name = "noticeType", length = 16)
-    private String noticeType = "";
+    @Size(max=16, message="Note type must not be longer then 16 characters.")
+    @Column(name = "noteType", length = 16)
+    private String noteType = "";
 
     @Convert(converter=BooleanToStringConverter.class)
 	@Column(name = "private", columnDefinition = "CHAR(1) DEFAULT 'Y'")
@@ -82,11 +82,11 @@ public class CrxNotice extends AbstractEntity{
     )
     private SubjectArea subjectArea;
 
-    CrxNotice (){
+    CrxNote (){
         super();
     }
 
-    CrxNotice(Session session){
+    CrxNote(Session session){
         super(session);
     }
 
@@ -98,12 +98,12 @@ public class CrxNotice extends AbstractEntity{
         this.title = title;
     }
 
-    public String getNoticeType() {
-        return noticeType;
+    public String getNoteType() {
+        return noteType;
     }
 
-    public void setNoticeType(String noticeType) {
-        this.noticeType = noticeType;
+    public void setNoteType(String noteType) {
+        this.noteType = noteType;
     }
 
     public String getText() {
