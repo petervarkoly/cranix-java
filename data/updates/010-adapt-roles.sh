@@ -35,7 +35,7 @@
 /usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/information.add
 /usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/information.delete
 /usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/myself.search
-/usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/notice.use
+/usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/note.use
 /usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/objects.manage
 /usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/parent.manage
 /usr/sbin/crx_api.sh PUT  system/enumerates/apiAcl/printers.add
@@ -117,7 +117,7 @@ test -e /var/adm/cranix/roles-adapted/1-idrequest.use || ( touch /var/adm/cranix
 test -e /var/adm/cranix/roles-adapted/1-information.add || ( touch /var/adm/cranix/roles-adapted/1-information.add; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"information.add","allowed":true,"userId":null,"groupId":1}' )
 test -e /var/adm/cranix/roles-adapted/1-information.delete || ( touch /var/adm/cranix/roles-adapted/1-information.delete; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"information.delete","allowed":true,"userId":null,"groupId":1}' )
 test -e /var/adm/cranix/roles-adapted/1-myself.search || ( touch /var/adm/cranix/roles-adapted/1-myself.search; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"myself.search","allowed":true,"userId":null,"groupId":1}' )
-test -e /var/adm/cranix/roles-adapted/1-notice.use || ( touch /var/adm/cranix/roles-adapted/1-notice.use; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"notice.use","allowed":true,"userId":null,"groupId":1}' )
+test -e /var/adm/cranix/roles-adapted/1-note.use || ( touch /var/adm/cranix/roles-adapted/1-note.use; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"note.use","allowed":true,"userId":null,"groupId":1}' )
 test -e /var/adm/cranix/roles-adapted/1-objects.manage || ( touch /var/adm/cranix/roles-adapted/1-objects.manage; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"objects.manage","allowed":true,"userId":null,"groupId":1}' )
 test -e /var/adm/cranix/roles-adapted/1-parent.manage || ( touch /var/adm/cranix/roles-adapted/1-parent.manage; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"parent.manage","allowed":true,"userId":null,"groupId":1}' )
 test -e /var/adm/cranix/roles-adapted/1-printers.add || ( touch /var/adm/cranix/roles-adapted/1-printers.add; /usr/sbin/crx_api.sh POST system/acls/groups/1 '{"acl":"printers.add","allowed":true,"userId":null,"groupId":1}' )

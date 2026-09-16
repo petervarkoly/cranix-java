@@ -9,6 +9,7 @@ my @GROUPTYPES = ( 'primary', 'class', 'workgroup', 'guests' );
 my $hroles = {};
 my $forTeachers = {};
 $forTeachers->{'calendar.use'} = 1;
+$forTeachers->{'crxnote.use'} = 1;
 my @forStudents = ('calendar.read', 'room.search', 'group.search' );
 
 foreach( split /\n/, $ROLES )
