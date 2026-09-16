@@ -1,7 +1,6 @@
 package de.cranix.dao;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.cephalix.dao.CephalixTicket;
 
 import javax.persistence.*;
 import java.util.Date;

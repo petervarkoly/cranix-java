@@ -180,11 +180,6 @@
             <artifactId>json</artifactId>
             <version>20240303</version>
         </dependency>
-        <dependency>
-            <groupId>eu.cranix</groupId>
-            <artifactId>cephalix</artifactId>
-            <version>15.6</version>
-        </dependency>
     </dependencies>
     <build>
         <pluginManagement>
