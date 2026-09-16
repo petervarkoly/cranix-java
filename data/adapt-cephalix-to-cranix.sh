@@ -75,11 +75,11 @@ fi
 
 echo "ALTER TABLE CephalixSystemStatus ADD COLUMN IF NOT EXISTS recDate DATETIME DEFAULT NOW() AFTER lastUpdate;" | mysql CRX
 echo "ALTER TABLE CephalixSystemStatus MODIFY lastUpdate DATETIME DEFAULT NOW() on update current_timestamp();" | mysql CRX
-echo "DELETE FROM Enumerates WHERE name = 'noticeType'; " | mysql CRX
-echo "INSERT INTO Enumerates VALUES(NULL,'noticeType','access',1);" | mysql CRX
-echo "INSERT INTO Enumerates VALUES(NULL,'noticeType','todo',1);" | mysql CRX
-echo "INSERT INTO Enumerates VALUES(NULL,'noticeType','work',1);" | mysql CRX
-echo "INSERT INTO Enumerates VALUES(NULL,'noticeType','other',1);" | mysql CRX
+echo "DELETE FROM Enumerates WHERE name = 'noteType'; " | mysql CRX
+echo "INSERT INTO Enumerates VALUES(NULL,'noteType','access',1);" | mysql CRX
+echo "INSERT INTO Enumerates VALUES(NULL,'noteType','todo',1);" | mysql CRX
+echo "INSERT INTO Enumerates VALUES(NULL,'noteType','work',1);" | mysql CRX
+echo "INSERT INTO Enumerates VALUES(NULL,'noteType','other',1);" | mysql CRX
 echo "ALTER TABLE CephalixSystemStatus CHANGE recDate created datetime not null default now();" | mysql CRX
 echo "ALTER TABLE CephalixSystemStatus CHANGE lastUpdate lastUpdate datetime not null default now();" | mysql CRX
 echo "UPDATE CephalixInstitutes set instituteType='globalSchool'    where instituteType='global';" | mysql CRX
