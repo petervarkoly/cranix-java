@@ -212,7 +212,7 @@ public class User extends AbstractEntity {
 
 	@OneToMany(mappedBy="creator", cascade ={CascadeType.ALL})
 	@JsonIgnore
-	private List<CrxNotice> crxNotices = new ArrayList<CrxNotice>();
+	private List<CrxNote> crxNotes = new ArrayList<CrxNote>();
 
 	/* bi-directional many-to-many associations */
 	@ManyToMany(mappedBy="users")
@@ -897,24 +897,24 @@ public class User extends AbstractEntity {
 		this.createdRequest = createdRequest;
 	}
 
-	public List<CrxNotice> getCrxNotices() {
-		return crxNotices;
+	public List<CrxNote> getCrxNotes() {
+		return crxNotes;
 	}
 
-	public void setCrxNotices(List<CrxNotice> crxNotices) {
-		this.crxNotices = crxNotices;
+	public void setCrxNotes(List<CrxNote> crxNotes) {
+		this.crxNotes = crxNotes;
 	}
 
-	public void addCrxNotice(CrxNotice crxNotice){
-		if(!this.crxNotices.contains(crxNotice)){
-			crxNotice.setCreator(this);
-			this.crxNotices.add((crxNotice));
+	public void addCrxNote(CrxNote crxNote){
+		if(!this.crxNotes.contains(crxNote)){
+			crxNote.setCreator(this);
+			this.crxNotes.add((crxNote));
 		}
 	}
-	public void removeCrxNotice(CrxNotice crxNotice){
-		if(this.crxNotices.contains(crxNotice)){
-			this.crxNotices.remove((crxNotice));
-			crxNotice.setCreator(null);
+	public void removeCrxNote(CrxNote crxNote){
+		if(this.crxNotes.contains(crxNote)){
+			this.crxNotes.remove((crxNote));
+			crxNote.setCreator(null);
 		}
 	}
 

@@ -2,7 +2,6 @@ package de.cranix.api.resources;
 
 import de.cranix.dao.*;
 import de.cranix.helper.CrxEntityManagerFactory;
-import de.cranix.services.CrxNoticeService;
 import de.cranix.services.CrxTicketService;
 import io.dropwizard.auth.Auth;
 import io.swagger.annotations.*;
